@@ -45,15 +45,15 @@ const float TOON_CUBE_MAP_RESOLUTION=256.0f;
 pddiShadeIntTable d3dToonShader::intTable[] =
 {
     PDDID3D_STDSHADERPARAM_INT,
-    {PDDI_SP_ALPHATEST , SHADE_INT(EnableAlphaTest)},
-    {PDDI_SP_ALPHACOMPARE , SHADE_INT(SetAlphaCompare)},
-    {PDDI_SP_TOONSTYLE, SHADE_INT(SetToonStyle)},
+    {PDDI_SP_ALPHATEST , SHADE_INT(&EnableAlphaTest)},
+    {PDDI_SP_ALPHACOMPARE , SHADE_INT(&SetAlphaCompare)},
+    {PDDI_SP_TOONSTYLE, SHADE_INT(&SetToonStyle)},
     {PDDI_SP_NULL, NULL}
 };
 
 pddiShadeColourTable d3dToonShader::colourTable[] = 
 {
-    {PDDI_SP_DIFFUSE  , SHADE_COLOUR(SetDiffuse)},
+    {PDDI_SP_DIFFUSE  , SHADE_COLOUR(&SetDiffuse)},
     {PDDI_SP_NULL , NULL}
 };
 

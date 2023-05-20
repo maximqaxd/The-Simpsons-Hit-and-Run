@@ -14,15 +14,15 @@
 
 pddiShadeTextureTable d3dReflShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
-    {PDDI_SP_REFLMAP , SHADE_TEXTURE(SetReflectionMap)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
+    {PDDI_SP_REFLMAP , SHADE_TEXTURE(&SetReflectionMap)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeColourTable d3dReflShader::colourTable[] = 
 {
     PDDID3D_STDSHADERPARAM_COLOUR,
-    {PDDI_SP_ENVBLEND , SHADE_COLOUR(SetEnvBlend)},
+    {PDDI_SP_ENVBLEND , SHADE_COLOUR(&SetEnvBlend)},
     {PDDI_SP_NULL , NULL}
 };
 

@@ -13,8 +13,8 @@
 
 pddiShadeTextureTable d3dLightMapShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
-    {PDDI_SP_LIGHTMAP , SHADE_TEXTURE(SetLightMap)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
+    {PDDI_SP_LIGHTMAP , SHADE_TEXTURE(&SetLightMap)},
     {PDDI_SP_NULL , NULL}
 };
 

@@ -16,30 +16,30 @@
 pddiShadeColourTable d3dSimpleShader::colourTable[] = 
 {
     PDDID3D_STDSHADERPARAM_COLOUR,
-    {PDDI_SP_CBV_BLEND_COLOUR, SHADE_COLOUR(SetMultiCBVBlendColour)},
+    {PDDI_SP_CBV_BLEND_COLOUR, SHADE_COLOUR(&SetMultiCBVBlendColour)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeTextureTable d3dSimpleShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeIntTable d3dSimpleShader::intTable[] = 
 {
     PDDID3D_STDSHADERPARAM_INT, 
-    {PDDI_SP_MULTI_CBV, SHADE_INT(EnableMultiCBV)},
-    {PDDI_SP_CBV_BLEND_MODE, SHADE_INT(SetMultiCBVBlendMode)},
-    {PDDI_SP_CBV_BLEND_SET_A, SHADE_INT(SetMultiCBVBlendSetA)},
-    {PDDI_SP_CBV_BLEND_SET_B, SHADE_INT(SetMultiCBVBlendSetB)},
+    {PDDI_SP_MULTI_CBV, SHADE_INT(&EnableMultiCBV)},
+    {PDDI_SP_CBV_BLEND_MODE, SHADE_INT(&SetMultiCBVBlendMode)},
+    {PDDI_SP_CBV_BLEND_SET_A, SHADE_INT(&SetMultiCBVBlendSetA)},
+    {PDDI_SP_CBV_BLEND_SET_B, SHADE_INT(&SetMultiCBVBlendSetB)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeFloatTable d3dSimpleShader::floatTable[] = 
 {
     PDDID3D_STDSHADERPARAM_FLOAT, 
-    {PDDI_SP_CBV_BLEND_VALUE, SHADE_FLOAT(SetMultiCBVBlendValue)},
+    {PDDI_SP_CBV_BLEND_VALUE, SHADE_FLOAT(&SetMultiCBVBlendValue)},
     {PDDI_SP_NULL , NULL}
 };
 
