@@ -10,8 +10,8 @@
 
 #include <constants/version.hpp>
 
-#include <fstream.h>
-#include <strstrea.h>
+#include <fstream>
+#include <strstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

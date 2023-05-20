@@ -1456,7 +1456,7 @@ char *Console::SkipWhiteSpace(const char *string)
             break;
 
         //break when a non-white space character is found
-        char *found = strchr(gWhiteSpace, *temp);
+        const char *found = strchr(gWhiteSpace, *temp);
         if (! found)
             break;
 
@@ -1576,7 +1576,7 @@ char* Console::FindTokenEnd( const char* string )
             break;
 
         //break on an end of token character
-        char *found = strchr(gEndOfToken, *temp);
+        const char *found = strchr(gEndOfToken, *temp);
         if (found)
         {
             //see if we found an eol char

@@ -14,9 +14,9 @@
 
 pddiShadeTextureTable d3dLayeredLMapShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
-    {PDDI_SP_TOPTEX , SHADE_TEXTURE(SetTopTexture)},
-    {PDDI_SP_LIGHTMAP , SHADE_TEXTURE(SetLightMap)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
+    {PDDI_SP_TOPTEX , SHADE_TEXTURE(&SetTopTexture)},
+    {PDDI_SP_LIGHTMAP , SHADE_TEXTURE(&SetLightMap)},
     {PDDI_SP_NULL , NULL}
 };
 

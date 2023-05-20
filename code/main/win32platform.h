@@ -141,7 +141,7 @@ private:
     bool IsResolutionSupported( Resolution res, int bpp ) const;
 
     // Mouse tracking method
-    static TrackMouseEvent( MOUSETRACKER* pMouseEventTracker );
+    static BOOL TrackMouseEvent( MOUSETRACKER* pMouseEventTracker );
     static void CALLBACK TrackMouseTimerProc( HWND hWnd, UINT uMsg, UINT idEvent,DWORD dwTime );
 
     // Windows methods.

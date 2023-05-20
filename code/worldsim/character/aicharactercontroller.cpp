@@ -3,7 +3,7 @@
 #include <worldsim/character/charactermanager.h>
 #include <main/game.h>
 
-class Behaviour
+class WanderBehaviour
 {
 public:
 	virtual rmt::Vector& Tick( Character& me ) = 0;
@@ -11,7 +11,7 @@ public:
 
 class Wander
 :
-public Behaviour
+public WanderBehaviour
 {
 public:
 

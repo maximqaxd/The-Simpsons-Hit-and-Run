@@ -134,7 +134,7 @@ d3dVertexProgram* d3dVertexProgramManager::GetVertexProgram(const char* name, pd
         }
     }
 
-    for(i = 0; i < (unsigned)base->nPrograms; i++)
+    for(unsigned i = 0; i < (unsigned)base->nPrograms; i++)
     {
         if((primType == base->programs[i].GetPrimType()) && (vertexMask == base->programs[i].GetFormat()) && (aux == base->programs[i].GetAuxFormat()))
         {
@@ -195,7 +195,7 @@ d3dVertexProgram* d3dVertexProgramManager::GetVertexProgram(const char* name, pd
         ADD_DECL(D3DVSD_REG( D3DVSDE_SPECULAR ,  D3DVSDT_D3DCOLOR ), 4)
     }
 
-    for(i = 0; i < uvCount; i++)
+    for(unsigned i = 0; i < uvCount; i++)
     {
         ADD_DECL(D3DVSD_REG( D3DVSDE_TEXCOORD0 + i,  D3DVSDT_FLOAT2 ), 8);
     }

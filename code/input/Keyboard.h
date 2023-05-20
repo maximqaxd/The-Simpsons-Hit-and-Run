@@ -24,7 +24,7 @@
 
 #include <input/RealController.h>
 
-const NUM_KEYBOARD_BUTTONS = 256;
+const unsigned NUM_KEYBOARD_BUTTONS = 256;
 
 class Keyboard : public RealController
 {

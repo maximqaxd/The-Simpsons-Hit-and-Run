@@ -3,7 +3,7 @@
 #include <memory/classsizetracker.h>
 #include <radmath/radmath.hpp>
 
-class Behaviour
+class VehicleBehaviour
 {
 public:
 	virtual rmt::Vector Tick( Vehicle* pVehicle ) = 0;
@@ -11,7 +11,7 @@ public:
 
 class VehicleWander
 :
-public Behaviour
+public VehicleBehaviour
 {
 public:
 

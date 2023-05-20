@@ -486,7 +486,8 @@ void rDebuggerString_Implementation( const char* string )
             unsigned int fullChunks = length / 256;
             unsigned int lastChunkSize = length % 256;
 
-            for ( unsigned i = 0; i < fullChunks; i ++ )
+            unsigned i;
+            for ( i = 0; i < fullChunks; i ++ )
             {
                 memcpy( buffer, string + ( i * 256 ), 256 );
                 buffer[256] = '\0';

@@ -275,10 +275,10 @@ void radFileSystem::ProcessFileName
     // 
     const char* fname;
     unsigned int length = 0;
-    char* p = strchr( pFileName, ':' );
-    if( simpleName==false && p != NULL )
+    const char* drive = strchr( pFileName, ':' );
+    if( simpleName==false && drive != NULL )
     {
-        length = (unsigned int) p - (unsigned int) pFileName + 1;
+        length = (unsigned int) drive - (unsigned int) pFileName + 1;
         strncpy( driveSpec, pFileName, length );
         driveSpec[ length ] = '\0';
         fname = &pFileName[ length ];
@@ -301,7 +301,7 @@ void radFileSystem::ProcessFileName
     strcpy( fullFilename, driveSpec );
 
     *pFilename = &fullFilename[ length ];
-    p = &fullFilename[ length ];
+    char* p = &fullFilename[ length ];
     
     //
     // Copy filename over

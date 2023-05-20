@@ -23,8 +23,8 @@ pddiShadeColourTable d3dHKToonShader::colourTable[] =
 
 pddiShadeTextureTable d3dHKToonShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
-    {PDDI_SP_HCTOON , SHADE_TEXTURE(SetTuneMap)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
+    {PDDI_SP_HCTOON , SHADE_TEXTURE(&SetTuneMap)},
     {PDDI_SP_NULL , NULL}
 };
 

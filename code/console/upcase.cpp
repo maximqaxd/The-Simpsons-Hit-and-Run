@@ -16,6 +16,8 @@
 // Includes
 //===========================================================================
 #include <console/upcase.h>
+#include <string.h>
+#include <ctype.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros
@@ -43,7 +45,7 @@
 //===========================================================================
 void Upcase( char* string )
 {
-    size_t length = ::strlen( string );
+    size_t length = strlen( string );
     size_t i;
     for( i = 0; i < length; ++i )
     {

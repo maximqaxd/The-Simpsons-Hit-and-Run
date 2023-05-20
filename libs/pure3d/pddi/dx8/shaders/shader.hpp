@@ -127,25 +127,25 @@ protected:
 };
 
 #define PDDID3D_STDSHADERPARAM_COLOUR \
-    {PDDI_SP_AMBIENT  , SHADE_COLOUR(SetAmbient)},\
-    {PDDI_SP_DIFFUSE  , SHADE_COLOUR(SetDiffuse)},\
-    {PDDI_SP_EMISSIVE , SHADE_COLOUR(SetEmissive)},\
-    {PDDI_SP_SPECULAR , SHADE_COLOUR(SetSpecular)}
+    {PDDI_SP_AMBIENT  , SHADE_COLOUR(&SetAmbient)},\
+    {PDDI_SP_DIFFUSE  , SHADE_COLOUR(&SetDiffuse)},\
+    {PDDI_SP_EMISSIVE , SHADE_COLOUR(&SetEmissive)},\
+    {PDDI_SP_SPECULAR , SHADE_COLOUR(&SetSpecular)}
 
 #define PDDID3D_STDSHADERPARAM_INT \
-    {PDDI_SP_UVMODE , SHADE_INT(SetUVMode)},\
-    {PDDI_SP_FILTER , SHADE_INT(SetFilterMode)},\
-    {PDDI_SP_SHADEMODE , SHADE_INT(SetShadeMode)},\
-    {PDDI_SP_ISLIT , SHADE_INT(EnableLighting)},\
-    {PDDI_SP_BLENDMODE , SHADE_INT(SetBlendMode)},\
-    {PDDI_SP_ALPHATEST , SHADE_INT(EnableAlphaTest)},\
-    {PDDI_SP_ALPHACOMPARE , SHADE_INT(SetAlphaCompare)},\
-    {PDDI_SP_TWOSIDED , SHADE_INT(SetTwoSided)},\
-    {PDDI_SP_EMISSIVEALPHA , SHADE_INT(SetEmissiveAlpha)}
+    {PDDI_SP_UVMODE , SHADE_INT(&SetUVMode)},\
+    {PDDI_SP_FILTER , SHADE_INT(&SetFilterMode)},\
+    {PDDI_SP_SHADEMODE , SHADE_INT(&SetShadeMode)},\
+    {PDDI_SP_ISLIT , SHADE_INT(&EnableLighting)},\
+    {PDDI_SP_BLENDMODE , SHADE_INT(&SetBlendMode)},\
+    {PDDI_SP_ALPHATEST , SHADE_INT(&EnableAlphaTest)},\
+    {PDDI_SP_ALPHACOMPARE , SHADE_INT(&SetAlphaCompare)},\
+    {PDDI_SP_TWOSIDED , SHADE_INT(&SetTwoSided)},\
+    {PDDI_SP_EMISSIVEALPHA , SHADE_INT(&SetEmissiveAlpha)}
 
 #define PDDID3D_STDSHADERPARAM_FLOAT \
-    {PDDI_SP_SHININESS , SHADE_FLOAT(SetShininess)},\
-    {PDDI_SP_ALPHACOMPARE_THRESHOLD , SHADE_FLOAT(SetAlphaRef)}
+    {PDDI_SP_SHININESS , SHADE_FLOAT(&SetShininess)},\
+    {PDDI_SP_ALPHACOMPARE_THRESHOLD , SHADE_FLOAT(&SetAlphaRef)}
 
 #endif
 

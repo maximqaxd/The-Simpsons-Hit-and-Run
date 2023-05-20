@@ -58,7 +58,7 @@ static D3DCULL cullTable[] =
 };
 
 // pddiStencilMode
-static stencilTable[] = 
+static D3DSTENCILOP stencilTable[] =
 {
     D3DSTENCILOP_KEEP,
     D3DSTENCILOP_ZERO,

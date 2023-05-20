@@ -4,7 +4,7 @@
 #include <worldsim/character/charactercontroller.h>
 #include <radmath/radmath.hpp>
 
-class Behaviour;
+class WanderBehaviour;
 class Character;
 class tCamera;
 
@@ -21,7 +21,7 @@ public:
 protected:
 private:
 	rmt::Vector mDirection;
-	Behaviour* mpBehaviour;
+	WanderBehaviour* mpBehaviour;
 };
 
 #endif // AICHARACTERCONTROLLER_H_

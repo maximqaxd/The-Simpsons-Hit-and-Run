@@ -85,27 +85,27 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
 
     HRESULT hr = ::CoCreateInstance
     (
-        CLSID_DirectSound8,
+        CLSID_DirectSound,
         NULL,
         CLSCTX_INPROC_SERVER,
-        IID_IDirectSound8,
+        IID_IDirectSound,
         (void**) & m_xIDirectSound
     );
 
-    rAssertMsg( SUCCEEDED( hr ), "DirectSound8 couldn't be created." );
+    rAssertMsg( SUCCEEDED( hr ), "DirectSound couldn't be created." );
 
     if ( SUCCEEDED( hr ) )
     {
         HRESULT hr = m_xIDirectSound->Initialize( NULL ); // primary sound driver
     }
 
-    rAssertMsg( SUCCEEDED( hr ), "IDirectSound8::Initialize() failed, no sound card?" );
+    rAssertMsg( SUCCEEDED( hr ), "IDirectSound::Initialize() failed, no sound card?" );
 
     if ( SUCCEEDED( hr ) )
     {
         HRESULT hr = m_xIDirectSound->SetCooperativeLevel( ::radPlatformGet( )->GetMainWindowHandle( ), DSSCL_PRIORITY );
 
-        rAssertMsg( SUCCEEDED( hr ), "IDirectSound8::SetCooperativeLevel Failed." );
+        rAssertMsg( SUCCEEDED( hr ), "IDirectSound::SetCooperativeLevel Failed." );
 
         if ( SUCCEEDED( hr ) )
         {

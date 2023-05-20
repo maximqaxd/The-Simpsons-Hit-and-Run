@@ -13,16 +13,16 @@
 
 pddiShadeTextureTable d3dLayeredShader::textureTable[] = 
 {
-    {PDDI_SP_BASETEX , SHADE_TEXTURE(SetTexture)},
-    {PDDI_SP_TOPTEX , SHADE_TEXTURE(SetTopTexture)},
+    {PDDI_SP_BASETEX , SHADE_TEXTURE(&SetTexture)},
+    {PDDI_SP_TOPTEX , SHADE_TEXTURE(&SetTopTexture)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeIntTable d3dLayeredShader::intTable[] = 
 {
     PDDID3D_STDSHADERPARAM_INT, 
-    {PDDI_SP_TEXBLENDMODE , SHADE_INT(SetTexBlendMode)},
-    {PDDI_SP_TWOLAYERCBV, SHADE_INT(EnableCBV2Layers)},
+    {PDDI_SP_TEXBLENDMODE , SHADE_INT(&SetTexBlendMode)},
+    {PDDI_SP_TWOLAYERCBV, SHADE_INT(&EnableCBV2Layers)},
     {PDDI_SP_NULL , NULL}
 };
 
