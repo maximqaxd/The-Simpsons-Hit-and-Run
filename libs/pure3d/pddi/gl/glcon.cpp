@@ -86,6 +86,8 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 
     defaultShader = new pglMat(this);
     defaultShader->AddRef();
+
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
 }
 
 pglContext::~pglContext()
@@ -883,9 +885,7 @@ void pglContext::SetFog(pddiColour colour, float start, float end)
 
 int pglContext::GetMaxTextureDimension(void)
 {
-    int size;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&size);
-    return size;
+    return maxTexSize;
 }
 
 pddiExtension* pglContext::GetExtension(unsigned extID)

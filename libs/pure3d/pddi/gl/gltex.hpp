@@ -52,6 +52,7 @@ protected:
     pddiTextureType type;
     int nMipMap;
 
+    bool valid;
     unsigned int gltexture;
     int priority;
 

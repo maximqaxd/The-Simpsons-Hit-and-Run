@@ -28,8 +28,9 @@ void pglTexture::SetGLState(void)
     }
 
     glEnable(GL_TEXTURE_2D);
-    if(!gltexture)
+    if(!valid)
     {
+        glDeleteTextures(1, &gltexture);
         glGenTextures(1,&gltexture);
         glBindTexture(GL_TEXTURE_2D, gltexture);
 
@@ -84,11 +85,16 @@ void pglTexture::SetGLState(void)
             }
         }
         */
+
+        valid = true;
     }
     else
     {
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
+
+    float fpriority = float(priority) / 31.0f;
+    glPrioritizeTextures(1, &gltexture, &fpriority);
 }
 
 int fastlog2(int x)
@@ -123,10 +129,8 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
         return false;
     }
 
-    int texSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&texSize);
-    
-    if((xSize > texSize) || (ySize > texSize))
+    if ((xSize > context->GetMaxTextureDimension()) ||
+        (ySize > context->GetMaxTextureDimension()))
     {
         lastError = PDDI_TEX_TOO_BIG;
         return false;
@@ -182,6 +186,7 @@ pglTexture::pglTexture(pglContext* c)
     bits = NULL;
     gltexture = 0;
     priority = 15;
+    valid = false;
 }
 
 pglTexture::~pglTexture()
@@ -239,15 +244,12 @@ pddiLockInfo* pglTexture::Lock(int mipMap, pddiRect* rect)
 
 void pglTexture::Unlock(int mipLevel)
 {
-    glDeleteTextures(1,&gltexture);
-    gltexture = 0;
+    valid = false;
 }
 
 void pglTexture::SetPriority(int p)
 {
     priority = p;
-    float fpriority = float(p) / 31.0f;
-    glPrioritizeTextures(1,&gltexture,&fpriority);
 }
 
 int pglTexture::GetPriority(void)
