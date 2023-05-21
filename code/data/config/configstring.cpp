@@ -54,24 +54,15 @@ bool ConfigString::ReadSection( char* section )
 
     char line[MaxLength];
 
-    if( GetLine(line) )
+    while( GetLine(line) )
     {
         if( line[0] == SectionTag )
         {
             strcpy( section, line + 1 );
             return true;
         }
-        else
-        {
-            // Try reading a section from the next line.
-            ReadSection( section );
-            return false;
-        }
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 //==============================================================================
