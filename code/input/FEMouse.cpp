@@ -177,7 +177,12 @@ void FEMouse::Update()
 }
 
 void FEMouse::ButtonDown( eFEMouseButton buttonType ) 
-{ 
+{
+    if (!GetGuiSystem()->GetCurrentManager())
+    {
+        return;
+    }
+
     // don't allow clicking when selectable not on
     CGuiMenu* pCurrentMenu = GetGuiSystem()->GetCurrentManager()->GetCurrentWindow()->HasMenu();
     if( !(!pCurrentMenu || (pCurrentMenu && !pCurrentMenu->HasSelectionBeenMade())) )//!m_bSelectable )
@@ -221,6 +226,11 @@ void FEMouse::ButtonDown( eFEMouseButton buttonType )
 
 void FEMouse::ButtonUp( enum eFEMouseButton buttonType )
 {
+    if (!GetGuiSystem()->GetCurrentManager())
+    {
+        return;
+    }
+
     // don't allow clicking when selectable not on
     CGuiMenu* pCurrentMenu = GetGuiSystem()->GetCurrentManager()->GetCurrentWindow()->HasMenu();
     if( !(!pCurrentMenu || (pCurrentMenu && !pCurrentMenu->HasSelectionBeenMade())) )//!m_bSelectable )
