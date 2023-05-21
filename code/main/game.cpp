@@ -371,6 +371,11 @@ void Game::Initialize()
     // Initialize the platform and core systems.
     //
     mpPlatform->InitializePlatform();
+
+    //
+    // Initialize the sound manager.
+    //
+    SoundManager::GetInstance()->Initialize();
     
     //
     // Initialize the timer system

@@ -154,15 +154,15 @@ unsigned char gFont[] =
 static const Win32Platform::Resolution StartingResolution = Win32Platform::Res_800x600;
 static const int StartingBPP = 32;
 
-// This specifies the PDDI DLL to use.  We are using directx8.
+// This specifies the PDDI DLL to use.
 #ifdef RAD_DEBUG
-static const char d3dLibraryName[] = "pddidx8d.dll";
+static const char pddiLibraryName[] = "pddi%sd.dll";
 #endif
 #ifdef RAD_TUNE
-static const char d3dLibraryName[] = "pddidx8t.dll";
+static const char pddiLibraryName[] = "pddi%st.dll";
 #endif
 #ifdef RAD_RELEASE
-static const char d3dLibraryName[] = "pddidx8r.dll";
+static const char pddiLibraryName[] = "pddi%sr.dll";
 #endif
 
 // Name of the application.  This is the string that appears in the Window's
@@ -529,6 +529,12 @@ void Win32Platform::InitializePlatform()
     HeapMgr()->PushHeap (GMA_PERSISTENT);
 
     //
+    // Register with the game config manager
+    //
+    GetGameConfigManager()->RegisterConfig(this);
+    GetGameConfigManager()->LoadConfigFile();
+
+    //
     // Rendering is good.
     //
     InitializePure3D();
@@ -552,11 +558,6 @@ void Win32Platform::InitializePlatform()
     // Initialize the controller.
     //
     GetInputManager()->Init();
-
-    //
-    // Register with the game config manager
-    //
-    GetGameConfigManager()->RegisterConfig( this );
 
     HeapMgr()->PopHeap (GMA_PERSISTENT);
 }
@@ -906,7 +907,7 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
 bool Win32Platform::SetResolution( Resolution res, int bpp, bool fullscreen )
 {
     // Check if resolution is supported.
-    if( !IsResolutionSupported( res, bpp ) )
+    if( !mpContext || !IsResolutionSupported( res, bpp ) )
     {
         return false;
     }
@@ -1110,6 +1111,10 @@ void Win32Platform::LoadConfig( ConfigString& config )
                 GetRenderFlow()->SetGamma( val );
             }
         }
+        else if (_stricmp(property, "renderer") == 0)
+        {
+            strncpy(mRenderer, value, ConfigString::MaxLength);
+        }
     }
 
     // apply the new settings.
@@ -1178,6 +1183,8 @@ void Win32Platform::SaveConfig( ConfigString& config )
     char gamma[20];
     sprintf( gamma, "%f", GetRenderFlow()->GetGamma() );
     config.WriteProperty( "gamma", gamma );
+
+    config.WriteProperty("renderer", mRenderer);
 }
 
 
@@ -1201,7 +1208,8 @@ Win32Platform::Win32Platform( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
     mpPlatform( NULL ),
     mpContext( NULL ),
     mResolution( StartingResolution ),
-    mbpp( StartingBPP )
+    mbpp( StartingBPP ),
+    mRenderer( "dx8" )
 {
     mhInstance = hInstance;
     mFullscreen = false;
@@ -1586,11 +1594,6 @@ void Win32Platform::InitializeContext()
     init.displayMode = mFullscreen ? PDDI_DISPLAY_FULLSCREEN : PDDI_DISPLAY_WINDOW;
 
     //
-    // This the name of the PDDI we will be using for rendering
-    //
-    strncpy(init.PDDIlib, d3dLibraryName, 128);
-
-    //
     // All applications should supply PDDI_BUFFER_COLOUR.  PDDI_BUFFER_DEPTH
     // specifies that we also want to allocate a Z-buffer.
     //
@@ -1615,6 +1618,11 @@ void Win32Platform::InitializeContext()
 
     if( mpContext == NULL )
     {
+        //
+        // This the name of the PDDI we will be using for rendering
+        //
+        snprintf(init.PDDIlib, 128, pddiLibraryName, mRenderer);
+
         // Create the context
         mpContext = mpPlatform->CreateContext( &init );
         rAssert( mpContext != NULL );

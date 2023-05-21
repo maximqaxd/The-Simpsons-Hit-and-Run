@@ -107,6 +107,7 @@ class SoundManager : public EventListener,
                                              bool noEffects, bool noDialogue );
         static SoundManager* GetInstance();
         static void DestroyInstance();
+        void Initialize();
 
         //
         // EventListener interface
@@ -289,8 +290,6 @@ class SoundManager : public EventListener,
         //
         SoundManager( bool noSound, bool noMusic, bool noEffects, bool noDialogue );
         ~SoundManager();
-
-        void initialize();
 
     private:
         //Prevent wasteful constructor creation.

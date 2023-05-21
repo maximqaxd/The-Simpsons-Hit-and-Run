@@ -171,6 +171,7 @@ private:
     bool mFullscreen;
     int mScreenWidth;
     int mScreenHeight;
+    char mRenderer[ConfigString::MaxLength];
 };
 
 #endif // WIN32PLATFORM_H
