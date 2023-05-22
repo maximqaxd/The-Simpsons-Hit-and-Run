@@ -19,6 +19,72 @@
 #include <math.h>
 #include <pddi/base/debug.hpp>
 
+static inline GLenum PickPixelFormat(pddiPixelFormat format)
+{
+    switch (format)
+    {
+    case PDDI_PIXEL_RGB555:
+    case PDDI_PIXEL_RGB565: return GL_RGB5;
+    case PDDI_PIXEL_ARGB1555: return GL_RGB5_A1;
+    case PDDI_PIXEL_ARGB4444: return GL_RGBA4;
+    case PDDI_PIXEL_RGB888: return GL_RGB8;
+    case PDDI_PIXEL_ARGB8888: return GL_RGBA8;
+    case PDDI_PIXEL_PAL8: return GL_COLOR_INDEX8_EXT;
+    case PDDI_PIXEL_PAL4: return GL_COLOR_INDEX4_EXT;
+    case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
+    case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
+    case PDDI_PIXEL_DXT1: return COMPRESSED_RGB_S3TC_DXT1_EXT;
+    case PDDI_PIXEL_DXT3: return COMPRESSED_RGBA_S3TC_DXT3_EXT;
+    case PDDI_PIXEL_DXT5: return COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
+    PDDIASSERT(false);
+    return GL_INVALID_ENUM;
+};
+
+static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth, int alphaDepth)
+{
+    switch (type)
+    {
+    case PDDI_TEXTYPE_RGB:
+        switch (alphaDepth)
+        {
+        case 0:
+            return (bitDepth <= 16) ? PDDI_PIXEL_RGB565 : PDDI_PIXEL_RGB888;
+        case 1:
+            return (bitDepth <= 16) ? PDDI_PIXEL_ARGB1555 : PDDI_PIXEL_ARGB8888;
+        default:
+            return (bitDepth <= 16) ? PDDI_PIXEL_ARGB4444 : PDDI_PIXEL_ARGB8888;
+        }
+        break;
+
+    case PDDI_TEXTYPE_PALETTIZED:
+        return PDDI_PIXEL_PAL8;
+
+    case PDDI_TEXTYPE_LUMINANCE:
+        return PDDI_PIXEL_LUM8;
+
+    case PDDI_TEXTYPE_BUMPMAP:
+        return PDDI_PIXEL_DUDV88;
+
+    case PDDI_TEXTYPE_DXT1:
+        return PDDI_PIXEL_DXT1;
+
+    case PDDI_TEXTYPE_DXT2:
+        return PDDI_PIXEL_DXT2;
+
+    case PDDI_TEXTYPE_DXT3:
+        return PDDI_PIXEL_DXT3;
+
+    case PDDI_TEXTYPE_DXT4:
+        return PDDI_PIXEL_DXT4;
+
+    case PDDI_TEXTYPE_DXT5:
+        return PDDI_PIXEL_DXT5;
+    }
+    PDDIASSERT(false);
+    return PDDI_PIXEL_UNKNOWN;
+};
+
 void pglTexture::SetGLState(void)
 {
     if(context->contextID != contextID)
@@ -35,8 +101,15 @@ void pglTexture::SetGLState(void)
         glBindTexture(GL_TEXTURE_2D, gltexture);
 
 //      if(nMipMap == 0)
+        if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xSize,
+            unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
+            context->glCompressedTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
+                ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
+        }
+        else
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
                 ySize, 0, lock.native ? GL_BGRA_EXT : GL_RGBA, GL_UNSIGNED_BYTE,
                 (GLvoid *)bits[0]);
         }
@@ -113,12 +186,12 @@ int fastlog2(int x)
     return r;
 }
 
-bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTextureType ty, pddiTextureUsageHint usageHint)
+bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTextureType textureType, pddiTextureUsageHint usageHint)
 {
     xSize = x;
     ySize = y;
     nMipMap = nMip;
-    type = PDDI_TEXTYPE_RGB;
+    type = textureType;
 
     log2X = fastlog2(xSize);
     log2Y = fastlog2(ySize);
@@ -136,12 +209,28 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
         return false;
     }
 
-    bits = new char*[nMipMap+1];
-    for(int i = 0; i < nMipMap+1; i++)
-        bits[i] = new char[(xSize>>i)*(ySize>>i)*4];
+    // TODO palletized
+    if (textureType == PDDI_TEXTYPE_PALETTIZED)
+    {
+        textureType = PDDI_TEXTYPE_RGB;
+        bpp = 32;
+    }
 
-    lock.depth = 32;
-    lock.format = PDDI_PIXEL_ARGB8888;
+    bits = new char* [nMipMap + 1];
+    if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
+    {
+        unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
+        for(int i = 0; i < nMipMap+1; i++)
+            bits[i] = new char[ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize];
+    }
+    else
+    {
+        for(int i = 0; i < nMipMap+1; i++)
+            bits[i] = new char[(xSize>>i)*(ySize>>i)*4];
+    }
+
+    lock.depth = bpp;
+    lock.format = PickPixelFormat(textureType, bpp, alphaDepth);
 
     if(context->GetDisplay()->ExtBGRA())
     {
@@ -236,8 +325,17 @@ pddiLockInfo* pglTexture::Lock(int mipMap, pddiRect* rect)
 
     lock.width = 1 << (log2X-mipMap);
     lock.height = 1 << (log2Y-mipMap);
-    lock.pitch = -lock.width * 4;
-    lock.bits = bits[mipMap] + (lock.width * (lock.height-1) * 4);
+    if (lock.format != PDDI_PIXEL_DXT1 && lock.format != PDDI_PIXEL_DXT3 && lock.format != PDDI_PIXEL_DXT5)
+    {
+        lock.pitch = -lock.width * 4;
+        lock.bits = bits[mipMap] + (lock.width * (lock.height - 1) * 4);
+    }
+    else
+    {
+        unsigned int blocksize = lock.format == PDDI_TEXTYPE_DXT1 ? 8 : 16;
+        lock.pitch = ceil(double(xSize>>mipMap)/4)*blocksize;
+        lock.bits = bits[mipMap];
+    }
 
     return &lock;
 }

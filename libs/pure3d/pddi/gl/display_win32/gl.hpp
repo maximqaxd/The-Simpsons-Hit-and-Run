@@ -24,3 +24,9 @@
 #define SINGLE_COLOR_EXT              0x81F9
 #define SEPARATE_SPECULAR_COLOR_EXT   0x81FA
 
+#define COMPRESSED_RGB_S3TC_DXT1_EXT  0x83F0
+#define COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
+#define COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
+#define COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+
+typedef void (__stdcall* PFNGLCOMPRESSEDTEXIMAGE2DPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);

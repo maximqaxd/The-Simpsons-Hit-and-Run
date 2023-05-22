@@ -10,6 +10,7 @@
 
 #include <pddi/pddi.hpp>
 #include <pddi/base/basecontext.hpp>
+#include <pddi/gl/display_win32/gl.hpp>
 
 class pglDisplay;
 class pglDevice;
@@ -81,6 +82,7 @@ public :
     pglDisplay* GetDisplay(void) {return display;}
 
     unsigned contextID;
+    PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 
 protected:
     void LoadHardwareMatrix(pddiMatrixType id);

@@ -24,6 +24,7 @@
 #include <pddi/base/debug.hpp>
 #include <math.h>
 #include <string.h>
+#include <Windows.h>
 
 // vertex arrays rendering
 GLenum primTypeTable[5] =
@@ -88,6 +89,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     defaultShader->AddRef();
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
+    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)wglGetProcAddress("glCompressedTexImage2D");
 }
 
 pglContext::~pglContext()
