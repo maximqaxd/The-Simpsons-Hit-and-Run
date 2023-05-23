@@ -44,6 +44,7 @@ static inline void FillGLColour(pddiColour c, float* f)
     f[3] = float(c.Alpha()) / 255;
 }
 
+static PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = NULL;
 
 // extensions
 class pglExtContext : public pddiExtGLContext 
@@ -884,10 +885,18 @@ void pglContext::SetFog(pddiColour colour, float start, float end)
     glFogf(GL_FOG_END, end);
 }
 
-
 int pglContext::GetMaxTextureDimension(void)
 {
     return maxTexSize;
+}
+
+void pglContext::CompressedTexImage2D(int level, pddiPixelFormat format, int width, int height, const void* data)
+{
+    unsigned int blocksize = format == PDDI_PIXEL_DXT1 ? 8 : 16;
+    GLenum internalFormat = format == PDDI_PIXEL_DXT5 ? COMPRESSED_RGBA_S3TC_DXT5_EXT :
+        format == PDDI_PIXEL_DXT3 ? COMPRESSED_RGBA_S3TC_DXT3_EXT : COMPRESSED_RGBA_S3TC_DXT1_EXT;
+    glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width,
+        height, 0, ceil(width/4.0)*ceil(height/4.0)*blocksize, (GLvoid*)data);
 }
 
 pddiExtension* pglContext::GetExtension(unsigned extID)

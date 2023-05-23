@@ -103,9 +103,7 @@ void pglTexture::SetGLState(void)
 //      if(nMipMap == 0)
         if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
-            unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
-            context->glCompressedTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
-                ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
+            context->CompressedTexImage2D(0, lock.format, xSize, ySize, (GLvoid*)bits[0]);
         }
         else
         {

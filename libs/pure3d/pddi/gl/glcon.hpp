@@ -10,7 +10,6 @@
 
 #include <pddi/pddi.hpp>
 #include <pddi/base/basecontext.hpp>
-#include <pddi/gl/display_win32/gl.hpp>
 
 class pglDisplay;
 class pglDevice;
@@ -73,6 +72,7 @@ public :
 
     // utility
     int GetMaxTextureDimension(void);
+    void CompressedTexImage2D(int level, pddiPixelFormat format, int width, int height, const void* data);
 
     // extensions
     pddiExtension* GetExtension(unsigned extID);
@@ -82,7 +82,6 @@ public :
     pglDisplay* GetDisplay(void) {return display;}
 
     unsigned contextID;
-    PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 
 protected:
     void LoadHardwareMatrix(pddiMatrixType id);
