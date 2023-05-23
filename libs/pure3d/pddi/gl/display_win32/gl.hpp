@@ -30,3 +30,4 @@
 #define COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
 
 typedef void (__stdcall* PFNGLCOMPRESSEDTEXIMAGE2DPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+typedef int(__stdcall* PFNWGLSWAPINTERVALEXT) (int interval);

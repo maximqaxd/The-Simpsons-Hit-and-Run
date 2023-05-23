@@ -29,6 +29,8 @@
 
 #define WM_PDDI_DRAW_ENABLE (WM_USER + 666)
 
+PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT = NULL;
+
 bool pglDisplay::CheckExtension( char *extName )
 {
     char *p = (char *) glGetString(GL_EXTENSIONS);
@@ -361,12 +363,15 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     }
 
     extBGRA = CheckExtension("GL_EXT_bgra");
+    wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXT)wglGetProcAddress("wglSwapIntervalEXT");
+    if (!wglSwapIntervalEXT)
+        return false;
 
     //sprintf(userDisplayInfo[0].description,"OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
 
     PostMessage((HWND)winHWND, WM_ACTIVATE, WA_ACTIVE, (LPARAM)winHWND);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -447,8 +452,9 @@ void pglDisplay::SetGamma(float r, float g, float b)
     SetDeviceGammaRamp((HDC)hDC, &gamma);
 }
 
-void pglDisplay ::SwapBuffers(void)
+void pglDisplay::SwapBuffers(void)
 {
+    wglSwapIntervalEXT(m_ForceVSync ? 1 : 0);
     ::SwapBuffers(wglGetCurrentDC());
     InvalidateRect((HWND)winHWND,NULL,FALSE);
     reset = false;
