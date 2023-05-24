@@ -201,15 +201,8 @@ tView *tContext::GetView()
 // Display the current output buffer.
 void tContext::SwapBuffers()
 {
-    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension(PDDI_EXT_GL_CONTEXT);
-    if (gl)
-        gl->BeginContext();
-
     // flip buffers
     RenderDisplay->SwapBuffers();
-
-    if (gl)
-        gl->EndContext();
 }
 
 //------------------------------------------------------------------------

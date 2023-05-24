@@ -45,6 +45,7 @@ static inline void FillGLColour(pddiColour c, float* f)
     f[3] = float(c.Alpha()) / 255;
 }
 
+extern PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT;
 extern PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 
 // extensions
@@ -130,6 +131,7 @@ void pglContext::BeginFrame()
     pddiBaseContext::BeginFrame();
 
     extContext->BeginContext();
+    wglSwapIntervalEXT(display->GetForceVSync() ? 1 : 0);
 
     if(display->HasReset())
     {

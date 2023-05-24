@@ -461,8 +461,7 @@ void pglDisplay::SetGamma(float r, float g, float b)
 
 void pglDisplay::SwapBuffers(void)
 {
-    wglSwapIntervalEXT(m_ForceVSync ? 1 : 0);
-    ::SwapBuffers(wglGetCurrentDC());
+    ::SwapBuffers((HDC)hDC);
     InvalidateRect((HWND)winHWND,NULL,FALSE);
     reset = false;
 }
