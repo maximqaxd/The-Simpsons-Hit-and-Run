@@ -22,6 +22,7 @@
 #include <pddi/gl/glmat.hpp>
 
 #include <pddi/base/debug.hpp>
+#include <radthread.hpp>
 #include <math.h>
 #include <string.h>
 #include <Windows.h>
@@ -44,19 +45,40 @@ static inline void FillGLColour(pddiColour c, float* f)
     f[3] = float(c.Alpha()) / 255;
 }
 
-static PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = NULL;
+extern PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 
 // extensions
 class pglExtContext : public pddiExtGLContext 
 {
 public:
-    pglExtContext(pglDisplay* d) : display(d) {}
+    pglExtContext(pglDisplay* d) : display(d), mutex() {}
+    ~pglExtContext() { if (mutex) mutex->Release(); }
 
-    void BeginContext() {display->BeginContext();}
-    void EndContext() {display->EndContext();}
+    void SetMutex(IRadThreadMutex* m)
+    {
+        m->AddRef();
+        if (mutex)
+            mutex->Release();
+        mutex = m;
+    }
+
+    void BeginContext()
+    {
+        if (mutex)
+            mutex->Lock();
+        display->BeginContext();
+    }
+
+    void EndContext()
+    {
+        display->EndContext();
+        if (mutex)
+            mutex->Unlock();
+    }
 
 private:
     pglDisplay* display;
+    IRadThreadMutex* mutex;
 };
 
 class pglExtGamma : public pddiExtGammaControl
@@ -88,9 +110,6 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 
     defaultShader = new pglMat(this);
     defaultShader->AddRef();
-
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
-    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)wglGetProcAddress("glCompressedTexImage2D");
 }
 
 pglContext::~pglContext()
@@ -109,6 +128,8 @@ pglContext::~pglContext()
 void pglContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
+
+    extContext->BeginContext();
 
     if(display->HasReset())
     {
@@ -141,7 +162,9 @@ void pglContext::BeginFrame()
 
 void pglContext::EndFrame()
 {
-     pddiBaseContext::EndFrame();
+    extContext->EndContext();
+
+    pddiBaseContext::EndFrame();
 }
 
 // buffer clearing
@@ -887,6 +910,8 @@ void pglContext::SetFog(pddiColour colour, float start, float end)
 
 int pglContext::GetMaxTextureDimension(void)
 {
+    int maxTexSize;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     return maxTexSize;
 }
 

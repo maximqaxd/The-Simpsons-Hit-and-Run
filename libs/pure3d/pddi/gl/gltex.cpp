@@ -200,6 +200,8 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
         return false;
     }
 
+    ((pddiExtGLContext*)context->GetExtension(PDDI_EXT_GL_CONTEXT))->BeginContext();
+
     if ((xSize > context->GetMaxTextureDimension()) ||
         (ySize > context->GetMaxTextureDimension()))
     {
@@ -262,6 +264,8 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
 
     context->ADD_STAT(PDDI_STAT_TEXTURE_ALLOC_32BIT, (float)((xSize * ySize * 4) / 1024));
     context->ADD_STAT(PDDI_STAT_TEXTURE_COUNT_32BIT, 1);
+
+    ((pddiExtGLContext*)context->GetExtension(PDDI_EXT_GL_CONTEXT))->EndContext();
 
     return true;
 }

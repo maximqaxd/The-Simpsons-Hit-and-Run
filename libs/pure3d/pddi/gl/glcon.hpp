@@ -114,7 +114,6 @@ protected:
 //   ULONG compareMode;
 //   BOOL zWrite;
 //   float alphaRef;
-    int maxTexSize;
 };
 
 class pglPrimBufferStream;

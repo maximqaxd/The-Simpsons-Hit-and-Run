@@ -30,6 +30,7 @@
 #define WM_PDDI_DRAW_ENABLE (WM_USER + 666)
 
 PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT = NULL;
+PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = NULL;
 
 bool pglDisplay::CheckExtension( char *extName )
 {
@@ -367,7 +368,13 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     if (!wglSwapIntervalEXT)
         return false;
 
+    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)wglGetProcAddress("glCompressedTexImage2D");
+    if (!glCompressedTexImage2D)
+        return false;
+
     //sprintf(userDisplayInfo[0].description,"OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
+
+    wglMakeCurrent((HDC)hDC, NULL);
 
     PostMessage((HWND)winHWND, WM_ACTIVATE, WA_ACTIVE, (LPARAM)winHWND);
 

@@ -13,6 +13,7 @@
 #include <p3d/memory.hpp>
 
 #include <radmemorymonitor.hpp>
+#include <radthread.hpp>
 
 //  class to trap momory allocations from PDDI and pass them on to the radcore memormy manager
 class RadcoreMemAdapt : public pddiExtMemRegistration::CallBack
@@ -133,6 +134,14 @@ tContext::~tContext(void)
 
 void tContext::Setup(void)
 {
+    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension(PDDI_EXT_GL_CONTEXT);
+    if (gl)
+    {
+        IRadThreadMutex* mutex;
+        radThreadCreateMutex(&mutex);
+        gl->SetMutex(mutex);
+        mutex->Release();
+    }
 }
 
 void tContext::Shutdown(void)
@@ -192,8 +201,15 @@ tView *tContext::GetView()
 // Display the current output buffer.
 void tContext::SwapBuffers()
 {
+    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension(PDDI_EXT_GL_CONTEXT);
+    if (gl)
+        gl->BeginContext();
+
     // flip buffers
     RenderDisplay->SwapBuffers();
+
+    if (gl)
+        gl->EndContext();
 }
 
 //------------------------------------------------------------------------

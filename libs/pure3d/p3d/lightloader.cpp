@@ -14,6 +14,7 @@
 #include <p3d/inventory.hpp>
 #include <p3d/error.hpp>
 #include <p3d/utility.hpp>
+#include <pddi/pddiext.hpp>
 
 tLightLoader::tLightLoader() : tSimpleChunkHandler(Pure3D::Light::LIGHT)
 {
@@ -157,6 +158,10 @@ tEntity* tLightLoader::LoadObject(tChunkFile* f, tEntityStore* store)
 
     }
 
+    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension(PDDI_EXT_GL_CONTEXT);
+    if (gl)
+        gl->BeginContext();
+
     switch (type)
     {
     case 0:    //ambient light
@@ -231,6 +236,9 @@ tEntity* tLightLoader::LoadObject(tChunkFile* f, tEntityStore* store)
         break;
         
     };
+
+    if (gl)
+        gl->EndContext();
     
     return light;
 }
