@@ -501,14 +501,14 @@ void RenderManager::ContextUpdate( unsigned int iElapsedTime )
     p3d::context->SwapBuffers();
     END_PROFILE( "Swap Buffers" );
 
-#if defined( RAD_XBOX ) || defined ( RAD_GAMECUBE )
+#if defined( RAD_XBOX ) || defined ( RAD_GAMECUBE ) || defined( RAD_WIN32 )
     LoadingManager* lm = GetLoadingManager();
     PresentationManager* pm = GetPresentationManager();
     p3d::display->SetForceVSync( lm && !lm->IsLoading(), !(pm && pm->GetFMVPlayer()->IsPlaying()));               
 #endif
 
 #ifdef LOAD_SYNC
-    FlushDelList();
+    FlushDelList(); 
 #else
     MunchDelList(2000);   // work on the DelList for up to 2000 microseconds, then return
 #endif
