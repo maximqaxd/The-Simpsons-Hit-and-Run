@@ -244,7 +244,7 @@ protected:
 //--------------------------------------------------------------------
 const unsigned PDDI_EXT_GL_CONTEXT = 0x00300100;
 
-class IRadThreadMutex;
+struct IRadThreadMutex;
 class pddiExtGLContext : public pddiExtension
 {
 public:
