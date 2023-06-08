@@ -13,13 +13,13 @@
     #include <pddi/gl/display_linux/gl.hpp>
 #endif
 
-
 #include <pddi/gl/glcon.hpp>
 #include <pddi/base/debug.hpp>
 
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
-#include<windows.h>
+#include <windows.h>
+#include <glad/glad_wgl.h>
 
 #include<mmsystem.h>
 
@@ -28,9 +28,6 @@
 #include<math.h>
 
 #define WM_PDDI_DRAW_ENABLE (WM_USER + 666)
-
-PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT = NULL;
-PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = NULL;
 
 bool pglDisplay::CheckExtension( char *extName )
 {
@@ -216,6 +213,22 @@ bool pglDisplay ::InitDisplay(int x, int y, int bpp)
     return InitDisplay(&displayInit);
 }
 
+#ifdef RAD_DEBUG
+void GLAPIENTRY
+MessageCallback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    OutputDebugString(message);
+    OutputDebugString("\n");
+    DebugBreak();
+}
+#endif
+
 bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
 {
     displayInit = *init;
@@ -334,6 +347,27 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     PDDIASSERT(hRC);
     wglMakeCurrent( (HDC)hDC, (HGLRC)hRC );
 
+    if (!gladLoadWGL((HDC)hDC))
+        return false;
+
+    wglMakeCurrent( (HDC)hDC, 0 );
+    wglDeleteContext( (HGLRC)hRC );
+
+    int gl_attribs[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        WGL_CONTEXT_FLAGS_ARB,         WGL_CONTEXT_DEBUG_BIT_ARB,
+        0,
+    };
+
+    hRC = wglCreateContextAttribsARB( (HDC)hDC, NULL, gl_attribs );
+    error = GetLastError();
+    PDDIASSERT(hRC);
+    wglMakeCurrent((HDC)hDC, (HGLRC)hRC);
+
+    if (!gladLoadGL())
+        return false;
+
     char* glVendor   = (char*)glGetString(GL_VENDOR);
     char* glRenderer = (char*)glGetString(GL_RENDERER);
     char* glVersion  = (char*)glGetString(GL_VERSION);
@@ -364,15 +398,14 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     }
 
     extBGRA = CheckExtension("GL_EXT_bgra");
-    wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXT)wglGetProcAddress("wglSwapIntervalEXT");
-    if (!wglSwapIntervalEXT)
-        return false;
-
-    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)wglGetProcAddress("glCompressedTexImage2D");
-    if (!glCompressedTexImage2D)
-        return false;
 
     //sprintf(userDisplayInfo[0].description,"OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
+
+#ifdef RAD_DEBUG
+    glEnable(GL_DEBUG_OUTPUT_KHR);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
+    glDebugMessageCallback(MessageCallback, NULL);
+#endif
 
     wglMakeCurrent((HDC)hDC, NULL);
 
@@ -474,7 +507,7 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
         return 0;
 
     glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0,  winWidth, winHeight, GL_BGRA_EXT, GL_UNSIGNED_BYTE, buffer);  
+    glReadPixels(0, 0,  winWidth, winHeight, GL_BGRA, GL_UNSIGNED_BYTE, buffer);  
     glReadBuffer(GL_BACK);
 
     unsigned tmp[2048];

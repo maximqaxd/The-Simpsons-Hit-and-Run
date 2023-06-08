@@ -33,9 +33,9 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
     case PDDI_PIXEL_PAL4: return GL_COLOR_INDEX4_EXT;
     case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
     case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
-    case PDDI_PIXEL_DXT1: return COMPRESSED_RGB_S3TC_DXT1_EXT;
-    case PDDI_PIXEL_DXT3: return COMPRESSED_RGBA_S3TC_DXT3_EXT;
-    case PDDI_PIXEL_DXT5: return COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    case PDDI_PIXEL_DXT1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+    case PDDI_PIXEL_DXT3: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+    case PDDI_PIXEL_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
     PDDIASSERT(false);
     return GL_INVALID_ENUM;
@@ -103,12 +103,16 @@ void pglTexture::SetGLState(void)
 //      if(nMipMap == 0)
         if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
-            context->CompressedTexImage2D(0, lock.format, xSize, ySize, (GLvoid*)bits[0]);
+            unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
+            GLenum internalFormat = lock.format == PDDI_PIXEL_DXT5 ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT :
+                lock.format == PDDI_PIXEL_DXT3 ? GL_COMPRESSED_RGBA_S3TC_DXT3_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, xSize,
+                ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
         }
         else
         {
             glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
-                ySize, 0, lock.native ? GL_BGRA_EXT : GL_RGBA, GL_UNSIGNED_BYTE,
+                ySize, 0, lock.native ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE,
                 (GLvoid *)bits[0]);
         }
         /*

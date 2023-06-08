@@ -72,7 +72,6 @@ public :
 
     // utility
     int GetMaxTextureDimension(void);
-    void CompressedTexImage2D(int level, pddiPixelFormat format, int width, int height, const void* data);
 
     // extensions
     pddiExtension* GetExtension(unsigned extID);

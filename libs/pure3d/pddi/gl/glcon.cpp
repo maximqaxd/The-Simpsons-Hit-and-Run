@@ -27,6 +27,8 @@
 #include <string.h>
 #include <Windows.h>
 
+#include <glad/glad_wgl.h>
+
 // vertex arrays rendering
 GLenum primTypeTable[5] =
 {
@@ -44,9 +46,6 @@ static inline void FillGLColour(pddiColour c, float* f)
     f[2] = float(c.Blue()) / 255;
     f[3] = float(c.Alpha()) / 255;
 }
-
-extern PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT;
-extern PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 
 // extensions
 class pglExtContext : public pddiExtGLContext 
@@ -103,7 +102,9 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     display->AddRef();
     disp->SetContext(this);
 
+    display->BeginContext();
     DefaultState();
+    display->EndContext();
     contextID = 0;
 
     extContext = new pglExtContext(display);
@@ -147,7 +148,7 @@ void pglContext::BeginFrame()
 
         if(display->CheckExtension("GL_EXT_separate_specular_color"))
         {
-            glLightModeli(LIGHT_MODEL_COLOR_CONTROL_EXT,SEPARATE_SPECULAR_COLOR_EXT);
+            glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, GL_SEPARATE_SPECULAR_COLOR_EXT);
         }
 
         SyncState(0xffffffff);
@@ -915,15 +916,6 @@ int pglContext::GetMaxTextureDimension(void)
     int maxTexSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     return maxTexSize;
-}
-
-void pglContext::CompressedTexImage2D(int level, pddiPixelFormat format, int width, int height, const void* data)
-{
-    unsigned int blocksize = format == PDDI_PIXEL_DXT1 ? 8 : 16;
-    GLenum internalFormat = format == PDDI_PIXEL_DXT5 ? COMPRESSED_RGBA_S3TC_DXT5_EXT :
-        format == PDDI_PIXEL_DXT3 ? COMPRESSED_RGBA_S3TC_DXT3_EXT : COMPRESSED_RGBA_S3TC_DXT1_EXT;
-    glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width,
-        height, 0, ceil(width/4.0)*ceil(height/4.0)*blocksize, (GLvoid*)data);
 }
 
 pddiExtension* pglContext::GetExtension(unsigned extID)
