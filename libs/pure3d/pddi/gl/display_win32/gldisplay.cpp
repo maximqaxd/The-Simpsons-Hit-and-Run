@@ -225,7 +225,8 @@ MessageCallback(GLenum source,
 {
     OutputDebugString(message);
     OutputDebugString("\n");
-    DebugBreak();
+    //if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+        //DebugBreak();
 }
 #endif
 
@@ -242,20 +243,6 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     unsigned nSamples = 0;
 
     reset = true;
-
-    prevRC = wglGetCurrentContext();
-    prevDC = wglGetCurrentDC();
-
-    if(hDC && hRC)
-        wglMakeCurrent((HDC)hDC, NULL);
-
-    if (hRC)
-        wglDeleteContext((HGLRC)hRC );
-
-    if (hDC)
-        ReleaseDC((HWND)winHWND, (HDC)hDC);
-
-    hDC = GetDC((HWND)winHWND);
 
     mode = m;
 
@@ -310,6 +297,22 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         }
     }
 
+    if (hDC && hRC)
+        return true;
+
+    prevRC = wglGetCurrentContext();
+    prevDC = wglGetCurrentDC();
+
+    if(hDC && hRC)
+        wglMakeCurrent((HDC)hDC, NULL);
+
+    if (hRC)
+        wglDeleteContext((HGLRC)hRC );
+
+    if (hDC)
+        ReleaseDC((HWND)winHWND, (HDC)hDC);
+
+    hDC = GetDC((HWND)winHWND);
 
     static PIXELFORMATDESCRIPTOR pfd = {
             sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
