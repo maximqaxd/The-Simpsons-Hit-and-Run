@@ -30,7 +30,7 @@
 // Definitions
 //=============================================================================
 
-#ifdef RAD_WIN32
+#if 0
 // Some pc video cards have max texture size so limit all texture dimensions to this
 #define RMV_TEXTURE_MAX_TEX_DIM 256
 #else
@@ -43,7 +43,7 @@
 // across many textures to keep texture dimensions smaller than RMV_TEXTURE_MAX_TEX_DIM)
 // This value limits the maximum movies (and can be changed if necessary.)
 
-#ifdef RAD_WIN32
+#if 0
 #define RMV_MAX_NUM_TILES 9
 #else
 #define RMV_MAX_NUM_TILES 1
