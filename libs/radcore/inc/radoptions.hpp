@@ -97,4 +97,6 @@
     #undef RAD_MOVIEPLAYER_USE_BINK
 #endif
 
+#define PTR4
+
 #endif // RADOPTIONS_HPP

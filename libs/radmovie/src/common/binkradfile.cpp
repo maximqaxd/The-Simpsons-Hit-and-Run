@@ -26,7 +26,7 @@
 //=============================================================================
 // Forward Declarations
 //=============================================================================
-static void ReadKickoff( BINKIO PTR4* bio );
+static void ReadKickoff( BINKIO* bio );
 class BinkCallback;
 struct radBinkFile;
 
@@ -69,7 +69,7 @@ struct radBinkFile
 
     unsigned int alignPos;
 };
-typedef radBinkFile PTR4* radBinkFilePtr;
+typedef radBinkFile* radBinkFilePtr;
 
 //=============================================================================
 // BinkCallback
@@ -221,13 +221,13 @@ static void intelendian( void* dest, U32 size )
 // Description: Synchronously (!) read bytes from the file.
 //-----------------------------------------------------------------------------
 
-static U32 RADLINK BinkFileReadHeader( BINKIO PTR4* bio, S32 offset, void* dest, U32 size )
+static U64 RADLINK BinkFileReadHeader( BINKIO* bio, S64 offset, void* dest, U64 size )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
     if ( offset != -1 && binkFile->filePosition != offset )
     {
-        binkFile->filePosition = offset;
+        binkFile->filePosition = (unsigned int)offset;
     }
 
     //
@@ -252,8 +252,8 @@ static U32 RADLINK BinkFileReadHeader( BINKIO PTR4* bio, S32 offset, void* dest,
         unsigned int readSize = bufferSize;
         if ( size < bufferSize )
         {
-            copySize = size;
-            readSize = ::radMemoryRoundUp( size + readOffset, alignment );
+            copySize = (unsigned int)size;
+            readSize = ::radMemoryRoundUp((unsigned int)size + readOffset, alignment );
         }
 
         //
@@ -301,7 +301,7 @@ static U32 RADLINK BinkFileReadHeader( BINKIO PTR4* bio, S32 offset, void* dest,
 // Description: Start a new read if possible.
 //-----------------------------------------------------------------------------
 
-static void ReadKickoff( BINKIO PTR4* bio )
+static void ReadKickoff( BINKIO* bio )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
@@ -367,7 +367,7 @@ static void ReadKickoff( BINKIO PTR4* bio )
 // Description: Start a new read if possible and service.
 //-----------------------------------------------------------------------------
 
-static U32 RADLINK BinkFileIdle( BINKIO PTR4* bio )
+static U64 RADLINK BinkFileIdle( BINKIO* bio )
 {
     if ( bio->ReadError )
     {
@@ -393,7 +393,7 @@ static U32 RADLINK BinkFileIdle( BINKIO PTR4* bio )
 // Description: Synchronous tear-down. TODO: remove this.
 //-----------------------------------------------------------------------------
 
-static void CancelReadRequests( BINKIO PTR4* bio )
+static void CancelReadRequests( BINKIO* bio )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
     binkFile->stopReads = 1;
@@ -411,7 +411,7 @@ static void CancelReadRequests( BINKIO PTR4* bio )
 //              the frame needs to be skipped.
 //-----------------------------------------------------------------------------
 
-static U32  RADLINK BinkFileReadFrame( BINKIO PTR4* bio, U32 framenum, S32 offset, void * dest, U32 size )
+static U64  RADLINK BinkFileReadFrame( BINKIO* bio, U32 framenum, S64 offset, void * dest, U64 size )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
@@ -426,7 +426,7 @@ static U32  RADLINK BinkFileReadFrame( BINKIO PTR4* bio, U32 framenum, S32 offse
         rReleaseAssert( false );
         if ( ( binkFile->fileBufPos < (unsigned int) offset ) && ( binkFile->filePosition >= (unsigned int) offset ) )
         {
-            unsigned int amount = offset = binkFile->fileBufPos;
+            unsigned int amount = offset - binkFile->fileBufPos;
             binkFile->fileBufPos = offset;
             binkFile->bufferEmpty += amount;
             bio->CurBufUsed -= amount;
@@ -553,7 +553,7 @@ static U32  RADLINK BinkFileReadFrame( BINKIO PTR4* bio, U32 framenum, S32 offse
 // Description: Return the recommended buffer size.
 //-----------------------------------------------------------------------------
 
-static U32 RADLINK BinkFileGetBufferSize( BINKIO PTR4* bio, U32 size )
+static U64 RADLINK BinkFileGetBufferSize( BINKIO* bio, U64 size )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
@@ -567,7 +567,7 @@ static U32 RADLINK BinkFileGetBufferSize( BINKIO PTR4* bio, U32 size )
 // Description: Initialize our internal variables.
 //-----------------------------------------------------------------------------
 
-static void RADLINK BinkFileSetInfo( BINKIO PTR4* bio, void PTR4* buf, U32 size, U32 filesize, U32 simulate )
+static void RADLINK BinkFileSetInfo( BINKIO* bio, void* buf, U64 size, U64 filesize, U32 simulate )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
@@ -594,7 +594,7 @@ static void RADLINK BinkFileSetInfo( BINKIO PTR4* bio, void PTR4* buf, U32 size,
 // Description: Close the file.
 //-----------------------------------------------------------------------------
 
-static void RADLINK BinkFileClose( BINKIO PTR4* bio )
+static void RADLINK BinkFileClose( BINKIO* bio )
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
@@ -610,7 +610,7 @@ static void RADLINK BinkFileClose( BINKIO PTR4* bio )
 // Description: Open the file.
 //-----------------------------------------------------------------------------
 
-S32 RADLINK radBinkFileOpen( BINKIO PTR4* bio, const char PTR4* name, U32 flags )
+S32 RADLINK radBinkFileOpen( BINKIO* bio, const char* name, U32 flags )
 {
     rAssert( sizeof( radBinkFile ) <= sizeof( bio->iodata ) );
 //    rAssert( flags & BINKFILEHANDLE );

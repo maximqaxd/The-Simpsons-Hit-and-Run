@@ -97,7 +97,7 @@ class radMoviePlayerBink
         HBINK m_BinkHandle;
         float m_Volume;
         float m_Pan;
-        unsigned long m_AudioTrackIndex;
+        U32 m_AudioTrackIndex;
         bool m_IsPresentationOutstanding;
         bool m_CheckAudio;
 };

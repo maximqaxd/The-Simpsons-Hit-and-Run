@@ -21,22 +21,16 @@
 #include "pch.hpp"
 #include "binkmovieplayer.hpp"
 #include <radoptions.hpp>
+#include <radmem.h>
 
 #ifdef RAD_MOVIEPLAYER_USE_BINK
 
 //
-// We've only tested Bink version 1.5
+// We've only tested Bink version 2022.05
 //
-#if ( !defined BINKMAJORVERSION ) || ( BINKMAJORVERSION != 1  ) || \
-    ( !defined BINKMINORVERSION ) || ( BINKMINORVERSION != 5  )
-    #error "Only Bink 1.5 is supported."
-#endif
-
-//
-// Support for the old header before version 1.5s
-//
-#if ( defined BINKSUBVERSION ) && ( BINKSUBVERSION < 19 )
-    #include <rad.h>
+#if ( !defined BinkMajorVersion ) || ( BinkMajorVersion != 2022  ) || \
+    ( !defined BinkMinorVersion ) || ( BinkMinorVersion != 5  )
+    #error "Only Bink 2022.05 is supported."
 #endif
 
 #include <radsoundmath.hpp>
@@ -74,13 +68,13 @@ static unsigned int s_AllocCount = 0;
 //=============================================================================
 
 #ifndef RAD_GAMECUBE
-static void * __stdcall BinkAllocate( unsigned long bytes )
+static void * __stdcall BinkAllocate( U64 bytes )
 #else
 static void * BinkAllocate( unsigned long bytes )
 #endif
 {
     ::radMemorySetAllocationName( "BinkAllocate" );
-    return ::radMemoryAllocAligned( g_CurrentMovieAllocator, bytes, radFileOptimalMemoryAlignment );   
+    return ::radMemoryAllocAligned( g_CurrentMovieAllocator, (unsigned int)bytes, radFileOptimalMemoryAlignment );   
 }
 
 //=============================================================================
@@ -228,7 +222,7 @@ void radMoviePlayerBink::Load( const char * pVideoFileName, unsigned int audioTr
         // Use direct sound on win32
 
         #ifdef RAD_WIN32
-        ::BinkSoundUseDirectSound( radSoundHalSystem::GetInstance( )->GetDirectSound( ) );
+        //::BinkSoundUseDirectSound( radSoundHalSystem::GetInstance( )->GetDirectSound( ) );
         #endif // RAD_WIN32
 
         // We tell bink to play the one sound track
@@ -256,7 +250,7 @@ void radMoviePlayerBink::Load( const char * pVideoFileName, unsigned int audioTr
 
     g_CurrentMovieAllocator = GetThisAllocator( );
     ::BinkSetIO( radBinkFileOpen );
-    m_BinkHandle = ::BinkOpen( pVideoFileName, BINKSNDTRACK | BINKIOPROCESSOR | BINKNOTHREADEDIO );
+    m_BinkHandle = ::BinkOpen( pVideoFileName, BINKSNDTRACK | BINKIOPROCESSOR | BINKNOTHREADEDIO | BINKNOFILLIOBUF );
 
     if ( m_BinkHandle != NULL )
     {
@@ -688,7 +682,7 @@ void radMoviePlayerBink::Service( void )
 
                         if( 0 == ::BinkCopyToBufferRect( m_BinkHandle, pDest,
                             dest.m_DestPitch, dest.m_Height, 0, 0, 
-                            dest.m_SrcPosX, dest.m_SrcPosY, dest.m_Width, dest.m_Height, BINKSURFACE32 | BINKCOPYALL ) )
+                            dest.m_SrcPosX, dest.m_SrcPosY, dest.m_Width, dest.m_Height, 0 ) )
                         {
                             iterateLoop = true;
                         }
