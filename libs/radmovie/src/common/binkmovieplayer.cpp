@@ -37,10 +37,6 @@
 #include <radprofiler.hpp>
 #include "binkradfile.hpp"
 
-#ifdef RAD_WIN32
-#include "../../../radsound/src/hal/win32/system.hpp"
-#endif // RAD_WIN32
-
 //=============================================================================
 // Global variables
 //=============================================================================
