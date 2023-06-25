@@ -173,7 +173,7 @@ void Go( void )
     //
 
     ref< IRadSoundRsdFileDataSource > refIRadSoundRsdFileDataSource_Clip = ::radSoundRsdFileDataSourceCreate( RADMEMORY_ALLOC_DEFAULT );
-    refIRadSoundRsdFileDataSource_Clip->InitializeFromFileName( ClipFileName, 0, IRadSoundHalAudioFormat::Samples, NULL );
+    refIRadSoundRsdFileDataSource_Clip->InitializeFromFileName( ClipFileName, 0, 0, IRadSoundHalAudioFormat::Samples, NULL );
 
     ref< IRadSoundClip > refIRadSoundClip = ::radSoundClipCreate( RADMEMORY_ALLOC_DEFAULT );
     refIRadSoundClip->Initialize( refIRadSoundRsdFileDataSource_Clip, radSoundHalSystemGet( )->GetRootMemoryRegion( ), false, "Test Clip" );
@@ -192,7 +192,7 @@ void Go( void )
     //
 
     ref< IRadSoundRsdFileDataSource > refIRadSoundRsdFileDataSource = ::radSoundRsdFileDataSourceCreate( RADMEMORY_ALLOC_DEFAULT );
-    refIRadSoundRsdFileDataSource->InitializeFromFileName( StreamFileName, 0, IRadSoundHalAudioFormat::Samples, NULL );
+    refIRadSoundRsdFileDataSource->InitializeFromFileName( StreamFileName, 0, 0, IRadSoundHalAudioFormat::Samples, NULL );
 
     ref< IRadSoundStreamPlayer > refIRadSoundStreamPlayer = ::radSoundStreamPlayerCreate( RADMEMORY_ALLOC_DEFAULT );
     refIRadSoundStreamPlayer->InitializeAsync( STREAM_BUFFER_SIZE, IRadSoundHalAudioFormat::Milliseconds,
@@ -287,5 +287,7 @@ void Go( void )
     #endif
 }
 
-
-
+void LeakDetectionStart(void) {}
+void LeakDetectionStop(void) {}
+void LeakDetectionAddRecord(const void* pMemory, const unsigned int size, const radMemoryAllocator heap) {}
+void LeakDetectionRemoveRecord(void* pMemory) {}

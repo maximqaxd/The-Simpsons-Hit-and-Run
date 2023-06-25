@@ -711,8 +711,6 @@ void radSoundStreamPlayer::ServiceLoad( void )
 				    unsigned int available = m_xIRadSoundHalDataSource->GetAvailableFrames( );
 				    unsigned int remaining = m_xIRadSoundHalDataSource->GetRemainingFrames( );
 				    
-				    rAssert( available <= remaining );
-				    
 				    if ( available == 0xFFFFFFFF )
 				    {
 				        // unbuffered
@@ -720,7 +718,9 @@ void radSoundStreamPlayer::ServiceLoad( void )
                          m_OutstandingLoadSize = framesNeeded;				    
 				    }
 				    else
-				    {				    
+				    {
+                        rAssert(available <= remaining);
+
                         if ( remaining == 0xFFFFFFFF )
                         {
                             // not out of data
