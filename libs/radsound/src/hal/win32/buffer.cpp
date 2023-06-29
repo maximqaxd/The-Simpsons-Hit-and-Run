@@ -251,8 +251,7 @@ void radSoundHalBufferWin::OnBufferLoadComplete( unsigned int dataSourceFrames )
         m_LockedLoadBytes,
         m_refIRadSoundHalAudioFormat->GetSampleRate()
     );
-    ALenum err = alGetError();
-    rAssert(err == AL_NO_ERROR);
+    rAssert(alGetError() == AL_NO_ERROR);
 
     m_pLockedLoadBuffer = NULL;
     m_LockedLoadBytes = 0;
