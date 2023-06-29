@@ -88,9 +88,6 @@ class radSoundHalVoiceWin
 
 		ref< radSoundHalBufferWin >		m_xRadSoundHalBufferWin;
 		ref< IRadSoundHalAudioFormat >	m_xIRadSoundHalAudioFormat;
-
-        radSoundHalBufferWin::BufferData * m_pBufferData;
-
 		ref< radSoundHalPositionalGroup > m_xRadSoundHalPositionalGroup;
 };
 

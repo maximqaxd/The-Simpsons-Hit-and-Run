@@ -12,12 +12,6 @@
 #include <radplatform.hpp>
 #include <efx.h>
 
-//============================================================================
-// Local Definitions
-//============================================================================
-
-#define BUFFER_DATA_POOL_ELEMENTS 500
-
 //================================================================================
 // Static Members
 //================================================================================
@@ -68,8 +62,6 @@ radSoundHalSystem::~radSoundHalSystem( void )
 
 	radSoundHalMemoryRegion::Terminate( );
     ::radMemoryFreeAligned( GetThisAllocator( ), m_pSoundMemory );
-
-    radSoundHalBufferWin::TerminateBufferDataPool( );
 
     ::CoUninitialize( );
 
@@ -147,8 +139,6 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
         systemDescription.m_MaxRootAllocations,
         radSoundHalDataSourceReadAlignmentGet( ), 
         radMemorySpace_Local, GetThisAllocator( ) );
-
-    radSoundHalBufferWin::InitializeBufferDataPool( BUFFER_DATA_POOL_ELEMENTS, GetThisAllocator( ) );
 }
 
 //============================================================================

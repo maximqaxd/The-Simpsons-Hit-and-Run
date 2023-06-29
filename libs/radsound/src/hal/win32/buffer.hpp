@@ -72,38 +72,11 @@ class radSoundHalBufferWin
 
 		unsigned int GetSizeInBytes( void );
         bool IsStreaming( void );
-
-        static void InitializeBufferDataPool( unsigned int maxCount, radMemoryAllocator allocator );
-        static void TerminateBufferDataPool( void );
-
-        struct BufferData
-        {
-            ALuint m_Buffer;
-
-            BufferData * m_pNext;
-            BufferData * m_pPrev;
-            BufferData ** m_ppHead;
-            BufferData * m_pLRUNext;
-            BufferData * m_pLRUPrev;
-            radSoundHalBufferWin * m_pListOwner;
-        };
-
-		void GetBufferData( bool positional, BufferData ** ppBufferData );
-		void FreeBufferData( bool positional, BufferData * pBufferData );
+		ALuint GetBuffer( void );
 
 	private:
 
 		virtual ~radSoundHalBufferWin( void );
-
-        void CreateOpenALBuffer(  bool support3DSound, ALuint * pBuffer );
-        void ClearOpenALBuffer( ALuint buffer,
-            unsigned int offsetInSamples, unsigned int sizeInSamples );
-
-        void CreateBufferData( BufferData ** ppBufferData, ALuint buffer );
-        void DeleteBufferData( BufferData * pBufferData );
-        void AddToList( BufferData ** ppListHead, BufferData * pBufferData );
-        void RemoveFromList( BufferData * pBufferData );
-        void GetLeastRecentlyUsedFreeBufferData( BufferData ** ppBufferData );
 
 		unsigned int m_SizeInFrames;
         unsigned int m_LoadStartInBytes;
@@ -112,27 +85,11 @@ class radSoundHalBufferWin
 
 		bool m_Looping;
         bool m_Streaming;
+		ALuint m_Buffer;
 
-        BufferData * m_pFreeBufferDataList_Pos;
-        BufferData * m_pFreeBufferDataList_NonPos;
-        BufferData * m_pBusyBufferDataList;
-        static BufferData * s_pLRUFreeBufferListHead;
-        static BufferData * s_pLRUFreeBufferListTail;
-
-		static ref< IRadMemoryPool >    s_refIRadMemoryPool;
 		ref< IRadSoundHalAudioFormat >	m_refIRadSoundHalAudioFormat;
 		ref< IRadMemoryObject >			m_refIRadMemoryObject;
         ref< IRadSoundHalBufferLoadCallback > m_refIRadSoundHalBufferLoadCallback;
-
-        struct DebugInfo
-        {
-            static unsigned int s_Total;
-            static unsigned int s_TotalFreeCount;
-            static unsigned int s_TotalBusyCount;
-            unsigned int m_FreeCountPos;
-            unsigned int m_FreeCountNonPos;
-            unsigned int m_BusyCount;
-        } m_DebugInfo;
 };
 
 #endif

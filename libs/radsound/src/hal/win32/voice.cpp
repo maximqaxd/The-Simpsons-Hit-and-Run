@@ -29,7 +29,6 @@ radSoundHalVoiceWin::radSoundHalVoiceWin( void )
     m_Volume( 1.0f ),
     m_MuteFactor( 1.0f ),
     m_Trim( 1.0f ),
-    m_pBufferData( NULL ),
 	m_xRadSoundHalPositionalGroup( NULL )
 {
     alGenSources(1, &m_Source);
@@ -64,13 +63,6 @@ radSoundHalVoiceWin::~radSoundHalVoiceWin
 		m_xRadSoundHalPositionalGroup;
 	}
 
-    if( m_pBufferData != NULL )
-    {
-        bool positional = ( m_xRadSoundHalPositionalGroup != NULL );
-        m_xRadSoundHalBufferWin->FreeBufferData( positional, m_pBufferData );
-        m_pBufferData = NULL;
-    }
-
     if (m_Source)
     {
         alDeleteSources(1, &m_Source);
@@ -95,12 +87,6 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 {
     Stop( );
 
-    if( m_pBufferData != NULL )
-    {
-        rAssert( m_xRadSoundHalBufferWin != NULL );
-        m_xRadSoundHalBufferWin->FreeBufferData( m_xRadSoundHalPositionalGroup != NULL, m_pBufferData );
-        m_pBufferData = NULL;
-    }
     m_xRadSoundHalBufferWin = NULL;
 
 	ref< IRadSoundHalAudioFormat > pOldIRadSoundHalAudioFormat = m_xIRadSoundHalAudioFormat;
@@ -111,8 +97,7 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
         m_xRadSoundHalBufferWin = static_cast< radSoundHalBufferWin * >( pIRadSoundHalBuffer );
         rAssert( m_xRadSoundHalBufferWin != NULL );
 
-        m_xRadSoundHalBufferWin->GetBufferData( m_xRadSoundHalPositionalGroup != NULL, & m_pBufferData );
-        alSourcei(m_Source, AL_BUFFER, m_pBufferData->m_Buffer);
+        alSourcei(m_Source, AL_BUFFER, m_xRadSoundHalBufferWin->GetBuffer());
 
         // Now get the format of the buffer, we'll just store it here
         m_xIRadSoundHalAudioFormat = m_xRadSoundHalBufferWin->GetFormat( );
