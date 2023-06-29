@@ -16,6 +16,7 @@
 #include <radsound_hal.hpp>
 #include "radsoundwin.hpp"
 #include "../../common/radsoundupdatableobject.hpp"
+#include <alc.h>
 
 //============================================================================
 // Definitiona
@@ -50,9 +51,9 @@ class radSoundHalSystem
         virtual IRadSoundHalEffect * GetAuxEffect( unsigned int auxNumber );
         virtual void SetAuxGain( unsigned int aux, float gain );
         virtual float GetAuxGain( unsigned int aux );
-        IDirectSound * GetDirectSound( void );
-        IDirectSound3DListener * GetDirectSoundListener( void );
-        bool IsStickyFocusEnabled( void );
+        ALCdevice * GetOpenALDevice( void );
+        ALCcontext * GetOpenALContext( void );
+        ALuint GetOpenALAuxSlot( unsigned int aux );
 
         static radSoundHalSystem * GetInstance( void );
 
@@ -61,15 +62,15 @@ class radSoundHalSystem
     private:
 
         void *          m_pSoundMemory;
-        unsigned int    m_NumAuxSends;
+        ALCint          m_NumAuxSends;
+        ALCuint         m_AuxSlots[RSD_SYSTEM_MAX_AUX_SENDS];
 
-        ref< IDirectSound >            m_xIDirectSound;
-        ref< IDirectSoundBuffer >      m_xIDirectSoundBuffer_Primary;
-        ref< IDirectSound3DListener >  m_xIDirectSound3DListener;
+        ALCdevice *     m_pDevice;
+        ALCcontext *    m_pContext;
+
         ref< IRadSoundHalEffect >      m_refIRadSoundHalEffect[ RSD_SYSTEM_MAX_AUX_SENDS ];
 
         unsigned int    m_LastServiceTime;
-        bool            m_EnableStickyFocus;
 };
 
 #endif // SOUND_HAL_WIN32_SYSTEM_HPP

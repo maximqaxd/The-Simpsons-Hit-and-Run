@@ -21,12 +21,7 @@
 
 #include "../../common/radsoundobject.hpp"
 #include <radsound_win32.hpp>
-#include <eax.h>
-
-#define RSDEFFECTS_DIRTY_ALL      0xFFFFFFFF
-#define RSDEFFECTS_DIRTY_PARAM    0x00000002
-#define RSDEFFECTS_DIRTY_INSTANCE 0x00000001
-#define RSDEFFECTS_CLEAN          0x00000000
+#include <efx.h>
 
 //============================================================================
 // Forward Declarations
@@ -80,17 +75,27 @@ class radSoundHalEffectEAX2Reverb
         virtual float GetEnvironmentSize( void ); 
         virtual void  SetEnvironmentDiffusion( float value );
         virtual float GetEnvironmentDiffusion( void );
-        virtual void  SetAirAbsorptionHF( float value );       
-        virtual float GetAirAbsorptionHF( void );       
+        virtual void  SetAirAbsorptionHF( float value );
+        virtual float GetAirAbsorptionHF( void );
 
     private:
 
         void OnParameterUpdated( void );
 
-        unsigned int m_AuxSend;
-        unsigned int m_StateFlags;
+        ALuint m_AuxSlot;
+        ALuint m_Effect;
 
-        EAXLISTENERPROPERTIES m_EaxListenerProperties;
+        LPALGENEFFECTS alGenEffects;
+        LPALDELETEEFFECTS alDeleteEffects;
+        LPALEFFECTI alEffecti;
+        LPALEFFECTIV alEffectiv;
+        LPALEFFECTF alEffectf;
+        LPALEFFECTFV alEffectfv;
+        LPALGETEFFECTI alGetEffecti;
+        LPALGETEFFECTIV alGetEffectiv;
+        LPALGETEFFECTF alGetEffectf;
+        LPALGETEFFECTFV alGetEffectfv;
+        LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti;
 };
 
 #endif // EFFECT_HPP

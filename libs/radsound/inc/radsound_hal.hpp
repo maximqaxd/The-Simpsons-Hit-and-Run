@@ -509,7 +509,6 @@ struct IRadSoundHalSystem : public IRefCount
 
         #ifdef RAD_WIN32
         unsigned int m_SamplingRate;
-        bool m_EnableStickyFocus;
         #endif
         
         #if defined RAD_GAMECUBE

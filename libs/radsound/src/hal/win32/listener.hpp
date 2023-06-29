@@ -26,7 +26,7 @@
 #include "radsoundwin.hpp"
 #include "positionalgroup.hpp"
 #include "../common/rolloff.hpp"
-#include <eax.h>
+#include <efx.h>
 
 //============================================================================
 // Component: radSoundHalListener
@@ -41,7 +41,7 @@ struct radSoundHalListener
 
 		IMPLEMENT_REFCOUNTED( "radSoundHalListener" )
 
-		static void Initialize( radMemoryAllocator allocator, IDirectSound3DListener * pIDirectSound3DListener );
+		static void Initialize( radMemoryAllocator allocator, ALCcontext * context );
 		static radSoundHalListener * GetInstance( void );
 		static void Terminate( void );
 
@@ -62,20 +62,15 @@ struct radSoundHalListener
         virtual void  SetEnvironmentAuxSend( unsigned int auxsend );
         virtual unsigned int GetEnvironmentAuxSend( void );
 
-        void SetEaxListenerProperties( EAXLISTENERPROPERTIES * pEaxListenerProperties );
 		void UpdatePositionalSettings( void );
 
 	private:
 
-		radSoundHalListener( IDirectSound3DListener * pIDirectSound3DListener );
+		radSoundHalListener( ALCcontext * pContext );
 		~radSoundHalListener( void );
 
 		static radSoundHalListener * s_pTheRadSoundHalListener;
-
-		DS3DLISTENER m_Ds3dListener;
-
-		ref< IDirectSound3DListener > m_xIDirectSound3DListener;
-        ref< IKsPropertySet > m_xIKsPropertySet;
+		ALCcontext * m_pContext;
 
         bool m_EnvEffectsEnabled;
         unsigned int m_EnvAuxSend;
@@ -83,8 +78,7 @@ struct radSoundHalListener
 		float m_RolloffFactor;
         float m_pRollOffTable[ STD_ROLL_OFF_TABLE_NUM_POINTS ];
 
-        bool m_IsEaxListenerClean;
-        EAXLISTENERPROPERTIES m_EaxListenerProperties;
+        bool m_IsEfxListenerClean;
 };
 
 #endif // LISTENER_HPP

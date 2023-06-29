@@ -10,6 +10,7 @@
 #include "..\common\banner.hpp"
 #include "..\common\memoryregion.hpp"
 #include <radplatform.hpp>
+#include <efx.h>
 
 //============================================================================
 // Local Definitions
@@ -51,10 +52,19 @@ radSoundHalSystem::radSoundHalSystem( radMemoryAllocator allocator )
 radSoundHalSystem::~radSoundHalSystem( void )
 {
 	radSoundHalListener::Terminate( );
-            
-    m_xIDirectSound3DListener = NULL;
-    m_xIDirectSoundBuffer_Primary = NULL;
-    m_xIDirectSound = NULL;
+
+    LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
+    if (m_NumAuxSends > 0)
+        alDeleteAuxiliaryEffectSlots(m_NumAuxSends, m_AuxSlots);
+
+    alcMakeContextCurrent(NULL);
+    if (m_pContext)
+        alcDestroyContext(m_pContext);
+    m_pContext = NULL;
+
+    if (m_pDevice)
+        alcCloseDevice(m_pDevice);
+    m_pDevice = NULL;
 
 	radSoundHalMemoryRegion::Terminate( );
     ::radMemoryFreeAligned( GetThisAllocator( ), m_pSoundMemory );
@@ -74,86 +84,46 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
 {
     rAssertMsg( systemDescription.m_SamplingRate != NULL, 
         "ERROR radsound: system sampling rate must be set"
-        "to the highest sampling rate required by you program (probably 48000Hz)" );
+        "to the highest sampling rate required by your program (probably 48000Hz)" );
 
     m_NumAuxSends = systemDescription.m_NumAuxSends;
-    m_EnableStickyFocus = systemDescription.m_EnableStickyFocus;
 
-    // Initialize DirectSound
+    // Initialize OpenAL
 
-    ::CoInitialize( NULL );
+    m_pDevice = alcOpenDevice(NULL);
 
-    HRESULT hr = ::CoCreateInstance
-    (
-        CLSID_DirectSound,
-        NULL,
-        CLSCTX_INPROC_SERVER,
-        IID_IDirectSound,
-        (void**) & m_xIDirectSound
-    );
+    ALenum err = alGetError();
+    rAssertMsg(err == AL_NO_ERROR, "OpenAL device couldn't be opened.");
 
-    rAssertMsg( SUCCEEDED( hr ), "DirectSound couldn't be created." );
-
-    if ( SUCCEEDED( hr ) )
+    if (err == AL_NO_ERROR)
     {
-        HRESULT hr = m_xIDirectSound->Initialize( NULL ); // primary sound driver
-    }
+        //
+        // Setup the primary context.
+        //
 
-    rAssertMsg( SUCCEEDED( hr ), "IDirectSound::Initialize() failed, no sound card?" );
+        ALCint attr[] = {
+            ALC_FREQUENCY, systemDescription.m_SamplingRate,
+            ALC_MAX_AUXILIARY_SENDS, m_NumAuxSends,
+            NULL
+        };
+        m_pContext = alcCreateContext(m_pDevice, attr);
 
-    if ( SUCCEEDED( hr ) )
-    {
-        HRESULT hr = m_xIDirectSound->SetCooperativeLevel( ::radPlatformGet( )->GetMainWindowHandle( ), DSSCL_PRIORITY );
+        ALenum err = alGetError();
+        rAssertMsg(err == AL_NO_ERROR, "OpenAL context couldn't be created.");
 
-        rAssertMsg( SUCCEEDED( hr ), "IDirectSound::SetCooperativeLevel Failed." );
-
-        if ( SUCCEEDED( hr ) )
+        if (err == AL_NO_ERROR)
         {
-            //
-            // Setup the primary buffer.
-            //
+            alcMakeContextCurrent(m_pContext);
 
-            DSBUFFERDESC dsbdPrimary;
-            WAVEFORMATEX wfx;
-
-            ::ZeroMemory( & dsbdPrimary, sizeof( dsbdPrimary ) );
-
-            dsbdPrimary.dwSize = sizeof( dsbdPrimary );
-            dsbdPrimary.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_PRIMARYBUFFER;
-
-            if( m_EnableStickyFocus == true )
+            if (m_NumAuxSends > 0 && alcIsExtensionPresent(m_pDevice, "ALC_EXT_EFX"))
             {
-                dsbdPrimary.dwFlags |= DSBCAPS_STICKYFOCUS;
+                LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
+                alcGetIntegerv(m_pDevice, ALC_MAX_AUXILIARY_SENDS, 1, &m_NumAuxSends);
+                alGenAuxiliaryEffectSlots(m_NumAuxSends, m_AuxSlots);
             }
-
-            dsbdPrimary.dwBufferBytes = 0;
-            dsbdPrimary.lpwfxFormat = NULL;
-
-            hr = m_xIDirectSound->CreateSoundBuffer( & dsbdPrimary, & m_xIDirectSoundBuffer_Primary, NULL );
-
-            rAssertMsg( SUCCEEDED( hr ), "IDirectSound8::CreateSoundBuffer Failed." );
-
-            if ( SUCCEEDED( hr ) )
+            else
             {
-                ::ZeroMemory( & wfx, sizeof( wfx ) ); 
-                wfx.wFormatTag      = WAVE_FORMAT_PCM; 
-                wfx.nChannels       = 2; 
-                wfx.nSamplesPerSec  = systemDescription.m_SamplingRate; 
-                wfx.wBitsPerSample  = 16; 
-                wfx.nBlockAlign     = wfx.wBitsPerSample / 8 * wfx.nChannels;
-                wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-
-                hr = m_xIDirectSoundBuffer_Primary->SetFormat( &wfx );
-
-                rAssertMsg( SUCCEEDED( hr ), "IDirectSoundBuffer7/8::SetFormat( ) Failed." );
-
-                hr = m_xIDirectSoundBuffer_Primary->QueryInterface
-                (
-                    IID_IDirectSound3DListener,
-                    (void**) & m_xIDirectSound3DListener
-                );            
-                
-                rAssertMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::QueryInterface (3DListener) Failed." );
+                m_NumAuxSends = 0;
             }
         }
     }
@@ -161,7 +131,7 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
     radSoundHalListener::Initialize
 	(
 		GetThisAllocator( ),
-		m_xIDirectSound3DListener
+        m_pContext
 	);
 
     // Allocate memory
@@ -237,12 +207,6 @@ void radSoundHalSystem::Service( void )
 void radSoundHalSystem::ServiceOncePerFrame( void )
 {
 	radSoundHalListener::GetInstance( )->UpdatePositionalSettings( );
-
-    #ifdef RAD_DEBUG
-    DSCAPS desc;
-    desc.dwSize = sizeof( DSCAPS );
-    HRESULT hr = m_xIDirectSound->GetCaps( & desc );
-    #endif 
 }
 
 //============================================================================
@@ -323,7 +287,7 @@ void radSoundHalSystem::SetAuxEffect( unsigned int auxNumber, IRadSoundHalEffect
 
     if( m_refIRadSoundHalEffect[ auxNumber ] != NULL )
     {
-        m_refIRadSoundHalEffect[ auxNumber ]->Attach( auxNumber );
+        m_refIRadSoundHalEffect[ auxNumber ]->Attach( m_AuxSlots[auxNumber] );
     }
 }
 
@@ -357,30 +321,32 @@ float radSoundHalSystem::GetAuxGain( unsigned int aux )
 }
 
 //============================================================================
-// radSoundHalSystem::GetDirectSound
+// radSoundHalSystem::GetOpenALDevice
 //============================================================================
 
-IDirectSound * radSoundHalSystem::GetDirectSound( void )
+ALCdevice * radSoundHalSystem::GetOpenALDevice( void )
 {
-    return m_xIDirectSound;
+    return m_pDevice;
 }
 
 //============================================================================
-// radSoundHalSystem::GetDirectSoundListener
+// radSoundHalSystem::GetOpenALContext
 //============================================================================
 
-IDirectSound3DListener * radSoundHalSystem::GetDirectSoundListener( void )
+ALCcontext * radSoundHalSystem::GetOpenALContext( void )
 {
-    return m_xIDirectSound3DListener;
+    return m_pContext;
 }
 
 //============================================================================
-// radSoundHalSystem::IsStickyFocusEnabled
+// radSoundHalSystem::GetContext
 //============================================================================
 
-bool radSoundHalSystem::IsStickyFocusEnabled( void )
+ALuint radSoundHalSystem::GetOpenALAuxSlot( unsigned int aux )
 {
-    return m_EnableStickyFocus;
+    rAssert(aux < m_NumAuxSends);
+
+    return m_AuxSlots[aux];
 }
 
 //============================================================================

@@ -60,7 +60,7 @@ class radSoundHalVoiceWin
 		virtual void SetPositionalGroup( IRadSoundHalPositionalGroup * pIRadSoundHalPositionalGroup );
 		virtual IRadSoundHalPositionalGroup * GetPositionalGroup( void );
 
-		virtual void OnApplyPositionalInfo( void );
+		virtual void OnApplyPositionalInfo( float listenerRolloffFactor );
 	
 		radSoundHalVoiceWin( void );
 
@@ -76,22 +76,20 @@ class radSoundHalVoiceWin
 
 		void SetVolumeInternal( void );
 		void SetPitchInternal( void );
-		void SetPanInternal( void );
 
 		unsigned int m_Priority;
 
 		float m_Pitch;
-		float m_Pan;
 		float m_Volume;
 		float m_MuteFactor;
 		float m_Trim;
+
+		ALuint m_Source;
 
 		ref< radSoundHalBufferWin >		m_xRadSoundHalBufferWin;
 		ref< IRadSoundHalAudioFormat >	m_xIRadSoundHalAudioFormat;
 
         radSoundHalBufferWin::BufferData * m_pBufferData;
-        ref< IDirectSound3DBuffer >		m_xIDirectSound3dBuffer;
-		ref< IDirectSoundBuffer >		m_xIDirectSoundBuffer;
 
 		ref< radSoundHalPositionalGroup > m_xRadSoundHalPositionalGroup;
 };

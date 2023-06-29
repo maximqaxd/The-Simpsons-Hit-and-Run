@@ -22,31 +22,38 @@
 #include "listener.hpp"
 
 //============================================================================
-// Local Definitions
-//============================================================================
-
-#define NO_SEND 0xffffffff
-
-//============================================================================
 // radSoundHalEffectEAX2Reverb::radSoundHalEffectEAX2Reverb
 //============================================================================
 
 radSoundHalEffectEAX2Reverb::radSoundHalEffectEAX2Reverb( void )
     :
-    m_AuxSend( NO_SEND )
+    m_AuxSlot( AL_EFFECTSLOT_NULL )
 {
-    // I think it's better to default to reverb that you can really hear
+    alGenEffects = (LPALGENEFFECTS)alGetProcAddress("alGenEffects");
+    alDeleteEffects = (LPALDELETEEFFECTS)alGetProcAddress("alDeleteEffects");
+    alEffecti = (LPALEFFECTI)alGetProcAddress("alEffecti");
+    alEffectiv = (LPALEFFECTIV)alGetProcAddress("alEffectiv");
+    alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
+    alEffectfv = (LPALEFFECTFV)alGetProcAddress("alEffectfv");
+    alGetEffecti = (LPALGETEFFECTI)alGetProcAddress("alGetEffecti");
+    alGetEffectiv = (LPALGETEFFECTIV)alGetProcAddress("alGetEffectiv");
+    alGetEffectf = (LPALGETEFFECTF)alGetProcAddress("alGetEffectf");
+    alGetEffectfv = (LPALGETEFFECTFV)alGetProcAddress("alGetEffectfv");
+    alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
 
-    ::memset( ( void * ) & m_EaxListenerProperties, 0, sizeof( m_EaxListenerProperties ) );
-    m_EaxListenerProperties.lRoom = -1000;
-    m_EaxListenerProperties.lRoomHF = -500;            
-    m_EaxListenerProperties.flRoomRolloffFactor = 0.0f;
-    m_EaxListenerProperties.flDecayTime = 3.92f; 
-    m_EaxListenerProperties.flDecayHFRatio = 0.70f; 
-    m_EaxListenerProperties.lReflections = -1230; 
-    m_EaxListenerProperties.flReflectionsDelay = 0.020f;    
-    m_EaxListenerProperties.lReverb = -2; 
-    m_EaxListenerProperties.flReverbDelay = 0.029f; 
+    alGenEffects(1, &m_Effect);
+    alEffecti(m_Effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+
+    // I think it's better to default to reverb that you can really hear
+    SetRoom(-1000);
+    SetRoomHF(-500);
+    SetRoomRolloffFactor(0.0f);
+    SetDecayTime(3.92f);
+    SetDecayHFRatio(0.70f);
+    SetReflections(-1230);
+    SetReflectionsDelay(0.020f);
+    SetReverb(-2);
+    SetReverbDelay(0.029f);
 }
 
 //============================================================================
@@ -61,11 +68,10 @@ radSoundHalEffectEAX2Reverb::~radSoundHalEffectEAX2Reverb( void )
 // radSoundHalEffectEAX2Reverb::Attach
 //============================================================================
 
-void radSoundHalEffectEAX2Reverb::Attach( unsigned int auxSend )
+void radSoundHalEffectEAX2Reverb::Attach( unsigned int auxSlot )
 {
-    m_AuxSend = auxSend;
-    m_StateFlags = RSDEFFECTS_DIRTY_ALL;
-    radSoundHalListener::GetInstance( )->SetEaxListenerProperties( & m_EaxListenerProperties );
+    alAuxiliaryEffectSloti(auxSlot, AL_EFFECTSLOT_EFFECT, m_Effect);
+    m_AuxSlot = auxSlot;
 }
 
 //============================================================================
@@ -74,9 +80,8 @@ void radSoundHalEffectEAX2Reverb::Attach( unsigned int auxSend )
 
 void radSoundHalEffectEAX2Reverb::Detach( void )
 {
-    m_AuxSend = NO_SEND;
-    m_StateFlags = RSDEFFECTS_CLEAN;
-    radSoundHalListener::GetInstance( )->SetEaxListenerProperties( NULL );
+    alAuxiliaryEffectSloti(m_AuxSlot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+    m_AuxSlot = AL_EFFECTSLOT_NULL;
 }
 
 //============================================================================
@@ -85,142 +90,156 @@ void radSoundHalEffectEAX2Reverb::Detach( void )
 
 void radSoundHalEffectEAX2Reverb::Update( void )
 {
-    if( m_StateFlags != RSDEFFECTS_CLEAN )
-    {
-        if( radSoundHalListener::GetInstance( )->GetEnvEffectsEnabled( ) == true )
-        {
-            if( radSoundHalListener::GetInstance( )->GetEnvironmentAuxSend( ) == m_AuxSend )
-            {
-                m_StateFlags = RSDEFFECTS_CLEAN;
-                radSoundHalListener::GetInstance( )->SetEaxListenerProperties( & m_EaxListenerProperties );
-            }
-        }
-    }
 }
 
 void radSoundHalEffectEAX2Reverb::SetRoom( int mBValue )
 {
-    rAssert( mBValue >= EAXLISTENER_MINROOM && mBValue <= EAXLISTENER_MAXROOM );
-    m_EaxListenerProperties.lRoom = mBValue;
-    OnParameterUpdated( );
+    float value = ::radSoundVolumeDbToHardwareWin(mBValue / 100.0f);
+    rAssert(value >= AL_REVERB_MIN_GAIN && value <= AL_REVERB_MAX_GAIN);
+    alEffectf(m_Effect, AL_REVERB_GAIN, value);
+    OnParameterUpdated();
 }
 int   radSoundHalEffectEAX2Reverb::GetRoom( void )
 {
-    return m_EaxListenerProperties.lRoom;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_GAIN, &value);
+    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
 }
 void  radSoundHalEffectEAX2Reverb::SetRoomHF( int mBValue )
 {
-    rAssert( mBValue >= EAXLISTENER_MINROOMHF && mBValue <= EAXLISTENER_MAXROOMHF );
-    m_EaxListenerProperties.lRoomHF = mBValue;
-    OnParameterUpdated( );
+    float value = ::radSoundVolumeDbToHardwareWin(mBValue / 100.0f);
+    rAssert(value >= AL_REVERB_MIN_GAINHF && value <= AL_REVERB_MAX_GAINHF);
+    alEffectf(m_Effect, AL_REVERB_GAINHF, value);
+    OnParameterUpdated();
 }
 int radSoundHalEffectEAX2Reverb::GetRoomHF( void )
 {
-    return m_EaxListenerProperties.lRoomHF;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_GAINHF, &value);
+    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
 }
 void  radSoundHalEffectEAX2Reverb::SetRoomRolloffFactor( float value )
 {
-    rAssert( value >= EAXLISTENER_MINROOMROLLOFFFACTOR && value <= EAXLISTENER_MAXROOMROLLOFFFACTOR );
-    m_EaxListenerProperties.flRoomRolloffFactor = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_ROOM_ROLLOFF_FACTOR && value <= AL_REVERB_MAX_ROOM_ROLLOFF_FACTOR);
+    alEffectf(m_Effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetRoomRolloffFactor( void )
 {
-    return m_EaxListenerProperties.flRoomRolloffFactor;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetDecayTime( float value )
 {
-    rAssert( value >= EAXLISTENER_MINDECAYTIME&& value <= EAXLISTENER_MAXDECAYTIME );
-    m_EaxListenerProperties.flDecayTime = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_DECAY_TIME && value <= AL_REVERB_MAX_DECAY_TIME);
+    alEffectf(m_Effect, AL_REVERB_DECAY_TIME, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetDecayTime( void )
 {
-    return m_EaxListenerProperties.flDecayTime;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_DECAY_TIME, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetDecayHFRatio( float value )
 {
-    rAssert( value >= EAXLISTENER_MINDECAYHFRATIO && value <= EAXLISTENER_MAXDECAYHFRATIO );
-    m_EaxListenerProperties.flDecayHFRatio = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_DECAY_HFRATIO && value <= AL_REVERB_MAX_DECAY_HFRATIO);
+    alEffectf(m_Effect, AL_REVERB_DECAY_HFRATIO, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetDecayHFRatio( void )
 {
-    return m_EaxListenerProperties.flDecayHFRatio;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_DECAY_HFRATIO, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetReflections( int mBValue )
 {
-    rAssert( mBValue >= EAXLISTENER_MINREFLECTIONS && mBValue <= EAXLISTENER_MAXREFLECTIONS );
-    m_EaxListenerProperties.lReflections = mBValue;
-    OnParameterUpdated( );
+    float value = ::radSoundVolumeDbToHardwareWin(mBValue / 100.0f);
+    rAssert(value >= AL_REVERB_MIN_REFLECTIONS_GAIN && value <= AL_REVERB_MAX_REFLECTIONS_GAIN);
+    alEffectf(m_Effect, AL_REVERB_REFLECTIONS_GAIN, value);
+    OnParameterUpdated();
 }
 int   radSoundHalEffectEAX2Reverb::GetReflections( void )
 {
-    return m_EaxListenerProperties.lReflections;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_REFLECTIONS_GAIN, &value);
+    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
 }
 void  radSoundHalEffectEAX2Reverb::SetReflectionsDelay( float value )
 {
-    rAssert( value >= EAXLISTENER_MINREFLECTIONSDELAY && value <= EAXLISTENER_MAXREFLECTIONSDELAY );
-    m_EaxListenerProperties.flReflectionsDelay = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_REFLECTIONS_DELAY && value <= AL_REVERB_MAX_REFLECTIONS_DELAY);
+    alEffectf(m_Effect, AL_REVERB_REFLECTIONS_DELAY, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetReflectionsDelay( void )
 {
-    return m_EaxListenerProperties.flReflectionsDelay;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_REFLECTIONS_DELAY, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetReverb( int mBValue )
 {
-    rAssert( mBValue >= EAXLISTENER_MINREVERB && mBValue <= EAXLISTENER_MAXREVERB );
-    m_EaxListenerProperties.lReverb = mBValue;
-    OnParameterUpdated( );
+    float value = ::radSoundVolumeDbToHardwareWin(mBValue / 100.0f);
+    rAssert(value >= AL_REVERB_MIN_LATE_REVERB_GAIN && value <= AL_REVERB_MAX_LATE_REVERB_GAIN);
+    alEffectf(m_Effect, AL_REVERB_LATE_REVERB_GAIN, value);
+    OnParameterUpdated();
 }
 int   radSoundHalEffectEAX2Reverb::GetReverb( void )
 {
-    return m_EaxListenerProperties.lReverb;   
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_LATE_REVERB_GAIN, &value);
+    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
 }
 void  radSoundHalEffectEAX2Reverb::SetReverbDelay( float value )
 {
-    rAssert( value >= EAXLISTENER_MINREVERBDELAY && value <= EAXLISTENER_MAXREVERBDELAY );
-    m_EaxListenerProperties.flReverbDelay = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_LATE_REVERB_DELAY && value <= AL_REVERB_MAX_LATE_REVERB_DELAY);
+    alEffectf(m_Effect, AL_REVERB_LATE_REVERB_DELAY, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetReverbDelay( void )
 {
-    return m_EaxListenerProperties.flReverbDelay;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_LATE_REVERB_DELAY, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetEnvironmentSize( float value )
 {
-    rAssert( value >= EAXLISTENER_MINENVIRONMENTSIZE && value <= EAXLISTENER_MAXENVIRONMENTSIZE );
-    m_EaxListenerProperties.flEnvironmentSize = value;
-    OnParameterUpdated( );
+    rAssert(0);
 }
 float radSoundHalEffectEAX2Reverb::GetEnvironmentSize( void )
 {
-    return m_EaxListenerProperties.flEnvironmentSize;
+    return 0.0f;
 }
 void  radSoundHalEffectEAX2Reverb::SetEnvironmentDiffusion( float value )
 {
-    rAssert( value >= EAXLISTENER_MINENVIRONMENTDIFFUSION && value <= EAXLISTENER_MAXENVIRONMENTDIFFUSION );
-    m_EaxListenerProperties.flEnvironmentDiffusion = value;
-    OnParameterUpdated( );
+    rAssert(value >= AL_REVERB_MIN_DIFFUSION && value <= AL_REVERB_MAX_DIFFUSION);
+    alEffectf(m_Effect, AL_REVERB_DIFFUSION, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetEnvironmentDiffusion( void )
 {
-    return m_EaxListenerProperties.flEnvironmentDiffusion;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_DIFFUSION, &value);
+    return value;
 }
 void  radSoundHalEffectEAX2Reverb::SetAirAbsorptionHF( float value )
 {
-    rAssert( value >= EAXLISTENER_MINAIRABSORPTIONHF && value <= EAXLISTENER_MAXAIRABSORPTIONHF );
-    m_EaxListenerProperties.flAirAbsorptionHF = value;
-    OnParameterUpdated( );    
+    rAssert(value >= AL_REVERB_MIN_AIR_ABSORPTION_GAINHF && value <= AL_REVERB_MAX_AIR_ABSORPTION_GAINHF);
+    alEffectf(m_Effect, AL_REVERB_AIR_ABSORPTION_GAINHF, value);
+    OnParameterUpdated();
 }
 float radSoundHalEffectEAX2Reverb::GetAirAbsorptionHF( void )
 {
-    return m_EaxListenerProperties.flAirAbsorptionHF;
+    float value;
+    alGetEffectf(m_Effect, AL_REVERB_AIR_ABSORPTION_GAINHF, &value);
+    return value;
 }
-void radSoundHalEffectEAX2Reverb::OnParameterUpdated( void )
+void radSoundHalEffectEAX2Reverb::OnParameterUpdated(void)
 {
-    radSoundHalListener::GetInstance( )->SetEaxListenerProperties( & m_EaxListenerProperties );
+    if (m_AuxSlot != AL_EFFECTSLOT_NULL)
+        Attach(m_AuxSlot);
 }
 
 //============================================================================

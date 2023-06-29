@@ -141,7 +141,7 @@ void radSoundHalBufferWin::ClearAsync
 
     while( pBufferIter != NULL )
     {
-        ClearDirectSoundBuffer( pBufferIter->m_refIDirectSoundBuffer, startPositionInFrames, numberOfFrames );
+        ClearOpenALBuffer( pBufferIter->m_Buffer, startPositionInFrames, numberOfFrames );
         pBufferIter = pBufferIter->m_pNext;
     }
 
@@ -152,17 +152,17 @@ void radSoundHalBufferWin::ClearAsync
 }
 
 //========================================================================
-// radSoundHalBufferWin::ClearDirectSoundBuffer
+// radSoundHalBufferWin::ClearOpenALBuffer
 //========================================================================
 
-void radSoundHalBufferWin::ClearDirectSoundBuffer
+void radSoundHalBufferWin::ClearOpenALBuffer
 (
-    IDirectSoundBuffer * pIDirectSoundBuffer,
+    ALuint buffer,
     unsigned int offsetInFrames,
     unsigned int sizeInFrames
 )
 {
-    if ( pIDirectSoundBuffer != NULL )
+    if ( buffer != 0 )
     {
         rAssert( offsetInFrames < m_SizeInFrames );
         rAssert( ( offsetInFrames + sizeInFrames ) <= m_SizeInFrames );
@@ -172,39 +172,21 @@ void radSoundHalBufferWin::ClearDirectSoundBuffer
 
         unsigned char fillChar = ( m_refIRadSoundHalAudioFormat->GetBitResolution( ) == 8 ) ? 128 : 0;
 
-        void * dataPtr = NULL; 
-        unsigned long lockedBytes;  
-        HRESULT hr;
+        ::memset(static_cast<char*>(m_refIRadMemoryObject->GetMemoryAddress()) + offsetInBytes, fillChar, sizeInBytes);
 
-        hr = pIDirectSoundBuffer->Lock
-        (
-            offsetInBytes,
-            sizeInBytes,
-            & dataPtr,
-            & lockedBytes,
-            NULL,
-            NULL,
-            0
+        ALenum format = AL_FORMAT_MONO8;
+        if (m_refIRadSoundHalAudioFormat->GetNumberOfChannels() > 1)
+            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
+        else
+            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
+
+        alBufferData(buffer, format,
+            m_refIRadMemoryObject->GetMemoryAddress(),
+            m_refIRadMemoryObject->GetMemorySize(),
+            m_refIRadSoundHalAudioFormat->GetSampleRate()
         );
 
-        rAssertMsg( SUCCEEDED( hr ), "radSoundHalBufferWin::Clear - Lock Failed.\n" );
-
-        if ( SUCCEEDED( hr ) )
-        {
-            rAssert( lockedBytes == sizeInBytes );
-
-            ::memset( dataPtr, fillChar, lockedBytes );
-
-            hr = pIDirectSoundBuffer->Unlock
-            (
-                dataPtr,
-                lockedBytes,
-                NULL,
-                NULL
-            );
-
-            rAssertMsg( SUCCEEDED( hr ), "radSoundHalBufferWin::Clear - UnLock Failed.\n" );
-        }
+        rAssertMsg(alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear Failed.\n");
     }
 }
 
@@ -236,84 +218,32 @@ unsigned int radSoundHalBufferWin::GetSizeInFrames( void )
 }
 
 //========================================================================
-// radSoundHalBufferWin::CreateDirectSoundBuffer
+// radSoundHalBufferWin::CreateOpenALBuffer
 //========================================================================
 
-void radSoundHalBufferWin::CreateDirectSoundBuffer
+void radSoundHalBufferWin::CreateOpenALBuffer
 (
     bool support3DSound,
-    IDirectSoundBuffer ** ppIDirectSoundBuffer
+    ALuint * pBuffer
 )
 {
-    DSBUFFERDESC bd;
-    ::ZeroMemory( & bd, sizeof( bd ) );
-    bd.dwSize = sizeof( bd );
+    alGenBuffers(1, pBuffer);
+    rAssert(alGetError() == AL_NO_ERROR);
 
-    WAVEFORMATEX wfx;
-    ::ZeroMemory( & wfx, sizeof( wfx ) );
-    wfx.cbSize = sizeof( wfx );
-
-    wfx.wFormatTag      = WAVE_FORMAT_PCM; 
-    wfx.nChannels       = (unsigned short) m_refIRadSoundHalAudioFormat->GetNumberOfChannels( );
-    wfx.nSamplesPerSec  = (unsigned long) m_refIRadSoundHalAudioFormat->GetSampleRate( );
-    wfx.wBitsPerSample  = m_refIRadSoundHalAudioFormat->GetBitResolution( );
-    wfx.nBlockAlign     = m_refIRadSoundHalAudioFormat->GetFrameSizeInBytes( );
-    wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-    bd.lpwfxFormat = & wfx;
-
-    bd.dwFlags = DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLVOLUME;
-    bd.dwFlags |= ( m_Streaming ) ? DSBCAPS_LOCSOFTWARE : DSBCAPS_LOCDEFER;
-    bd.dwFlags |= DSBCAPS_GETCURRENTPOSITION2;
-
-    if( support3DSound == true )
-    {
-        bd.dwFlags |= DSBCAPS_CTRL3D;
-        bd.dwFlags |= DSBCAPS_MUTE3DATMAXDISTANCE;
-        bd.guid3DAlgorithm = DS3DALG_NO_VIRTUALIZATION;
-    }
+    ALenum format = AL_FORMAT_MONO8;
+    if (m_refIRadSoundHalAudioFormat->GetNumberOfChannels() > 1)
+        format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
     else
-    {
-        bd.dwFlags |= DSBCAPS_CTRLPAN;
-        bd.guid3DAlgorithm = GUID_NULL;
-    }
+        format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
 
-    if( radSoundHalSystem::GetInstance( )->IsStickyFocusEnabled( ) == true )
-    {
-        bd.dwFlags |= DSBCAPS_STICKYFOCUS;
-    }
+    rAssert(alGetError() == AL_NO_ERROR);
+    alBufferData(*pBuffer, format,
+        m_refIRadMemoryObject->GetMemoryAddress(),
+        m_refIRadMemoryObject->GetMemorySize(),
+        m_refIRadSoundHalAudioFormat->GetSampleRate()
+    );
 
-
-    bd.dwBufferBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( m_SizeInFrames );
-    HRESULT hr = radSoundHalSystem::GetInstance( )->GetDirectSound( )->CreateSoundBuffer( & bd, ppIDirectSoundBuffer , NULL );
-    rAssertMsg( SUCCEEDED( hr ), "Couldn't Create Direct Sound Buffer" );
-
-    ClearDirectSoundBuffer( *ppIDirectSoundBuffer, 0, m_SizeInFrames );
-
-    // Fill this will the clip data if it's a clip
-
-    void * pBuffer;
-    unsigned long bytes;
-    rAssert( m_refIRadMemoryObject != NULL );
-
-    // Copy in our data from 
-
-    hr = ( * ppIDirectSoundBuffer )->Lock(
-		    0,
-		    0,
-		    & pBuffer,
-		    & bytes,
-		    NULL,
-		    NULL,
-		    DSBLOCK_ENTIREBUFFER );
-    rAssert( SUCCEEDED( hr ) );
-
-    ::radSoundMemCopy( pBuffer, m_refIRadMemoryObject->GetMemoryAddress( ), bytes );
-
-    hr = ( * ppIDirectSoundBuffer )->Unlock(
-        pBuffer,
-        bytes,
-        NULL,
-        0 );
+    rAssert(alGetError() == AL_NO_ERROR);
 }
 
 //========================================================================
@@ -352,11 +282,11 @@ void radSoundHalBufferWin::GetBufferData
     {
         // Otherwise prepare a new one
 
-        ref< IDirectSoundBuffer > pIDirectSoundBuffer = NULL;
-        CreateDirectSoundBuffer( positional, & pIDirectSoundBuffer );
-        rAssert( pIDirectSoundBuffer != NULL );
+        ALuint buffer = NULL;
+        CreateOpenALBuffer(positional, &buffer);
+        rAssert( buffer != NULL );
 
-        CreateBufferData( ppBufferData, pIDirectSoundBuffer );
+        CreateBufferData( ppBufferData, buffer );
         rAssert( * ppBufferData != NULL );
    }
 
@@ -445,28 +375,8 @@ void radSoundHalBufferWin::LoadAsync
     m_LoadStartInBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( bufferStartInFrames );
     m_refIRadSoundHalBufferLoadCallback = pIRadSoundHalBufferLoadCallback;
 
-    if( m_Streaming == true )
-    {
-        rAssert( m_pBusyBufferDataList != NULL );
-        rAssert( m_pBusyBufferDataList->m_pNext == NULL );
-        rAssert( m_pBusyBufferDataList->m_refIDirectSoundBuffer != NULL );
-        rAssert( m_pLockedLoadBuffer == NULL );
-
-	    HRESULT hr = m_pBusyBufferDataList->m_refIDirectSoundBuffer->Lock(
-		    m_LoadStartInBytes,
-		    m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames ),
-		    & ( void * ) m_pLockedLoadBuffer,
-		    & m_LockedLoadBytes,
-		    NULL,
-		    NULL,
-		    0 );
-        rAssert( SUCCEEDED( hr ) );
-    }
-    else
-    {
-        m_pLockedLoadBuffer = m_refIRadMemoryObject->GetMemoryAddress( );
-        m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
-    }
+    m_pLockedLoadBuffer = static_cast< char* >(m_refIRadMemoryObject->GetMemoryAddress()) + m_LoadStartInBytes;
+    m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
 
     new( "radSoundBufferLoaderWin", RADMEMORY_ALLOC_TEMP ) radSoundBufferLoaderWin(
         static_cast< IRadSoundHalBuffer * >( this ),
@@ -497,66 +407,6 @@ void radSoundHalBufferWin::OnBufferLoadComplete( unsigned int dataSourceFrames )
 {
     rAssert( m_refIRadSoundHalBufferLoadCallback != NULL );
 
-    if( m_Streaming == false )
-    {
-        rAssert( m_pBusyBufferDataList == NULL );
-
-        /*
-        // So copy the data into the only directSound buffer in (if it exists)
-
-        if( m_pBusyBufferDataList != NULL )
-        {
-            char * pLockedData1;
-            unsigned long lockedBytes1;
-            char * pLockedData2;
-            unsigned long lockedBytes2;
-
-	        HRESULT hr = m_pBusyBufferDataList->m_refIDirectSoundBuffer->Lock
-	        (
-		        m_LoadStartInBytes,
-		        m_refIRadSoundHalAudioFormat->FramesToBytes( dataSourceFrames ),
-		        ( void ** ) & pLockedData1,
-		        & lockedBytes1,
-		        ( void ** ) & pLockedData2,
-		        & lockedBytes2,
-		        0
-	        );
-            rAssert( SUCCEEDED( hr ) );
-            
-            ::radSoundMemCopy( pLockedData1, ( char * ) m_refIRadMemoryObject->GetMemoryAddress( ) + m_LoadStartInBytes, lockedBytes1 );
-            ::radSoundMemCopy( pLockedData2, ( char * ) m_refIRadMemoryObject->GetMemoryAddress( ) + m_LoadStartInBytes + lockedBytes1, lockedBytes2 ); 
-
-	        hr = m_pBusyBufferDataList->m_refIDirectSoundBuffer->Unlock
-	        (
-		        pLockedData1,
-		        lockedBytes1,
-		        pLockedData2,
-	            lockedBytes2
-	        );
-	        rAssert( SUCCEEDED( hr ) );
-        }
-        */
-    }
-    else
-    {
-        // For streaming sounds we'll have to unlock the direct sound buffer before calling back
-
-        rAssert( m_pBusyBufferDataList != NULL );
-        rAssert( m_pBusyBufferDataList->m_pNext == NULL );
-        rAssert( m_pFreeBufferDataList_NonPos == NULL );
-        rAssert( m_pFreeBufferDataList_Pos == NULL );
-
-        HRESULT hr = m_pBusyBufferDataList->m_refIDirectSoundBuffer->Unlock(
-            m_pLockedLoadBuffer,
-            m_LockedLoadBytes,
-            NULL,
-            NULL );
-        rAssert( SUCCEEDED( hr ) );
-
-        m_pLockedLoadBuffer = NULL;
-        m_LockedLoadBytes = 0;
-    }
-
     if( m_refIRadSoundHalBufferLoadCallback != NULL )
     {
         m_refIRadSoundHalBufferLoadCallback->OnBufferLoadComplete( dataSourceFrames );
@@ -576,13 +426,6 @@ void radSoundHalBufferWin::CancelAsyncOperations( void )
     {
         rAssert( m_pFreeBufferDataList_NonPos == NULL ); // sanity
         rAssert( m_pFreeBufferDataList_Pos == NULL );
-
-        if( m_Streaming == true && m_pBusyBufferDataList != NULL )
-        {
-            HRESULT hr = m_pBusyBufferDataList->m_refIDirectSoundBuffer->Unlock(
-                m_pLockedLoadBuffer, m_LockedLoadBytes, NULL, NULL );
-            rAssert( SUCCEEDED( hr ) );
-        }
 
         m_pLockedLoadBuffer = NULL;
         m_LockedLoadBytes = 0;
@@ -613,12 +456,12 @@ unsigned int radSoundHalBufferWin::GetMinTransferSize( IRadSoundHalAudioFormat::
 // radSoundHalBufferWin::CreateBufferData
 //========================================================================
 
-void radSoundHalBufferWin::CreateBufferData( BufferData ** ppBufferData, IDirectSoundBuffer * pIDirectSoundBuffer )
+void radSoundHalBufferWin::CreateBufferData( BufferData ** ppBufferData, ALuint buffer )
 {
     rAssert( s_refIRadMemoryPool != NULL );
     rAssert( ppBufferData != NULL );
     rAssert( * ppBufferData == NULL );
-    rAssert( pIDirectSoundBuffer != NULL );
+    rAssert( buffer != NULL );
 
     unsigned int numFreePoolAllocations;
     s_refIRadMemoryPool->GetStatus( NULL, & numFreePoolAllocations, NULL );
@@ -634,7 +477,7 @@ void radSoundHalBufferWin::CreateBufferData( BufferData ** ppBufferData, IDirect
         if( pFreeLRUBuffer != NULL )
         {
             DeleteBufferData( pFreeLRUBuffer );
-            CreateBufferData( ppBufferData, pIDirectSoundBuffer );
+            CreateBufferData( ppBufferData, buffer );
         }
         rAssertMsg( * ppBufferData != NULL, "radSound: Buffer data memory pool empty.  Increase max allocations with IRadSoundHalSystem::InitializeMemory()" );
     }
@@ -648,7 +491,7 @@ void radSoundHalBufferWin::CreateBufferData( BufferData ** ppBufferData, IDirect
             ( * ppBufferData )->m_pPrev = NULL;
             ( * ppBufferData )->m_pLRUNext = NULL;
             ( * ppBufferData )->m_pLRUPrev = NULL;
-            ( * ppBufferData )->m_refIDirectSoundBuffer = pIDirectSoundBuffer;
+            ( * ppBufferData )->m_Buffer = buffer;
             ( * ppBufferData )->m_pListOwner = NULL;
             radSoundHalBufferWin::DebugInfo::s_Total++;
         }
@@ -676,7 +519,7 @@ void radSoundHalBufferWin::DeleteBufferData( BufferData * pBufferData )
     pBufferData->m_pLRUPrev = NULL;
     pBufferData->m_pListOwner = NULL;
     pBufferData->m_ppHead = NULL;
-    pBufferData->m_refIDirectSoundBuffer = NULL;
+    pBufferData->m_Buffer = NULL;
     s_refIRadMemoryPool->FreeMemory( ( void * ) pBufferData );
     radSoundHalBufferWin::DebugInfo::s_Total--;
 }

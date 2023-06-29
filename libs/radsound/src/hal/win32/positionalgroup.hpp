@@ -29,7 +29,7 @@ struct radSoundHalPositionalEntity
 {
 	public:
 
-		virtual void OnApplyPositionalInfo( void ) = 0;
+		virtual void OnApplyPositionalInfo( float listenerRolloffFactor ) = 0;
 
 	private: friend struct radSoundHalPositionalGroup;
 
@@ -57,7 +57,7 @@ struct radSoundHalPositionalGroup
 		void AddPositionalEntity( radSoundHalPositionalEntity * pRadSoundHalPositionalEntity );
 		void RemovePositionalEntity( radSoundHalPositionalEntity * pRadSoundHalPositionalEntity );
 
-		void UpdatePositionalSettings( radSoundVector * pListenerPosition, float listenerRolloffFactor );
+		void UpdatePositionalSettings( float listenerRolloffFactor );
 
 		// IRadSoundHalPositionalGroup
 
@@ -79,8 +79,14 @@ struct radSoundHalPositionalGroup
         virtual void  SetObstruction( float obst ) { rDebugPrintf( "Win32 Obstruction not supported\n" ); }
         virtual float GetObstruction( void ) { rDebugPrintf( "Win32 Obstruction not supported\n" ); return 0.0f; }
 
-		DS3DBUFFER m_Ds3dBuffer;
-		float m_VolumeRolloffFactor;
+		radSoundVector m_Position;
+		radSoundVector m_Velocity;
+		radSoundVector m_Direction;
+		float m_ConeInnerAngle;
+		float m_ConeOuterAngle;
+		float m_ConeOuterGain;
+		float m_ReferenceDistance;
+		float m_MaxDistance;
 
 		radSoundHalPositionalEntity * m_pRadSoundHalPositionalEntity_Head;
 };

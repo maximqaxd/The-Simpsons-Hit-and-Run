@@ -78,7 +78,7 @@ class radSoundHalBufferWin
 
         struct BufferData
         {
-            ref< IDirectSoundBuffer > m_refIDirectSoundBuffer;
+            ALuint m_Buffer;
 
             BufferData * m_pNext;
             BufferData * m_pPrev;
@@ -95,11 +95,11 @@ class radSoundHalBufferWin
 
 		virtual ~radSoundHalBufferWin( void );
 
-        void CreateDirectSoundBuffer(  bool support3DSound, IDirectSoundBuffer ** ppIDirectSoundBuffer );
-        void ClearDirectSoundBuffer( IDirectSoundBuffer * pIDirectSoundBuffer, 
+        void CreateOpenALBuffer(  bool support3DSound, ALuint * pBuffer );
+        void ClearOpenALBuffer( ALuint buffer,
             unsigned int offsetInSamples, unsigned int sizeInSamples );
 
-        void CreateBufferData( BufferData ** ppBufferData, IDirectSoundBuffer * pIDirectSoundBuffer );
+        void CreateBufferData( BufferData ** ppBufferData, ALuint buffer );
         void DeleteBufferData( BufferData * pBufferData );
         void AddToList( BufferData ** ppListHead, BufferData * pBufferData );
         void RemoveFromList( BufferData * pBufferData );

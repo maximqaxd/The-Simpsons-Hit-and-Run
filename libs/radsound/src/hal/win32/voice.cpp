@@ -8,6 +8,8 @@
 
 #include "pch.hpp"
 #include "voice.hpp"
+#include "listener.hpp"
+#include "system.hpp"
 
 //============================================================================
 // Static Initialization
@@ -24,13 +26,20 @@ radSoundHalVoiceWin::radSoundHalVoiceWin( void )
     :
 	m_Priority( 5 ),
     m_Pitch( 1.0f ),
-    m_Pan( 0.0f ),
     m_Volume( 1.0f ),
     m_MuteFactor( 1.0f ),
     m_Trim( 1.0f ),
     m_pBufferData( NULL ),
 	m_xRadSoundHalPositionalGroup( NULL )
 {
+    alGenSources(1, &m_Source);
+
+    radSoundHalSystem* system = radSoundHalSystem::GetInstance();
+    for (unsigned int i = 0; i < system->GetNumAuxSends(); i++)
+    {
+        alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER, system->GetOpenALAuxSlot(i), i, NULL);
+        rWarningMsg(alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter");
+    }
 }
 
 //========================================================================
@@ -57,12 +66,14 @@ radSoundHalVoiceWin::~radSoundHalVoiceWin
 
     if( m_pBufferData != NULL )
     {
-        bool positional = ( m_xIDirectSound3dBuffer != NULL );
-
-        m_xIDirectSound3dBuffer = NULL;
-        m_xIDirectSoundBuffer = NULL;
+        bool positional = ( m_xRadSoundHalPositionalGroup != NULL );
         m_xRadSoundHalBufferWin->FreeBufferData( positional, m_pBufferData );
         m_pBufferData = NULL;
+    }
+
+    if (m_Source)
+    {
+        alDeleteSources(1, &m_Source);
     }
 }
 
@@ -84,8 +95,6 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 {
     Stop( );
 
-    m_xIDirectSoundBuffer = NULL;
-    m_xIDirectSound3dBuffer = NULL;
     if( m_pBufferData != NULL )
     {
         rAssert( m_xRadSoundHalBufferWin != NULL );
@@ -103,15 +112,9 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
         rAssert( m_xRadSoundHalBufferWin != NULL );
 
         m_xRadSoundHalBufferWin->GetBufferData( m_xRadSoundHalPositionalGroup != NULL, & m_pBufferData );
-        m_xIDirectSoundBuffer = m_pBufferData->m_refIDirectSoundBuffer;
+        alSourcei(m_Source, AL_BUFFER, m_pBufferData->m_Buffer);
 
-        m_xIDirectSoundBuffer->QueryInterface
-        (
-            IID_IDirectSound3DBuffer,
-            (void**) & m_xIDirectSound3dBuffer
-        );
         // Now get the format of the buffer, we'll just store it here
-
         m_xIRadSoundHalAudioFormat = m_xRadSoundHalBufferWin->GetFormat( );
 
 
@@ -132,12 +135,11 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
     
         SetPitchInternal( );
         SetVolumeInternal( );
-        SetPanInternal( );
         SetPlaybackPositionInSamples( 0 );
 
-        if ( m_xIDirectSound3dBuffer != NULL && m_xRadSoundHalPositionalGroup != NULL )
+        if ( m_xRadSoundHalPositionalGroup != NULL )
         {
-			OnApplyPositionalInfo( );
+			OnApplyPositionalInfo(radSoundHalListenerGet()->GetRollOffFactor());
         }
     }
 }
@@ -149,61 +151,33 @@ IRadSoundHalBuffer * radSoundHalVoiceWin::GetBuffer( void )
 
 void radSoundHalVoiceWin::Play( )
 {
-    if ( m_xIDirectSoundBuffer != NULL && IsHardwarePlaying( ) == false)
+    if (IsHardwarePlaying( ) == false)
     {
-        DWORD flags = 0;
-
-        if( m_xRadSoundHalBufferWin->IsStreaming( ) == false )
-        {
-            flags |= ( m_xIDirectSound3dBuffer != NULL ) ? DSBPLAY_TERMINATEBY_DISTANCE : DSBPLAY_TERMINATEBY_PRIORITY;
-        }
-        flags |= m_xRadSoundHalBufferWin->IsLooping() ? DSBPLAY_LOOPING : 0;
-
-         HRESULT hr = m_xIDirectSoundBuffer->Play(
-            0,
-            m_xRadSoundHalBufferWin->IsStreaming( ) ? 0 : m_Priority, // Must be 0 for buffers without DSBCAPS_LOCDEFER defined during creation
-            flags );
-
-        rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::Play failed" );
-
-        // Make some debug info available if it's needed.
-
-        DWORD status;
-        hr = m_xIDirectSoundBuffer->GetStatus( & status );
-
-        if( m_xRadSoundHalBufferWin->IsStreaming( ) == false && ( status & DSBSTATUS_LOCHARDWARE ) == 0 )
-        {
-            rAssert( ( status & DSBSTATUS_LOCSOFTWARE ) > 0 );
-            // rDebugPrintf( "IDirectSoundBuffer is playing in software\n" );
-        }
-
-        DSBCAPS caps;
-        ::ZeroMemory( ( void * ) & caps, sizeof( caps ) );
-        caps.dwSize = sizeof( caps );
-        hr = m_xIDirectSoundBuffer->GetCaps( & caps );
-        rWarning( SUCCEEDED( hr ) );
+        alSourcei(m_Source, AL_LOOPING, m_xRadSoundHalBufferWin && m_xRadSoundHalBufferWin->IsLooping());
+        alSourcePlay(m_Source);
+        rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::Play failed");
     }
 }
 
 void radSoundHalVoiceWin::Stop( void )
 {
-    if ( ( m_xIDirectSoundBuffer != NULL ) && ( IsHardwarePlaying( ) == true ) )
+    if (IsHardwarePlaying( ) == true)
     {
-        #ifdef RAD_DEBUG
-            extern bool g_VoiceStoppingPlayingSilence;
+#ifdef RAD_DEBUG
+        extern bool g_VoiceStoppingPlayingSilence;
 
-            if ( g_VoiceStoppingPlayingSilence == false )
+        if ( g_VoiceStoppingPlayingSilence == false )
+        {
+            if ( ( m_Trim * m_Volume ) > 0.0f )
             {
-                if ( ( m_Trim * m_Volume ) > 0.0f )
-                {
-                    rDebugPrintf( "radsound: TRC Violation: Voice stopped while playing and (trim * volume) > 0.0f\n" );
-                }
+                rDebugPrintf( "radsound: TRC Violation: Voice stopped while playing and (trim * volume) > 0.0f\n" );
             }
-        #endif // RAD_DEBUG
+        }
+#endif // RAD_DEBUG
 
-        HRESULT hr = m_xIDirectSoundBuffer->Stop( );
+        alSourceStop(m_Source);
 
-        rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::Stop failed" );
+        rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::Stop failed");
     }
 }
 
@@ -214,38 +188,17 @@ bool radSoundHalVoiceWin::IsPlaying( void )
 
 unsigned int radSoundHalVoiceWin::GetPlaybackPositionInSamples( void )
 {
-    if ( ( m_xIDirectSoundBuffer != NULL ) && ( m_xIRadSoundHalAudioFormat != NULL ) )
-    {
-        unsigned long currentPositionInBytes = 0;
-        unsigned int currentPositionInSamples = 0;
+    ALint currentPosition = 0;
+    alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &currentPosition);
+    rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::GetPlaybackPositionInSamples failed");
 
-        HRESULT hr = m_xIDirectSoundBuffer->GetCurrentPosition( & currentPositionInBytes, NULL );
-
-        rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::GetCurrentPosition failed" );
-
-        return m_xIRadSoundHalAudioFormat->BytesToSamples( currentPositionInBytes );
-    }
-
-    return 0;
+    return currentPosition;
 }
 
 void radSoundHalVoiceWin::SetPlaybackPositionInSamples( unsigned int positionInSamples )
 {
-    if ( m_xIDirectSoundBuffer != NULL )
-	{
-		unsigned int position;
-				
-		if ( m_xIRadSoundHalAudioFormat == NULL )
-		{
-			position = 0;
-		}
-		else
-		{
-			position = m_xIRadSoundHalAudioFormat->SamplesToBytes( positionInSamples );
-		}
-
-        HRESULT hr = m_xIDirectSoundBuffer->SetCurrentPosition( position );
-    }
+    alSourcei(m_Source, AL_SAMPLE_OFFSET, positionInSamples);
+    rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::SetPlaybackPositionInSamples failed");
 }
 
 void radSoundHalVoiceWin::SetMuted( bool muted)
@@ -255,7 +208,6 @@ void radSoundHalVoiceWin::SetMuted( bool muted)
         m_MuteFactor = muted ? 0.0f : 1.0f;
         SetVolumeInternal( );
     }
-
 }
 
 bool radSoundHalVoiceWin::GetMuted( void )
@@ -324,18 +276,14 @@ float radSoundHalVoiceWin::GetPitch( void )
 void radSoundHalVoiceWin::SetPan( float pan )
 {
     ::radSoundVerifyAnalogPan( pan );
-    
-    if ( m_Pan != pan )
-    {
-        m_Pan = pan;
 
-		SetPanInternal( );
-    }
+    rWarningMsg(false, "voice::SetPan not available in win32");
 }
 
 float radSoundHalVoiceWin::GetPan( void )
 {
-    return m_Pan;
+    rWarningMsg(false, "voice::GetPan not available in win32");
+    return 0.0f;
 }
 
 radSoundAuxMode radSoundHalVoiceWin::GetAuxMode( unsigned int aux )
@@ -366,23 +314,15 @@ void radSoundHalVoiceWin::SetAuxGain( unsigned int aux, float gain )
 
 bool radSoundHalVoiceWin::IsHardwarePlaying( void )
 {
-    if ( m_xIDirectSoundBuffer != NULL )
-    {
-        unsigned long status;
+    ALint state;
+    alGetSourcei(m_Source, AL_SOURCE_STATE, &state);
+    rWarningMsg( alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::IsHardwarePlaying failed");
 
-        HRESULT hr = m_xIDirectSoundBuffer->GetStatus( & status );
+    // Check our internal flag of the last known "play state", if our flag
+    // is playing but the hardware voice has stopped it means we haven't notified
+    // the client that the voice was done
 
-        rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::GetStatus failed" );
-        rWarningMsg( ( status & DSBSTATUS_BUFFERLOST ) == 0, "radSoundHalVoiceWin: IDirectSoundBuffer lost" );
-
-        // Check our internal flag of the last known "play state", if our flag
-        // is playing but the hardware voice has stopped it means we haven't notified
-        // the client that the voice was done
-
-        return ( status & DSBSTATUS_PLAYING );
-    }
-
-    return false;
+    return ( state == AL_PLAYING );
 }
 
 //========================================================================
@@ -393,19 +333,9 @@ void radSoundHalVoiceWin::SetVolumeInternal( void )
 {
     float volume = m_Trim * m_Volume * m_MuteFactor;
 
-    if ( m_xIDirectSoundBuffer != NULL )
-    {
-		float rollOffFactor = 1.0f;
+	alSourcef( m_Source, AL_GAIN, ::radSoundVolumeDbToHardwareWin( ::radSoundVolumeAnalogToDb( volume ) ) );
 
-		if( m_xRadSoundHalPositionalGroup != NULL )
-		{
-			rollOffFactor = m_xRadSoundHalPositionalGroup->m_VolumeRolloffFactor;
-		}
-
-// rReleasePrintf( "%d\n", ::radSoundVolumeDbToHardwareWin( ::radSoundVolumeAnalogToDb( /* 0.0f */ volume * ::radSoundVolumeAmplitudeToAnalog( rollOffFactor ) ) ) );
-
-		m_xIDirectSoundBuffer->SetVolume( ::radSoundVolumeDbToHardwareWin( ::radSoundVolumeAnalogToDb( /* 0.0f */ volume * ::radSoundVolumeAmplitudeToAnalog( rollOffFactor ) ) ) );  
-    }        
+    rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::SetVolumeInternal failed!");
 }
 
 //========================================================================
@@ -414,41 +344,11 @@ void radSoundHalVoiceWin::SetVolumeInternal( void )
 
 void radSoundHalVoiceWin::SetPitchInternal( void )
 {
-    if ( m_xIDirectSoundBuffer != NULL )
-    {
-        if ( m_xIRadSoundHalAudioFormat != NULL )
-        {
-            HRESULT hr = m_xIDirectSoundBuffer->SetFrequency( ::radSoundPercentageToHardwarePitchWin( m_Pitch, m_xIRadSoundHalAudioFormat->GetSampleRate( ) ) );
+    ::radSoundVerifyAnalogPitch(m_Pitch);
 
-            rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::SetFrequency failed!" );
-        }            
-    }
-}
+    alSourcef(m_Source, AL_PITCH, m_Pitch);
 
-//========================================================================
-// radSoundHalVoiceWin::SetPanInternal
-//========================================================================
-
-void radSoundHalVoiceWin::SetPanInternal( void )
-{
-    if ( m_xIDirectSoundBuffer != NULL )
-    {
-        ref< IDirectSound3DBuffer > xIDirectSound3DBuffer;
-
-        HRESULT hr = m_xIDirectSoundBuffer->QueryInterface( IID_IDirectSound3DBuffer, (void**) & xIDirectSound3DBuffer );
-
-        //
-        // Can't set the pan if the voice is positional
-        //
-        if ( FAILED( hr ) )
-        {
-            long longPan = static_cast< long >( 100.0f * ::radSoundPanAnalogToDb( m_Pan ) );    
-
-            HRESULT hr = m_xIDirectSoundBuffer->SetPan( longPan );
-
-            rWarningMsg( SUCCEEDED( hr ), "IDirectSoundBuffer::SetPan failed" );
-        }
-    }
+    rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::SetPitchInternal failed!");
 }
 
 //========================================================================
@@ -520,18 +420,23 @@ void radSoundHalVoiceWin::SetPanInternal( void )
 // radSoundHalVoiceWin::SetPositionalGroup
 //========================================================================
 
-/* virtual */ void radSoundHalVoiceWin::OnApplyPositionalInfo( void )
+/* virtual */ void radSoundHalVoiceWin::OnApplyPositionalInfo( float listenerRolloffFactor )
 {
-	if ( m_xIDirectSound3dBuffer != NULL )
-	{
-		SetVolumeInternal( );
+	SetVolumeInternal( );
 
-		HRESULT hr = m_xIDirectSound3dBuffer->SetAllParameters(
-			& m_xRadSoundHalPositionalGroup->m_Ds3dBuffer, DS3D_DEFERRED );
+    radSoundHalPositionalGroup* p = m_xRadSoundHalPositionalGroup;
 
-		rWarningMsg( SUCCEEDED( hr ), "IDirectSoundVoice::SetAllParameters Failed.\n" );
-	}
+    alSource3f(m_Source, AL_POSITION, p->m_Position.m_x, p->m_Position.m_y, p->m_Position.m_z);
+    alSource3f(m_Source, AL_VELOCITY, p->m_Velocity.m_x, p->m_Velocity.m_y, p->m_Velocity.m_z);
+    alSource3f(m_Source, AL_DIRECTION, p->m_Direction.m_x, p->m_Direction.m_y, p->m_Direction.m_z);
+    alSourcef(m_Source, AL_CONE_INNER_ANGLE, p->m_ConeOuterAngle);
+    alSourcef(m_Source, AL_CONE_OUTER_ANGLE, p->m_ConeInnerAngle);
+    alSourcef(m_Source, AL_CONE_OUTER_GAIN, p->m_ConeOuterGain);
+    alSourcef(m_Source, AL_REFERENCE_DISTANCE, p->m_ReferenceDistance);
+    alSourcef(m_Source, AL_MAX_DISTANCE, p->m_MaxDistance);
+    alSourcef(m_Source, AL_ROLLOFF_FACTOR, listenerRolloffFactor);
 
+	rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::OnApplyPositionalInfo Failed.\n");
 }
 
 //========================================================================

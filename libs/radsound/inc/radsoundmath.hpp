@@ -237,8 +237,8 @@ inline void radSoundVerifyAnalogPan( float pan )
 
 inline void radSoundVerifyAnalogPitch( float pitch )
 {
-	// pitch >= 0;
-    rAssert( pitch >= 0.0f );
+	// pitch > 0;
+    rAssert( pitch > 0.0f );
 }
 
 inline void radSoundVerifyAngle( float angle )

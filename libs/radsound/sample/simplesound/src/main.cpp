@@ -57,7 +57,7 @@
 // The number of auxillary (fx) sends.
 //
 
-#define AUX_SENDS 0
+#define AUX_SENDS 2
 
 //=============================================================================
 // Static Data Defintions
@@ -263,7 +263,6 @@ void Go( void )
     #endif 
     #ifdef RAD_WIN32
     desc.m_SamplingRate = 48000;
-    desc.m_EnableStickyFocus = false;
     #endif
 
     ::radSoundHalSystemGet( )->Initialize( desc );

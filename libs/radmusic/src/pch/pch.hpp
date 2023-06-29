@@ -11,13 +11,11 @@
 #ifdef RAD_WIN32
 #define WINVER 0x0501
 #define _WIN32_WINNT 0x400
-#include <dsound.h>
 #include <windows.h>
 #endif
 
 #ifdef RAD_XBOX
 #include <xtl.h>
-#include <dsound.h>
 #endif
 
 //

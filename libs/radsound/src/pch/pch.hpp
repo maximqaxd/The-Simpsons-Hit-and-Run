@@ -21,6 +21,9 @@
 #ifdef RAD_XBOX
 #include <xtl.h>
 #include <dsound.h>
+#else
+#include <al.h>
+#include <alc.h>
 #endif
 
 //

@@ -15,31 +15,15 @@
 radSoundHalPositionalGroup::radSoundHalPositionalGroup( void )
 	:
 	m_pRadSoundHalPositionalEntity_Head( NULL ),
-	m_VolumeRolloffFactor( 1.0f )
+	m_Position(),
+	m_Velocity(),
+	m_Direction( 0.0f, 0.0f, 1.0f ),
+	m_ConeInnerAngle( 0.0f ),
+	m_ConeOuterAngle( 0.0f ),
+	m_ConeOuterGain( 1.0f ),
+	m_ReferenceDistance( 1.0f ),
+	m_MaxDistance( 100.0f )
 {
-	::radSoundZeroMemory( & m_Ds3dBuffer, sizeof( m_Ds3dBuffer ) );
-
-	m_Ds3dBuffer.dwSize = sizeof( m_Ds3dBuffer );
-	m_Ds3dBuffer.dwMode = DS3DMODE_NORMAL;
-
-	m_Ds3dBuffer.vPosition.x = 0.0f;
-	m_Ds3dBuffer.vPosition.y = 0.0f;
-	m_Ds3dBuffer.vPosition.z = 0.0f;
-
-	m_Ds3dBuffer.vVelocity.x = 0.0f;
-	m_Ds3dBuffer.vVelocity.y = 0.0f;
-	m_Ds3dBuffer.vVelocity.z = 0.0f;
-
-	m_Ds3dBuffer.vConeOrientation.x = 0.0f;
-	m_Ds3dBuffer.vConeOrientation.y = 0.0f;
-	m_Ds3dBuffer.vConeOrientation.z = 1.0f;
-
-	m_Ds3dBuffer.lConeOutsideVolume = DS3D_DEFAULTCONEOUTSIDEVOLUME;
-	m_Ds3dBuffer.dwInsideConeAngle = DS3D_DEFAULTCONEANGLE;
-	m_Ds3dBuffer.dwOutsideConeAngle = DS3D_DEFAULTCONEANGLE;
-
-	m_Ds3dBuffer.flMinDistance = 1.0f;
-	m_Ds3dBuffer.flMaxDistance = 100.0f;
 }
 
 //========================================================================
@@ -62,7 +46,7 @@ void radSoundHalPositionalGroup::SetPosition
 {
 	rAssert( pPosition != NULL );
 
-	m_Ds3dBuffer.vPosition = *((D3DVECTOR*) pPosition);
+	m_Position = *pPosition;
 }
 
 //========================================================================
@@ -76,7 +60,7 @@ void radSoundHalPositionalGroup::GetPosition
 {
     rAssert( pPosition != NULL );
 
-	*pPosition = *((radSoundVector*)&(m_Ds3dBuffer.vPosition));
+	*pPosition = m_Position;
 }
 
 //========================================================================
@@ -99,7 +83,7 @@ void radSoundHalPositionalGroup::SetVelocity
 	
 	#endif
 
-	m_Ds3dBuffer.vVelocity = *((D3DVECTOR*) pVelocity);
+	m_Velocity = *pVelocity;
 
 
 }
@@ -115,7 +99,7 @@ void radSoundHalPositionalGroup::GetVelocity
 {
     rAssert( pVelocity != NULL );
 
-	*pVelocity = *((radSoundVector*)&(m_Ds3dBuffer.vVelocity));
+	*pVelocity = m_Velocity;
 }
 
 //========================================================================
@@ -130,7 +114,7 @@ void radSoundHalPositionalGroup::SetOrientation
 	rAssert( pOrientationFront != NULL );
 	rAssert( pOrientationTop != NULL );
 
-	m_Ds3dBuffer.vConeOrientation = *((D3DVECTOR*) pOrientationFront );
+	m_Direction = *pOrientationFront;
 }
    
 //========================================================================
@@ -150,7 +134,7 @@ void radSoundHalPositionalGroup::GetOrientation
 	
 	if ( pOrientationFront != NULL )
 	{
-		*pOrientationFront = *((radSoundVector*) &(m_Ds3dBuffer.vConeOrientation));
+		*pOrientationFront = m_Direction;
 	}
 }
 
@@ -164,10 +148,8 @@ void radSoundHalPositionalGroup::SetConeAngles
     float outsideConeAngle
 )
 {
-
-
-    m_Ds3dBuffer.dwInsideConeAngle =  ::radSoundFloatToUInt( insideConeAngle );
-    m_Ds3dBuffer.dwOutsideConeAngle = ::radSoundFloatToUInt( outsideConeAngle );
+    m_ConeInnerAngle = insideConeAngle;
+	m_ConeOuterAngle = outsideConeAngle;
 }
 
 //========================================================================
@@ -182,12 +164,12 @@ void radSoundHalPositionalGroup::GetConeAngles
 {
     if ( pIca != NULL )
     {    
-        *pIca = ::radSoundUIntToFloat( m_Ds3dBuffer.dwInsideConeAngle );
+        *pIca = m_ConeInnerAngle;
     }
     
     if ( pOca != NULL )
     {
-        *pOca = ::radSoundUIntToFloat( m_Ds3dBuffer.dwOutsideConeAngle );
+        *pOca = m_ConeOuterAngle;
     }
 }
 
@@ -204,7 +186,7 @@ void radSoundHalPositionalGroup::SetConeOutsideVolume
 		::radSoundVolumeDbToHardwareWin(
 			::radSoundVolumeAnalogToDb( coneOutsideVolume ) );
 
-	m_Ds3dBuffer.lConeOutsideVolume = hardwareVol;
+	m_ConeOuterGain = hardwareVol;
 }
 
 //========================================================================
@@ -217,7 +199,7 @@ float radSoundHalPositionalGroup::GetConeOutsideVolume
 )
 {
 	return radSoundVolumeDbToAnalog(
-		::radSoundVolumeHardwareToDbWin( m_Ds3dBuffer.lConeOutsideVolume ) );
+		::radSoundVolumeHardwareToDbWin( m_ConeOuterGain ) );
 }
 
 //========================================================================
@@ -232,8 +214,8 @@ void radSoundHalPositionalGroup::SetMinMaxDistance
 {
 	// Kept here only for reference.  Windows rolloff calculation sucks
 	// so we'll do it ourselves
-	m_Ds3dBuffer.flMinDistance = minDistance;
-	m_Ds3dBuffer.flMaxDistance = maxDistance;
+	m_ReferenceDistance = minDistance;
+	m_MaxDistance = maxDistance;
 }
 
 //========================================================================
@@ -249,12 +231,12 @@ void radSoundHalPositionalGroup::GetMinMaxDistance
 {
 	if ( pMinDistance != NULL )
 	{
-		* pMinDistance = m_Ds3dBuffer.flMinDistance;
+		* pMinDistance = m_ReferenceDistance;
 	}
 
 	if ( pMaxDistance != NULL )
 	{
-		* pMaxDistance = m_Ds3dBuffer.flMaxDistance;
+		* pMaxDistance = m_MaxDistance;
 	}
 }
 
@@ -313,19 +295,13 @@ void radSoundHalPositionalGroup::RemovePositionalEntity
 // radSoundHalPositionalGroup::UpdatePositionalSettings
 //========================================================================
 
-void radSoundHalPositionalGroup::UpdatePositionalSettings( radSoundVector * pListenerPosition, float listenerRolloffFactor )
+void radSoundHalPositionalGroup::UpdatePositionalSettings( float listenerRolloffFactor )
 {
-	// Calculate the current volume rolloff factor
-
-	float distToListener = pListenerPosition->GetDistanceBetween( * ( ( radSoundVector * ) & ( m_Ds3dBuffer.vPosition ) ) );
-	m_VolumeRolloffFactor = ::radSoundHalCalcualteRollOff( m_Ds3dBuffer.flMinDistance, m_Ds3dBuffer.flMaxDistance, distToListener );
-	m_VolumeRolloffFactor = m_VolumeRolloffFactor * listenerRolloffFactor;
-
 	radSoundHalPositionalEntity * p = m_pRadSoundHalPositionalEntity_Head;
 
 	while ( p != NULL )
 	{
-		p->OnApplyPositionalInfo( );
+		p->OnApplyPositionalInfo(listenerRolloffFactor);
 
 		p = p->m_pNext;
 	}

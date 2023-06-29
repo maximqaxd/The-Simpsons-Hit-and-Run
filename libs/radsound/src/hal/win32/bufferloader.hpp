@@ -6,7 +6,7 @@
 #ifndef BUFFERLOADER_HPP
 #define BUFFERLOADER_HPP
 
-#include <dsound.h>
+#include <al.h>
 #include <radfile.hpp>
 #include <radlinkedclass.hpp>
 #include <radsound_hal.hpp>  
