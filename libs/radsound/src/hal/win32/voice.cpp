@@ -193,7 +193,7 @@ int radSoundHalVoiceWin::GetQueuedBuffers( void )
     if ( IsHardwarePlaying( ) == true )
     {
         ALint buffersProcessed;
-        alGetSourcei(m_Source, AL_BUFFERS_QUEUED, &buffersProcessed);
+        alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
         buffersQueued -= buffersProcessed;
     }
     rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::GetQueuedBuffers failed");
