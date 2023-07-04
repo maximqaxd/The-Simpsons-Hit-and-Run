@@ -14,7 +14,6 @@ struct radSoundStreamPlayer
 	:
 	public IRadSoundStreamPlayer,
 	public IRadSoundHalBufferLoadCallback,
-    public IRadSoundHalBufferClearCallback,
 	public radSoundUpdatableObject
 {
 	IMPLEMENT_REFCOUNTED( "radSoundStreamPlayer" )
@@ -83,7 +82,6 @@ struct radSoundStreamPlayer
 	virtual void OnBufferLoadComplete(
 		IRadSoundHalBuffer * pIRadSoundHalBuffer,
 		unsigned int dataSourceFrames );
-    virtual void OnBufferClearComplete( IRadSoundHalBuffer * pIRadSoundHalBuffer );
 
 	private:
 
@@ -102,7 +100,6 @@ struct radSoundStreamPlayer
 
 		unsigned int m_LastPlaybackPositionInSamples;
 		unsigned int m_OutstandingLoadSize;
-        unsigned int m_OutstandingClearSize;
 		unsigned int m_SourceFramesRead;
 		unsigned int m_EndFrameCounter;
 		unsigned int m_CurrentLoadBuffer;

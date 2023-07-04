@@ -21,7 +21,6 @@ radSoundStreamPlayer::radSoundStreamPlayer( void )
     m_QueueingSubState( Queueing_None ),
     m_LastPlaybackPositionInSamples( 0 ),
 	m_OutstandingLoadSize( 0 ),
-    m_OutstandingClearSize( 0 ),
 	m_SourceFramesRead( 0 ),
 	m_EndFrameCounter( 0xFFFFFFFF ),
     m_LoadSkipLastFrame( false ),
@@ -272,7 +271,6 @@ void radSoundStreamPlayer::SetDataSource( IRadSoundHalDataSource * pIRadSoundHal
 	m_SourceFramesRead = 0;
 	m_EndFrameCounter = 0xFFFFFFFF;
     m_OutstandingLoadSize = 0;
-    m_OutstandingClearSize = 0;
     m_CurrentLoadBuffer = 0;
     m_LoadSkipLastFrame = false;
 
@@ -327,32 +325,6 @@ void radSoundStreamPlayer::OnBufferLoadComplete(
     // rDebugPrintf( "Load Complete: Gl:[%d]\n", g_GameLoops );
 
     m_xIRadSoundHalVoice->QueueBuffer(pIRadSoundHalBuffer);
-}
-
-//========================================================================
-// radSoundStreamPlayer::OnBufferClearComplete
-//========================================================================
-
-void radSoundStreamPlayer::OnBufferClearComplete( IRadSoundHalBuffer* pIRadSoundHalBuffer )
-{
-    rAssert( m_OutstandingClearSize > 0 );
-
-    // We are always ending if we are clearing, so update our end frame
-    // counter.  It is possible that we loaded more data than was left
-    // until the end marker, just set end frame counter to zero in this
-    // case, otherwise update the counter with how many bytes we
-    // did clear.
-
-    if( m_OutstandingClearSize > m_EndFrameCounter )
-    {
-        m_EndFrameCounter = 0;
-    }
-    else
-    {
-        m_EndFrameCounter -= m_OutstandingClearSize;
-    }
-
-    m_OutstandingClearSize = 0; 
 }
 
 //========================================================================
@@ -531,7 +503,7 @@ void radSoundStreamPlayer::ServiceLoad( void )
 {
     // If we currently have an outstanding load or clear, we can't issue
     // another one until it is done so just do nothing for now.
-    if (m_OutstandingLoadSize == 0 && m_OutstandingClearSize == 0 && m_EndFrameCounter == 0xFFFFFFFF &&
+    if (m_OutstandingLoadSize == 0 && m_EndFrameCounter == 0xFFFFFFFF &&
         m_xIRadSoundHalVoice->GetQueuedBuffers() < RSD_STREAM_NUM_BUFFERS)
     {
         m_CurrentLoadBuffer++;
