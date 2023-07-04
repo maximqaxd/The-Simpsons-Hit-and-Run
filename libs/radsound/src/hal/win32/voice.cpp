@@ -25,6 +25,7 @@ radSoundHalVoiceWin * radSoundHalVoiceWin::s_pLinkedClassTail = NULL;
 radSoundHalVoiceWin::radSoundHalVoiceWin( void )
     :
 	m_Priority( 5 ),
+    m_SourceSamplesPlayed( 0 ),
     m_Pitch( 1.0f ),
     m_Volume( 1.0f ),
     m_MuteFactor( 1.0f ),
@@ -88,6 +89,7 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
     Stop( );
 
     m_xRadSoundHalBufferWin = NULL;
+    m_SourceSamplesPlayed = 0;
 
 	ref< IRadSoundHalAudioFormat > pOldIRadSoundHalAudioFormat = m_xIRadSoundHalAudioFormat;
     m_xIRadSoundHalAudioFormat = NULL;
@@ -101,7 +103,6 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 
         // Now get the format of the buffer, we'll just store it here
         m_xIRadSoundHalAudioFormat = m_xRadSoundHalBufferWin->GetFormat( );
-
 
 		//
 		// The new format had better be the same as the old one 
@@ -129,9 +130,74 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
     }
 }
 
-IRadSoundHalBuffer * radSoundHalVoiceWin::GetBuffer( void )
+void radSoundHalVoiceWin::QueueBuffer(IRadSoundHalBuffer* pIRadSoundHalBuffer)
 {
-    return m_xRadSoundHalBufferWin;
+    rAssert(m_xRadSoundHalBufferWin == NULL);
+
+    m_xRadSoundHalBufferWin = NULL;
+
+    int samplesUnqueued, samplesPlayed, size, bits, channels, bufferSamples = 0, buffersProcessed = 0;
+    alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &samplesUnqueued);
+    alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+    rAssert(alGetError() == AL_NO_ERROR);
+    for (int i = 0; i < buffersProcessed; i++)
+    {
+        ALuint buffer;
+        alSourceUnqueueBuffers(m_Source, 1, &buffer);
+        rAssert(alGetError() == AL_NO_ERROR);
+        alGetBufferi(buffer, AL_SIZE, &size);
+        alGetBufferi(buffer, AL_BITS, &bits);
+        alGetBufferi(buffer, AL_CHANNELS, &channels);
+        rAssert(alGetError() == AL_NO_ERROR);
+        bufferSamples += (size / (bits / 8)) / channels;
+        alDeleteBuffers(1, &buffer);
+        rAssert(alGetError() == AL_NO_ERROR);
+    }
+
+    alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &samplesPlayed);
+    samplesUnqueued -= samplesPlayed;
+
+    rAssert(bufferSamples == samplesUnqueued);
+    m_SourceSamplesPlayed += bufferSamples;
+
+    ref< IRadSoundHalAudioFormat > pOldIRadSoundHalAudioFormat = m_xIRadSoundHalAudioFormat;
+    m_xIRadSoundHalAudioFormat = NULL;
+
+    if (pIRadSoundHalBuffer != NULL)
+    {
+        // Now get the format of the buffer, we'll just store it here
+        m_xIRadSoundHalAudioFormat = pIRadSoundHalBuffer->GetFormat( );
+
+		//
+		// The new format had better be the same as the old one 
+		// (if the old one isn't null
+		//
+		rAssert
+		( 
+			pOldIRadSoundHalAudioFormat != NULL ?
+			m_xIRadSoundHalAudioFormat->Matches( pOldIRadSoundHalAudioFormat ) :
+			true
+		);
+        
+        radSoundHalBufferWin * pRadSoundHalBufferWin = static_cast< radSoundHalBufferWin * >( pIRadSoundHalBuffer );
+        ALuint buffer = pRadSoundHalBufferWin->GetBuffer();
+        alSourceQueueBuffers(m_Source, 1, &buffer);
+        rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::QueueBuffer failed");
+    }
+}
+
+int radSoundHalVoiceWin::GetQueuedBuffers( void )
+{
+    ALint buffersQueued;
+    alGetSourcei(m_Source, AL_BUFFERS_QUEUED, &buffersQueued);
+    if ( IsHardwarePlaying( ) == true )
+    {
+        ALint buffersProcessed;
+        alGetSourcei(m_Source, AL_BUFFERS_QUEUED, &buffersProcessed);
+        buffersQueued -= buffersProcessed;
+    }
+    rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::GetQueuedBuffers failed");
+    return buffersQueued;
 }
 
 void radSoundHalVoiceWin::Play( )
@@ -162,6 +228,17 @@ void radSoundHalVoiceWin::Stop( void )
 
         alSourceStop(m_Source);
 
+        int buffersProcessed;
+        alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+        rAssert(alGetError() == AL_NO_ERROR);
+        for (int i = 0; i < buffersProcessed; i++)
+        {
+            ALuint buffer;
+            alSourceUnqueueBuffers(m_Source, 1, &buffer);
+            rAssert(alGetError() == AL_NO_ERROR);
+            alDeleteBuffers(1, &buffer);
+        }
+
         rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::Stop failed");
     }
 }
@@ -177,7 +254,7 @@ unsigned int radSoundHalVoiceWin::GetPlaybackPositionInSamples( void )
     alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &currentPosition);
     rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::GetPlaybackPositionInSamples failed");
 
-    return currentPosition;
+    return m_SourceSamplesPlayed + currentPosition;
 }
 
 void radSoundHalVoiceWin::SetPlaybackPositionInSamples( unsigned int positionInSamples )

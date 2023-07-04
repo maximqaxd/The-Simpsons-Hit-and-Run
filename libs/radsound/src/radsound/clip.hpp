@@ -76,11 +76,13 @@ class radSoundClip
 
         // IRadSoundHalBufferLoadCallback
 
-	    virtual void OnBufferLoadComplete( unsigned int actualBytesRead );
+	    virtual void OnBufferLoadComplete(
+			IRadSoundHalBuffer * pBuffer,
+			unsigned int actualBytesRead );
 
         // IRadSoundHalBufferClearCallback
 
-	    virtual void OnBufferClearComplete( void );
+	    virtual void OnBufferClearComplete( IRadSoundHalBuffer * pBuffer );
 
         // Data Members
 

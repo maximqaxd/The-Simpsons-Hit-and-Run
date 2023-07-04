@@ -15,7 +15,7 @@ radSoundBufferLoaderWin * radLinkedClass< radSoundBufferLoaderWin >::s_pLinkedCl
 
 radSoundBufferLoaderWin::radSoundBufferLoaderWin
 (
-    IRefCount * pIRefCount_Owner,
+    IRadSoundHalBuffer * pIRadSoundHalBuffer_Owner,
     void * pBuffer,	
     IRadSoundHalDataSource * pIRadSoundHalDataSource,
     IRadSoundHalAudioFormat * pIRadSoundHalAudioFormat,
@@ -23,7 +23,7 @@ radSoundBufferLoaderWin::radSoundBufferLoaderWin
     IRadSoundHalBufferLoadCallback * pISoundBufferCallback
 )
     :
-    m_xIRefCount_Owner( pIRefCount_Owner ),
+    m_xIRadSoundHalBuffer_Owner( pIRadSoundHalBuffer_Owner ),
     m_xIRadSoundHalBufferLoadCallback( pISoundBufferCallback ),
     m_xIRadSoundHalDataSource( pIRadSoundHalDataSource ),
     m_NumberOfFrames( numberOfFrames ),
@@ -62,7 +62,7 @@ void radSoundBufferLoaderWin::Start( void )
         // Make sure they passed us valid objects
         //
         rAssert( m_xIRadSoundHalDataSource != NULL );
-        rAssert( m_xIRadSoundHalBufferLoadCallback != NULL );      
+        rAssert( m_xIRadSoundHalBufferLoadCallback != NULL );
 
  		m_xIRadSoundHalDataSource->GetFramesAsync( 
 			( char * ) m_pBuffer,
@@ -96,7 +96,7 @@ void radSoundBufferLoaderWin::OnDataSourceFramesLoaded( unsigned int framesActua
 
     if ( m_Cancelled == false )
     {
-        m_xIRadSoundHalBufferLoadCallback->OnBufferLoadComplete( framesActuallyRead );
+        m_xIRadSoundHalBufferLoadCallback->OnBufferLoadComplete( m_xIRadSoundHalBuffer_Owner, framesActuallyRead );
     }
 
     Finish( );
@@ -107,13 +107,13 @@ void radSoundBufferLoaderWin::Cancel( void )
     m_Cancelled = true;
 }
 
-void radSoundBufferLoaderWin::CancelOperations( IRefCount * pIRefCount_Owner )
+void radSoundBufferLoaderWin::CancelOperations( IRadSoundHalBuffer * pIRadSoundHalBuffer_Owner )
 {
     radSoundBufferLoaderWin * pSearch = radSoundBufferLoaderWin::GetLinkedClassHead( );
 
     while ( pSearch != NULL )
     {
-        if ( pSearch->m_xIRefCount_Owner == pIRefCount_Owner )
+        if ( pSearch->m_xIRadSoundHalBuffer_Owner == pIRadSoundHalBuffer_Owner )
         {
             pSearch->Cancel( );
         }

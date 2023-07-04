@@ -173,7 +173,7 @@ bool radSoundClipPlayer::IsPlaying( void )
 void radSoundClipPlayer::SetPlaybackPosition(
 			unsigned int position, IRadSoundHalAudioFormat::SizeType st )
 {
-	IRadSoundHalBuffer * pIRshb = m_xIRadSoundHalVoice->GetBuffer( );
+	IRadSoundHalBuffer * pIRshb = m_xRadSoundClip->GetBuffer( );
 
 	if ( pIRshb != NULL )
 	{
@@ -371,7 +371,7 @@ void radSoundClipPlayer::SetVoiceBuffer( void )
 
 /* virtual */ unsigned int radSoundClipPlayer::GetPlaybackTimeInSamples( void )
 {
-	if ( m_xIRadSoundHalVoice != NULL && m_xIRadSoundHalVoice->GetBuffer( ) != NULL )
+	if ( m_xIRadSoundHalVoice != NULL )
 	{
 		return m_xIRadSoundHalVoice->GetPlaybackPositionInSamples( );
 	}
