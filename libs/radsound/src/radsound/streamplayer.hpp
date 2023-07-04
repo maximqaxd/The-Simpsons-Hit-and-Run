@@ -8,7 +8,7 @@
 #include <radobjectlist.hpp>
 #include <radsoundupdatableobject.hpp>
 
-#define RSD_STREAM_NUM_BUFFERS 2
+#define RSD_STREAM_NUM_BUFFERS 3
 
 struct radSoundStreamPlayer 
 	:

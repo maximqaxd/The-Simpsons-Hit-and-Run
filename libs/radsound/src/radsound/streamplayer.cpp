@@ -138,7 +138,7 @@ void radSoundStreamPlayer::AllocateResources( IRadSoundHalAudioFormat * pIRadSou
     unsigned int optimalFrameMultiple = pIRadSoundHalAudioFormat->BytesToFrames(
         radSoundHalDataSourceReadMultipleGet( ) );
 
-    sizeInFrames = radMemoryRoundUp( sizeInFrames, optimalFrameMultiple );
+    sizeInFrames = radMemoryRoundUp( sizeInFrames / RSD_STREAM_NUM_BUFFERS, optimalFrameMultiple );
 
     sizeInFrames = ::radSoundHalBufferCalculateMemorySize( IRadSoundHalAudioFormat::Frames,
         sizeInFrames, IRadSoundHalAudioFormat::Frames, pIRadSoundHalAudioFormat );
@@ -472,13 +472,13 @@ void radSoundStreamPlayer::ServiceStateMachine( void )
 
 bool radSoundStreamPlayer::ServicePlay( void )
 {
-    unsigned int bufferSizeInSamples = m_xIRadSoundHalAudioFormat->ConvertSizeType(
+    unsigned int sizeInSamples = m_xIRadSoundHalAudioFormat->ConvertSizeType(
         IRadSoundHalAudioFormat::Samples, m_InitializeInfo_Size, m_InitializeInfo_SizeType);
     unsigned int playbackPositionInSamples = m_xIRadSoundHalVoice->GetPlaybackPositionInSamples( );
     unsigned int sourceSamplesLoaded = m_xIRadSoundHalAudioFormat->FramesToSamples( m_SourceFramesRead );
     unsigned int samplesPlayedThisFrame = playbackPositionInSamples - m_LastPlaybackPositionInSamples;
 
-    if ( samplesPlayedThisFrame > bufferSizeInSamples )
+    if ( samplesPlayedThisFrame > sizeInSamples / RSD_STREAM_NUM_BUFFERS )
     {
         if ( m_PollSkipLastFrame == false )
         {
