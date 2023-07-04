@@ -136,29 +136,30 @@ void radSoundHalVoiceWin::QueueBuffer(IRadSoundHalBuffer* pIRadSoundHalBuffer)
 
     m_xRadSoundHalBufferWin = NULL;
 
-    int samplesUnqueued, samplesPlayed, size, bits, channels, bufferSamples = 0, buffersProcessed = 0;
-    alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &samplesUnqueued);
+    ALint buffersProcessed;
     alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
     rAssert(alGetError() == AL_NO_ERROR);
+
+    // Unqueue all processed buffers before queueing new ones
     for (int i = 0; i < buffersProcessed; i++)
     {
         ALuint buffer;
         alSourceUnqueueBuffers(m_Source, 1, &buffer);
         rAssert(alGetError() == AL_NO_ERROR);
+
+        // Calculate the number of samples in this buffer to
+        // keep track of the current playback position
+        ALint size, bits, channels;
         alGetBufferi(buffer, AL_SIZE, &size);
         alGetBufferi(buffer, AL_BITS, &bits);
         alGetBufferi(buffer, AL_CHANNELS, &channels);
         rAssert(alGetError() == AL_NO_ERROR);
-        bufferSamples += (size / (bits / 8)) / channels;
+        m_SourceSamplesPlayed += (size / (bits / 8)) / channels;
+
+        // Delete the buffer since its data is no longer needed
         alDeleteBuffers(1, &buffer);
         rAssert(alGetError() == AL_NO_ERROR);
     }
-
-    alGetSourcei(m_Source, AL_SAMPLE_OFFSET, &samplesPlayed);
-    samplesUnqueued -= samplesPlayed;
-
-    rAssert(bufferSamples == samplesUnqueued);
-    m_SourceSamplesPlayed += bufferSamples;
 
     ref< IRadSoundHalAudioFormat > pOldIRadSoundHalAudioFormat = m_xIRadSoundHalAudioFormat;
     m_xIRadSoundHalAudioFormat = NULL;
