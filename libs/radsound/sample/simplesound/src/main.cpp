@@ -217,8 +217,6 @@ void Go( void )
         radSleep( 0 );
     }
 
-    ::radSoundHalSystemGet()->SetAuxEffect(0, NULL);
-
     //
     // Stream
     //
