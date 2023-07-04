@@ -277,7 +277,7 @@ void radSoundHalSystem::SetAuxEffect( unsigned int auxNumber, IRadSoundHalEffect
 
     if( m_refIRadSoundHalEffect[ auxNumber ] != NULL )
     {
-        m_refIRadSoundHalEffect[ auxNumber ]->Attach( m_AuxSlots[auxNumber] );
+        m_refIRadSoundHalEffect[ auxNumber ]->Attach( auxNumber );
     }
 }
 

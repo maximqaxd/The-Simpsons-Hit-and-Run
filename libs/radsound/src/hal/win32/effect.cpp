@@ -68,8 +68,9 @@ radSoundHalEffectEAX2Reverb::~radSoundHalEffectEAX2Reverb( void )
 // radSoundHalEffectEAX2Reverb::Attach
 //============================================================================
 
-void radSoundHalEffectEAX2Reverb::Attach( unsigned int auxSlot )
+void radSoundHalEffectEAX2Reverb::Attach( unsigned int auxSend )
 {
+    ALuint auxSlot = radSoundHalSystem::GetInstance()->GetOpenALAuxSlot(auxSend);
     alAuxiliaryEffectSloti(auxSlot, AL_EFFECTSLOT_EFFECT, m_Effect);
     m_AuxSlot = auxSlot;
 }
