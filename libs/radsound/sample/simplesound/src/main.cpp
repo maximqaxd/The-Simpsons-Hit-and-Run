@@ -32,6 +32,10 @@
 #include <raddebugcommunication.hpp>
 #include <radthread.hpp>
 
+#ifdef RAD_WIN32
+#include <radsound_win32.hpp>
+#endif
+
 #ifdef RAD_PS2
 #include <radsound_ps2.hpp>
 #endif
@@ -186,6 +190,34 @@ void Go( void )
     {
         radSleep( 0 );
     }
+
+    //
+    // Reverb
+    //
+
+    ref< IRadSoundHalPositionalGroup > pPosGroup = ::radSoundHalPositionalGroupCreate(RADMEMORY_ALLOC_DEFAULT);
+    refIRadSoundClipPlayer->SetPositionalGroup( pPosGroup );
+
+    ref< IRadSoundHalEffectEAX2Reverb > pEffect = radSoundHalEffectEAX2ReverbCreate( RADMEMORY_ALLOC_DEFAULT );
+    pEffect->SetEnvironmentDiffusion(1.0f);
+    pEffect->SetRoom(-1000);
+    pEffect->SetRoomHF(-1200);
+    pEffect->SetDecayTime(1.49f);
+    pEffect->SetDecayHFRatio(0.54f);
+    pEffect->SetReflections(-370);
+    pEffect->SetReflectionsDelay(0.007f);
+    pEffect->SetReverb(1030);
+    pEffect->SetReverbDelay(0.011f);
+    ::radSoundHalSystemGet()->SetAuxEffect(0, pEffect);
+    ::radSoundHalListenerGet()->SetEnvEffectsEnabled(true);
+    refIRadSoundClipPlayer->Play( );
+                
+    while( ! g_Quit && refIRadSoundClipPlayer->IsPlaying( ) )
+    {
+        radSleep( 0 );
+    }
+
+    ::radSoundHalSystemGet()->SetAuxEffect(0, NULL);
 
     //
     // Stream

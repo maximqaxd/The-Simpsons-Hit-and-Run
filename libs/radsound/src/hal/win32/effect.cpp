@@ -240,7 +240,7 @@ float radSoundHalEffectEAX2Reverb::GetAirAbsorptionHF( void )
 void radSoundHalEffectEAX2Reverb::OnParameterUpdated(void)
 {
     if (m_AuxSlot != AL_EFFECTSLOT_NULL)
-        Attach(m_AuxSlot);
+        alAuxiliaryEffectSloti(m_AuxSlot, AL_EFFECTSLOT_EFFECT, m_Effect);
 }
 
 //============================================================================

@@ -210,8 +210,8 @@ inline void radSoundVerifyAnalogVolume( float analog )
 
 inline void radSoundVerifyDbVolume( float db )
 {
-	// db <= 0
-	rAssert( db <= 0.0f );
+	// db <= 20
+	rAssert( db <= 20.0f );
 }
 
 inline void radSoundVerifyAmplitudeVolume( float amplitude )

@@ -33,13 +33,6 @@ radSoundHalVoiceWin::radSoundHalVoiceWin( void )
 	m_xRadSoundHalPositionalGroup( NULL )
 {
     alGenSources(1, &m_Source);
-
-    radSoundHalSystem* system = radSoundHalSystem::GetInstance();
-    for (unsigned int i = 0; i < system->GetNumAuxSends(); i++)
-    {
-        alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER, system->GetOpenALAuxSlot(i), i, NULL);
-        rWarningMsg(alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter");
-    }
 }
 
 //========================================================================
@@ -423,16 +416,12 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
 	IRadSoundHalPositionalGroup * pIRadSoundHalPositionalGroup 
 )
 {
-
 	radSoundHalPositionalGroup * pRadSoundHalPositionalGroup
 		= dynamic_cast< radSoundHalPositionalGroup * >(
 			pIRadSoundHalPositionalGroup );
-			
+
     if ( pRadSoundHalPositionalGroup != m_xRadSoundHalPositionalGroup )
     {
-        unsigned int oldPosition = GetPlaybackPositionInSamples( );
-        bool wasPlaying = IsPlaying( );
-
 	    if ( pRadSoundHalPositionalGroup != m_xRadSoundHalPositionalGroup )
         {
 		    if ( m_xRadSoundHalPositionalGroup != NULL )
@@ -448,22 +437,13 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
 		    }
 	    }
 
-	    if ( m_xRadSoundHalBufferWin != NULL )
-	    {
-		    // AddRefHere or SetBuffer will fail
-
-		    ref< radSoundHalBufferWin > xSoundHalBufferTemp( m_xRadSoundHalBufferWin );
-
-		    SetBuffer( m_xRadSoundHalBufferWin );
-	    }
-
-	    SetPlaybackPositionInSamples( oldPosition );
-
-	    if ( wasPlaying )
-	    {
-			    Play( );
-	    }
-	}        
+        radSoundHalSystem* system = radSoundHalSystem::GetInstance();
+        for (unsigned int i = 0; i < system->GetNumAuxSends(); i++)
+        {
+            alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER, system->GetOpenALAuxSlot(i), i, NULL);
+            rWarningMsg(alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter");
+        }
+	}
 }
 
 //========================================================================
