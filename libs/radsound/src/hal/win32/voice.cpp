@@ -107,19 +107,6 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 			m_xIRadSoundHalAudioFormat->Matches( pOldIRadSoundHalAudioFormat ) :
 			true
 		);
-
-        // make sure we're at the beggining, if we got the non-duplicate buffer back,
-        // it may still be set to the old position.
-
-    
-        SetPitchInternal( );
-        SetVolumeInternal( );
-        SetPlaybackPositionInSamples( 0 );
-
-        if ( m_xRadSoundHalPositionalGroup != NULL )
-        {
-			OnApplyPositionalInfo(radSoundHalListenerGet()->GetRollOffFactor());
-        }
     }
 }
 
