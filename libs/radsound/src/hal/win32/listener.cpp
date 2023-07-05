@@ -42,7 +42,8 @@ radSoundHalListener::radSoundHalListener
 	:
     m_EnvEffectsEnabled( false ),
 	m_RolloffFactor( 1.0f ),
-    m_EnvAuxSend( 0 )
+    m_EnvAuxSend( 0 ),
+	m_IsEfxListenerClean( true )
 {
 	rAssert( s_pTheRadSoundHalListener == NULL );
 	rAssert( pContext != NULL );
@@ -51,6 +52,7 @@ radSoundHalListener::radSoundHalListener
 	m_pContext = pContext;
 
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+	alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
 }
 
 //============================================================================
@@ -251,6 +253,7 @@ float radSoundHalListener::GetDopplerFactor( void )
 void radSoundHalListener::SetEnvEffectsEnabled( bool enabled )
 {
     m_EnvEffectsEnabled = enabled;
+	m_IsEfxListenerClean = false;
 }
 
 //============================================================================
@@ -270,6 +273,7 @@ void radSoundHalListener::SetEnvironmentAuxSend( unsigned int auxsend )
 {
     rAssert( auxsend < radSoundHalSystem::GetInstance( )->GetNumAuxSends( ) );
     m_EnvAuxSend = auxsend;
+	m_IsEfxListenerClean = false;
 }
 
 //============================================================================
@@ -297,6 +301,19 @@ void radSoundHalListener::UpdatePositionalSettings
 
 	alcSuspendContext(m_pContext);
 
+	if (!m_IsEfxListenerClean)
+	{
+		ref<radSoundHalSystem> refSystem = radSoundHalSystem::GetInstance();
+		for (unsigned int i = 0; i < refSystem->GetNumAuxSends(); i++)
+		{
+			alAuxiliaryEffectSloti(
+				refSystem->GetOpenALAuxSlot(i),
+				AL_EFFECTSLOT_AUXILIARY_SEND_AUTO,
+				m_EnvEffectsEnabled && i == m_EnvAuxSend);
+			rAssert(alGetError() == AL_NO_ERROR);
+		}
+	}
+
 	while ( pRadSoundHalPositionalGroup != NULL )
 	{
 		pRadSoundHalPositionalGroup->UpdatePositionalSettings( m_RolloffFactor );
@@ -308,7 +325,7 @@ void radSoundHalListener::UpdatePositionalSettings
 }
 
 //============================================================================
-// radSoundHalSystem::GetInstance
+// radSoundHalListener::GetInstance
 //============================================================================
 
 radSoundHalListener * radSoundHalListener::GetInstance( void )

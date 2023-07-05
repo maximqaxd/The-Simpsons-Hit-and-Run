@@ -76,9 +76,9 @@ struct radSoundHalListener
         unsigned int m_EnvAuxSend;
         
 		float m_RolloffFactor;
-        float m_pRollOffTable[ STD_ROLL_OFF_TABLE_NUM_POINTS ];
 
         bool m_IsEfxListenerClean;
+		LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti;
 };
 
 #endif // LISTENER_HPP

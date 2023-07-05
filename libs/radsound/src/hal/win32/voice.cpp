@@ -424,10 +424,12 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
 		    }
 	    }
 
-        radSoundHalSystem* system = radSoundHalSystem::GetInstance();
-        for (unsigned int i = 0; i < system->GetNumAuxSends(); i++)
+        ref<radSoundHalSystem> refSystem = radSoundHalSystem::GetInstance();
+        for (unsigned int i = 0; i < refSystem->GetNumAuxSends(); i++)
         {
-            alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER, system->GetOpenALAuxSlot(i), i, NULL);
+            alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER,
+                refSystem->GetOpenALAuxSlot(i),
+                i, NULL);
             rWarningMsg(alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter");
         }
 	}
