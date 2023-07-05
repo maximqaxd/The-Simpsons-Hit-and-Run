@@ -88,13 +88,9 @@ class radSoundHalEffectEAX2Reverb
         LPALGENEFFECTS alGenEffects;
         LPALDELETEEFFECTS alDeleteEffects;
         LPALEFFECTI alEffecti;
-        LPALEFFECTIV alEffectiv;
         LPALEFFECTF alEffectf;
-        LPALEFFECTFV alEffectfv;
         LPALGETEFFECTI alGetEffecti;
-        LPALGETEFFECTIV alGetEffectiv;
         LPALGETEFFECTF alGetEffectf;
-        LPALGETEFFECTFV alGetEffectfv;
         LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti;
 };
 

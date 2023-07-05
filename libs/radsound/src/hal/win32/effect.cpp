@@ -32,13 +32,9 @@ radSoundHalEffectEAX2Reverb::radSoundHalEffectEAX2Reverb( void )
     alGenEffects = (LPALGENEFFECTS)alGetProcAddress("alGenEffects");
     alDeleteEffects = (LPALDELETEEFFECTS)alGetProcAddress("alDeleteEffects");
     alEffecti = (LPALEFFECTI)alGetProcAddress("alEffecti");
-    alEffectiv = (LPALEFFECTIV)alGetProcAddress("alEffectiv");
     alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
-    alEffectfv = (LPALEFFECTFV)alGetProcAddress("alEffectfv");
     alGetEffecti = (LPALGETEFFECTI)alGetProcAddress("alGetEffecti");
-    alGetEffectiv = (LPALGETEFFECTIV)alGetProcAddress("alGetEffectiv");
     alGetEffectf = (LPALGETEFFECTF)alGetProcAddress("alGetEffectf");
-    alGetEffectfv = (LPALGETEFFECTFV)alGetProcAddress("alGetEffectfv");
     alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
 
     alGenEffects(1, &m_Effect);
