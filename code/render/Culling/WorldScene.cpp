@@ -83,37 +83,25 @@ static Vector3f TODO_GRANULARITY(20.0f, 2000.0f, 20.0f);
 #ifdef ZSORT_RENDER
 // Replace all the following qsort and stl compare functions with stl function objects
 
-struct gZSortCompare: public std::binary_function< IEntityDSG*, IEntityDSG*, bool >
+inline bool gZSortCompare( IEntityDSG* pArg1, IEntityDSG* pArg2 )
 {
-    inline bool operator() ( IEntityDSG* pArg1, IEntityDSG* pArg2 )
-    {
-        return pArg1->mRank < pArg2->mRank;
-    }
-};
+    return pArg1->mRank < pArg2->mRank;
+}
 
-struct gShaderCompare : public std::binary_function< const WorldScene::zSortBlah&, const WorldScene::zSortBlah&, bool >
+inline bool gShaderCompare( const WorldScene::zSortBlah& pArg1, const WorldScene::zSortBlah& pArg2 )
 {
-    inline bool operator() ( const WorldScene::zSortBlah& pArg1, const WorldScene::zSortBlah& pArg2 )
-    {
-        return pArg1.shaderUID < pArg2.shaderUID;        
-    }
-};
+    return pArg1.shaderUID < pArg2.shaderUID;        
+}
 
-struct gTestZ : public std::binary_function< IEntityDSG*, IEntityDSG*, bool >
+inline bool gTestZ( IEntityDSG* pArg1, IEntityDSG* pArg2 )
 {
-    inline bool operator() ( IEntityDSG* pArg1, IEntityDSG* pArg2 )
-    {
-        return pArg1->mRank < pArg2->mRank;
-    }
-};
-
-struct gTestShader : public std::binary_function< IEntityDSG*, IEntityDSG*, bool >
-{   
-    inline bool operator() ( IEntityDSG* pArg1, IEntityDSG* pArg2 )
-    {
-        return pArg1->GetShaderUID() < pArg2->GetShaderUID();
-    }
-};
+    return pArg1->mRank < pArg2->mRank;
+}
+  
+inline bool gTestShader( IEntityDSG* pArg1, IEntityDSG* pArg2 )
+{
+    return pArg1->GetShaderUID() < pArg2->GetShaderUID();
+}
 
 /*int gZSortCompare( const void *arg1, const void *arg2 )
 {
@@ -1469,27 +1457,23 @@ END_PROFILE("list construction")
 	    */
     #ifndef RAD_RELEASE
     BEGIN_PROFILE("STD::sort1")
-        gTestShader shaderTestObj;
-        std::sort(mSort1.begin(),mSort1.end(), shaderTestObj); 
+        std::sort(mSort1.begin(),mSort1.end(), gTestShader);
     END_PROFILE("STD::sort1")
 
     BEGIN_PROFILE("STD::sort2")
-        gTestZ zTestObj;
-        std::sort(mSort2.begin(),mSort2.end(), zTestObj); 
+        std::sort(mSort2.begin(),mSort2.end(), gTestZ);
     END_PROFILE("STD::sort2")
     #endif
 
 #ifndef TEST_DISTRIBUTED_SORT
     BEGIN_PROFILE("qsort1")
 	    //qsort(mpZSorts.mpData, (size_t)mpZSorts.mUseSize, sizeof(zSortBlah), gShaderCompare);
-        gShaderCompare blahShaderCompareObj;
-        std::sort( mpZSorts.begin(), mpZSorts.end(), blahShaderCompareObj );
+        std::sort( mpZSorts.begin(), mpZSorts.end(), gShaderCompare );
     END_PROFILE("qsort1")
 
     BEGIN_PROFILE("qsort2")
 	    //qsort(mpZSortsPass2.mpData, (size_t)mpZSortsPass2.mUseSize, sizeof(IEntityDSG*), gZSortCompare);
-        gZSortCompare dsgZSortObj;
-        std::sort( mpZSortsPass2.begin(), mpZSortsPass2.end(), dsgZSortObj );
+        std::sort( mpZSortsPass2.begin(), mpZSortsPass2.end(), gZSortCompare );
     END_PROFILE("qsort2")
 #endif
     //BEGIN_PROFILE("shadow caster zsort")
@@ -1714,8 +1698,7 @@ void WorldScene::RenderOpaque( void )
 #ifdef TEST_DISTRIBUTED_SORT
     BEGIN_PROFILE("qsort1")
 	    //qsort(mpZSorts.mpData, (size_t)mpZSorts.mUseSize, sizeof(zSortBlah), gShaderCompare);
-        gShaderCompare blahShaderCompareObj;
-        std::sort( mpZSorts.begin(), mpZSorts.end(), blahShaderCompareObj );
+        std::sort( mpZSorts.begin(), mpZSorts.end(), gShaderCompare );
     END_PROFILE("qsort1")
 #endif
 DSG_SET_PROFILE('O')
@@ -1741,8 +1724,7 @@ void WorldScene::RenderTranslucent( void )
 #ifdef TEST_DISTRIBUTED_SORT
     BEGIN_PROFILE("qsort2")
 	    //qsort(mpZSortsPass2.mpData, (size_t)mpZSortsPass2.mUseSize, sizeof(IEntityDSG*), gZSortCompare);
-        gZSortCompare dsgZSortObj;
-        std::sort( mpZSortsPass2.begin(), mpZSortsPass2.end(), dsgZSortObj );
+        std::sort( mpZSortsPass2.begin(), mpZSortsPass2.end(), gZSortCompare );
     END_PROFILE("qsort2")
 #endif
 DSG_SET_PROFILE('T')

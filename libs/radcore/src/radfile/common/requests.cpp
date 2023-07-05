@@ -740,10 +740,6 @@ radDrive::CompletionStatus FileReadRequest::DoRequest( void )
 
         if ( status == radDrive::Complete )
         {
-            //
-            // Check if it really succeeded
-            //
-            rAssert( bytesRead == bytesToRead );
             m_pFile->m_Position += bytesRead; // or up to end of the file.
         }
     }

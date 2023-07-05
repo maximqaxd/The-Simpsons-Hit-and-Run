@@ -32,8 +32,10 @@ class radDrive;
 //=============================================================================
 
 #if defined( RAD_WIN32 ) || defined( RAD_XBOX )
-typedef void* radFileHandle;
-typedef void* radFileDirHandle;
+#include <fstream>
+#include <filesystem>
+typedef std::fstream* radFileHandle;
+typedef std::filesystem::directory_iterator radFileDirHandle;
 #endif
 
 #ifdef RAD_PS2

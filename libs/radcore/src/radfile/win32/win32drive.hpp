@@ -127,18 +127,15 @@ public:
     CompletionStatus DestroyFile( const char* filename );
 
 private:
-    DWORD SetMediaInfo( void );
-    void BuildFileSpec( const char* fileName, char* fullName, unsigned int size );
-    radFileError TranslateError( DWORD windowsError );
-    radFileError TranslateDirInfo( IRadDrive::DirectoryInfo*   pDirectoryInfo, 
-                                   const WIN32_FIND_DATA*      pFindData,
-                                   const radFileDirHandle*     pHandle );
+    void SetMediaInfo( void );
+    radFileError TranslateError( std::error_code error );
+    void TranslateDirInfo( IRadDrive::DirectoryInfo*   pDirectoryInfo, 
+                           const std::filesystem::path entryPath,
+                           const radFileDirHandle*     pHandle );
 
     unsigned int    m_Capabilities;
-    UINT            m_OldErrorSetting;
     unsigned int    m_OpenFiles;
     char            m_DriveName[ radFileDrivenameMax + 1 ];
-    DWORD           m_SerialNumber;
 
     //
     // Mutex for critical sections
