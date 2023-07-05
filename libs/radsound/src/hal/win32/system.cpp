@@ -47,7 +47,6 @@ radSoundHalSystem::~radSoundHalSystem( void )
 {
 	radSoundHalListener::Terminate( );
 
-    LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
     if (m_NumAuxSends > 0)
         alDeleteAuxiliaryEffectSlots(m_NumAuxSends, m_AuxSlots);
 
@@ -84,7 +83,7 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
 
     m_pDevice = alcOpenDevice(NULL);
 
-    ALenum err = alGetError();
+    ALenum err = alcGetError(m_pDevice);
     rAssertMsg(err == AL_NO_ERROR, "OpenAL device couldn't be opened.");
 
     if (err == AL_NO_ERROR)
@@ -100,7 +99,7 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
         };
         m_pContext = alcCreateContext(m_pDevice, attr);
 
-        ALenum err = alGetError();
+        ALenum err = alcGetError(m_pDevice);
         rAssertMsg(err == AL_NO_ERROR, "OpenAL context couldn't be created.");
 
         if (err == AL_NO_ERROR)
@@ -109,7 +108,10 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
 
             if (m_NumAuxSends > 0 && alcIsExtensionPresent(m_pDevice, "ALC_EXT_EFX"))
             {
-                LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
+                alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");;
+                alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
+                alAuxiliaryEffectSlotf = (LPALAUXILIARYEFFECTSLOTF)alGetProcAddress("alAuxiliaryEffectSlotf");
+
                 alcGetIntegerv(m_pDevice, ALC_MAX_AUXILIARY_SENDS, 1, &m_NumAuxSends);
                 alGenAuxiliaryEffectSlots(m_NumAuxSends, m_AuxSlots);
             }
@@ -297,7 +299,9 @@ IRadSoundHalEffect * radSoundHalSystem::GetAuxEffect( unsigned int auxNumber )
 
 void radSoundHalSystem::SetAuxGain( unsigned int aux, float gain )
 {
-    rWarningMsg( false, "system::SetAuxGain not supported on PC" );
+    rAssert(aux < m_NumAuxSends);
+    alAuxiliaryEffectSlotf(m_AuxSlots[aux], AL_EFFECTSLOT_GAIN, gain);
+    rAssert(alGetError() == AL_NO_ERROR);
 }
 
 //============================================================================
@@ -306,8 +310,12 @@ void radSoundHalSystem::SetAuxGain( unsigned int aux, float gain )
 
 float radSoundHalSystem::GetAuxGain( unsigned int aux )
 {
+    rAssert(aux < m_NumAuxSends);
     rWarningMsg( false, "system::GetAuxGain not supported on PC" );
-    return 1.0f;
+    ALfloat gain;
+    alGetAuxiliaryEffectSlotf(m_AuxSlots[aux], AL_EFFECTSLOT_GAIN, &gain);
+    rAssert(alGetError() == AL_NO_ERROR);
+    return gain;
 }
 
 //============================================================================

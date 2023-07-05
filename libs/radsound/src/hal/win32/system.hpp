@@ -16,7 +16,6 @@
 #include <radsound_hal.hpp>
 #include "radsoundwin.hpp"
 #include "../../common/radsoundupdatableobject.hpp"
-#include <alc.h>
 
 //============================================================================
 // Definitiona
@@ -71,6 +70,11 @@ class radSoundHalSystem
         ref< IRadSoundHalEffect >      m_refIRadSoundHalEffect[ RSD_SYSTEM_MAX_AUX_SENDS ];
 
         unsigned int    m_LastServiceTime;
+
+        LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots;
+        LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots;
+        LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf;
+        LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf;
 };
 
 #endif // SOUND_HAL_WIN32_SYSTEM_HPP
