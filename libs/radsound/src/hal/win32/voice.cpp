@@ -462,9 +462,9 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
 
     radSoundHalPositionalGroup* p = m_xRadSoundHalPositionalGroup;
 
-    alSource3f(m_Source, AL_POSITION, p->m_Position.m_x, p->m_Position.m_y, p->m_Position.m_z);
-    alSource3f(m_Source, AL_VELOCITY, p->m_Velocity.m_x, p->m_Velocity.m_y, p->m_Velocity.m_z);
-    alSource3f(m_Source, AL_DIRECTION, p->m_Direction.m_x, p->m_Direction.m_y, p->m_Direction.m_z);
+    alSource3f(m_Source, AL_POSITION, p->m_Position.m_x, p->m_Position.m_y, -p->m_Position.m_z);
+    alSource3f(m_Source, AL_VELOCITY, p->m_Velocity.m_x, p->m_Velocity.m_y, -p->m_Velocity.m_z);
+    alSource3f(m_Source, AL_DIRECTION, p->m_Direction.m_x, p->m_Direction.m_y, -p->m_Direction.m_z);
     alSourcef(m_Source, AL_CONE_INNER_ANGLE, p->m_ConeOuterAngle);
     alSourcef(m_Source, AL_CONE_OUTER_ANGLE, p->m_ConeInnerAngle);
     alSourcef(m_Source, AL_CONE_OUTER_GAIN, p->m_ConeOuterGain);

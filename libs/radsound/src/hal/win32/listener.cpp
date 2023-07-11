@@ -79,8 +79,7 @@ void radSoundHalListener::SetPosition
 {
 	rAssert( pPosition != NULL );
 
-
-	alListenerfv(AL_POSITION, (float*)pPosition);
+	alListener3f(AL_POSITION, pPosition->m_x, pPosition->m_y, -pPosition->m_z);
 }
 
 //========================================================================
@@ -95,6 +94,7 @@ void radSoundHalListener::GetPosition
 	rAssert( pPosition != NULL );
 
 	alGetListenerfv(AL_POSITION, (float*)pPosition);
+	pPosition->m_z *= -1;
 }
 
 //========================================================================
@@ -116,8 +116,8 @@ void radSoundHalListener::SetVelocity
 	}
 	
 #endif
-
-	alListenerfv(AL_VELOCITY, (float*)pVelocity);
+	
+	alListener3f(AL_VELOCITY, pVelocity->m_x, pVelocity->m_y, -pVelocity->m_z);
 }
 
 //========================================================================
@@ -132,6 +132,7 @@ void radSoundHalListener::GetVelocity
     rAssert( pVelocity != NULL );
 
 	alGetListenerfv(AL_VELOCITY, (float*)pVelocity);
+	pVelocity->m_z *= -1;
 }
 
 //========================================================================
@@ -151,6 +152,8 @@ void radSoundHalListener::SetOrientation
         *pOrientationFront,
         *pOrientationTop
     };
+	orientation[0].m_z *= -1;
+	orientation[1].m_z *= -1;
     alListenerfv(AL_ORIENTATION, (float*)orientation);
 }
 
@@ -170,11 +173,13 @@ void radSoundHalListener::GetOrientation
 	if( pOrientationFront != NULL )
 	{
 		*pOrientationFront = orientation[0];
+		pOrientationFront->m_z *= -1;
 	}
 
 	if( pOrientationTop != NULL )
 	{
 		*pOrientationTop = orientation[1];
+		pOrientationTop->m_z *= -1;
 	}
 }
 
