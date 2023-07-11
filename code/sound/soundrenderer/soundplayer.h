@@ -395,10 +395,10 @@ inline void daSoundClipStreamPlayer::SetPitch( float pitch )
     {
         rDebugPrintf( "AUDIO: Error, pitch set to: [%f]\n", pitch );
                 
-        pitch = 0.0f;
+        pitch = 0.001f;
     }
     
-    // radSoundVerifyAnalogPitch( pitch );     
+    radSoundVerifyAnalogPitch( pitch );     
     
     m_Pitch = pitch;
 }
