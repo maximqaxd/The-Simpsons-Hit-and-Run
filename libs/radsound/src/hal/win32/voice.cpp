@@ -112,10 +112,6 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 
 void radSoundHalVoiceWin::QueueBuffer(IRadSoundHalBuffer* pIRadSoundHalBuffer)
 {
-    rAssert(m_xRadSoundHalBufferWin == NULL);
-
-    m_xRadSoundHalBufferWin = NULL;
-
     ALint buffersProcessed;
     alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
     rAssert(alGetError() == AL_NO_ERROR);
@@ -136,13 +132,20 @@ void radSoundHalVoiceWin::QueueBuffer(IRadSoundHalBuffer* pIRadSoundHalBuffer)
         rAssert(alGetError() == AL_NO_ERROR);
         m_SourceSamplesPlayed += (size / (bits / 8)) / channels;
 
-        // Delete the buffer since its data is no longer needed
-        alDeleteBuffers(1, &buffer);
-        rAssert(alGetError() == AL_NO_ERROR);
+        if (m_xRadSoundHalBufferWin->IsStreaming())
+        {
+            // Delete the buffer since its data is no longer needed
+            alDeleteBuffers(1, &buffer);
+            rAssert(alGetError() == AL_NO_ERROR);
+        }
     }
 
     ref< IRadSoundHalAudioFormat > pOldIRadSoundHalAudioFormat = m_xIRadSoundHalAudioFormat;
     m_xIRadSoundHalAudioFormat = NULL;
+    m_xRadSoundHalBufferWin = static_cast< radSoundHalBufferWin * >( pIRadSoundHalBuffer );
+
+    // Switching a voice between streaming and non-streaming on-the-fly has not been tested
+    rAssert(m_xRadSoundHalBufferWin->IsStreaming());
 
     if (pIRadSoundHalBuffer != NULL)
     {
@@ -209,15 +212,16 @@ void radSoundHalVoiceWin::Stop( void )
 
         alSourceStop(m_Source);
 
-        int buffersProcessed;
-        alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
-        rAssert(alGetError() == AL_NO_ERROR);
-        for (int i = 0; i < buffersProcessed; i++)
+        if (m_xRadSoundHalBufferWin->IsStreaming())
         {
-            ALuint buffer;
-            alSourceUnqueueBuffers(m_Source, 1, &buffer);
-            rAssert(alGetError() == AL_NO_ERROR);
-            alDeleteBuffers(1, &buffer);
+            int buffersProcessed;
+            alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed);
+            for (int i = 0; i < buffersProcessed; i++)
+            {
+                ALuint buffer;
+                alSourceUnqueueBuffers(m_Source, 1, &buffer);
+                alDeleteBuffers(1, &buffer);
+            }
         }
 
         rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::Stop failed");
