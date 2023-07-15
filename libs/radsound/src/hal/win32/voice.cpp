@@ -32,7 +32,8 @@ radSoundHalVoiceWin::radSoundHalVoiceWin( void )
     m_Trim( 1.0f ),
 	m_xRadSoundHalPositionalGroup( NULL )
 {
-    alGenSources(1, &m_Source);
+    alGenSources( 1, &m_Source );
+    alSourcei( m_Source, AL_SOURCE_RELATIVE, AL_TRUE );
 }
 
 //========================================================================
@@ -431,11 +432,22 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
         ref<radSoundHalSystem> refSystem = radSoundHalSystem::GetInstance();
         for (unsigned int i = 0; i < refSystem->GetNumAuxSends(); i++)
         {
-            alSource3i(m_Source, AL_AUXILIARY_SEND_FILTER,
-                refSystem->GetOpenALAuxSlot(i),
-                i, NULL);
-            rWarningMsg(alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter");
+            alSource3i( m_Source, AL_AUXILIARY_SEND_FILTER,
+                refSystem->GetOpenALAuxSlot( i ),
+                i, NULL );
+            rWarningMsg( alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter" );
         }
+
+        alSource3f( m_Source, AL_POSITION, 0.0f, 0.0f, 0.0f );
+        alSource3f( m_Source, AL_VELOCITY, 0.0f, 0.0f, 0.0f );
+        alSource3f( m_Source, AL_DIRECTION, 0.0f, 0.0f, 0.0f );
+        alSourcei( m_Source, AL_CONE_INNER_ANGLE, 360 );
+        alSourcei( m_Source, AL_CONE_OUTER_ANGLE, 360 );
+        alSourcef( m_Source, AL_CONE_OUTER_GAIN, 1.0f );
+        alSourcef( m_Source, AL_REFERENCE_DISTANCE, 1.0f );
+        alSourcef( m_Source, AL_MAX_DISTANCE, 1000.0f );
+        alSourcef( m_Source, AL_ROLLOFF_FACTOR, 0.0f );
+        alSourcei( m_Source, AL_SOURCE_RELATIVE, m_xRadSoundHalPositionalGroup == NULL );
 	}
 }
 
