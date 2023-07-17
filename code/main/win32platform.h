@@ -14,16 +14,11 @@
 #define WIN32PLATFORM_H
 
 //========================================
-// System Includes
-//========================================
-
-#include <windows.h>
-
-//========================================
 // Nested Includes
 //========================================
 #include "platform.h" // base class
 #include <data/config/gameconfig.h> // interface
+#include <SDL.h>
 
 //========================================
 // Forward References
@@ -31,14 +26,6 @@
 struct IRadMemoryHeap;
 class tPlatform;
 class tContext;
-
-
-struct MOUSETRACKER 
-{
-    DWORD cbSize;
-    DWORD dwFlags;
-    HWND  hwndTrack;
-};
 
 //=============================================================================
 //
@@ -62,13 +49,13 @@ public:
 public:
 
     // Static Methods for accessing this singleton.
-    static Win32Platform* CreateInstance( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow );
+    static Win32Platform* CreateInstance();
     static Win32Platform* GetInstance();
     static void DestroyInstance();
 
     // Had to workaround our nice clean design cause FTech must be init'ed
     // before anything else is done.
-    static bool InitializeWindow( HINSTANCE hInstance );
+    static bool InitializeWindow();
     static void InitializeFoundation();
     static void InitializeMemory();
     static void ShutdownMemory();
@@ -99,7 +86,7 @@ public:
     virtual bool OnDriveError( radFileError error, const char* pDriveName, void* pUserData );  
     virtual void OnControllerError(const char *msg);
 
-    HWND GetHwnd() const { return mhWnd; }
+    SDL_Window* GetWindow() const { return mWnd; }
 
     // Set the resolution of the display, or increase the size of the window.
     // Returns true if the change was successful, false if resolution is not supported.
@@ -119,7 +106,7 @@ public:
 private:
 
     // Constructors, Destructors, and Operators
-    Win32Platform( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow );
+    Win32Platform();
     virtual ~Win32Platform();
 
     // Unused Constructors, Destructors, and Operators
@@ -140,14 +127,10 @@ private:
     static void TranslateResolution( Resolution res, int&x, int&y );
     bool IsResolutionSupported( Resolution res, int bpp ) const;
 
-    // Mouse tracking method
-    static BOOL TrackMouseEvent( MOUSETRACKER* pMouseEventTracker );
-    static void CALLBACK TrackMouseTimerProc( HWND hWnd, UINT uMsg, UINT idEvent,DWORD dwTime );
-
     // Windows methods.
     void ResizeWindow();
     static void ShowTheCursor( bool show );
-    static LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam );
+    static int SDLCALL WndProc( void* userdata, SDL_Event* msg );
 
 private:
 
@@ -156,9 +139,10 @@ private:
 
     // Private Attributes
     // Had to make these static because of the initialization order problem.
-    static HINSTANCE mhInstance;
-    static HWND mhWnd;
-    static HANDLE mhMutex;
+    static SDL_Window* mWnd;
+#ifdef WIN32
+    static void * mhMutex;
+#endif
     static bool mShowCursor;
 
     // Pure 3D attributes

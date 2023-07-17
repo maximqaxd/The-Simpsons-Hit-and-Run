@@ -13,6 +13,8 @@
 //========================================
 // System Includes
 //========================================
+#include <SDL.h>
+#include <SDL_syswm.h>
 // Standard Lib
 #include <stdlib.h>
 #include <string.h>
@@ -139,9 +141,11 @@
 Win32Platform* Win32Platform::spInstance = NULL;
 
 // Other static members.
-HINSTANCE Win32Platform::mhInstance = NULL;
-HWND Win32Platform::mhWnd = NULL;
-HANDLE Win32Platform::mhMutex = NULL;
+SDL_Window* Win32Platform::mWnd = NULL;
+#ifdef WIN32
+#include <Windows.h>
+void* Win32Platform::mhMutex = NULL;
+#endif
 bool Win32Platform::mShowCursor = true;
 
 //The Adlib font.  <sigh>
@@ -203,12 +207,12 @@ void LoadMemP3DFile( unsigned char* buffer, unsigned int size, tEntityStore* sto
 // Constraints: This is a singleton so only one instance is allowed.
 //
 //==============================================================================
-Win32Platform* Win32Platform::CreateInstance( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+Win32Platform* Win32Platform::CreateInstance()
 {
 MEMTRACK_PUSH_GROUP( "Win32Platform" );
     rAssert( spInstance == NULL );
 
-    spInstance = new(GMA_PERSISTENT) Win32Platform( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+    spInstance = new(GMA_PERSISTENT) Win32Platform();
     rAssert( spInstance );
 MEMTRACK_POP_GROUP( "Win32Platform" );
 
@@ -272,8 +276,9 @@ void Win32Platform::DestroyInstance()
 // Constraints: Must be initialized before the platform.
 //
 //==============================================================================
-bool Win32Platform::InitializeWindow( HINSTANCE hInstance ) 
+bool Win32Platform::InitializeWindow() 
 {
+#ifdef WIN32
     // check to see if another instance is running...
     mhMutex = CreateMutex(NULL, 0, ApplicationName);
     if (GetLastError() == ERROR_ALREADY_EXISTS)
@@ -299,67 +304,24 @@ bool Win32Platform::InitializeWindow( HINSTANCE hInstance )
             return false;
         }
     }
+#endif
 
-    mhInstance = hInstance;
+    int w, h;
+    TranslateResolution( StartingResolution, w, h );
+    mWnd = SDL_CreateWindow( ApplicationName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL );
 
-    // Create and resigter an object that defines the window that we will
-    // run our game in.
-    WNDCLASS Wndclass;
-    Wndclass.style = CS_HREDRAW | CS_VREDRAW;
-    Wndclass.lpfnWndProc = WndProc;
-    Wndclass.cbClsExtra = 0;
-    Wndclass.cbWndExtra = 0;
-    Wndclass.hInstance = mhInstance;
-    Wndclass.hIcon = LoadIcon( mhInstance, "IDI_SIMPSONSICON" );
-    Wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    Wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    Wndclass.lpszMenuName= NULL;
-    Wndclass.lpszClassName = ApplicationName;
-    ::RegisterClass(&Wndclass);
+    rAssert(mWnd != NULL);
 
-    // Set up the window.
-    int x, y;
-    TranslateResolution( StartingResolution, x, y );
-
-    RECT clientRect;
-    clientRect.left = 0;
-    clientRect.top = 0;
-    clientRect.right = x;
-    clientRect.bottom = y;
-
-    // for windowed mode, center the screen
-    int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-    while (nScreenWidth > 1600 ) // probably multimonitor
-    {
-        nScreenWidth /= 2;
-    }
-
-    // centre the window
-    clientRect.left = (nScreenWidth-x)/2;
-    clientRect.top  = (nScreenHeight-y)/2;
-    clientRect.right += clientRect.left;
-    clientRect.bottom += clientRect.top;
-
-    AdjustWindowRect(&clientRect,WndStyle,FALSE);
-
-    // Create the game's main window.
-    mhWnd = ::CreateWindow(ApplicationName,
-        ApplicationName,
-        WndStyle,
-        clientRect.left,
-        clientRect.top,
-        clientRect.right-clientRect.left, 
-        clientRect.bottom-clientRect.top,
-        NULL,
-        NULL,
-        mhInstance,
-        NULL);
-
-    rAssert(mhWnd != NULL);
+#if defined( PRINT_WINMESSAGES ) && defined( RAD_DEBUG )
+    SDL_SetHint( SDL_HINT_EVENT_LOGGING, "1" );
+#endif
+    SDL_SetEventFilter( WndProc, mWnd );
 
     ShowTheCursor( false );
+
+    SDL_GetWindowGammaRamp( mWnd, DesktopGammaRamp[0], DesktopGammaRamp[1], DesktopGammaRamp[2] );
+
+    SDL_DisableScreenSaver();
 
     return true;
 }
@@ -412,7 +374,7 @@ void Win32Platform::InitializeFoundation()
     //
     // Initilalize the platform system
     // 
-    ::radPlatformInitialize( mhWnd, mhInstance, 0 );
+    ::radPlatformInitialize( mWnd );
 
     //
     // Initialize the timer system
@@ -545,9 +507,9 @@ void Win32Platform::InitializePlatform()
     DisplaySplashScreen( Error ); // blank screen
 
     //
-    // Show the window on the screen.  Must be done before initializing the input manager.
+    // Show in fullscreen if fullscreen flag is set.
     //
-    ShowWindow( mhWnd, mFullscreen ? SW_SHOWMAXIMIZED : SW_SHOW );
+    SDL_SetWindowFullscreen( mWnd, mFullscreen ? SDL_WINDOW_FULLSCREEN : 0 );
 
     //
     // Opening the drive is SLOW...
@@ -1204,14 +1166,13 @@ void Win32Platform::SaveConfig( ConfigString& config )
 // Return:      N/A.
 //
 //==============================================================================
-Win32Platform::Win32Platform( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) :
+Win32Platform::Win32Platform() :
     mpPlatform( NULL ),
     mpContext( NULL ),
     mResolution( StartingResolution ),
     mbpp( StartingBPP ),
     mRenderer( "dx8" )
 {
-    mhInstance = hInstance;
     mFullscreen = false;
 
     mScreenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -1336,7 +1297,7 @@ MEMTRACK_PUSH_GROUP( "Win32Platform" );
     // This call differs between different platforms.  The Win32 version,
     // for example requires the application instance to be passed in.
     //
-    mpPlatform = tPlatform::Create( mhInstance );
+    mpPlatform = tPlatform::Create( mWnd );
     rAssert( mpPlatform != NULL );
 
     //
@@ -1582,11 +1543,14 @@ void Win32Platform::ShutdownPure3D()
 void Win32Platform::InitializeContext()
 {
     tContextInitData init;
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION( &wmInfo.version );
+    SDL_GetWindowWMInfo( mWnd, &wmInfo );
 
     //
     // This is the window we want to render into.
     //
-    init.hwnd = mhWnd;
+    init.hwnd = wmInfo.info.win.window;
 
     //
     // Set the fullscreen/window mode.
@@ -1737,32 +1701,6 @@ bool Win32Platform::IsResolutionSupported( Resolution res, int bpp ) const
     return false;
 }
 
-//==============================================================================
-// Win32Platform::TrackMouseEvent
-//==============================================================================
-// Description: Determines if a resolution is supported on this pc
-//
-// Parameters:	pMouseEventTracker - the tracker
-//
-// Return:      true if succeeded in creating a timer.
-//
-//==============================================================================
-BOOL Win32Platform::TrackMouseEvent( MOUSETRACKER* pMouseEventTracker ) 
-{
-    if ( !pMouseEventTracker || pMouseEventTracker->cbSize < sizeof(MOUSETRACKER) ) 
-        return false;
-
-    if( !IsWindow( pMouseEventTracker->hwndTrack ) ) 
-        return false;
-
-    if( !(pMouseEventTracker->dwFlags & TIMER_LEAVE) )
-        return false;
-
-    return SetTimer( pMouseEventTracker->hwndTrack, 
-                     pMouseEventTracker->dwFlags, 
-                     100, (TIMERPROC)TrackMouseTimerProc );
-}
-
 //=============================================================================
 // Win32Platform::ResizeWindow
 //=============================================================================
@@ -1783,40 +1721,12 @@ void Win32Platform::ResizeWindow()
         return;
     }
 
-    int x,y,cx,cy;
-    RECT clientRect;
+    int w,h;
+    TranslateResolution( mResolution, w, h );
 
-    TranslateResolution( mResolution, cx, cy );
-
-    if( cx < mScreenWidth )     // if the window fits on the desktop
-    {
-        x = ( mScreenWidth - cx ) / 2;
-        y = ( mScreenHeight - cy ) / 2;
-
-        // Adjust the rectangle for the title bar and borders
-        clientRect.left = x;
-        clientRect.top = y;
-        clientRect.right = x+cx;
-        clientRect.bottom = y+cy;
-        
-        AdjustWindowRect(&clientRect,WndStyle,FALSE);
-    }
-    else    // if the window is bigger than the client area
-    {
-        clientRect.left = 0;
-        clientRect.top = 0;
-        clientRect.right = cx;
-        clientRect.bottom = cy;
-    }
-
-    SetWindowPos( mhWnd, 
-                  HWND_TOP, 
-                  clientRect.left, 
-                  clientRect.top, 
-                  clientRect.right-clientRect.left,
-                  clientRect.bottom-clientRect.top,
-                  0 );
-    ShowWindow( mhWnd, SW_SHOW );
+    SDL_SetWindowSize( mWnd, w, h );
+    SDL_SetWindowPosition( mWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
+    SDL_ShowWindow( mWnd );
 }
 
 //=============================================================================
@@ -1838,265 +1748,7 @@ void Win32Platform::ShowTheCursor( bool show )
     if( mShowCursor != show )
     {        
         mShowCursor = show;
-        ShowCursor( mShowCursor );
-    }
-}
-
-//=============================================================================
-// GetMessageName
-//=============================================================================
-// Description: Prints the name of windows messages.
-//
-// Parameters:  message - message id
-//
-// Returns:     string name
-//
-// Notes:
-//=============================================================================
-
-#if defined( PRINT_WINMESSAGES ) && defined( RAD_DEBUG )
-static const char* GetMessageName( UINT message )
-{
-    switch ( message )
-    {
-    case 0x0000: return "WM_NULL";
-    case 0x0001: return "WM_CREATE";
-    case 0x0002: return "WM_DESTROY";
-    case 0x0003: return "WM_MOVE";
-    case 0x0005: return "WM_SIZE";
-    case 0x0006: return "WM_ACTIVATE";
-    case 0x0007: return "WM_SETFOCUS";
-    case 0x0008: return "WM_KILLFOCUS";
-    case 0x000A: return "WM_ENABLE";
-    case 0x000B: return "WM_SETREDRAW";
-    case 0x000C: return "WM_SETTEXT";
-    case 0x000D: return "WM_GETTEXT";
-    case 0x000E: return "WM_GETTEXTLENGTH";
-    case 0x000F: return "WM_PAINT";
-    case 0x0010: return "WM_CLOSE";
-    case 0x0011: return "WM_QUERYENDSESSION";
-    case 0x0013: return "WM_QUERYOPEN";
-    case 0x0016: return "WM_ENDSESSION";
-    case 0x0012: return "WM_QUIT";
-    case 0x0014: return "WM_ERASEBKGND";
-    case 0x0015: return "WM_SYSCOLORCHANGE";
-    case 0x0018: return "WM_SHOWWINDOW";
-    case 0x001A: return "WM_WININICHANGE";
-    case 0x001B: return "WM_DEVMODECHANGE";
-    case 0x001C: return "WM_ACTIVATEAPP";
-    case 0x001D: return "WM_FONTCHANGE";
-    case 0x001E: return "WM_TIMECHANGE";
-    case 0x001F: return "WM_CANCELMODE";
-    case 0x0020: return "WM_SETCURSOR";
-    case 0x0021: return "WM_MOUSEACTIVATE";
-    case 0x0022: return "WM_CHILDACTIVATE";
-    case 0x0023: return "WM_QUEUESYNC";
-    case 0x0024: return "WM_GETMINMAXINFO";
-    case 0x0026: return "WM_PAINTICON";
-    case 0x0027: return "WM_ICONERASEBKGND";
-    case 0x0028: return "WM_NEXTDLGCTL";
-    case 0x002A: return "WM_SPOOLERSTATUS";
-    case 0x002B: return "WM_DRAWITEM";
-    case 0x002C: return "WM_MEASUREITEM";
-    case 0x002D: return "WM_DELETEITEM";
-    case 0x002E: return "WM_VKEYTOITEM";
-    case 0x002F: return "WM_CHARTOITEM";
-    case 0x0030: return "WM_SETFONT";
-    case 0x0031: return "WM_GETFONT";
-    case 0x0032: return "WM_SETHOTKEY";
-    case 0x0033: return "WM_GETHOTKEY";
-    case 0x0037: return "WM_QUERYDRAGICON";
-    case 0x0039: return "WM_COMPAREITEM";
-    case 0x0041: return "WM_COMPACTING";
-    case 0x0044: return "WM_COMMNOTIFY";
-    case 0x0046: return "WM_WINDOWPOSCHANGING";
-    case 0x0047: return "WM_WINDOWPOSCHANGED";
-    case 0x0048: return "WM_POWER";
-    case 0x004A: return "WM_COPYDATA";
-    case 0x004B: return "WM_CANCELJOURNAL";
-    case 0x004E: return "WM_NOTIFY";
-    case 0x0050: return "WM_INPUTLANGCHANGEREQUEST";
-    case 0x0051: return "WM_INPUTLANGCHANGE";
-    case 0x0052: return "WM_TCARD";
-    case 0x0053: return "WM_HELP";
-    case 0x0054: return "WM_USERCHANGED";
-    case 0x0055: return "WM_NOTIFYFORMAT";
-    case 0x007B: return "WM_CONTEXTMENU";
-    case 0x007C: return "WM_STYLECHANGING";
-    case 0x007D: return "WM_STYLECHANGED";
-    case 0x007E: return "WM_DISPLAYCHANGE";
-    case 0x007F: return "WM_GETICON";
-    case 0x0080: return "WM_SETICON";
-    case 0x0081: return "WM_NCCREATE";
-    case 0x0082: return "WM_NCDESTROY";
-    case 0x0083: return "WM_NCCALCSIZE";
-    case 0x0084: return "WM_NCHITTEST";
-    case 0x0085: return "WM_NCPAINT";
-    case 0x0086: return "WM_NCACTIVATE";
-    case 0x0087: return "WM_GETDLGCODE";
-    case 0x0088: return "WM_SYNCPAINT";
-    case 0x00A0: return "WM_NCMOUSEMOVE";
-    case 0x00A1: return "WM_NCLBUTTONDOWN";
-    case 0x00A2: return "WM_NCLBUTTONUP";
-    case 0x00A3: return "WM_NCLBUTTONDBLCLK";
-    case 0x00A4: return "WM_NCRBUTTONDOWN";
-    case 0x00A5: return "WM_NCRBUTTONUP";
-    case 0x00A6: return "WM_NCRBUTTONDBLCLK";
-    case 0x00A7: return "WM_NCMBUTTONDOWN";
-    case 0x00A8: return "WM_NCMBUTTONUP";
-    case 0x00A9: return "WM_NCMBUTTONDBLCLK";
-    case 0x00AB: return "WM_NCXBUTTONDOWN";
-    case 0x00AC: return "WM_NCXBUTTONUP";
-    case 0x00AD: return "WM_NCXBUTTONDBLCLK";
-    case 0x00FF: return "WM_INPUT";
-    case 0x0100: return "WM_KEYDOWN";
-    case 0x0101: return "WM_KEYUP";
-    case 0x0102: return "WM_CHAR";
-    case 0x0103: return "WM_DEADCHAR";
-    case 0x0104: return "WM_SYSKEYDOWN";
-    case 0x0105: return "WM_SYSKEYUP";
-    case 0x0106: return "WM_SYSCHAR";
-    case 0x0107: return "WM_SYSDEADCHAR";
-    case 0x0109: return "WM_KEYLAST";
-    case 0xFFFF: return "UNICODE_NOCHAR";
-    case 0x0108: return "WM_KEYLAST";
-    case 0x010D: return "WM_IME_STARTCOMPOSITION";
-    case 0x010E: return "WM_IME_ENDCOMPOSITION";
-    case 0x010F: return "WM_IME_KEYLAST";
-    case 0x0110: return "WM_INITDIALOG";
-    case 0x0111: return "WM_COMMAND";
-    case 0x0112: return "WM_SYSCOMMAND";
-    case 0x0113: return "WM_TIMER";
-    case 0x0114: return "WM_HSCROLL";
-    case 0x0115: return "WM_VSCROLL";
-    case 0x0116: return "WM_INITMENU";
-    case 0x0117: return "WM_INITMENUPOPUP";
-    case 0x011F: return "WM_MENUSELECT";
-    case 0x0120: return "WM_MENUCHAR";
-    case 0x0121: return "WM_ENTERIDLE";
-    case 0x0122: return "WM_MENURBUTTONUP";
-    case 0x0123: return "WM_MENUDRAG";
-    case 0x0124: return "WM_MENUGETOBJECT";
-    case 0x0125: return "WM_UNINITMENUPOPUP";
-    case 0x0126: return "WM_MENUCOMMAND";
-    case 0x0127: return "WM_CHANGEUISTATE";
-    case 0x0128: return "WM_UPDATEUISTATE";
-    case 0x0129: return "WM_QUERYUISTATE";
-    case 0x0132: return "WM_CTLCOLORMSGBOX";
-    case 0x0133: return "WM_CTLCOLOREDIT";
-    case 0x0134: return "WM_CTLCOLORLISTBOX";
-    case 0x0135: return "WM_CTLCOLORBTN";
-    case 0x0136: return "WM_CTLCOLORDLG";
-    case 0x0137: return "WM_CTLCOLORSCROLLBAR";
-    case 0x0138: return "WM_CTLCOLORSTATIC";
-    case 0x0200: return "WM_MOUSEMOVE";
-    case 0x0201: return "WM_LBUTTONDOWN";
-    case 0x0202: return "WM_LBUTTONUP";
-    case 0x0203: return "WM_LBUTTONDBLCLK";
-    case 0x0204: return "WM_RBUTTONDOWN";
-    case 0x0205: return "WM_RBUTTONUP";
-    case 0x0206: return "WM_RBUTTONDBLCLK";
-    case 0x0207: return "WM_MBUTTONDOWN";
-    case 0x0208: return "WM_MBUTTONUP";
-    case 0x0209: return "WM_MBUTTONDBLCLK";
-    case 0x020A: return "WM_MOUSEWHEEL";
-    case 0x020B: return "WM_XBUTTONDOWN";
-    case 0x020C: return "WM_XBUTTONUP";
-    case 0x020D: return "WM_MOUSELAST";
-    case 0x0210: return "WM_PARENTNOTIFY";
-    case 0x0211: return "WM_ENTERMENULOOP";
-    case 0x0212: return "WM_EXITMENULOOP";
-    case 0x0213: return "WM_NEXTMENU";
-    case 0x0214: return "WM_SIZING";
-    case 0x0215: return "WM_CAPTURECHANGED";
-    case 0x0216: return "WM_MOVING";
-    case 0x0218: return "WM_POWERBROADCAST";
-    case 0x0219: return "WM_DEVICECHANGE";
-    case 0x0220: return "WM_MDICREATE";
-    case 0x0221: return "WM_MDIDESTROY";
-    case 0x0222: return "WM_MDIACTIVATE";
-    case 0x0223: return "WM_MDIRESTORE";
-    case 0x0224: return "WM_MDINEXT";
-    case 0x0225: return "WM_MDIMAXIMIZE";
-    case 0x0226: return "WM_MDITILE";
-    case 0x0227: return "WM_MDICASCADE";
-    case 0x0228: return "WM_MDIICONARRANGE";
-    case 0x0229: return "WM_MDIGETACTIVE";
-    case 0x0230: return "WM_MDISETMENU";
-    case 0x0231: return "WM_ENTERSIZEMOVE";
-    case 0x0232: return "WM_EXITSIZEMOVE";
-    case 0x0233: return "WM_DROPFILES";
-    case 0x0234: return "WM_MDIREFRESHMENU";
-    case 0x0281: return "WM_IME_SETCONTEXT";
-    case 0x0282: return "WM_IME_NOTIFY";
-    case 0x0283: return "WM_IME_CONTROL";
-    case 0x0284: return "WM_IME_COMPOSITIONFULL";
-    case 0x0285: return "WM_IME_SELECT";
-    case 0x0286: return "WM_IME_CHAR";
-    case 0x0288: return "WM_IME_REQUEST";
-    case 0x0290: return "WM_IME_KEYDOWN";
-    case 0x0291: return "WM_IME_KEYUP";
-    case 0x02A1: return "WM_MOUSEHOVER";
-    case 0x02A3: return "WM_MOUSELEAVE";
-    case 0x02A0: return "WM_NCMOUSEHOVER";
-    case 0x02A2: return "WM_NCMOUSELEAVE";
-    case 0x02B1: return "WM_WTSSESSION_CHANGE";
-    case 0x02c0: return "WM_TABLET_FIRST";
-    case 0x02df: return "WM_TABLET_LAST";
-    case 0x0300: return "WM_CUT";
-    case 0x0301: return "WM_COPY";
-    case 0x0302: return "WM_PASTE";
-    case 0x0303: return "WM_CLEAR";
-    case 0x0304: return "WM_UNDO";
-    case 0x0305: return "WM_RENDERFORMAT";
-    case 0x0306: return "WM_RENDERALLFORMATS";
-    case 0x0307: return "WM_DESTROYCLIPBOARD";
-    case 0x0308: return "WM_DRAWCLIPBOARD";
-    case 0x0309: return "WM_PAINTCLIPBOARD";
-    case 0x030A: return "WM_VSCROLLCLIPBOARD";
-    case 0x030B: return "WM_SIZECLIPBOARD";
-    case 0x030C: return "WM_ASKCBFORMATNAME";
-    case 0x030D: return "WM_CHANGECBCHAIN";
-    case 0x030E: return "WM_HSCROLLCLIPBOARD";
-    case 0x030F: return "WM_QUERYNEWPALETTE";
-    case 0x0310: return "WM_PALETTEISCHANGING";
-    case 0x0311: return "WM_PALETTECHANGED";
-    case 0x0312: return "WM_HOTKEY";
-    case 0x0317: return "WM_PRINT";
-    case 0x0318: return "WM_PRINTCLIENT";
-    case 0x0319: return "WM_APPCOMMAND";
-    case 0x031A: return "WM_THEMECHANGED";
-    case 0x0358: return "WM_HANDHELDFIRST";
-    case 0x035F: return "WM_HANDHELDLAST";
-    case 0x0360: return "WM_AFXFIRST";
-    case 0x0380: return "WM_PENWINFIRST";
-    case 0x038F: return "WM_PENWINLAST";
-    case 0x8000: return "WM_APP";
-    default: return "UNKNOWN MESSAGE";
-    }
-}
-#endif
-
-void Win32Platform::TrackMouseTimerProc( HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime ) 
-{
-    RECT clientRect;
-    POINT point;
-
-    GetClientRect( hWnd, &clientRect );
-    MapWindowPoints( hWnd, NULL, (LPPOINT)&clientRect, 2 );
-    GetCursorPos( &point );
-    if( !PtInRect( &clientRect, point ) || (WindowFromPoint(point) != hWnd ) ) 
-    {
-        if( !KillTimer( hWnd, idEvent ) ) 
-        {
-            rDebugPrintf( "Couldn't kill the timer" );
-        }
-
-        PostMessage( hWnd, WM_MOUSELEAVE, 0, 0 );
-    }
-    else
-    {
-        GetInputManager()->GetFEMouse()->getCursor()->SetVisible( true );
+        SDL_ShowCursor( mShowCursor ? SDL_ENABLE : SDL_DISABLE );
     }
 }
 
@@ -2116,159 +1768,104 @@ void Win32Platform::TrackMouseTimerProc( HWND hWnd, UINT uMsg, UINT idEvent, DWO
 // Notes:
 //=============================================================================
 
-LRESULT Win32Platform::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
 {
-#if defined( PRINT_WINMESSAGES ) && defined( RAD_DEBUG )
-    rDebugPrintf( "Windows Message: 0x%08x (%s) [0x%08x, 0x%08x]\n", message, GetMessageName(message), wParam, lParam  ); 
-#endif
-    MOUSETRACKER mouseEventTracker;
-    static bool bMouseInWindow; // A flag to poll if you want to check if the mouse is in the clientwindow.
+    SDL_Window * wnd = (SDL_Window *)userdata;
 
-    //
-    // Under Win32, Pure3D needs to get a crack at the Windows messages so
-    // it can detect window moving, resizing, and activation.
-    //
-    p3d::platform->ProcessWindowsMessage(hwnd, message, wParam, lParam);
-
-    switch(message)
+    switch(event->type)
     {
-    case WM_ACTIVATEAPP:
+    case SDL_WINDOWEVENT: // WM_ACTIVATEAPP
         {
             InputManager* pInputManager = GetInputManager();
 
             if( spInstance != NULL && spInstance->mpContext != NULL )
             {
-                if( wParam ) // Window is being shown (in focus)
+                switch(event->window.event)
                 {
-                    RenderFlow* rf = GetRenderFlow();
-
-                    rf->SetGamma( rf->GetGamma() );  
-                    if( pInputManager )
+                case SDL_WINDOWEVENT_FOCUS_GAINED: // Window is being shown (in focus)
                     {
-                        //GetInputManager()->SetRumbleForDevice(0, true);
-                        //rDebugPrintf("Force Effects Started!!! \n");
+                        RenderFlow* rf = GetRenderFlow();
+
+                        rf->SetGamma( rf->GetGamma() );
+                        if( pInputManager )
+                        {
+                            //GetInputManager()->SetRumbleForDevice(0, true);
+                            //rDebugPrintf("Force Effects Started!!! \n");
+                        }
                     }
-                }
-                else  // Window is being hidden (not in focus)
-                {
-                    SetDeviceGammaRamp( GetDC( GetDesktopWindow( ) ), DesktopGammaRamp );
+                    break;
+
+                case SDL_WINDOWEVENT_FOCUS_LOST:  // Window is being hidden (not in focus)
+                    SDL_SetWindowGammaRamp( wnd,
+                        DesktopGammaRamp[0],
+                        DesktopGammaRamp[1],
+                        DesktopGammaRamp[2] );
                     if( pInputManager )
                     {
                         //GetInputManager()->SetRumbleForDevice(0, false);
                         //rDebugPrintf("Force Effects Stopped!!! \n");
                     }
+                    break;
+
+                case SDL_WINDOWEVENT_CLOSE:
+                    SDL_Quit();
+                    break;
+
+                case SDL_WINDOWEVENT_LEAVE:
+                    GetInputManager()->GetFEMouse()->getCursor()->SetVisible( false );
+                    break;
                 }
 
-                if( GetInputManager() != NULL )
-                {
-                    GetInputManager()->GetFEMouse()->SetInGameOverride( !wParam );
-                }
+                ShowTheCursor( event->window.event == SDL_WINDOWEVENT_FOCUS_LOST );
             }
 
             break;
         }
 
-    case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
+    case SDL_KEYDOWN: // WM_SYSKEYDOWN
+    case SDL_KEYUP:   // WM_SYSKEYUP
         {
             //Ignore Alt and F10 keys.
-            switch(wParam) 
+            switch(event->key.keysym.sym) 
             {
-            case VK_MENU:
+            case SDLK_LALT:
+            case SDLK_RALT:
             	return 0;
-            case VK_F10:
+            case SDLK_F10:
             	return 0;
             default: break;
             }
         }
-    case WM_SHOWWINDOW:
+
+    case SDL_MOUSEMOTION:  
         {
-            break;
-        }
-
-    case WM_CREATE:
-        {
-            GetDeviceGammaRamp( GetDC( GetDesktopWindow( ) ), DesktopGammaRamp );
-            bMouseInWindow = false;
-            break;
-        }
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;   
-    case WM_MOUSELEAVE:
-        bMouseInWindow = false;
-        GetInputManager()->GetFEMouse()->getCursor()->SetVisible( false );
-        break;
-
-    case WM_NCMOUSEMOVE: 
-        {
-            POINT pPoint;
-            GetCursorPos( &pPoint );
-
-            // Convert the absolute screen coordinates from windows to client window absolute coordinates.
-            ScreenToClient( hwnd, &pPoint );
-
-            RECT clientRect;
-            GetClientRect( hwnd, &clientRect );
-
-            GetInputManager()->GetFEMouse()->Move( pPoint.x, pPoint.y, clientRect.right, clientRect.bottom );
-
-            ShowTheCursor( true );
-            break;
-        }
-    case WM_MOUSEMOVE:  
-        {
-            POINT pPoint;
-            pPoint.x = LOWORD(lParam);
-            pPoint.y = HIWORD(lParam);
-
             // For some reason beyond my comprehension WM_MOUSEMOVE seems to be getting called regardless if the
             // mouse moved or not. So let the FEMouse determine if we moved.
             FEMouse* pFEMouse = GetInputManager()->GetFEMouse();
-            if( pFEMouse->DidWeMove( pPoint.x, pPoint.y ) )
+            if( pFEMouse->DidWeMove( event->motion.x, event->motion.y ) )
             {
-                RECT clientRect;
-                GetClientRect( hwnd, &clientRect );
-                pFEMouse->Move( pPoint.x, pPoint.y, clientRect.right, clientRect.bottom );
+                int w, h;
+                SDL_GetWindowSize( wnd, &w, &h );
+                pFEMouse->Move( event->motion.x, event->motion.y, w, h );
             }
 
             ShowTheCursor( false );
 
-            if( !bMouseInWindow ) 
-            {
-                bMouseInWindow = true;
-                mouseEventTracker.cbSize = sizeof(MOUSETRACKER);
-                mouseEventTracker.dwFlags = TIMER_LEAVE;
-                mouseEventTracker.hwndTrack = hwnd;
-                if( !TrackMouseEvent( &mouseEventTracker ) )
-                {
-                    rDebugPrintf( "TrackMouseEvent Failed" );
-                }
-            }
-
             break;
         }
 
-    case WM_LBUTTONDOWN:
+    case SDL_MOUSEBUTTONDOWN:
+        if (event->button.button == SDL_BUTTON_LEFT)
         {
             GetInputManager()->GetFEMouse()->ButtonDown( BUTTON_LEFT );
     //        rDebugPrintf("LEFT MOUSE BUTTON PRESSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
             break;
         }
-    case WM_LBUTTONUP:
+
+    case SDL_MOUSEBUTTONUP:
+        if(event->button.button == SDL_BUTTON_LEFT)
         {
             GetInputManager()->GetFEMouse()->ButtonUp( BUTTON_LEFT );
-            break;
-        }
-    case WM_SYSCOMMAND:
-        {
-            switch (wParam)
-            {
-            case SC_SCREENSAVE:   // Screensaver Trying To Start?
-            case SC_MONITORPOWER: // Monitor Trying To Enter Powersave?
-                return 0;
-            }
             break;
         }
 
@@ -2277,18 +1874,14 @@ LRESULT Win32Platform::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         // the rendering window, or uses ALT-TAB to select another application, PDDI
         // will tell sent a WM_PDDI_DRAW_ENABLE(0) message.  When the application
         // regains focus, WM_PDDI_DRAW_ENABLE(1) will be sent.
-    case WM_PDDI_DRAW_ENABLE:
+    //case WM_PDDI_DRAW_ENABLE:
         //GetApplication()->EnableRendering(wParam == 1);
         break;
 
-    case WM_CHAR:
-        {
-            break;
-        }
     default:
         break;
     }
 
-    return DefWindowProc(hwnd, message, wParam, lParam);
+    return 1;
 }
 

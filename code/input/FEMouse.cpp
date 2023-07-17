@@ -6,6 +6,7 @@
 #include <contexts/contextenum.h>
 #include <contexts/gameplay/gameplaycontext.h>
 #include <main/win32platform.h>
+#include <SDL.h>
 
 #ifdef ENABLE_DYNA_LOADED_IMAGES
 const char* DYNAMIC_RESOURCES_DIR = "art\\frontend\\dynaload\\images\\";
@@ -22,8 +23,8 @@ FEMouse::FEMouse()
     m_bClickable( true ),
     m_bSelectable( true ),
     m_bMovable( true ),
-    m_oldPositionX(0),
-    m_oldPositionY(0),
+    m_oldPositionX( 0 ),
+    m_oldPositionY( 0 ),
     m_hotSpotType( HOTSPOT_BUTTON ),
     m_horzDir( NO_HORZ_MOVEMENT ),
     m_bClickAndStop(false),
@@ -311,37 +312,36 @@ void FEMouse::SetupInGameMode()
 
     m_pCursor->SetVisible( !ingame );
 
+    SDL_Window* wnd = Win32Platform::GetInstance()->GetWindow();
+
     if( ingame )
     {
-        RECT windowRect;
-        GetWindowRect( Win32Platform::GetInstance()->GetHwnd(), &windowRect );
+        int w, h;
+        SDL_GetWindowSize( wnd, &w, &h );
 
         // Save the old cursor position.
-        POINT oldPos;
-        GetCursorPos( & oldPos );
-        m_inGamePosX = oldPos.x;
-        m_inGamePosY = oldPos.y;
+        SDL_GetMouseState( &m_inGamePosX, &m_inGamePosY );
 
         // Center the cursor.
-        SetCursorPos( ( windowRect.left + windowRect.right ) / 2,
-                      ( windowRect.top + windowRect.bottom ) / 2 );
+        SDL_WarpMouseInWindow( wnd, w / 2, h / 2 );
 
         // Set up the clipping rectangle.
-        windowRect.top += 30;
-        windowRect.bottom -= 10;
-        windowRect.left += 10;
-        windowRect.right -= 10;
-        ClipCursor( &windowRect );
+        SDL_Rect windowRect;
+        windowRect.y = 30;
+        windowRect.h = h - 10;
+        windowRect.x = 10;
+        windowRect.w = w - 10;
+        SDL_SetWindowMouseRect( wnd, &windowRect );
     }
     else
     {
         // Remove the clipping rectangle.
-        ClipCursor( NULL );
+        SDL_SetWindowMouseRect( wnd, NULL );
 
         // Restore the old cursor position.
         if( m_inGamePosX != -1 )
         {
-            SetCursorPos( m_inGamePosX, m_inGamePosY );
+            SDL_WarpMouseInWindow( wnd, m_inGamePosX, m_inGamePosY );
             m_inGamePosX = -1;
         }
     }

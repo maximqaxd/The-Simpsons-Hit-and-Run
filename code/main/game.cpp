@@ -28,10 +28,7 @@
 #include <p3d/utility.hpp>
 
 #ifdef RAD_WIN32
-#pragma warning( push )
-#pragma warning( disable : 4005 )  // disable warning for redefinition of RGB macro (wingdi.h,raddebugconsole.hpp)
-#include <windows.h>  // for peekmessage...
-#pragma warning( pop )
+#include <SDL.h>  // for SDL_PollEvent...
 #endif
 
 //========================================
@@ -506,10 +503,10 @@ void Game::Run()
         // Service the windows message loop.
         //
 #ifdef RAD_WIN32
-        MSG msg;
-        while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+        SDL_Event msg;
+        while( SDL_PollEvent( &msg ) )
         {
-            if( msg.message == WM_QUIT )
+            if( msg.type == SDL_QUIT )
             {
                 //Chuck someone closed the Window we are going to try to exit the game 
                 //if the game isnt in a context that can easily transition to the EXIT context we 
@@ -528,8 +525,6 @@ void Game::Run()
                     mpGameFlow->SetContext( CONTEXT_EXIT );
                 }               
             }
-            TranslateMessage( &msg );
-            DispatchMessage( &msg );
         }
 #endif // RAD_WIN32
 

@@ -43,21 +43,23 @@
 
 #include <stdlib.h>
 #include <radobject.hpp>
-#include <radmemory.hpp>                     
+#include <radmemory.hpp>
 
-#ifdef RAD_WIN32
+#ifdef WIN32
 //
 // windows.h must be included because radPlatformInitialize( ) need HWND and
 // HINSTANCE definition.
 //
 #include <windows.h>
-#endif 
+#endif
 
 //=============================================================================
 // Forward Declarations
 //=============================================================================
 
 struct IRadPlatform;
+struct SDL_Window;
+union SDL_Event;
 
 //=============================================================================
 // Generic Public Functions
@@ -107,8 +109,7 @@ inline float radPlatformEndianFloat( float value ) { return( value ); }
 // Windows requires the game provide the main window handle and the module
 // instance.
 //
-void radPlatformInitialize( HWND hMainWindow, HINSTANCE hInstance,
-                            radMemoryAllocator = RADMEMORY_ALLOC_DEFAULT );
+void radPlatformInitialize( SDL_Window* pMainWindow, radMemoryAllocator = RADMEMORY_ALLOC_DEFAULT );
 
 //
 // Interface used to field messages from the main window.
@@ -117,10 +118,7 @@ struct IRadPlatformWin32MessageCallback
 {
     virtual void OnWindowMessage
     (
-        HWND hWnd,
-        WORD Message,
-        WORD wParam,
-        LONG lParam
+        SDL_Window* pWnd, const SDL_Event* event
     ) = 0;
 };
 
@@ -129,8 +127,10 @@ struct IRadPlatformWin32MessageCallback
 //
 struct IRadPlatform : public IRefCount
 {
+#ifdef WIN32
     virtual HWND GetMainWindowHandle( void ) = 0;
     virtual HINSTANCE GetInstanceHandle( void ) = 0;
+#endif
     virtual void RegisterMainWindowCallback
     (
         IRadPlatformWin32MessageCallback* pICallback

@@ -14,6 +14,7 @@
 
 static const int P3D_MAX_CONTEXTS = 4;
 
+struct SDL_Window;
 class tContext;
 class tFile;
 class tPolySkinLoader;

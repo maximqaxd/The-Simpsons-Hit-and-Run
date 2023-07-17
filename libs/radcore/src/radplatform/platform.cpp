@@ -30,7 +30,11 @@
 #include <radobjectlist.hpp>
 
 #ifdef RAD_WIN32
+#include <SDL.h>
+#ifdef WIN32
 #include <windows.h>
+#include <SDL_syswm.h>
+#endif
 #endif 
 #ifdef RAD_XBOX
 #include <xtl.h>
@@ -86,8 +90,7 @@ class radPlatform : public IRadPlatform
         rDebugString( VersionString );
 
         #ifdef RAD_WIN32        
-             m_hMainWindow = NULL;
-             m_hInstance = NULL;
+             m_pMainWindow = NULL;
         #endif
 
         m_RefCount = 0;
@@ -116,12 +119,12 @@ class radPlatform : public IRadPlatform
     //
     // Windows specific interfaces.
     //
-    static LONG FAR PASCAL MainWindowProcedure
+    static int SDLCALL MainWindowProcedure
     (
-        HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam
+        void* userdata, SDL_Event* event
     );
 
-    void Initialize( HWND hMainWindow, HINSTANCE hInstance, radMemoryAllocator allocator )
+    void Initialize( SDL_Window* pMainWindow, radMemoryAllocator allocator )
     {
         rAssertMsg( !m_Initialized, "radPlatform already initialized");
 
@@ -129,23 +132,14 @@ class radPlatform : public IRadPlatform
 
         m_ThisAllocator = allocator;
         m_Initialized = true;
-        m_hMainWindow = hMainWindow;
-        m_hInstance = hInstance;
+        m_pMainWindow = pMainWindow;
 		
-        rWarningMsg( m_hMainWindow != NULL, "hMainWindow set to NULL in platform component" );
-        rWarningMsg( hInstance != NULL, "hInstance set to NULL in bPlaform component" );
+        rWarningMsg( m_pMainWindow != NULL, "hMainWindow set to NULL in platform component" );
 
-        ::radObjectListCreate( & m_xIOl_MainWindowMessageCallbacks, m_ThisAllocator );
-
-        if( m_hMainWindow != NULL )
-        {
-            //
-            // Subclass window
-            //
-            m_pOldWindowProcedure = (WNDPROC) ::SetWindowLong( m_hMainWindow, GWL_WNDPROC, (LONG) MainWindowProcedure );
-        }
-
-        ::CoInitialize( NULL );
+#ifdef WIN32
+        SDL_VERSION( &m_wmInfo.version );
+        SDL_GetWindowWMInfo( pMainWindow, &m_wmInfo );
+#endif
     }
 
     void Terminate( void  )
@@ -153,62 +147,26 @@ class radPlatform : public IRadPlatform
         rAssertMsg( m_Initialized, "radPlatform not initialized");
         rAssertMsg( m_RefCount == 0, "radPlatorm still in use" );
         m_Initialized = false;
-
-        ::CoUninitialize( );
-
-        m_xIOl_MainWindowMessageCallbacks = NULL;
-
-        if( m_hMainWindow != NULL )
-        {
-            //
-            // Restore orignal window proc
-            //
-            ::SetWindowLong( m_hMainWindow, GWL_WNDPROC, (LONG) m_pOldWindowProcedure );
-        }
     }
 
+#ifdef WIN32
 	virtual HWND GetMainWindowHandle( void )
     {   
-        rWarningMsg( m_hMainWindow != NULL, "hMainWindow not set in bPlatform component, using top level window." );
-        
-        if ( m_hMainWindow == NULL )
-        {            
-            HWND hWnd = ::GetForegroundWindow();
-    
-            if ( hWnd == NULL )
-            {
-                hWnd = ::GetDesktopWindow();
-            }
+        rWarningMsg( m_wmInfo.subsystem != SDL_SYSWM_WINDOWS, "WM info doesn't match the windows subsystem." );
 
-            return( hWnd );
-        }
-
-        return( m_hMainWindow );
+        return( m_wmInfo.info.win.window );
     }
     virtual HINSTANCE GetInstanceHandle( void )
     {
-        return( m_hInstance );
+        return( m_wmInfo.info.win.hinstance );
     }
+#endif
 
     virtual void RegisterMainWindowCallback( IRadPlatformWin32MessageCallback* pICallback )
     {
         rAssert( pICallback != NULL );
 
-        if ( pICallback != NULL  )
-        {
-            ref< IRadWeakInterfaceWrapper > xIWir;
-
-            radWeakInterfaceWrapperCreate( &xIWir );
-
-            rAssert( xIWir != NULL );
-
-            if ( xIWir != NULL )
-            {
-                xIWir->SetWeakInterface( pICallback );
-
-                m_xIOl_MainWindowMessageCallbacks->AddObject( xIWir );
-            }
-        }
+        SDL_AddEventWatch( MainWindowProcedure, pICallback );
 
     }
 
@@ -216,29 +174,15 @@ class radPlatform : public IRadPlatform
     {
         rAssert( pICallback != NULL );
 
-        if ( pICallback != NULL )
-        {
-            IRadWeakInterfaceWrapper * pIRwiw;
-
-            m_xIOl_MainWindowMessageCallbacks->Reset( );
-
-            while ( pIRwiw = reinterpret_cast< IRadWeakInterfaceWrapper * >( m_xIOl_MainWindowMessageCallbacks->GetNext( ) ) )
-            {
-                if ( (IRadPlatformWin32MessageCallback *) pIRwiw->GetWeakInterface( ) == pICallback )
-                {
-                    m_xIOl_MainWindowMessageCallbacks->RemoveObject( pIRwiw );
-                    return;
-                }
-            }
-        }
+        SDL_DelEventWatch( MainWindowProcedure, pICallback );
     }
 
     private:    
     
-    HWND        m_hMainWindow;
-    HINSTANCE   m_hInstance;    
-    WNDPROC     m_pOldWindowProcedure;
-    ref< IRadObjectList > m_xIOl_MainWindowMessageCallbacks;
+    SDL_Window* m_pMainWindow;
+#ifdef WIN32
+    SDL_SysWMinfo m_wmInfo;
+#endif
 
 #endif
 #ifdef RAD_XBOX
@@ -592,32 +536,25 @@ static unsigned int thePlaftormSpace[(sizeof( radPlatform ) / sizeof( unsigned i
 // Windows requires the game provide the main window handle and the module
 // instance.
 //
-void radPlatformInitialize( HWND hMainWindow, HINSTANCE hInstance, radMemoryAllocator allocator )
+void radPlatformInitialize( SDL_Window* pMainWindow, radMemoryAllocator allocator )
 {
     pthePlatform = new( thePlaftormSpace ) radPlatform( );
     pthePlatform->Construct( allocator );
-    pthePlatform->Initialize( hMainWindow, hInstance, allocator );
+    pthePlatform->Initialize( pMainWindow, allocator );
 }
 
-LONG FAR PASCAL radPlatform::MainWindowProcedure
+int SDLCALL radPlatform::MainWindowProcedure
 (
-    HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam
+    void* userdata, SDL_Event* event
 )
 {
     radPlatform* pThis = pthePlatform;
 
-    IRadWeakInterfaceWrapper * pIRwiw;
+    IRadPlatformWin32MessageCallback* callback = (IRadPlatformWin32MessageCallback*)userdata;
 
-    pThis->m_xIOl_MainWindowMessageCallbacks->Reset( );
+    callback->OnWindowMessage( pThis->m_pMainWindow, event );
 
-    while( pIRwiw = reinterpret_cast< IRadWeakInterfaceWrapper * >( pThis->m_xIOl_MainWindowMessageCallbacks->GetNext( ) ) )
-    {       
-        IRadPlatformWin32MessageCallback* pCallback = ( IRadPlatformWin32MessageCallback* ) pIRwiw->GetWeakInterface( );
-
-        pCallback->OnWindowMessage( hWnd, iMsg, wParam, lParam );
-    }
-
-    return ::CallWindowProc( pthePlatform->m_pOldWindowProcedure, hWnd, iMsg, wParam, lParam );
+    return 0;
 }
 
 #endif

@@ -29,11 +29,12 @@
 #include <main/commandlineoptions.h>
 #include <memory/memoryutilities.h>
 #include <memory/srrmemory.h>
+#include <SDL_main.h>
 
 //========================================
 // Forward Declarations
 //========================================
-static void ProcessCommandLineArguments( LPSTR lpCmdLine );
+static void ProcessCommandLineArguments( int argc, char *argv[] );
 
 static void ProcessCommandLineArgumentsFromFile();
 
@@ -49,13 +50,13 @@ static void ProcessCommandLineArgumentsFromFile();
 // Returns:     win32 return.
 //
 //=============================================================================
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+SDLMAIN_DECLSPEC int SDL_main( int argc, char *argv[] )
 {
     //
     // Pick out and store command line settings.
     //
     CommandLineOptions::InitDefaults();
-    ProcessCommandLineArguments( lpCmdLine );
+    ProcessCommandLineArguments( argc, argv );
     ProcessCommandLineArgumentsFromFile();
 
     //
@@ -63,7 +64,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     // The initialize window call will fail if another Simpsons window exists. In
     // this case, we exit.
     //
-    if( !Win32Platform::InitializeWindow( hInstance ) )
+    if( !Win32Platform::InitializeWindow() )
     {
         return 0;
     }
@@ -91,7 +92,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     //
     // Construct the platform object.
     //
-    Win32Platform* pPlatform = Win32Platform::CreateInstance( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+    Win32Platform* pPlatform = Win32Platform::CreateInstance();
     rAssert( pPlatform != NULL );
 
     //
@@ -166,11 +167,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 // Returns:     None.
 //
 //=============================================================================
-void ProcessCommandLineArguments( LPSTR lpCmdLine )
+void ProcessCommandLineArguments(int argc, char* argv[])
 {
-    char* argument;
-    argument = strtok( lpCmdLine, " " );    
-
     rDebugPrintf( "*************************************************************************\n" );
     rDebugPrintf( "Command Line Args:\n" );
 
@@ -178,14 +176,11 @@ void ProcessCommandLineArguments( LPSTR lpCmdLine )
     // Pick out all the command line options and store them in GameDB.
     // Also dump them to the output for handy dandy viewing.
     //
-    int i = 0;
-    while( NULL != argument )
+    for (int i = 0; i < argc; i++ )
     {
-        rDebugPrintf( "arg%d: %s\n", i++, argument );
+        rDebugPrintf( "arg%d: %s\n", i, argv[i] );
 
-        CommandLineOptions::HandleOption( argument );
-
-        argument = strtok( NULL, " " );
+        CommandLineOptions::HandleOption( argv[i] );
     }
 
     if( !CommandLineOptions::Get( CLO_ART_STATS ) )
