@@ -217,7 +217,7 @@ void radSoundHalVoiceWin::Stop( void )
 
     m_SourceSamplesPlayed = 0;
 
-    if( m_xRadSoundHalBufferWin->IsStreaming() )
+    if( m_xRadSoundHalBufferWin && m_xRadSoundHalBufferWin->IsStreaming() )
     {
         int buffersProcessed;
         alGetSourcei( m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed );
