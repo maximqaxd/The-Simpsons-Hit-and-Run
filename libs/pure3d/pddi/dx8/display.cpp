@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <SDL.h>
 
 D3DFORMAT colourFormatTable[2][4] = {
     {  D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8  },  // 16 bit
@@ -124,37 +125,26 @@ d3dDisplay::~d3dDisplay()
 }
 
 //------------------------------------------------------------------------
-long d3dDisplay::ProcessWindowMessage(void* hWnd, unsigned message, unsigned wParam, long lParam)
+long d3dDisplay::ProcessWindowMessage(SDL_Window* wnd, const SDL_WindowEvent* event)
 {
-    switch(message)
+    switch(event->event)
     {
-        case WM_ACTIVATEAPP:
-            if(displayMode == PDDI_DISPLAY_FULLSCREEN) Activate(wParam == TRUE);
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+            if(displayMode == PDDI_DISPLAY_FULLSCREEN) Activate(event->event == SDL_WINDOWEVENT_FOCUS_GAINED);
             break;
 
-        case WM_ACTIVATE:
-            if(displayMode == PDDI_DISPLAY_FULLSCREEN) Activate(wParam != WA_INACTIVE);
-            break;
-
-        case WM_DISPLAYCHANGE:
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
             if(!ignoreDisplayChange)
             {
                 forceInit = true;
                 if(displayMode == PDDI_DISPLAY_FULLSCREEN) 
                 {
-                    displayDepth  = wParam; 
-                    displayWidth  = LOWORD(lParam); 
-                    displayHeight = HIWORD(lParam); 
+                    displayDepth  = 32; 
+                    displayWidth  = event->data1;
+                    displayHeight = event->data2;
                 };
             }
-            break;
-
-        case WM_SIZE:
-        {
-            Activate(lParam != 0);
-            
-            if(lParam == 0)
-                break;
 
             if(!ignoreResize)
             {
@@ -163,23 +153,6 @@ long d3dDisplay::ProcessWindowMessage(void* hWnd, unsigned message, unsigned wPa
                 //InitDisplay(clientRect.right, clientRect.bottom, displayDepth);
             }
             break;
-        }
-
-        case WM_KEYUP:
-            HandleKeys(wParam, lParam);
-            break;
-
-        case WM_PAINT:
-        {
-            RECT r;
-            PAINTSTRUCT ps;
-            if(GetUpdateRect((HWND)hWnd, &r, false))
-            {
-                BeginPaint((HWND)hWnd, &ps);
-                EndPaint((HWND)hWnd, &ps);
-            }
-            break;
-        }
     }
 
     return true;
@@ -223,14 +196,6 @@ void d3dDisplay::Activate(bool active)
     }
     isActive = active;
 */
-}
-
-//------------------------------------------------------------------------
-#define KEYPRESSED(x) (GetKeyState((x)) & (1<<(sizeof(int)*8)-1))
-
-void d3dDisplay::HandleKeys(DWORD wParam, LONG lParam)
-{
-    //
 }
 
 //------------------------------------------------------------------------
@@ -556,7 +521,6 @@ void d3dDisplay::SwapBuffers(void)
 
         forceInit = true;
         reset = true;
-        SendMessage((HWND)hWnd, WM_PDDI_DRAW_ENABLE, 1, 0);
     }
 }
 

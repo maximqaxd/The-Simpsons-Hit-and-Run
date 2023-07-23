@@ -57,7 +57,7 @@ public:
     tContext* GetActiveContext(void)  { return currentContext; }
 
     // Platform specific funtions
-    bool ProcessWindowsMessage(void* win, unsigned msg, unsigned wparam, int lparam);
+    bool ProcessWindowsMessage(SDL_Window* win, const SDL_WindowEvent* event);
 
     // Time
     P3D_U64 GetTimeFreq(void);

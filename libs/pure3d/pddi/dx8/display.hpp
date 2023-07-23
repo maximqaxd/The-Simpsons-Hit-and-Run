@@ -23,7 +23,7 @@ public:
     virtual ~d3dDisplay();
 
     // public interface stuff
-    virtual long ProcessWindowMessage(void* hWnd, unsigned message, unsigned wParam, long lParam);
+    virtual long ProcessWindowMessage(SDL_Window* wnd, const SDL_WindowEvent* event);
     virtual void SetWindowHandle(void* hWnd);
     virtual void* GetWindowHandle();
     
@@ -112,7 +112,6 @@ protected:
     bool asyncSwap;
 
     void Activate(bool);
-    void HandleKeys(DWORD wParam, LONG lParam);
 };
 
 #endif //_DISPLAY_HPP

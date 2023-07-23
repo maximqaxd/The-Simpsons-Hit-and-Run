@@ -36,7 +36,7 @@ public:
     unsigned Screenshot(pddiColour* buffer, int nBytes);
 
     // Win32 specific functions
-    long  ProcessWindowMessage(void* hWnd, unsigned message, unsigned wParam, long lParam);
+    long  ProcessWindowMessage(SDL_Window* hWnd, const SDL_WindowEvent* lParam);
     void  SetWindowHandle(void* hWnd);
     void* GetWindowHandle();
 

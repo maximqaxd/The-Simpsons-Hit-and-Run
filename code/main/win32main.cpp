@@ -60,6 +60,11 @@ SDLMAIN_DECLSPEC int SDL_main( int argc, char *argv[] )
     ProcessCommandLineArgumentsFromFile();
 
     //
+    // Initialize SDL subsystems
+    //
+    SDL_Init( SDL_INIT_EVENTS );
+
+    //
     // Have to get FTech setup first so that we can use all the memory services.
     // The initialize window call will fail if another Simpsons window exists. In
     // this case, we exit.
@@ -148,6 +153,11 @@ SDLMAIN_DECLSPEC int SDL_main( int argc, char *argv[] )
 #ifndef RAD_RELEASE
     tName::SetAllocator (RADMEMORY_ALLOC_DEFAULT);
 #endif
+
+    //
+    // Shutdown SDL subsystems
+    //
+    SDL_Quit();
 
     //
     // Pass any error codes back to the operating system.

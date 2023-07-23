@@ -39,9 +39,6 @@ typedef int (*PDDICREATEPROC)(int, int, pddiDevice**);
 #define PDDI_PURE = 0
 #define PDDI_VIRTUAL
 
-// PDDI will tell an app to stop drawing with this message
-#define WM_PDDI_DRAW_ENABLE (WM_USER + 666)
-
 class pddiDisplayInit
 {
 public:

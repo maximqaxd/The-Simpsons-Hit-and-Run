@@ -33,6 +33,8 @@ class pddiSurface;
 class pddiBlendControl;
 class pddiExtension;
 struct pddiLockInfo;
+struct SDL_Window;
+struct SDL_WindowEvent;
 
 #include <pddi/pdditype.hpp>
 #include <pddi/pddienum.hpp>
@@ -302,7 +304,7 @@ public:
 
 #ifndef RAD_CONSOLE
 #ifdef RAD_WIN32
-   PDDI_INTERFACE long ProcessWindowMessage(void* hWnd, unsigned message, unsigned wParam, long lParam) PDDI_PURE;
+   PDDI_INTERFACE long ProcessWindowMessage(SDL_Window *win, const SDL_WindowEvent *event) PDDI_PURE;
    PDDI_INTERFACE void SetWindowHandle(void* hWnd) PDDI_PURE;
    PDDI_INTERFACE void* GetWindowHandle() PDDI_PURE;
 #endif

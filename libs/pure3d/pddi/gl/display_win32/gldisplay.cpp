@@ -20,14 +20,13 @@
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
 #include <glad/glad_wgl.h>
+#include <SDL.h>
 
 #include<mmsystem.h>
 
 #include<stdio.h>
 #include<string.h>
 #include<math.h>
-
-#define WM_PDDI_DRAW_ENABLE (WM_USER + 666)
 
 bool pglDisplay::CheckExtension( char *extName )
 {
@@ -101,63 +100,16 @@ pglDisplay ::~pglDisplay()
 
 #define KEYPRESSED(x) (GetKeyState((x)) & (1<<(sizeof(int)*8)-1))
 
-long pglDisplay ::ProcessWindowMessage(void* win, unsigned uMsg, unsigned wParam, long lParam)
+long pglDisplay ::ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* event)
 {
-    HWND hWnd = (HWND)win;
-
-    switch (uMsg)
+    switch (event->event)
     {
-        // ugly code to handle alt-tab
-        case WM_ACTIVATEAPP:
-            if(wParam)
-            {
-                PostMessage(hWnd, WM_PDDI_DRAW_ENABLE, 1, 0);
-            }
-            else
-            {
-                InvalidateRect(hWnd, NULL, TRUE);
-                PostMessage(hWnd, WM_PDDI_DRAW_ENABLE, 0, 0);
-            }
-        break;
-
-        case WM_ACTIVATE:      
-            if((!(BOOL)HIWORD(wParam)) &&
-                ((unsigned short)LOWORD(wParam) == WA_ACTIVE) ||
-                ((unsigned short)LOWORD(wParam) == WA_CLICKACTIVE) )
-                {
-                    PostMessage(hWnd, WM_PDDI_DRAW_ENABLE, 1, 1);
-                }
-                else
-                {
-                    InvalidateRect(hWnd, NULL, TRUE);
-                    PostMessage(hWnd, WM_PDDI_DRAW_ENABLE, 0, 1);
-                }
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
+            winWidth = event->data1;
+            winHeight = event->data2;
             break;
 
-            case WM_SIZE:
-                if(wParam == SIZE_MINIMIZED)
-                {
-                    PostMessage(hWnd, WM_PDDI_DRAW_ENABLE, 0, 2);
-                }
-                else
-                {
-                    RECT rect;
-                    GetClientRect((HWND)winHWND, &rect);
-                    winWidth = rect.right - rect.left;
-                    winHeight = rect.bottom - rect.top;
-                }
-            break;
-        case WM_PAINT :
-        {
-            HDC      hDC;
-            PAINTSTRUCT ps;
-
-            hDC = BeginPaint(hWnd, &ps);
-            EndPaint(hWnd, &ps);
-        }
-        break;
-
-        case WM_DESTROY:
+        case SDL_WINDOWEVENT_CLOSE:
         {
             HGLRC hRC;
             HDC   hDC;

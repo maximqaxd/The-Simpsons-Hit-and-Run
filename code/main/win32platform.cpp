@@ -1776,6 +1776,12 @@ int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
     {
     case SDL_WINDOWEVENT: // WM_ACTIVATEAPP
         {
+            //
+            // Under Win32, Pure3D needs to get a crack at the Windows messages so
+            // it can detect window moving, resizing, and activation.
+            //
+            p3d::platform->ProcessWindowsMessage( wnd, &event->window );
+
             InputManager* pInputManager = GetInputManager();
 
             if( spInstance != NULL && spInstance->mpContext != NULL )
@@ -1805,10 +1811,6 @@ int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
                         //GetInputManager()->SetRumbleForDevice(0, false);
                         //rDebugPrintf("Force Effects Stopped!!! \n");
                     }
-                    break;
-
-                case SDL_WINDOWEVENT_CLOSE:
-                    SDL_Quit();
                     break;
 
                 case SDL_WINDOWEVENT_LEAVE:
