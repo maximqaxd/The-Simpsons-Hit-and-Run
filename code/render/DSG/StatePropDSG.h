@@ -17,7 +17,7 @@
 //===========================================================================
 // Nested Includes
 //===========================================================================
-#include <render/DSG/DynaPhysDsg.h>
+#include <render/DSG/DynaPhysDSG.h>
 #include <stateprop/stateprop.hpp>
 #include <loading/loadingmanager.h>
 #include <worldsim/physicsairef.h>

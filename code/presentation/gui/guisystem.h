@@ -22,7 +22,7 @@
 //===========================================================================
 #include <presentation/gui/guientity.h>
 #include <data/gamedata.h>
-#include <app.h>
+#include <App.h>
 
 //===========================================================================
 // External Constants

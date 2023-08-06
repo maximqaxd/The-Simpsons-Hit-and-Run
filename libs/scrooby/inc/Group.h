@@ -16,7 +16,7 @@
 //===========================================================================
 // Nested Includes
 //===========================================================================
-#include "boundeddrawable.h"
+#include "BoundedDrawable.h"
 #include "Owner.h"
 
 namespace Scrooby

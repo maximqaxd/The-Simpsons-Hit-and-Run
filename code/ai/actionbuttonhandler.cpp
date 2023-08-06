@@ -88,8 +88,8 @@
 #include <mission/gameplaymanager.h>
 #include <mission/rewards/rewardsmanager.h>
 
-#include <render/loaders/allwrappers.h>
-#include <render/loaders/BillboardWrappedLoader.h>
+#include <render/Loaders/AllWrappers.h>
+#include <render/Loaders/BillboardWrappedLoader.h>
 
 #include <interiors/interiormanager.h>
 #include <render/DSG/InstAnimDynaPhysDSG.h>

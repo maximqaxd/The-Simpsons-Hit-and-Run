@@ -320,7 +320,7 @@ protected:
 // AddRef/Release.
 //////////////////////////////////////////////////////////////////////////
 #include <p3d/displaylist.hpp>
-#include "../../../code/render/culling/SwapArray.h"
+#include "../../../code/render/Culling/SwapArray.h"
 
 class BakedBillboardQuad;
 class BillboardQuadManager

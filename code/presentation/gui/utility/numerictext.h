@@ -21,8 +21,8 @@
 //===========================================================================
 
 #include <raddebug.hpp>     // Foundation
-#include <group.h>
-#include <text.h>
+#include <Group.h>
+#include <Text.h>
 
 //===========================================================================
 // Forward References

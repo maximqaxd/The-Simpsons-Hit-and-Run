@@ -25,7 +25,7 @@
 #include <data/memcard/memorycardmanager.h>
 #include <input/inputmanager.h>
 
-#include <app.h>
+#include <App.h>
 
 //===========================================================================
 // Forward References

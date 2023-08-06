@@ -30,7 +30,7 @@
 #include <camera/supercamcentral.h>
 #include <camera/animatedcam.h>
 #include <mission/missionscriptloader.h>
-#include <render/loaders/billboardwrappedloader.h>
+#include <render/Loaders/billboardwrappedloader.h>
 #include <render/DSG/animcollisionentitydsg.h>
 #include <worldsim/vehiclecentral.h>
 #include <worldsim/avatarmanager.h>

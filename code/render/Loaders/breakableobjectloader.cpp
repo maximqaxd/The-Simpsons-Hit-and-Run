@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 #include <p3d/chunkfile.hpp>
-#include <render/loaders/breakableobjectloader.h>
+#include <render/Loaders/breakableobjectloader.h>
 #include <constants/srrchunks.h>
 #include <constants/chunkids.hpp>
 #include <constants/chunks.h>

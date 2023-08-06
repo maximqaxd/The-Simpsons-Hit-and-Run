@@ -40,7 +40,7 @@
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <render/loaders/billboardwrappedloader.h>
+#include <render/Loaders/billboardwrappedloader.h>
 #include <mission/gameplaymanager.h>
 
 #include <events/eventmanager.h>

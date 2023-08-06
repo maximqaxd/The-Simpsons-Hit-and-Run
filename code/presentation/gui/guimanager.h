@@ -23,7 +23,7 @@
 #include <presentation/gui/guientity.h>
 #include <presentation/gui/guiwindow.h>
 #include <events/eventlistener.h>
-#include <project.h>
+#include <Project.h>
 
 //===========================================================================
 // Forward References
