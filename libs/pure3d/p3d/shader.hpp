@@ -17,7 +17,7 @@ class tShader : public tEntity
 {
 public:
     tShader();
-    tShader(char* shaderName, char* definition = NULL);
+    tShader(const char* shaderName, char* definition = NULL);
 
     pddiShader* GetShader(void) const { return shader; }
 
