@@ -6,6 +6,7 @@
 #ifndef _PDDIWIN32_HPP
 #define _PDDIWIN32_HPP
 
+#include <cstdint>
 #include <pddi/pddienum.hpp>
 
 // machine dependent types

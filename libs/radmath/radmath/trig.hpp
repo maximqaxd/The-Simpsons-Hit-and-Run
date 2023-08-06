@@ -48,7 +48,6 @@ inline float DegToRadian(const float a)
 }
 
 #ifndef RAD_PS2
-#ifndef RAD_WIN32
     inline float Sin(const float angle)  {  return sinf(angle); }
     inline float Cos(const float angle)  {  return cosf(angle); }
     inline void  SinCos(const float angle, float* s, float* c)
@@ -56,7 +55,6 @@ inline float DegToRadian(const float a)
         *s = sinf(angle);
         *c = cosf(angle);
     }
-#endif
 #endif
 
 #ifdef RAD_PS2
@@ -334,23 +332,6 @@ inline float DegToRadian(const float a)
 	    *c2 = va.fVec[1];
     }
 #endif
-#endif
-
-#ifdef RAD_WIN32
-    inline float Sin(const float angle)  {  return sinf(angle); }
-    inline float Cos(const float angle)  {  return cosf(angle); }
-    inline void  SinCos(const float angle, float* s, float* c)
-    {
-        __asm
-        {
-          fld dword ptr [angle]
-          fsincos
-          mov edx,c;
-          fstp dword ptr [edx]
-          mov edx,s;
-          fstp dword ptr [edx]
-        };
-    }
 #endif
 
 #if 0 //def RAD_PS2
