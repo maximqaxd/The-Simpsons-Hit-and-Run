@@ -22,7 +22,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/AnimatedIcon.h>
+#include <mission/animatedicon.h>
 
 #include <memory/srrmemory.h>
 

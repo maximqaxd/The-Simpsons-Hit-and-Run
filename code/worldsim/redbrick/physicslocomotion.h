@@ -14,7 +14,7 @@
 #define _PHYSICSLOCOMOTION_H
 
 #include <worldsim/redbrick/vehiclelocomotion.h>
-#include <render/intersectmanager/intersectmanager.h> // For the terrain type enumeration.
+#include <render/IntersectManager/IntersectManager.h> // For the terrain type enumeration.
 #include <radmath/radmath.hpp>
 
 class Vehicle;

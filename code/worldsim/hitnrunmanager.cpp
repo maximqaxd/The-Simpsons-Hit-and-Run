@@ -31,7 +31,7 @@
 #include <worldsim/coins/coinmanager.h>
 #include <memory/srrmemory.h>
 #include <events/eventmanager.h>
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 #include <render/rendermanager/rendermanager.h>
 #include <render/rendermanager/worldrenderlayer.h>
 #include <render/dsg/statepropdsg.h>

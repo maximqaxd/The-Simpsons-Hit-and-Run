@@ -57,9 +57,9 @@
 #include <worldsim/avatarmanager.h>
 #include <p3d/matrixstack.hpp>
 
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <mission/gameplaymanager.h>
 #include <mission/objectives/missionobjective.h>
 #include <screen.h>

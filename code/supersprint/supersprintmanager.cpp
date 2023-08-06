@@ -52,7 +52,7 @@
 #include <roads/roadsegment.h>
 #include <worldsim/avatarmanager.h>
 #include <worldsim/avatar.h>
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 
 #include <supersprint/supersprintmanager.h>
 

@@ -53,7 +53,7 @@
 #include <render/RenderManager/RenderManager.h>
 #include <render/Culling/WorldScene.h>
 
-#include <mission/AnimatedIcon.h>
+#include <mission/animatedicon.h>
 #include <mission/gameplaymanager.h>
 
 #include <worldsim/parkedcars/parkedcarmanager.h>

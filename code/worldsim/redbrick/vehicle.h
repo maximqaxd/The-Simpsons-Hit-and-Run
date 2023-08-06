@@ -23,7 +23,7 @@
 #include <presentation/gui/utility/hudmap.h>
 #include <radmath/radmath.hpp>
 #include <render/DSG/InstDynaPhysDSG.h>
-#include <render/intersectmanager/intersectmanager.h> // For terrain type enumeration.
+#include <render/IntersectManager/IntersectManager.h> // For terrain type enumeration.
 
 //========================================
 // Forward References

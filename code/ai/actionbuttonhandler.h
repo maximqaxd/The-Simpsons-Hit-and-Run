@@ -28,7 +28,7 @@
 #include <loading/loadingmanager.h>
 #include <string.h>
 
-#include <mission/animatedIcon.h>
+#include <mission/animatedicon.h>
 #include <mission/respawnmanager/respawnentity.h>
 #include <presentation/gui/utility/transitions.h>
 

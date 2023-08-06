@@ -27,7 +27,7 @@
 #include <mission/gameplaymanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/charactersheet/charactersheet.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 
 #include <raddebug.hpp> // Foundation
 #include <page.h>

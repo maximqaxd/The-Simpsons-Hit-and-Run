@@ -3,7 +3,7 @@
 #define CHARACTERSHEET_H
 
 
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <camera/supercam.h>
 
 const int MAX_MISSIONS = 8; //this is set to 8 since there is a Stupid tutorial mission in level 1

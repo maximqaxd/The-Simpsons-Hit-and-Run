@@ -25,7 +25,7 @@
 #include <memory/srrmemory.h>
 #include <meta/zoneeventlocator.h>
 #include <mission/gameplaymanager.h>
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 #include <roads/geometry.h>
 #include <roads/road.h>
 #include <roads/intersection.h>

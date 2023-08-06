@@ -23,7 +23,7 @@
 #include <simphysics/articulatedphysicsobject.hpp>
 #include <debug/profiler.h>
 #include <worldsim/coins/coinmanager.h>
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 #include <ai/actor/intersectionlist.h>
 #include <constants/actorenum.h>
 #include <p3d/view.hpp>

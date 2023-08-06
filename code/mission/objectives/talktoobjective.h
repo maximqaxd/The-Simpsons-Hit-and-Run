@@ -17,7 +17,7 @@
 //========================================
 #include <mission/objectives/missionobjective.h>
 
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 
 #include <presentation/gui/utility/hudmap.h>
 #include <input/inputmanager.h>

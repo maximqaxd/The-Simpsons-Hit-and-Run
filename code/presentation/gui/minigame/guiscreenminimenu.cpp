@@ -31,7 +31,7 @@
 #include <mission/gameplaymanager.h>
 #include <mission/rewards/rewardsmanager.h>
 #include <mission/rewards/reward.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <supersprint/supersprintmanager.h>
 #include <supersprint/supersprintdata.h>
 

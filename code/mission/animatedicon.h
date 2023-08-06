@@ -16,7 +16,7 @@
 // Nested Includes
 //========================================
 #include <radmath/radmath.hpp>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <memory/srrmemory.h>
 #include <render/DSG/inststatentitydsg.h>
 

@@ -19,7 +19,7 @@
 #include <radmath/vector.hpp>
 #include <radmath/matrix.hpp>
 #include <radmath/random.hpp>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 
 //========================================
 // Forward References

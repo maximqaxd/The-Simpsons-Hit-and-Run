@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 #include <roads/RoadManager.h>
 #include <roads/road.h>
 #include <roads/intersection.h>

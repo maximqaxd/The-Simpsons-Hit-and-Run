@@ -20,7 +20,7 @@
 #include <events/eventlistener.h>
 #include <loading/loadingmanager.h>
 #include <memory/srrmemory.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <mission/mission.h>
 #include <mission/bonusmissioninfo.h>
 #include <mission/respawnmanager/respawnmanager.h>

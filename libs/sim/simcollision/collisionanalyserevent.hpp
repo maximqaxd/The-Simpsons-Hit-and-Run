@@ -1,7 +1,7 @@
 #ifndef _COLLISIONANALYSEREVENT_HPP_
 #define _COLLISIONANALYSEREVENT_HPP_
 
-#include "simcollision\collisionanalyserinfo.hpp"
+#include "simcollision/collisionanalyserinfo.hpp"
 
 namespace sim
 {

@@ -13,17 +13,17 @@
 // Includes
 //===========================================================================
 
-#include <ai\actor\intersectionlist.h>
-#include <simcollision\proximitydetection.hpp>
-#include <simcollision\collisionvolume.hpp>
-#include <simcollision\collisionobject.hpp>
-#include <simcommon\simstate.hpp>
-#include <simcommon\simstatearticulated.hpp>
+#include <ai/actor/intersectionlist.h>
+#include <simcollision/proximitydetection.hpp>
+#include <simcollision/collisionvolume.hpp>
+#include <simcollision/collisionobject.hpp>
+#include <simcommon/simstate.hpp>
+#include <simcommon/simstatearticulated.hpp>
 #include <float.h>
-#include <render\DSG\DynaPhysDSG.h>
-#include <render\DSG\fenceentitydsg.h>
-#include <render\DSG\AnimCollisionEntityDSG.h>
-#include <render\intersectmanager\intersectmanager.h>
+#include <render/DSG/DynaPhysDSG.h>
+#include <render/DSG/fenceentitydsg.h>
+#include <render/DSG/AnimCollisionEntityDSG.h>
+#include <render/IntersectManager/IntersectManager.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

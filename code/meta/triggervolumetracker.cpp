@@ -44,7 +44,7 @@
 
 #include <debug/profiler.h>
 
-#include <render/intersectmanager/intersectmanager.h>
+#include <render/IntersectManager/IntersectManager.h>
 
 #include <camera/supercammanager.h>
 #include <camera/supercamcentral.h>

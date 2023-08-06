@@ -2,7 +2,7 @@
 #define REWARDSMANAGER_H
 #include <mission/rewards/reward.h>
 #include <mission/rewards/merchandise.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <loading/loadingmanager.h>
 #include <mission/charactersheet/charactersheet.h>
 

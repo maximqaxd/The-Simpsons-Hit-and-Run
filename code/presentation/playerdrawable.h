@@ -16,7 +16,7 @@
 // Nested Includes
 //========================================
 #include <p3d/drawable.hpp>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 
 //========================================
 // Forward References

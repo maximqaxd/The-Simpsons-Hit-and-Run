@@ -2,7 +2,7 @@
 #define CHARACTERSHEETMANAGER_H
 #include <mission/charactersheet/charactersheet.h>
 #include <presentation/tutorialmode.h>
-#include <render/enums/renderenums.h>
+#include <render/Enums/RenderEnums.h>
 #include <data/gamedata.h>
 #include <p3d/entity.hpp>
 
