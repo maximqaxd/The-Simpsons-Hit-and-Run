@@ -19,7 +19,7 @@
 #include <ai/actor/cutcambehaviour.h>
 #include <ai/actor/actoranimation.h>
 #include <ai/actor/actoranimationwasp.h>
-#include <ai/actor/actoranimationufo.h>
+#include <ai/actor/ActorAnimationUFO.h>
 #include <ai/actor/attractionbehaviour.h>
 #include <ai/actor/evasionbehaviour.h>
 #include <render/rendermanager/rendermanager.h>

@@ -23,7 +23,7 @@
 #include <camera/supercammanager.h>
 #endif
 
-#include <camera/SuperCamController.h>
+#include <camera/supercamcontroller.h>
 
 //******************************************************************************
 //

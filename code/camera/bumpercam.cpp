@@ -21,7 +21,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/BumperCam.h>
+#include <camera/bumpercam.h>
 #include <camera/isupercamtarget.h>
 
 #include <worldsim/redbrick/vehicle.h>

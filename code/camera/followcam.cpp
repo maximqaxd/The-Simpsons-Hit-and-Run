@@ -26,8 +26,8 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/FollowCam.h>
-#include <camera/FollowCamDataChunk.h>
+#include <camera/followcam.h>
+#include <camera/followcamdatachunk.h>
 #include <camera/isupercamtarget.h>
 #include <camera/supercamcentral.h>
 #include <camera/supercamcontroller.h>

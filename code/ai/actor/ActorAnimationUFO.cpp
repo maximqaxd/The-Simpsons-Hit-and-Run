@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 
-#include <ai/actor/actoranimationufo.h>
+#include <ai/actor/ActorAnimationUFO.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

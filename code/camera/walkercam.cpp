@@ -22,9 +22,9 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/WalkerCam.h>
-#include <camera/WalkerCamData.h>
-#include <camera/WalkerCamDataChunk.h>
+#include <camera/walkercam.h>
+#include <camera/walkercamdata.h>
+#include <camera/walkercamdatachunk.h>
 #include <camera/isupercamtarget.h>
 #include <camera/supercamcentral.h>
 #include <camera/supercamcontroller.h>

@@ -19,9 +19,9 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/ReverseCam.h>
+#include <camera/reversecam.h>
 #include <camera/isupercamtarget.h>
-#include <camera/SuperCamController.h>
+#include <camera/supercamcontroller.h>
 #include <camera/supercamconstants.h>
 #include <camera/supercammanager.h>
 #include <camera/supercamcentral.h>

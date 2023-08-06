@@ -31,7 +31,7 @@
 // Project Includes
 //========================================
 #ifndef WORLD_BUILDER
-#include <camera/SuperCam.h>
+#include <camera/supercam.h>
 #include <camera/icamerashaker.h>
 #include <camera/supercamconstants.h>
 

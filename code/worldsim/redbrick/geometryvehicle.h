@@ -30,7 +30,7 @@ class StatePropCollectible;
 
 #include <p3d/anim/compositedrawable.hpp>
 #include <render/Particles/vehicleparticleemitter.h>
-#include <worldsim/SkidMarks/SkidMarkGenerator.h>
+#include <worldsim/skidmarks/SkidMarkGenerator.h>
 #include <constants/particleenum.h>
 #include <vector>
 #include <memory/stlallocators.h>

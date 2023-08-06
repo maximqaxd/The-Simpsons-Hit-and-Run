@@ -8,7 +8,7 @@
 #include <ai/actor/actordsg.cpp>
 #include <ai/actor/ufoattackbehaviour.cpp>
 #include <ai/actor/actoranimationwasp.cpp>
-#include <ai/actor/actoranimationufo.cpp>
+#include <ai/actor/ActorAnimationUFO.cpp>
 #include <ai/actor/attractionbehaviour.cpp>
 #include <ai/actor/projectiledsg.cpp>
 #include <ai/actor/ufobeamalwaysonbehaviour.cpp>

@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/WrecklessEventListener.h>
+#include <camera/wrecklesseventlistener.h>
 #include <meta/eventlocator.h>
 #include <meta/locatorevents.h>
 

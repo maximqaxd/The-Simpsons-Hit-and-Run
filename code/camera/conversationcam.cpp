@@ -23,7 +23,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/ConversationCam.h>
+#include <camera/conversationcam.h>
 #include <camera/isupercamtarget.h>
 #include <meta/triggervolumetracker.h>
 #include <presentation/presentation.h>

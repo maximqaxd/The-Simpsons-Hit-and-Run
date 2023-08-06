@@ -21,7 +21,7 @@
 // Project Includes
 //========================================
 #ifndef WORLD_BUILDER
-#include <camera/StaticCam.h>
+#include <camera/staticcam.h>
 #include <camera/isupercamtarget.h>
 #include <camera/supercamcontroller.h>
 #include <camera/supercamconstants.h>

@@ -51,7 +51,7 @@
 #include <radmath/radmath.hpp>
 
 #include <camera/supercam.h>
-#include <camera/FollowCamData.h>
+#include <camera/followcamdata.h>
 
 //========================================
 // Forward References

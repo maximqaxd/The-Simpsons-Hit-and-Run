@@ -13,9 +13,9 @@
 // Includes
 //===========================================================================
 
-#include <worldsim/SkidMarks/skidmarkmanager.h>
+#include <worldsim/skidmarks/skidmarkmanager.h>
 #include <memory/srrmemory.h>
-#include <worldsim/SkidMarks/skidmark.h>
+#include <worldsim/skidmarks/skidmark.h>
 #include <radtime.hpp>
 
 //===========================================================================

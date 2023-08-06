@@ -20,8 +20,8 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/TrackerCam.h>
-#include <camera/ISuperCamTarget.h>
+#include <camera/trackercam.h>
+#include <camera/isupercamtarget.h>
 #include <camera/supercamconstants.h>
 #include <input/inputmanager.h>
 

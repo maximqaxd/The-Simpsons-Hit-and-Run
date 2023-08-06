@@ -16,7 +16,7 @@
 // Nested Includes
 //========================================
 #include <camera/supercam.h>
-#include <camera/ConversationCamdata.h>
+#include <camera/conversationcamdata.h>
 
 //========================================
 // Forward References

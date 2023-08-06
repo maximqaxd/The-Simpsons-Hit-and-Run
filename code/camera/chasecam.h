@@ -19,7 +19,7 @@
 #include <radmath/radmath.hpp>
 
 #include <camera/supercam.h>
-#include <camera/ChaseCamData.h>
+#include <camera/chasecamdata.h>
 
 //========================================
 // Forward References

@@ -24,7 +24,7 @@
 
 struct CheatInputMapping
 {
-    char* inputName;
+    const char* inputName;
     int inputID;
 };
 

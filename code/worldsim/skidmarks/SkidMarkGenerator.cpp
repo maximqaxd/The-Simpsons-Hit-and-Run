@@ -14,9 +14,9 @@
 //===========================================================================
 #include <stdlib.h>
 
-#include <worldsim/SkidMarks/SkidMarkGenerator.h>
-#include <worldsim/SkidMarks/skidmarkmanager.h>
-#include <worldsim/SkidMarks/skidmark.h>
+#include <worldsim/skidmarks/SkidMarkGenerator.h>
+#include <worldsim/skidmarks/skidmarkmanager.h>
+#include <worldsim/skidmarks/skidmark.h>
 
 #include <radmath/util.hpp>
 #include <float.h>

@@ -21,7 +21,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/KullCam.h>
+#include <camera/kullcam.h>
 #include <camera/supercamconstants.h>
 #include <input/inputmanager.h>
 

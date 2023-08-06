@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/DebugCam.h>
+#include <camera/debugcam.h>
 #include <camera/supercamconstants.h>
 #include <input/inputmanager.h>
 #include <memory/srrmemory.h>

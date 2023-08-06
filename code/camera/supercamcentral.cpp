@@ -28,8 +28,8 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/SuperCam.h>
-#include <camera/SuperCamCentral.h>
+#include <camera/supercam.h>
+#include <camera/supercamcentral.h>
 #include <camera/animatedcam.h>
 #include <camera/conversationcam.h>
 #include <camera/frustrumdrawable.h>

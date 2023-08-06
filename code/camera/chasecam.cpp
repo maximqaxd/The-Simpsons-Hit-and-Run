@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/ChaseCam.h>
+#include <camera/chasecam.h>
 #include <camera/isupercamtarget.h>
 #include <camera/supercamconstants.h>
 

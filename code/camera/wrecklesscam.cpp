@@ -22,7 +22,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/WrecklessCam.h>
+#include <camera/wrecklesscam.h>
 #include <camera/isupercamtarget.h>
 
 #include <events/eventmanager.h>
