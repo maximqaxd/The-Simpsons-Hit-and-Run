@@ -158,7 +158,7 @@ typename Map< KeyClass, T >::iterator Map< KeyClass, T >::erase( typename Map< K
 template < class KeyClass, class T >
 size_t Map< KeyClass, T >::erase(  const KeyClass& key )
 {
-    MapElementVector::iterator it;
+    iterator it;
     for( it = m_Elements.begin(); it != m_Elements.end(); ++it )
     {
         if( (*it).first == key )
