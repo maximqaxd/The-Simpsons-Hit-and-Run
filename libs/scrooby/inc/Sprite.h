@@ -24,7 +24,7 @@
 #include "BoundedDrawable.h"
 
 #ifdef BITMAP_TEXT_SUPPORT
-    #include <strings/unicodestring.h>
+    #include <strings/unicodeString.h>
 #endif
 
 class tSprite;

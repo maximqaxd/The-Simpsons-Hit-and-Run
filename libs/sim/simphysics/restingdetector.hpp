@@ -66,4 +66,4 @@ private:
 
 } // sim
 
-#endif _RESTDETECTOR_HPP_
+#endif // _RESTDETECTOR_HPP_

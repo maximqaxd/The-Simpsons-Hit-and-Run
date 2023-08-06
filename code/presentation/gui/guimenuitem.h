@@ -25,8 +25,8 @@
 
 // Scrooby
 //
-#include <text.h>
-#include <sprite.h>
+#include <Text.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Forward References

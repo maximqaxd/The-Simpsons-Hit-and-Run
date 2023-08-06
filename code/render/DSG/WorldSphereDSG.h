@@ -17,7 +17,7 @@
 //=================================================
 #include <p3d/p3dtypes.hpp>
 #include <p3d/billboardobject.hpp>
-#include <p3d/Geometry.hpp>
+#include <p3d/geometry.hpp>
 #include <p3d/anim/multicontroller.hpp>
 
 //=================================================

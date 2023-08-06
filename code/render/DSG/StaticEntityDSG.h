@@ -16,7 +16,7 @@
 // System Includes
 //=================================================
 #include <p3d/p3dtypes.hpp>
-#include <p3d/Geometry.hpp>
+#include <p3d/geometry.hpp>
 
 //=================================================
 // Project Includes

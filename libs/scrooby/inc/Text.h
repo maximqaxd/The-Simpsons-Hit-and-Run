@@ -17,7 +17,7 @@
 // Nested Includes
 //===========================================================================
 #include "BoundedDrawable.h"
-#include "strings\unicodeString.h"
+#include "strings/unicodeString.h"
 
 class UnicodeString;
 class tFont;
