@@ -28,32 +28,9 @@ FindHook GetFindHook();
 void* GetFindHookContext();
 
 template <class T>
-inline T* find(const BaseBank* bank, tUID uid)
-{
-    FindHook findHook = GetFindHook();
-    if (findHook != 0)
-    {
-        (*findHook)(bank, typeid(T), "", uid, GetFindHookContext());
-    }
-
-    radLoadInventory::SafeCast<T> safeCaster;
-    return (T*)bank->Find(safeCaster, uid);
-}
-
+inline T* find(const BaseBank* bank, tUID uid);
 template <class T>
-inline T* find(const BaseBank* bank, const char* name)
-{
-    tUID uid = tEntity::MakeUID(name);
-
-    FindHook findHook = GetFindHook();
-    if (findHook != 0)
-    {
-        (*findHook)(bank, typeid(T), name, uid, GetFindHookContext());
-    }
-
-    radLoadInventory::SafeCast<T> safeCaster;
-    return (T*)bank->Find(safeCaster, uid);
-}
+inline T* find(const BaseBank* bank, const char* name);
 
 
 //---------------------------------------------------------------------------
@@ -86,6 +63,35 @@ public:
 
     virtual RawIterator* NewRawIterator() = 0;
 };
+
+
+template <class T>
+inline T* find(const BaseBank* bank, tUID uid)
+{
+    FindHook findHook = GetFindHook();
+    if (findHook != 0)
+    {
+        (*findHook)(bank, typeid(T), "", uid, GetFindHookContext());
+    }
+
+    radLoadInventory::SafeCast<T> safeCaster;
+    return (T*)bank->Find(safeCaster, uid);
+}
+
+template <class T>
+inline T* find(const BaseBank* bank, const char* name)
+{
+    tUID uid = tEntity::MakeUID(name);
+
+    FindHook findHook = GetFindHook();
+    if (findHook != 0)
+    {
+        (*findHook)(bank, typeid(T), name, uid, GetFindHookContext());
+    }
+
+    radLoadInventory::SafeCast<T> safeCaster;
+    return (T*)bank->Find(safeCaster, uid);
+}
 
 
 //---------------------------------------------------------------------------

@@ -111,6 +111,9 @@ public:
     tDynamicArray(unsigned s) : tArray<T>(s) {  /* */ }
     tDynamicArray(unsigned s, T* d) : tArray<T>(s,d) {  /* */ }
 
+    using tArray<T>::size;
+    using tArray<T>::data;
+
     void Shrink(unsigned newSize)
     {
         if(size > newSize)
@@ -146,6 +149,9 @@ public:
 template <class T> class tPtrArray : public tArray<T>
 {
 public:
+   using tArray<T>::size;
+   using tArray<T>::data;
+
    // construct an empty array    
    tPtrArray( ) : tArray<T>( ){ /* void */ }   //we do allow to construct null array
    tPtrArray(unsigned s) : tArray<T>( s ) 
@@ -214,6 +220,9 @@ public:
     tPtrDynamicArray(unsigned s) : tPtrArray<T>(s) {  /* */ }
     tPtrDynamicArray(unsigned s, T* d) : tPtrArray<T>(s,d) {  /* */ }
 
+    using tPtrArray<T>::size;
+    using tPtrArray<T>::data;
+
     void Shrink(unsigned newSize)
     {
         if(size > newSize)
@@ -255,7 +264,7 @@ public:
                 return i;
             }
         }
-        Grow(Size()*2);
+        Grow(this->Size()*2);
         data[oldSize] = t;
         return oldSize;
 

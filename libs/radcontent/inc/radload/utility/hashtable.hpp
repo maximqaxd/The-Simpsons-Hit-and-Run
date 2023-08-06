@@ -193,7 +193,7 @@ public:
     }
     void RemoveAll()
     {
-        RawIterator it( this );
+        typename HashTable<T>::RawIterator it( this );
         T* obj = it.First();
         while( obj )
         {
