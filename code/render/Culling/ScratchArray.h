@@ -1,8 +1,8 @@
 #ifndef __SCRATCH_ARRAY_H__
 #define __SCRATCH_ARRAY_H__
 
-#include <render/culling/FixedArray.h>
-#include <render/culling/srrRenderTypes.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/srrRenderTypes.h>
 //
 // Designed for quick alloc/dealloc
 //

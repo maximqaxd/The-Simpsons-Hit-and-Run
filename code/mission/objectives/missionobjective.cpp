@@ -30,7 +30,7 @@
 
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
-#include <render/culling/worldscene.h>
+#include <render/Culling/worldscene.h>
 #include <render/DSG/InstStatEntityDSG.h>
 #include <render/rendermanager/rendermanager.h>
 #include <presentation/gui/guisystem.h>

@@ -2,15 +2,15 @@
 #define __SPATIAL_TREE_ITER_H__
 
 #include <p3d/utility.hpp>
-#include <render/culling/SpatialTree.h>
-#include <render/culling/ISpatialProxy.h>
-#include <render/culling/SphereSP.h>
-#include <render/culling/Bounds.h>
-#include <render/culling/BoxPts.h>
-#include <render/culling/FixedArray.h>
-#include <render/culling/UseArray.h>
+#include <render/Culling/SpatialTree.h>
+#include <render/Culling/ISpatialProxy.h>
+#include <render/Culling/SphereSP.h>
+#include <render/Culling/Bounds.h>
+#include <render/Culling/BoxPts.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/UseArray.h>
 
-//#include <render/culling/../../profiler/profiler.hpp>
+//#include <render/Culling/../../profiler/profiler.hpp>
 
 typedef int tMark;
 

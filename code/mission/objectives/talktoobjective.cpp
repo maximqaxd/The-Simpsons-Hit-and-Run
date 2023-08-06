@@ -38,7 +38,7 @@
 #include <render/DSG/InstStatEntityDSG.h>
 #include <render/rendermanager/rendermanager.h>
 #include <render/rendermanager/worldrenderlayer.h>
-#include <render/culling/worldscene.h>
+#include <render/Culling/worldscene.h>
 #include <worldsim/traffic/trafficmanager.h>
 
 //*****************************************************************************

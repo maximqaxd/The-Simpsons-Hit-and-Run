@@ -19,7 +19,7 @@
 
 // Scrooby
 //
-#include <enums.h>
+#include <Enums.h>
 
 //===========================================================================
 // External Constants

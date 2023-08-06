@@ -17,7 +17,7 @@
 #include <render/Breakables/breakablesmanager.h>
 
 #include <render/RenderManager/RenderManager.h>
-#include <render/culling/worldscene.h>
+#include <render/Culling/worldscene.h>
 #include <render/RenderManager/WorldRenderLayer.h>
 #include <events/eventmanager.h>
 

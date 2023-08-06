@@ -27,7 +27,7 @@
 //This is the non tool includes.
 #include <p3d/refcounted.hpp>
 #include <radmath/radmath.hpp>
-#include <camera/SineCosShaker.h>
+#include <camera/sinecosshaker.h>
 
 #include <debug/profiler.h>
 

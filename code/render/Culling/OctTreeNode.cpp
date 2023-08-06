@@ -1,5 +1,5 @@
-#include <render/culling/OctTreeNode.h>
-#include <render/culling/srrRenderTypes.h>
+#include <render/Culling/OctTreeNode.h>
+#include <render/Culling/srrRenderTypes.h>
 #include <raddebug.hpp>
 //
 // int  mAxis;

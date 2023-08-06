@@ -1,9 +1,9 @@
 #ifndef __BLOCK_COORD_H__
 #define __BLOCK_COORD_H__
 
-#include <render/culling/Vector3f.h>
-#include <render/culling/Bounds.h>
-#include <render/culling/FloatFuncs.h>
+#include <render/Culling/Vector3f.h>
+#include <render/Culling/Bounds.h>
+#include <render/Culling/FloatFuncs.h>
 
 class BlockCoord
 {

@@ -1,8 +1,8 @@
 #ifndef __OCT_TREE_NODE_H__
 #define __OCT_TREE_NODE_H__
 
-#include <render/culling/OctTreeData.h>
-#include <render/culling/BoxPts.h>
+#include <render/Culling/OctTreeData.h>
+#include <render/Culling/BoxPts.h>
 
 class OctTreeNode
 {

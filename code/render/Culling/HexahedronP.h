@@ -1,7 +1,7 @@
 #ifndef __HEXAHEDRON_P_H___
 #define __HEXAHEDRON_P_H___
 
-#include <render/culling/ISpatialProxy.h>
+#include <render/Culling/ISpatialProxy.h>
 
 class HexahedronP : public ISpatialProxyAA
 {

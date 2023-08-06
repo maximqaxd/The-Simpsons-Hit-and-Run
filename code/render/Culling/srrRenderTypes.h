@@ -1,10 +1,10 @@
 #ifndef __SRR_RENDER_TYPES__
 #define __SRR_RENDER_TYPES__
 
-#include <render/culling/Vector3i.h>
-#include <render/culling/Vector3f.h>
-#include <render/culling/Bounds.h>
-#include <render/culling/FloatFuncs.h>
+#include <render/Culling/Vector3i.h>
+#include <render/Culling/Vector3f.h>
+#include <render/Culling/Bounds.h>
+#include <render/Culling/FloatFuncs.h>
 //
 // Values for unset/unused data fields
 //

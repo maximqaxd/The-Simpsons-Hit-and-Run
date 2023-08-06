@@ -1,4 +1,4 @@
-#include <render/culling/BoxPts.h>
+#include <render/Culling/BoxPts.h>
 #include <debug/profiler.h>
    // ISpatialProxyAA
 

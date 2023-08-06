@@ -1,15 +1,15 @@
 #ifndef __SPATIAL_TREE_FACTORY_H__
 #define __SPATIAL_TREE_FACTORY_H__
 
-#include <render/culling/UseArray.h>
-#include <render/culling/FixedArray.h>
-#include <render/culling/srrRenderTypes.h>
-#include <render/culling/Bounds.h>
-#include <render/culling/SpatialTree.h>
-#include <render/culling/SpatialTreeIter.h>
-#include <render/culling/HexahedronP.h>
-//#include <render/culling/SpatialFruit.h>
-#include <render/culling/CellBlock.h>
+#include <render/Culling/UseArray.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/srrRenderTypes.h>
+#include <render/Culling/Bounds.h>
+#include <render/Culling/SpatialTree.h>
+#include <render/Culling/SpatialTreeIter.h>
+#include <render/Culling/HexahedronP.h>
+//#include <render/Culling/SpatialFruit.h>
+#include <render/Culling/CellBlock.h>
 
 //////////////////////////////////////////////////////////////////////
 //

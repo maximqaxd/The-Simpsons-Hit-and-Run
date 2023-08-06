@@ -16,7 +16,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <render/culling/SpatialTreeIter.h>
+#include <render/Culling/SpatialTreeIter.h>
 
 
 //******************************************************************************

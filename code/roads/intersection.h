@@ -19,11 +19,11 @@
 #include <radmath/radmath.hpp>
 #include <p3d/p3dtypes.hpp>
 #include <p3d/entity.hpp>
-#include <roads/TrafficControl.h>
+#include <roads/trafficcontrol.h>
 #include <roads/lane.h>
 #include <roads/geometry.h>
 #include <roads/roadmanager.h>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 
 class Road;
 class CNavVertex;

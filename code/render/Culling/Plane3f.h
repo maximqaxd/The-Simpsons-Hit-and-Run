@@ -1,7 +1,7 @@
 #ifndef __PLANE_3F_H__
 #define __PLANE_3F_H__
 
-#include <render/culling/Vector3f.h>
+#include <render/Culling/Vector3f.h>
 
 class AAPlane3f
 {

@@ -1,9 +1,9 @@
 #ifndef __VECTOR_3I_H__
 #define __VECTOR_3I_H__
 
-#include <render/culling/FloatFuncs.h>
+#include <render/Culling/FloatFuncs.h>
 
-#include <render/culling/Vector3f.h>
+#include <render/Culling/Vector3f.h>
 
 class Vector3i
 {

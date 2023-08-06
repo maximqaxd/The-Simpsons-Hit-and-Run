@@ -19,7 +19,7 @@
 //===========================================================================
 
 
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 #include <ai/actor/spawnpoint.h>
 #include <events/eventlistener.h>
 #include <memory/stlallocators.h>

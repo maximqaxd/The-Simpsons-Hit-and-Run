@@ -20,9 +20,9 @@
 //    -OctTreeManager
 //
 
-#include <render/culling/OctTreeConst.h>
-#include <render/culling/OctTreeParams.h>
-#include <render/culling/CoordSubList.h>
+#include <render/Culling/OctTreeConst.h>
+#include <render/Culling/OctTreeParams.h>
+#include <render/Culling/CoordSubList.h>
 
 
 

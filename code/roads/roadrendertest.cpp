@@ -30,8 +30,8 @@
 #include <worldsim/avatar.h>
 #include <worldsim/avatarmanager.h>
 #include <render/rendermanager/rendermanager.h>
-#include <render/culling/spatialtree.h>
-#include <render/culling/worldscene.h>
+#include <render/Culling/spatialtree.h>
+#include <render/Culling/worldscene.h>
 #include <render/DSG/intersectdsg.h>
 #include <contexts/bootupcontext.h>
 #include <debug/profiler.h>

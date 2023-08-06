@@ -1,7 +1,7 @@
 #ifndef __CULL_DATA_H__
 #define __CULL_DATA_H__
 
-#include <render/culling/ScratchArray.h>
+#include <render/Culling/ScratchArray.h>
 
 class CullCache
 {

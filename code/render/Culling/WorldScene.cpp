@@ -1,5 +1,5 @@
-#include <render/culling/WorldScene.h>
-#include <render/culling/SpatialTreeFactory.h>
+#include <render/Culling/WorldScene.h>
+#include <render/Culling/SpatialTreeFactory.h>
 #include <render/Culling/SpatialTree.h>
 #include <render/Culling/SpatialTreeIter.h>
 #include <render/DSG/IntersectDSG.h>
@@ -15,9 +15,9 @@
 #include <algorithm>
 #include <functional>
 
-#include <render/culling/NodeFLL.h>
+#include <render/Culling/NodeFLL.h>
 
-#include <render/culling/Matrix3f.h>
+#include <render/Culling/Matrix3f.h>
 #include <camera/supercammanager.h>
 
 #include <raddebugwatch.hpp>
@@ -59,13 +59,13 @@
 //#define TEST_WHOLE_TREE
 
 //For debug section
-//#include <render/culling/../debuginfo.hpp"
-//#include <render/culling/../../profiler/profiler.hpp"
+//#include <render/Culling/../debuginfo.hpp"
+//#include <render/Culling/../../profiler/profiler.hpp"
 //For test debugging (camera)
-//#include <render/culling/../../main/globals.hpp"
-//#include <render/culling/../../main/gamesettings.hpp"
-//#include <render/culling/../../worldsim/supercam.hpp"
-//#include <render/culling/../../worldsim/player.hpp"
+//#include <render/Culling/../../main/globals.hpp"
+//#include <render/Culling/../../main/gamesettings.hpp"
+//#include <render/Culling/../../worldsim/supercam.hpp"
+//#include <render/Culling/../../worldsim/player.hpp"
 
 //static Vector3f TODO_GRANULARITY(160.0f, 2000.0f, 160.0f);
 //static Vector3f TODO_GRANULARITY(240.0f, 2000.0f, 240.0f);
@@ -2200,7 +2200,7 @@ bool WorldScene::IsPostTreeGen()
    else
       return true;
 }
-#include <render/culling/SphereSP.h>
+#include <render/Culling/SphereSP.h>
 #include <p3d/debugdraw.hpp>
 ////////////////////////////////////////////////////////////////////
 // TODO: Move this type of functionality elsewhere

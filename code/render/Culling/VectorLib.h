@@ -1,9 +1,9 @@
 #ifndef __VECTOR_LIB_H__
 #define __VECTOR_LIB_H__
 
-#include <render/culling/Vector3f.h>
-#include <render/culling/FixedArray.h>
-#include <render/culling/Bounds.h>
+#include <render/Culling/Vector3f.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/Bounds.h>
 
 ///////////////////////////////////////////////////
 // Originally, I was going to make this a bunch 

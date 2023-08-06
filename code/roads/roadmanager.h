@@ -15,7 +15,7 @@
 //========================================
 // Nested Includes
 //========================================
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 
 //========================================
 // Forward References

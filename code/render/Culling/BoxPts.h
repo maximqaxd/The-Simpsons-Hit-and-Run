@@ -1,11 +1,11 @@
 #ifndef __BOX_PTS_H__
 #define __BOX_PTS_H__
 
-#include <render/culling/Vector3f.h>
-#include <render/culling/Plane3f.h>
-#include <render/culling/Bounds.h>
+#include <render/Culling/Vector3f.h>
+#include <render/Culling/Plane3f.h>
+#include <render/Culling/Bounds.h>
 
-#include <render/culling/ISpatialProxy.h>
+#include <render/Culling/ISpatialProxy.h>
 
 class BoxPts : public ISpatialProxyAA
 {

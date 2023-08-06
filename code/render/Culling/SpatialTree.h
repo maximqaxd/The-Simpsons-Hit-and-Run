@@ -3,10 +3,10 @@
 
 #include <p3d/entity.hpp>
 
-#include <render/culling/OctTreeNode.h>
-#include <render/culling/FixedArray.h>
-#include <render/culling/SpatialNode.h>
-#include <render/culling/BoxPts.h>
+#include <render/Culling/OctTreeNode.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/SpatialNode.h>
+#include <render/Culling/BoxPts.h>
 
 class SpatialTree 
 : public tEntity

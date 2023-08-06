@@ -20,7 +20,7 @@
 
 #include <mission/ufo/weapon.h>
 #include <vector>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 
 //===========================================================================
 // Forward References

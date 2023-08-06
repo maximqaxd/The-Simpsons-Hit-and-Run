@@ -37,7 +37,7 @@
 #include <worldsim/avatar.h>
 #include <worldsim/traffic/trafficmanager.h>
 #include <worldsim/character/character.h>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 
 
 //*****************************************************************************

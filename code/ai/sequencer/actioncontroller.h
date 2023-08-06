@@ -18,7 +18,7 @@
 //---------------------------------------------------------------------
 
 // CLOSER #include "architecture/ctype.hpp"
-#include <ai\sequencer\sequencer.h>
+#include <ai/sequencer/sequencer.h>
 
 //---------------------------------------------------------------------
 // Structure and class

@@ -1,10 +1,10 @@
 #ifndef __COORD_SUB_LIST_H__
 #define __COORD_SUB_LIST_H__
 
-#include <render/culling/OctTreeConst.h>
-#include <render/culling/Bounds.h>
-#include <render/culling/Cell.h>
-#include <render/culling/Vector3i.h>
+#include <render/Culling/OctTreeConst.h>
+#include <render/Culling/Bounds.h>
+#include <render/Culling/Cell.h>
+#include <render/Culling/Vector3i.h>
 
 //
 // CoordSubList

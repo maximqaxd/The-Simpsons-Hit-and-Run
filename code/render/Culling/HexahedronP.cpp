@@ -1,4 +1,4 @@
-#include <render/culling/HexahedronP.h>
+#include <render/Culling/HexahedronP.h>
 
 HexahedronP::HexahedronP()
 {

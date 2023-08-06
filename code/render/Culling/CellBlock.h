@@ -1,10 +1,10 @@
 #ifndef __CELL_BLOCK_H__
 #define __CELL_BLOCK_H__
 
-#include <render/culling/Cell.h>
-#include <render/culling/FixedArray.h>
-#include <render/culling/BlockCoord.h>
-#include <render/culling/Vector3i.h>
+#include <render/Culling/Cell.h>
+#include <render/Culling/FixedArray.h>
+#include <render/Culling/BlockCoord.h>
+#include <render/Culling/Vector3i.h>
 
 class CellBlock : public FixedArray<Cell>
 {

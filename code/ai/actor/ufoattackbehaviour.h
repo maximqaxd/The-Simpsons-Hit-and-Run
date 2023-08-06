@@ -20,7 +20,7 @@
 
 #include <ai/actor/ufobehaviour.h>
 #include <radmath/random.hpp>
-#include <render/culling/SwapArray.h>
+#include <render/Culling/SwapArray.h>
 #include <stateprop/stateprop.hpp>
 #include <render/DSG/DynaPhysDSG.h>
 

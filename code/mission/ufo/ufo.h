@@ -22,7 +22,7 @@
 #include <p3d/p3dtypes.hpp>
 
 #include <vector>
-#include <render/culling/ReserveArray.h>
+#include <render/Culling/ReserveArray.h>
 #include <mission/boss.h>
 #include <events/eventlistener.h>
 

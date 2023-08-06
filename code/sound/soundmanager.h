@@ -35,7 +35,7 @@
 // Nested Includes
 //========================================
 
-#include <enums.h>
+#include <Enums.h>
 
 #include <sound/soundloader.h>
 #include <sound/avatar/avatarsoundplayer.h>

@@ -21,8 +21,8 @@
 #include <memory/srrmemory.h> // Needed for my STL allocations to go on the right heap
 #include <render/DSG/breakableobjectdsg.h>
 #include <constants/breakablesenum.h>
-#include <render/culling/swaparray.h>
-#include <render/culling/reservearray.h>
+#include <render/Culling/SwapArray.h>
+#include <render/Culling/reservearray.h>
 #include <memory/stlallocators.h>
 #include <events/eventlistener.h>
 #include <render/Enums/RenderEnums.h>

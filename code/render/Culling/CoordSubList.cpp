@@ -1,7 +1,7 @@
-#include <render/culling/CoordSubList.h>
-#include <render/culling/CullData.h>
+#include <render/Culling/CoordSubList.h>
+#include <render/Culling/CullData.h>
 #include <raddebug.hpp>
-#include <render/culling/Vector3i.h>
+#include <render/Culling/Vector3i.h>
 
 #include <memory/srrmemory.h>
 

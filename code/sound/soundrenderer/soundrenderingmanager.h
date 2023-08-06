@@ -21,7 +21,7 @@
 
 #include <radobject.hpp>
 #include <radfile.hpp>
-#include <enums.h>
+#include <Enums.h>
 #include <radsound.hpp>
 #include <radscript.hpp>
 

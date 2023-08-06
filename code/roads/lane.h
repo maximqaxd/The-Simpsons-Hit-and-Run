@@ -20,7 +20,7 @@
 #include <vector>
 #include <list>
 #include <roads/geometry.h>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 #include <worldsim/traffic/trafficvehicle.h>
 
 class Road;

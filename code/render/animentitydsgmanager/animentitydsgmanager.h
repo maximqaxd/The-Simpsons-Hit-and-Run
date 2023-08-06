@@ -20,7 +20,7 @@
 
 #include <events/eventlistener.h>
 #include <meta/locatorevents.h>
-#include <render/Culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 
 //===========================================================================
 // Forward References

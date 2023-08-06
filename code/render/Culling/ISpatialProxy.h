@@ -1,7 +1,7 @@
 #ifndef __I_SPATIAL_PROXY_H__
 #define __I_SPATIAL_PROXY_H__
 
-#include <render/culling/Plane3f.h>
+#include <render/Culling/Plane3f.h>
 
 
 class ISpatialProxyAA

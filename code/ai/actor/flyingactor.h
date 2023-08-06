@@ -19,7 +19,7 @@
 //===========================================================================
 
 #include <ai/actor/actor.h>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 #include <ai/actor/behaviour.h>
 
 //===========================================================================

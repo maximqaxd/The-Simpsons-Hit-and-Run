@@ -19,7 +19,7 @@
 //===========================================================================
 
 #include <meta/triggerlocator.h>
-#include <render/culling/swaparray.h>
+#include <render/Culling/SwapArray.h>
 #include <events/eventlistener.h>
 
 //===========================================================================

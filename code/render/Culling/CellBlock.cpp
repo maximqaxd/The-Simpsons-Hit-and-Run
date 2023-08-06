@@ -1,6 +1,6 @@
-#include <render/culling/CellBlock.h>
-#include <render/culling/VectorLib.h>
-#include <render/culling/FloatFuncs.h>
+#include <render/Culling/CellBlock.h>
+#include <render/Culling/VectorLib.h>
+#include <render/Culling/FloatFuncs.h>
 
 
 CellBlock::CellBlock(){}

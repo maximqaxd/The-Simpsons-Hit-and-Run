@@ -1,8 +1,8 @@
 #ifndef __BOUNDS_H__
 #define __BOUNDS_H__
 
-#include <render/culling/Vector3f.h>
-#include <render/culling/Vector3i.h>
+#include <render/Culling/Vector3f.h>
+#include <render/Culling/Vector3i.h>
 
 class Bounds3f
 {

@@ -1,11 +1,11 @@
 #ifndef __SPATIAL_NODE_H__
 #define __SPATIAL_NODE_H__
 
-#include <render/culling/OctTreeNode.h>
-#include <render/culling/Plane3f.h>
-#include <render/culling/ContiguousBinNode.h>
-#include <render/culling/SwapArray.h>
-#include <render/culling/BoxPts.h>
+#include <render/Culling/OctTreeNode.h>
+#include <render/Culling/Plane3f.h>
+#include <render/Culling/ContiguousBinNode.h>
+#include <render/Culling/SwapArray.h>
+#include <render/Culling/BoxPts.h>
 
 //#include <render/DSG/StaticEntityDSG.h>
 //#include <render/DSG/StaticPhysDSG.h>

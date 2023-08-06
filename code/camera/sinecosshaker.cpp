@@ -26,13 +26,13 @@
 // Project Includes
 //========================================
 #ifndef WORLD_BUILDER
-#include <camera/SineCosShaker.h>
-#include <camera/SuperCam.h>
+#include <camera/sinecosshaker.h>
+#include <camera/supercam.h>
 #include <camera/supercamconstants.h>
 #include <events/eventdata.h>
 #else
-#include "SineCosShaker.h"
-#include "SuperCam.h"
+#include "sinecosshaker.h"
+#include "supercam.h"
 #include "supercamconstants.h"
 #include "events/eventdata.h"
 #endif
