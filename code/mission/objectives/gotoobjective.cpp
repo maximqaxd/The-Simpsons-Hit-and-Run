@@ -30,7 +30,7 @@
 #include <mission/gameplaymanager.h>
 #include <mission/missionmanager.h>
 
-#include <render/dsg/inststatentitydsg.h>
+#include <render/DSG/InstStatEntityDSG.h>
 
 #include <ai/actionbuttonhandler.h>
 #include <ai/actionbuttonmanager.h>

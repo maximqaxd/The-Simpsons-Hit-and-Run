@@ -36,7 +36,7 @@
 #include <roads/geometry.h>
 #include <roads/road.h>
 #include <pedpaths/pathsegment.h>
-#include <render/dsg/staticentitydsg.h>
+#include <render/DSG/staticentitydsg.h>
 
 #include <memory/srrmemory.h>
 #include <mission/gameplaymanager.h>

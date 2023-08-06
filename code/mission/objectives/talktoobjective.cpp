@@ -35,7 +35,7 @@
 
 #include <memory/srrmemory.h>
 
-#include <render/DSG/inststatentitydsg.h>
+#include <render/DSG/InstStatEntityDSG.h>
 #include <render/rendermanager/rendermanager.h>
 #include <render/rendermanager/worldrenderlayer.h>
 #include <render/culling/worldscene.h>

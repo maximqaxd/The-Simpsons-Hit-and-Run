@@ -19,7 +19,7 @@
 // Nested Includes
 //===========================================================================
 
-#include <render/dsg/inststatentitydsg.h>
+#include <render/DSG/InstStatEntityDSG.h>
 
 //===========================================================================
 // Forward References

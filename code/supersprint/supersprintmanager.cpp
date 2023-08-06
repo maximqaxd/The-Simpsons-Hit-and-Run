@@ -31,7 +31,7 @@
 #include <camera/animatedcam.h>
 #include <mission/missionscriptloader.h>
 #include <render/loaders/billboardwrappedloader.h>
-#include <render/dsg/animcollisionentitydsg.h>
+#include <render/DSG/animcollisionentitydsg.h>
 #include <worldsim/vehiclecentral.h>
 #include <worldsim/avatarmanager.h>
 #include <worldsim/character/character.h>

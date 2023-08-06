@@ -19,7 +19,7 @@
 // Nested Includes
 //===========================================================================
 
-#include <render/dsg/IEntityDSG.h>
+#include <render/DSG/IEntityDSG.h>
 #include <radmath/radmath.hpp>
 #include <render/Enums/RenderEnums.h>
 #include <p3d/refcounted.hpp>

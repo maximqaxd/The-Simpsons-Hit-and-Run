@@ -14,7 +14,7 @@
 // Includes
 //===========================================================================
 
-#include <render/dsg/animentitydsg.h>
+#include <render/DSG/animentitydsg.h>
 #include <p3d/anim/compositedrawable.hpp>
 #include <p3d/anim/animate.hpp>
 #include <p3d/anim/animatedobject.hpp>

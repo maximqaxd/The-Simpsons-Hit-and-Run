@@ -18,7 +18,7 @@
 #include <radmath/radmath.hpp>
 #include <render/Enums/RenderEnums.h>
 #include <memory/srrmemory.h>
-#include <render/DSG/inststatentitydsg.h>
+#include <render/DSG/InstStatEntityDSG.h>
 
 //========================================
 // Forward References

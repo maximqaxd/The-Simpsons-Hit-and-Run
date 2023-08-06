@@ -30,7 +30,7 @@
 #include <atc/atcmanager.h>
 #include <main/game.h>
 #include <memory/srrmemory.h>
-#include <render/dsg/staticentitydsg.h>
+#include <render/DSG/staticentitydsg.h>
 #include <contexts/bootupcontext.h>
 #include <float.h>
 #include <mission/charactersheet/charactersheetmanager.h>

@@ -18,7 +18,7 @@
 #include <render/rendermanager/rendermanager.h>
 #include <render/rendermanager/worldrenderlayer.h>
 #include <render/IntersectManager/IntersectManager.h>
-#include <render/dsg/fenceentitydsg.h>
+#include <render/DSG/fenceentitydsg.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

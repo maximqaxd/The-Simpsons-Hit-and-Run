@@ -28,7 +28,7 @@
 #include <mission/gameplaymanager.h>
 #include <mission/missionmanager.h>
 
-#include <render/dsg/inststatentitydsg.h>
+#include <render/DSG/InstStatEntityDSG.h>
 
 #include <memory/srrmemory.h>
 

@@ -32,7 +32,7 @@
 #include <render/rendermanager/rendermanager.h>
 #include <render/culling/spatialtree.h>
 #include <render/culling/worldscene.h>
-#include <render/dsg/intersectdsg.h>
+#include <render/DSG/intersectdsg.h>
 #include <contexts/bootupcontext.h>
 #include <debug/profiler.h>
 
