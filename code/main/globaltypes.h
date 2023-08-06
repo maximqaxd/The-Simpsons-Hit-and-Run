@@ -23,8 +23,12 @@ typedef unsigned long simpsonsUInt64;
 typedef unsigned long long simpsonsUInt64;
 #endif
 
-#if defined RAD_XBOX || defined RAD_WIN32
+#if defined RAD_XBOX
 typedef unsigned __int64 simpsonsUInt64;
+#endif
+
+#if defined RAD_PC
+typedef uint64_t simpsonsUInt64;
 #endif
 
 #endif //GLOBALTYPES_H

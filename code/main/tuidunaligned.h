@@ -22,7 +22,7 @@
 #ifdef RAD_PS2
     typedef unsigned long radInt64;
 #elif defined( RAD_WIN32 ) || defined ( RAD_XBOX )
-    typedef unsigned _int64 radInt64;
+    typedef uint64_t radInt64;
 #elif defined(RAD_GAMECUBE)
     typedef unsigned long long radInt64;
 #else

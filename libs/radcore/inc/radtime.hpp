@@ -110,8 +110,8 @@ typedef unsigned long long radTime64;
 typedef unsigned __int64 radTime64;
 #endif
 
-#if defined ( RAD_WIN32 )
-typedef __int64 radTime64;
+#if defined ( RAD_PC )
+typedef uint64_t radTime64;
 #endif
 
 radTime64 radTimeGetMicroseconds64( void );
