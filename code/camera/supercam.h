@@ -74,7 +74,7 @@ public:
     //These are the types of SuperCamera that are available.  When a new one is
     //created it is registered in this enum.  If this gets to be larger than 
     //32 types, we'll have to change some things.
-    typedef enum Type
+    enum Type
     {
         DEFAULT_CAM,
         FOLLOW_CAM,

@@ -34,7 +34,7 @@ class InstStatEntityDSG;
 //
 //=============================================================================
 
-static char* EXCLAMATION = "exclamation";
+static const char* EXCLAMATION = "exclamation";
 static const char* GIFT  = "gift";
 static const char* ARROW = "arrow";
 static const char* ARROW_CHASE = "arrow_evade";
