@@ -77,10 +77,10 @@ namespace RadicalMathLibrary
         inline int FtoL(const float v)
         {
             register int _val;
-            asm __volatile__ ("
+            asm __volatile__ (R"(
                 cvt.w.s $f1, %1
                 mfc1 %0, $f1
-            " : "=r"(_val) : "f"(v) : "$f1");
+            )" : "=r"(_val) : "f"(v) : "$f1");
             return _val;
         }
 
@@ -258,9 +258,9 @@ inline float Sqrt(const float floatVal)
 { 
     float result = 0.0f; 
 
-    asm __volatile__("
+    asm __volatile__(R"(
     sqrt.s %0, %1 
-    " 
+    )"
     : "=f" (result) 
     : "f" (floatVal) 
     ); 
@@ -277,9 +277,9 @@ inline float ISqrt(const float a)
     register float res;
     register float one = 1.0f;
 
-    asm __volatile__("
+    asm __volatile__(R"(
         rsqrt.s %0,%1,%2
-        "
+        )"
         : "=f"(res)
         : "f"(one),"f"(a));
 

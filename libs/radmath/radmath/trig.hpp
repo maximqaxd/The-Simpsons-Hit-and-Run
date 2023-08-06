@@ -202,7 +202,7 @@ inline float DegToRadian(const float a)
     inline float Sin(float a)
     {
         float f1;
-        asm __volatile__( "
+        asm __volatile__(R"(
         sub.s %0,%1,%2   # Subtract PI/2 from angle: NOT NEEDED FOR COSF
         abs.s %0,%0   # Mirror around zero
         mula.s %0,%3   # Multiply by -1/2PI for cycle in 0 to -1
@@ -212,7 +212,7 @@ inline float DegToRadian(const float a)
         msub.s %0,%4,%6   # Subtract 0.5 so range is -0.5 to +0.5 (2*0.25)
         abs.s %0,%0   # Mirror around zero
         sub.s %0,%0,%6   # Sub 0.25, range now -0.25 to +0.25
-        " : "=&f"( f1 ) : "f"( a ),
+        )" : "=&f"( f1 ) : "f"( a ),
         "f"( (float)(PI_BY2) ),
         "f"( (float)((OO_PI)*-0.5f) ),
         "f"( 2.0f ),
@@ -222,7 +222,7 @@ inline float DegToRadian(const float a)
 
         // Inline taylor series calculation
         float f2;
-        asm __volatile__( "
+        asm __volatile__(R"(
         mul.s %0,%1,%1    # A^2
         mula.s %1,%2   # k0 A
         mul.s $f24,%1,%0  # A^3
@@ -233,7 +233,7 @@ inline float DegToRadian(const float a)
         mul.s $f25,$f24,%0  # A^9
         madda.s $f24,%5   # + k1 A^7
         madd.s %0,$f25,%6  # + k1 A^9
-        " : "=&f"( f2 ) : "f"(f1),
+        )" : "=&f"( f2 ) : "f"(f1),
         "f"( 6.283185f ), // k[0].f ),
         "f"( -41.34167f ), // k[1].f ),
         "f"( 81.60223f ), // k[2].f ),
@@ -247,7 +247,7 @@ inline float DegToRadian(const float a)
     inline float Cos(float a)
     {
         float f1;
-        asm __volatile__( "
+        asm __volatile__(R"(
         abs.s %0,%1      # Mirror around zero
         mula.s %0,%3     # Multiply by -1/2PI for cycle in 0 to -1
         msuba.s %4,%5    # Add bias value 2*max
@@ -256,7 +256,7 @@ inline float DegToRadian(const float a)
         msub.s %0,%4,%6  # Subtract 0.5 so range is -0.5 to +0.5 (2*0.25)
         abs.s %0,%0      # Mirror around zero
         sub.s %0,%0,%6   # Sub 0.25, range now -0.25 to +0.25
-        " : "=&f"( f1 ) : "f"( a ),
+        )" : "=&f"( f1 ) : "f"( a ),
         "f"( 0.0f ),
         "f"( (float)((OO_PI)*-0.5f) ),
         "f"( 2.0f ),
@@ -266,7 +266,7 @@ inline float DegToRadian(const float a)
 
         // Inline taylor series calculation
         float f2;
-        asm __volatile__( "
+        asm __volatile__(R"(
         mul.s %0,%1,%1    # A^2
         mula.s %1,%2       # k0 A
         mul.s $f24,%1,%0   # A^3
@@ -277,7 +277,7 @@ inline float DegToRadian(const float a)
         mul.s $f25,$f24,%0  # A^9
         madda.s $f24,%5   # + k1 A^7
         madd.s %0,$f25,%6  # + k1 A^9
-        " : "=&f"( f2 ) : "f"(f1),
+        )" : "=&f"( f2 ) : "f"(f1),
         "f"( 6.283185f ), // k[0].f ),
         "f"( -41.34167f ), // k[1].f ),
         "f"( 81.60223f ), // k[2].f ),
@@ -296,11 +296,11 @@ inline float DegToRadian(const float a)
 	    asm("pcpyld %0,%1,%2" : "=r"(va.v128) : "r"(angle), "r"(angle) );
 	    asm volatile		
 	    (
-		    ".set noreorder
+		    R"(.set noreorder
 		    qmtc2  %0,vf1
 		    vcallms vu0_sincos
 		    qmfc2.i  %0,vf1		
-		    .set reorder" 
+		    .set reorder)"
 		    :"+r"(va.v128)  
             :
             : "vf1"
@@ -317,11 +317,11 @@ inline float DegToRadian(const float a)
 	    asm("pcpyld %0,%1,%2" : "=r"(va.v128) : "r"(angle1), "r"(angle2) );
 	    asm volatile		
 	    (
-		    ".set noreorder
+		    R"(.set noreorder
 		    qmtc2  %0,vf1
 		    vcallms vu0_sincos
 		    qmfc2.i  %0,vf1		
-		    .set reorder" 
+		    .set reorder)"
 		    :"+r"(va.v128)  
             :
             : "vf1"

@@ -82,12 +82,12 @@ public:
 
 	    asm __volatile__		
 	    (
-		    ".set noreorder
+		    R"(.set noreorder
 		    qmtc2  %0,vf1
             qmtc2  %1,vf2
 		    vcallms vu0_quaternionmultiply
 		    qmfc2.i  %0,vf1		
-		    .set reorder" 
+		    .set reorder)"
 		    :"+r"(v1.v128) , "+r"(v2.v128)
             :
             :"vf1","vf2"
@@ -132,14 +132,14 @@ public:
 
 	    asm __volatile__		
 	    (
-		    ".set noreorder
+		    R"(.set noreorder
 		    qmtc2  %0,vf1
             qmtc2  %1,vf2
 		    vcallms vu0_quaternionmatrix
 		    qmfc2.i  %1,vf24
             qmfc2    %2,vf25
             qmfc2    %3,vf26
-		    .set reorder" 
+		    .set reorder)"
 		    :"+r"(q.v128) ,"+r"(a[0]),"+r"(a[4]),"+r"(a[8])
             :
             : "vf1","vf2","vf24","vf25","vf26"

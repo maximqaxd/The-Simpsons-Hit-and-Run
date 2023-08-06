@@ -93,22 +93,22 @@ public:
     // vector scaling
     inline void Scale(float scaleFactor)
     {
-        asm __volatile__("
+        asm __volatile__(R"(
             mul.s %0, %0, %3
             mul.s %1, %1, %3
             mul.s %2, %2, %3
-            "
+            )"
             : "+f"(x),"+f"(y),"+f"(z)
             : "f"(scaleFactor));
     }
 
     inline void Scale(float scaleFactorX, float scaleFactorY, float scaleFactorZ)
     {
-        asm __volatile__("
+        asm __volatile__(R"(
             mul.s %0, %0, %3
             mul.s %1, %1, %4
             mul.s %2, %2, %5
-            "
+            )"
             : "+f"(x),"+f"(y),"+f"(z)
             : "f"(scaleFactorX),"f"(scaleFactorY),"f"(scaleFactorZ) );
     }
@@ -157,11 +157,11 @@ public:
     {
         register float result;
 
-        asm __volatile__ ("
+        asm __volatile__ (R"(
             mula.s  %1, %2
             madda.s %3, %4
             madd.s  %0, %5, %6
-            "
+            )"
             : "=f" (result)
             : "f" (x), "f" (vect.x), "f" (y), "f" (vect.y), "f" (z), "f" (vect.z) );
 

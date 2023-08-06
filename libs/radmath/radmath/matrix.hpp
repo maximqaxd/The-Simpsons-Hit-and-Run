@@ -129,7 +129,7 @@ public:
         assert((((int)&a.m) & 0x0F) == 0);
         assert((((int)&b.m) & 0x0F) == 0);
 
-        asm __volatile__ ("
+        asm __volatile__ (R"(
             # Load Matrix A into VF1-VF4
 
             lqc2 vf24, 0x00(%0)
@@ -153,7 +153,7 @@ public:
             sqc2 vf30, 32(%2) 
             sqc2 vf31, 48(%2) 
 
-        ": // Outputs
+        )": // Outputs
          : "r" (&b), "r" (&a), "r" (&m)  // Inputs
          : "memory" ); // Clobber list
     }
