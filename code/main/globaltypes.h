@@ -28,6 +28,7 @@ typedef unsigned __int64 simpsonsUInt64;
 #endif
 
 #if defined RAD_PC
+#include <cstdint>
 typedef uint64_t simpsonsUInt64;
 #endif
 

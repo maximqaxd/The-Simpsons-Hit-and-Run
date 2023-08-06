@@ -60,7 +60,7 @@
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <render/Loaders/billboardwrappedloader.h>
+#include <render/Loaders/BillboardWrappedLoader.h>
 
 #include <worldsim/avatarmanager.h>
 #include <worldsim/vehiclecentral.h>
