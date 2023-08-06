@@ -71,7 +71,7 @@
 #include <render/DSG/InstDynaPhysDSG.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 
 #include <presentation/gui/guisystem.h>
 #include <presentation/gui/guiwindow.h>

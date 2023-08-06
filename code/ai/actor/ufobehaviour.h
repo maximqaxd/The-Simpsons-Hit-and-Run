@@ -18,9 +18,9 @@
 // Nested Includes
 //===========================================================================
 
-#include <ai\actor\behaviour.h>
-#include <render\DSG\DynaPhysDSG.h>
-#include <memory\map.h>
+#include <ai/actor/behaviour.h>
+#include <render/DSG/DynaPhysDSG.h>
+#include <memory/map.h>
 
 //===========================================================================
 // Forward References

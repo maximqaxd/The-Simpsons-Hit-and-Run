@@ -11,7 +11,7 @@
 //      - Snapshot from Hair Club (rev 1) Owner: Bryan Brandt
 //-----------------------------------------------------------------------------
 
-#include <ai\sequencer\actioncontroller.h>
+#include <ai/sequencer/actioncontroller.h>
 
 //---------------------------------------------------------------------
 // ActionController class

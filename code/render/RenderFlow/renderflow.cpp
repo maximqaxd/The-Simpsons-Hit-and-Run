@@ -29,7 +29,7 @@
 #include <events/eventmanager.h>
 
 //////////////////////////////////////////////////////////////////////////
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <render/breakables/breakablesmanager.h>
 #include <render/animentitydsgmanager/animentitydsgmanager.h>
 

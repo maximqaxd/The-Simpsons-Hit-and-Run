@@ -1,7 +1,7 @@
 #ifndef MERCHANDISE_H
 #define MERCHANDISE_H
 
-#include <mission\rewards\reward.h>
+#include <mission/rewards/reward.h>
 //derived from rewards
 class Merchandise: public Reward
 {

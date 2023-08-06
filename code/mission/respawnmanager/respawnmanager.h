@@ -1,7 +1,7 @@
 #ifndef RESPAWNMANAGER_H
 #define RESPAWNMANAGER_H
 
-#include <mission\respawnmanager\respawnentity.h>
+#include <mission/respawnmanager/respawnentity.h>
 
 
 //ReSpawnManager. 

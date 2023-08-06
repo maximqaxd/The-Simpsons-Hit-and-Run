@@ -14,11 +14,11 @@
 // Includes
 //===========================================================================
 
-#include <ai\actor\ufobehaviour.h>
-#include <ai\actor\actor.h>
-#include <ai\actor\flyingactor.h>
-#include <worldsim\redbrick\vehicle.h>
-#include <worldsim\vehiclecentral.h>
+#include <ai/actor/ufobehaviour.h>
+#include <ai/actor/actor.h>
+#include <ai/actor/flyingactor.h>
+#include <worldsim/redbrick/vehicle.h>
+#include <worldsim/vehiclecentral.h>
 #include <render/rendermanager/worldrenderlayer.h>
 #include <render/rendermanager/rendermanager.h>
 #include <meta/eventlocator.h>

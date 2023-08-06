@@ -19,7 +19,7 @@
 // Nested Includes
 //===========================================================================
 
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <radmath/radmath.hpp>
 #include <radmath/matrix.hpp>
 #include <memory/map.h>

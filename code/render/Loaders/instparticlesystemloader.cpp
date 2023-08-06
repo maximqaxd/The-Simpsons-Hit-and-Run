@@ -16,7 +16,7 @@
 #include <render/loaders/InstParticleSystemLoader.h>
 #include <constants/srrchunks.h>
 #include <constants/chunkids.hpp>
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <p3d/effects/particlesystem.hpp>
 #include <p3d/effects/particleloader.hpp>
 #include <p3d/chunkfile.hpp>

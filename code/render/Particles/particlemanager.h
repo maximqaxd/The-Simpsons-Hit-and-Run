@@ -21,7 +21,7 @@
 //===========================================================================
 
 #include <vector>
-#include <memory\srrmemory.h> // Needed for my STL allocations to go on the right heap
+#include <memory/srrmemory.h> // Needed for my STL allocations to go on the right heap
 #include <memory/stlallocators.h>
 #include <p3d/p3dtypes.hpp> 
 #include <radmath/radmath.hpp>
@@ -29,7 +29,7 @@
 #include <render/Enums/RenderEnums.h>
 #include <p3d/effects/effect.hpp>
 #include <constants/particleenum.h>
-#include <render/particles/particlesystemdsg.h>
+#include <render/Particles/particlesystemdsg.h>
 #include <p3d/array.hpp>
 
 //===========================================================================

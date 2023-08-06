@@ -9,7 +9,7 @@
 //
 //===========================================================================
 
-#include <ai\actor\stunnedbehaviour.h>
+#include <ai/actor/stunnedbehaviour.h>
 
 StunnedBehaviour::StunnedBehaviour( float stunTime )
 {

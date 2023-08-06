@@ -15,7 +15,7 @@
 // Includes
 //===========================================================================
 
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <memory/srrmemory.h>   // We are putting this class on the GMA_PERSISTENT heap
 #include <algorithm>            // For std algorithms that operate on our std::list of systems
 #include <render/RenderManager/RenderLayer.h>

@@ -1,1 +1,1 @@
-#include <worldsim\character\footprint\footprintmanager.cpp>
+#include <worldsim/character/footprint/footprintmanager.cpp>

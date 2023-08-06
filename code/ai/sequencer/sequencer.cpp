@@ -14,8 +14,8 @@
 //-----------------------------------------------------------------------------
 
 #include <raddebug.hpp>
-#include <ai\sequencer\sequencer.h>
-#include <ai\sequencer\action.h>
+#include <ai/sequencer/sequencer.h>
+#include <ai/sequencer/action.h>
 
 static bool s_StopClear = false;
 

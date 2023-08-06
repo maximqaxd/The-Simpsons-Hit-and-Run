@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <render/Breakables/breakablesmanager.h>
 
 #include <render/RenderManager/RenderManager.h>

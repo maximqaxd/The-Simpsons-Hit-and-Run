@@ -17,7 +17,7 @@
 #include <constants/srrchunks.h>
 #include <constants/chunkids.hpp>
 #include <constants/chunks.h>
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <p3d/anim/animatedobject.hpp>
 #include <p3d/anim/compositedrawable.hpp>
 #include <p3d/anim/skeleton.hpp>

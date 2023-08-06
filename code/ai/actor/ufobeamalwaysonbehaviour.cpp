@@ -14,9 +14,9 @@
 // Includes
 //===========================================================================
 
-#include <ai\actor\ufobeamalwaysonbehaviour.h>
-#include <ai\actor\actor.h>
-#include <ai\actor\flyingactor.h>
+#include <ai/actor/ufobeamalwaysonbehaviour.h>
+#include <ai/actor/actor.h>
+#include <ai/actor/flyingactor.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

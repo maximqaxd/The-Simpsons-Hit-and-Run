@@ -44,7 +44,7 @@
 #include <meta/triggervolumetracker.h> // HACK for drawing the trigger volumes
 
 #include <render/breakables/breakablesmanager.h>
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <render/animentitydsgmanager/animentitydsgmanager.h>
 
 #include <p3d/shadow.hpp>

@@ -65,7 +65,7 @@
 #include <simcollision/proximitydetection.hpp>
 #include <simcommon/simmath.hpp>
 
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
 #include <render/Culling/WorldScene.h>

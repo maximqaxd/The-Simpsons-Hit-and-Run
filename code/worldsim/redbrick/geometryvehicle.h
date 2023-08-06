@@ -29,7 +29,7 @@ class tMultiController;
 class StatePropCollectible;
 
 #include <p3d/anim/compositedrawable.hpp>
-#include <render/particles/vehicleparticleemitter.h>
+#include <render/Particles/vehicleparticleemitter.h>
 #include <worldsim/SkidMarks/SkidMarkGenerator.h>
 #include <constants/particleenum.h>
 #include <vector>

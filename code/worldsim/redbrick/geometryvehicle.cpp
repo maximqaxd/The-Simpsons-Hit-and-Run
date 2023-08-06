@@ -42,7 +42,7 @@
 #include <memory/srrmemory.h>
 
 #include <mission/gameplaymanager.h>
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <radmath/util.hpp>
 #include <debug/debuginfo.h>
 #include <worldsim/redbrick/trafficbodydrawable.h>

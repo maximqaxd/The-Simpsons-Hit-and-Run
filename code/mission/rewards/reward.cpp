@@ -1,6 +1,6 @@
 #include <events/eventmanager.h>
-#include <mission\rewards\reward.h>
-#include <mission\charactersheet\charactersheetmanager.h>
+#include <mission/rewards/reward.h>
+#include <mission/charactersheet/charactersheetmanager.h>
 #include <p3d/entity.hpp>
 #include<string.h>
 

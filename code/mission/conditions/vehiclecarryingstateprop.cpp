@@ -13,8 +13,8 @@
 // Includes
 //===========================================================================
 
-#include <mission\conditions\vehiclecarryingstateprop.h>
-#include <worldsim\redbrick\vehicle.h>
+#include <mission/conditions/vehiclecarryingstateprop.h>
+#include <worldsim/redbrick/vehicle.h>
 #include <events/eventmanager.h>
 #include <mission/statepropcollectible.h>
 

@@ -42,10 +42,10 @@
 #include <constants/breakablesenum.h>
 #include <constants/vehicleenum.h>
 #include <worldsim/harass/chasemanager.h>
-#include <presentation\gui\ingame\guimanageringame.h>
-#include <presentation\gui\ingame\guiscreenhud.h>
-#include <presentation\gui\guisystem.h>
-#include <ai\statemanager.h>
+#include <presentation/gui/ingame/guimanageringame.h>
+#include <presentation/gui/ingame/guiscreenhud.h>
+#include <presentation/gui/guisystem.h>
+#include <ai/statemanager.h>
 #include <contexts/context.h>
 
 /* Watcher stuff */

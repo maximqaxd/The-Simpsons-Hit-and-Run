@@ -17,7 +17,7 @@
 #include <ai/sequencer/actioncontroller.h>
 
 // Needed for particle animation to be played upon impact after jumping
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 
 #include <events/eventmanager.h>
 #include <presentation/presentation.h>

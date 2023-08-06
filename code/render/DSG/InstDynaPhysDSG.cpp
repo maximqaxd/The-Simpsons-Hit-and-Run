@@ -28,7 +28,7 @@
 #include <worldsim/worldphysicsmanager.h>
 #include <worldsim/character/character.h>
 
-#include <render/particles/particlemanager.h>
+#include <render/Particles/particlemanager.h>
 #include <render/breakables/breakablesmanager.h>
 #include <render/IntersectManager/IntersectManager.h>
 
