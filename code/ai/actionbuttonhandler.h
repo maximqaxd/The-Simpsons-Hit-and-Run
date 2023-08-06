@@ -68,15 +68,15 @@ namespace ActionButton
 
 #define INTERFACE_GameObjectWrapper( terminal ) \
 public: \
-    virtual void UpdateVisibility( void ) ## terminal   \
-    virtual float& GetAnimationDirection( void ) ## terminal    \
-    virtual void SetAnimationDirection( float fDirection ) ## terminal    \
-    virtual tMultiController* GetAnimController( void ) const ## terminal    \
-    virtual tCompositeDrawable* GetDrawable( void ) const ## terminal \
+    virtual void UpdateVisibility( void ) terminal   \
+    virtual float& GetAnimationDirection( void ) terminal    \
+    virtual void SetAnimationDirection( float fDirection ) terminal    \
+    virtual tMultiController* GetAnimController( void ) const terminal    \
+    virtual tCompositeDrawable* GetDrawable( void ) const terminal \
     \
-    virtual void Display( void ) ## terminal \
+    virtual void Display( void ) terminal \
     \
-    virtual bool IsManualUpdate( void ) const ## terminal
+    virtual bool IsManualUpdate( void ) const terminal
 
 #define BASE_GameObjectWrapper INTERFACE_GameObjectWrapper(= 0;)
 #define IMPLEMENTS_GameObjectWrapper INTERFACE_GameObjectWrapper(;)
