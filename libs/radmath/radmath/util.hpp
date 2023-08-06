@@ -353,12 +353,14 @@ inline unsigned Hash(const char *x)
 
 inline int IsNan( const float n )
 {
-#ifdef RAD_PS2
+#if defined(RAD_PS2)
     return isnanf(n);
 #elif defined( RAD_GAMECUBE )
     return isnan(n);
-#else //RAD_XBOX
+#elif RAD_XBOX
     return _isnan(n);
+#else
+    return std::isnan(n);
 #endif
 }
 
