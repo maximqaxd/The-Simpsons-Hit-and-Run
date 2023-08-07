@@ -552,7 +552,7 @@ size_t GetTotalMemoryUnavailable()
 //==============================================================================
 size_t GetTotalMemoryUsed()
 {
-#if defined _WIN32
+#if defined RAD_WIN32
     #ifdef RAD_DEBUG
         _CrtMemState state;
         _CrtMemCheckpoint( &state );

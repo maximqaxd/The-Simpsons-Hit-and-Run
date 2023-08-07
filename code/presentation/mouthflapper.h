@@ -23,8 +23,11 @@
 // Forward References
 //========================================
 
-class poser::Joint;
-class poser::Pose;
+namespace poser
+{
+class Joint;
+class Pose;
+}
 class Character;
 
 

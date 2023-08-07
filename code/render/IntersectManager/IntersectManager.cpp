@@ -1102,7 +1102,7 @@ static rmt::Vector4 alignedDistFromPlane __attribute__((aligned(16)));//vf8
                     alignedPointOnPlane = TriPts[2];
                     alignedRayOrigin    = TriPts[1];
 
-                    asm __volatile__("
+                    asm __volatile__(R"(
                         lqc2        vf7, 0(%5)     # load pointOnPlane
                         lqc2        vf8, 0(%6)     # load distFromPlane
                         lqc2        vf5, 0(%4)     # load rayOrigin
@@ -1131,7 +1131,7 @@ static rmt::Vector4 alignedDistFromPlane __attribute__((aligned(16)));//vf8
                         vmul.xyz    vf22,vf10, vf9 # ==if( tmpVect.Dot(tmpVect2) >= 0.00f)
                         sqc2        vf22, 0(%2)     # store result in vertex 2
                         sqc2        vf7,  0(%5)     # store result in vertex 2
-                   ": // no outputs
+                   )": // no outputs
                     : "r" (&(alignedVertices[0])),
                       "r" (&(alignedVertices[1])),
                       "r" (&(alignedVertices[2])), 
@@ -1309,7 +1309,7 @@ static rmt::Vector4 alignedDistFromPlane __attribute__((aligned(16)));//vf8
                     alignedPointOnPlane = TriPts[2];
                     alignedRayOrigin    = TriPts[1];
 
-                    asm __volatile__("
+                    asm __volatile__(R"(
                         lqc2        vf7, 0(%5)     # load pointOnPlane
                         lqc2        vf8, 0(%6)     # load distFromPlane
                         lqc2        vf5, 0(%4)     # load rayOrigin
@@ -1338,7 +1338,7 @@ static rmt::Vector4 alignedDistFromPlane __attribute__((aligned(16)));//vf8
                         vmul.xyz    vf22,vf10, vf9 # ==if( tmpVect.Dot(tmpVect2) >= 0.00f)
                         sqc2        vf22, 0(%2)     # store result in vertex 2
                         sqc2        vf7,  0(%5)     # store result in vertex 2
-                   ": // no outputs
+                   )": // no outputs
                     : "r" (&(alignedVertices[0])),
                       "r" (&(alignedVertices[1])),
                       "r" (&(alignedVertices[2])), 

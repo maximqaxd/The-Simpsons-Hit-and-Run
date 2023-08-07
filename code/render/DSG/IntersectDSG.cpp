@@ -102,7 +102,7 @@ IntersectDSG::~IntersectDSG()
 //
 //========================================================================
 //#ifndef RAD_RELEASE
-inline void IntersectDSG::DrawTri(rmt::Vector* ipTriPts, tColour iColour)
+void IntersectDSG::DrawTri(rmt::Vector* ipTriPts, tColour iColour)
 {
    pddiPrimStream* stream = p3d::pddi->BeginPrims(NULL, PDDI_PRIM_LINESTRIP, PDDI_V_C, 4);
    stream->Colour(iColour);

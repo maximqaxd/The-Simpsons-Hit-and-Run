@@ -264,6 +264,11 @@ inline void radDbgWatchDelete( void* pValue )
 #endif
 }
 
+inline void radDbgWatchDelete( void(*pValue)(void*) )
+{
+        radDbgWatchDelete((void*)pValue);
+}
+
 //
 // Use these functions to add the various simple data types.
 //

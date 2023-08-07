@@ -18,7 +18,7 @@
 // Project Includes
 //========================================
 #include <mission/rewards/reward.h>
-#include <mission/rewards/merchandise.h.>
+#include <mission/rewards/merchandise.h>
 #include <mission/rewards/rewardsmanager.h>
 #include <memory/srrmemory.h>
 #include <mission/charactersheet/charactersheet.h>

@@ -106,7 +106,7 @@ bool SphereTriggerVolume::Contains( const rmt::Vector& point,
 {
 //BEGIN_PROFILE( "Sphere Contains" );
 
-    register float dist_sq;
+    float dist_sq;
     rmt::Vector diff;
     diff.Sub( point, GetPosition() );
     dist_sq = diff.MagnitudeSqr();
@@ -216,7 +216,7 @@ bool SphereTriggerVolume::IntersectLine( const rmt::Vector& p1, const rmt::Vecto
 //=============================================================================
 bool SphereTriggerVolume::IntersectsSphere( const rmt::Vector& position, float radius ) const
 {
-    register float dist_sq;
+    float dist_sq;
     rmt::Vector diff;
     diff.Sub( position, GetPosition() );
     dist_sq = diff.MagnitudeSqr();

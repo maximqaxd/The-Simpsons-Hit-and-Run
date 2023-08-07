@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/conditions/PositionCondition.h>
+#include <mission/conditions/positioncondition.h>
 
 #include <events/eventmanager.h>
 #include <events/eventenum.h>

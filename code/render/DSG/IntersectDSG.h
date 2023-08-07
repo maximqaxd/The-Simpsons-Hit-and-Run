@@ -39,7 +39,7 @@ public:
    
    void Display();
 //#ifndef RAD_RELEASE
-   inline void DrawTri(rmt::Vector* ipTriPts, tColour iColour);
+   void DrawTri(rmt::Vector* ipTriPts, tColour iColour);
 //#endif
    int mFlatTriFast( int& orTriNum, rmt::Vector* iopTriPts, rmt::Vector& orTriNorm );
    int mTri( int inTri, rmt::Vector* opTriPts, rmt::Vector& orTriNorm );

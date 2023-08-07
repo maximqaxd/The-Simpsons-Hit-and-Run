@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <input/SteeringSpring.h>
+#include <input/steeringspring.h>
 #include <input/wheeldefines.h>
 
 //******************************************************************************

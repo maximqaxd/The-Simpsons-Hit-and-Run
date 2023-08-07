@@ -17,8 +17,8 @@
 // Nested Includes
 //===========================================================================
 #include <p3d/p3dtypes.hpp>  // for tUID
-#include "drawable.h"
-#include "owner.h"
+#include "Drawable.h"
+#include "Owner.h"
 
 namespace Scrooby
 {

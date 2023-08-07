@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <input/BaseDamper.h>
+#include <input/basedamper.h>
 #include <input/wheeldefines.h>
 
 //******************************************************************************
