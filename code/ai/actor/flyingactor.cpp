@@ -22,8 +22,8 @@
 #include <ai/actor/ActorAnimationUFO.h>
 #include <ai/actor/attractionbehaviour.h>
 #include <ai/actor/evasionbehaviour.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <render/IntersectManager/IntersectManager.h>
 #include <stateprop/statepropdata.hpp>
 #include <constants/actorenum.h>

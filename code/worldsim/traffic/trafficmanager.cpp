@@ -24,7 +24,7 @@
 #include <mission/gameplaymanager.h>
 
 #include <camera/supercammanager.h>
-#include <worldsim/traffic/TrafficManager.h>
+#include <worldsim/traffic/trafficmanager.h>
 #include <worldsim/redbrick/vehicle.h>
 #include <worldsim/redbrick/trafficlocomotion.h>
 #include <memory/srrmemory.h>

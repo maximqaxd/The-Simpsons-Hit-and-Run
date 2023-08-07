@@ -31,11 +31,11 @@
 #include <p3d/inventory.hpp>
 #include <raddebug.hpp> // Foundation
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <sprite.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

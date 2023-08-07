@@ -25,10 +25,10 @@
 #include <input/inputmanager.h>
 #include <sound/soundmanager.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <group.h>
-#include <text.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

@@ -17,9 +17,9 @@
 #include <presentation/gui/utility/specialfx.h>
 
 // Scrooby
-#include <page.h>
+#include <Page.h>
 #include <group.h>
-#include <text.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

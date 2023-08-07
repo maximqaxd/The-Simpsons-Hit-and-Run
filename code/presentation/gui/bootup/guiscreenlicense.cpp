@@ -19,8 +19,8 @@
 
 #include <contexts/bootupcontext.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <group.h>
 
 #include <p3d/utility.hpp>

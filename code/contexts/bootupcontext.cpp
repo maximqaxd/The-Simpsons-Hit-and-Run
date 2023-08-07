@@ -53,8 +53,8 @@
 #include <presentation/presevents/presentationevent.h>
 #include <presentation/gui/guisystem.h>
 #include <presentation/tutorialmanager.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <sound/soundmanager.h>
 #include <supersprint/supersprintmanager.h>
 #include <worldsim/worldphysicsmanager.h>

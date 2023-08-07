@@ -52,7 +52,7 @@
 #include <presentation/gui/ingame/guiscreenmissionload.h>
 #include <presentation/gui/ingame/hudevents/hudeventhandler.h>
 
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 
 #include <worldsim/character/character.h>
 #include <worldsim/character/charactermanager.h>

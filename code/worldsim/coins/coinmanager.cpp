@@ -34,8 +34,8 @@
 #include <memory/srrmemory.h>
 #include <events/eventmanager.h>
 #include <render/IntersectManager/IntersectManager.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <data/persistentworldmanager.h>
 #include <mission/gameplaymanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>

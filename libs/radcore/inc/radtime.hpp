@@ -111,6 +111,7 @@ typedef unsigned __int64 radTime64;
 #endif
 
 #if defined ( RAD_PC )
+#include <cstdint>
 typedef uint64_t radTime64;
 #endif
 

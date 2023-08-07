@@ -11,8 +11,8 @@
 //=============================================================================
 #include <raddebugwatch.hpp>
 
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <ai/vehicle/vehicleairender.h>
 #include <ai/vehicle/vehicleai.h>
 #include <ai/vehicle/trafficai.h>

@@ -30,10 +30,10 @@
 #include <raddebug.hpp>     // Foundation
 #include <layer.h>
 #include <group.h>
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 #include <strings/unicodestring.h>
-#include <text.h>
+#include <Text.h>
 #ifdef RAD_PS2
 #include <libmtap.h>
 #endif

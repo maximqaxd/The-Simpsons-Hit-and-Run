@@ -27,8 +27,8 @@
 #include <memory/srrmemory.h>
 
 #include <mission/gameplaymanager.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <render/Culling/worldscene.h>
 
 #include <debug/profiler.h>

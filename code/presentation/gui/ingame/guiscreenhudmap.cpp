@@ -26,10 +26,10 @@
 
 #include <raddebug.hpp>     // Foundation
 #include <raddebugwatch.hpp>
-#include <page.h>
-#include <polygon.h>
+#include <Page.h>
+#include <Polygon.h>
 #include <pure3dobject.h>
-#include <screen.h>
+#include <Screen.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

@@ -20,8 +20,8 @@
 // Project Includes
 //========================================
 #include <presentation/transitionplayer.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 
 
 //******************************************************************************

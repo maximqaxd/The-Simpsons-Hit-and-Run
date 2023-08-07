@@ -22,8 +22,8 @@
 #include <gameflow/gameflow.h>
 #include <memory/createheap.h>
 #include <memory/memoryutilities.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <sound/soundmanager.h>
 
 #include <p3d/drawable.hpp>
@@ -31,13 +31,13 @@
 #include <p3d/anim/multicontroller.hpp>
 
 #include <raddebug.hpp> // Foundation
-#include <screen.h>
+#include <Screen.h>
 #include <layer.h>
-#include <page.h>
+#include <Page.h>
 #include <group.h>
-#include <text.h>
-#include <sprite.h>
-#include <polygon.h>
+#include <Text.h>
+#include <Sprite.h>
+#include <Polygon.h>
 #include <pure3dobject.h>
 
 //===========================================================================

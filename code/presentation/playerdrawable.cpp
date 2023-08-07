@@ -21,7 +21,7 @@
 
 #include <presentation/playerdrawable.h>
 #include <presentation/animplayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 
 //******************************************************************************
 //

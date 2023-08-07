@@ -24,8 +24,8 @@
 
 // Scrooby
 #include <group.h>
-#include <page.h>
-#include <sprite.h>
+#include <Page.h>
+#include <Sprite.h>
 
 // Pure3D
 #include <p3d/utility.hpp>

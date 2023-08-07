@@ -25,7 +25,7 @@
 #include <presentation/gui/utility/colourutility.h>
 #include <presentation/gui/utility/transitions.h>
 #include <radmath/trig.hpp>
-#include <sprite.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

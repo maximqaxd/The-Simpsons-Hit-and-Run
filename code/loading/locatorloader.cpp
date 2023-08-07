@@ -59,8 +59,8 @@
 #include <worldsim/parkedcars/parkedcarmanager.h>
 #include <worldsim/coins/coinmanager.h>
 
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 
 //******************************************************************************
 //

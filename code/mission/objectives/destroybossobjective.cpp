@@ -20,8 +20,8 @@
 #include <mission/gameplaymanager.h>
 #include <atc/atcmanager.h>
 #include <mission/statepropcollectible.h>
-#include <render/rendermanager/worldrenderlayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
+#include <render/RenderManager/RenderManager.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

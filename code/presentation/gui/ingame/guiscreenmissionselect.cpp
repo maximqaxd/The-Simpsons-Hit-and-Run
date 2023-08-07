@@ -30,10 +30,10 @@
 #include <render/Enums/RenderEnums.h>
 
 #include <raddebug.hpp> // Foundation
-#include <page.h>
-#include <polygon.h>
-#include <screen.h>
-#include <sprite.h>
+#include <Page.h>
+#include <Polygon.h>
+#include <Screen.h>
+#include <Sprite.h>
 #include <string.h>
 
 

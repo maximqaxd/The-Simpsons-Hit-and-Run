@@ -26,12 +26,12 @@
 #include <input/inputmanager.h>
 #include <sound/soundmanager.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <group.h>
-#include <sprite.h>
-#include <text.h>
-#include <polygon.h>
+#include <Sprite.h>
+#include <Text.h>
+#include <Polygon.h>
 
 #include <supersprint/supersprintmanager.h>
 

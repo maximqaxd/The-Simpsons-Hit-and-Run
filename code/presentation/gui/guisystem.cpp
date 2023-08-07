@@ -38,18 +38,18 @@
 #include <mission/missionscriptloader.h>
 #include <input/inputmanager.h>
 #include <gameflow/gameflow.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 
 #include <p3d/view.hpp>
 #include <raddebug.hpp>     // Foundation
 #include <raddebugwatch.hpp>
-#include <page.h>
-#include <polygon.h>
+#include <Page.h>
+#include <Polygon.h>
 #include <resourcemanager.h>
-#include <screen.h>
-#include <sprite.h>
-#include <text.h>
+#include <Screen.h>
+#include <Sprite.h>
+#include <Text.h>
 #include <feloaders.h>
 
 // Static pointer to instance of singleton.

@@ -18,8 +18,8 @@
 
 // Scrooby
 #include <group.h>
-#include <page.h>
-#include <text.h>
+#include <Page.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

@@ -36,8 +36,8 @@
 
 #include <events/eventmanager.h>
 
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 
 #include <meta/carstartlocator.h>
 

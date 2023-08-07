@@ -63,10 +63,10 @@
 #include <app.h>
 #include <group.h>
 #include <layer.h>
-#include <page.h>
+#include <Page.h>
 #include <pure3dobject.h>
-#include <screen.h>
-#include <sprite.h>
+#include <Screen.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

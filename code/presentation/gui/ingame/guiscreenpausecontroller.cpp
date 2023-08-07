@@ -26,10 +26,10 @@
 
 #include <raddebug.hpp> // Foundation
 
-#include <screen.h>
+#include <Screen.h>
 #include <layer.h>
-#include <page.h>
-#include <sprite.h>
+#include <Page.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

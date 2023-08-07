@@ -29,10 +29,10 @@
 
 #include <raddebug.hpp> // Foundation
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 #include <group.h>
-#include <text.h>
+#include <Text.h>
 
 #ifdef RAD_PS2
     #include <main/ps2platform.h>

@@ -25,13 +25,13 @@
 #include <mission/rewards/reward.h>
 #include <worldsim/coins/coinmanager.h>
 
-#include <screen.h>
-#include <page.h>
-#include <sprite.h>
-#include <text.h>
+#include <Screen.h>
+#include <Page.h>
+#include <Sprite.h>
+#include <Text.h>
 #include <pure3dobject.h>
 #include <group.h>
-#include <polygon.h>
+#include <Polygon.h>
 
 #include <p3d/unicode.hpp>
 #include <raddebug.hpp> // Foundation

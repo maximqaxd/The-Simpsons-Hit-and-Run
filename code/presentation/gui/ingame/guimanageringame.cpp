@@ -70,8 +70,8 @@
 #include <mission/gameplaymanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <presentation/presentation.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <sound/soundmanager.h>
 #include <meta/eventlocator.h>
 
@@ -86,8 +86,8 @@
 #include <raddebugwatch.hpp>
 
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

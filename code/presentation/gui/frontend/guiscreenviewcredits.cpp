@@ -27,11 +27,11 @@
 
 // Scrooby
 #include <app.h>
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 #include <group.h>
-#include <text.h>
-#include <sprite.h>
+#include <Text.h>
+#include <Sprite.h>
 
 // ATG
 #include <raddebug.hpp>

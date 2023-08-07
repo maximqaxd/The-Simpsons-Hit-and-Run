@@ -26,9 +26,9 @@
 
 #include <raddebug.hpp> // Foundation
 #include <group.h>
-#include <page.h>
-#include <screen.h>
-#include <text.h>
+#include <Page.h>
+#include <Screen.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

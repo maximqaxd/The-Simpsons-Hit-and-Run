@@ -30,8 +30,8 @@
 #include <loading/loadingmanager.h>
 #include <strings/unicodestring.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 
 #include <p3d/unicode.hpp>
 #include <string.h>

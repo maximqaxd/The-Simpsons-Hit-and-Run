@@ -38,11 +38,11 @@
 #include <raddebug.hpp> // Foundation
 
 #include <group.h>
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
-#include <polygon.h>
-#include <sprite.h>
+#include <Polygon.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

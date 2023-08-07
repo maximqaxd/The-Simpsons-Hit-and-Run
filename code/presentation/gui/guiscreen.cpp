@@ -25,13 +25,13 @@
 #include <events/eventmanager.h>
 
 #include <app.h>
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
 #include <pure3dobject.h>
-#include <sprite.h>
-#include <text.h>
+#include <Sprite.h>
+#include <Text.h>
 
 #include <p3d/anim/multicontroller.hpp>
 #include <p3d/utility.hpp>

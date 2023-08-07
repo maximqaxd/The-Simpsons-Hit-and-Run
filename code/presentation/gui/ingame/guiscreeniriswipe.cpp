@@ -20,10 +20,10 @@
 
 #include <events/eventmanager.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <pure3dobject.h>
-#include <text.h>
+#include <Text.h>
 
 #include <p3d/anim/multicontroller.hpp>
 #include <p3d/utility.hpp>

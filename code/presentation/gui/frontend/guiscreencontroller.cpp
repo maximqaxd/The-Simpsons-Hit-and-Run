@@ -25,9 +25,9 @@
 #include <raddebug.hpp>     // Foundation
 #include <group.h>
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
-#include <text.h>
+#include <Page.h>
+#include <Screen.h>
+#include <Text.h>
 
 #include <strings/unicodestring.h>
 #include <p3d/unicode.hpp>

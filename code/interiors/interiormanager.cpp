@@ -46,8 +46,8 @@
 #include <presentation/gui/ingame/guiscreenhud.h>
 #include <presentation/gui/ingame/guiscreenletterbox.h>
 #include <presentation/presentation.h>
-#include <render/rendermanager/renderlayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderLayer.h>
+#include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
 #include <sound/soundmanager.h>
 #include <worldsim/avatar.h>

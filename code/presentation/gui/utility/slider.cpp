@@ -18,8 +18,8 @@
 #include <presentation/gui/utility/slider.h>
 
 #include <raddebug.hpp> // Foundation
-#include <polygon.h>
-#include <sprite.h>
+#include <Polygon.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

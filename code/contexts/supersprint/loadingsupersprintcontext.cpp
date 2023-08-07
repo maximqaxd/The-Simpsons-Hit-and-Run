@@ -24,7 +24,7 @@
 #include <loading/loadingmanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/gameplaymanager.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <supersprint/supersprintmanager.h>
 #include <sound/soundmanager.h>
 

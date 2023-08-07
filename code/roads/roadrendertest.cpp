@@ -22,14 +22,14 @@
 //========================================
 // Project Includes
 //========================================
-#include <roads/RoadRenderTest.h>
+#include <roads/roadrendertest.h>
 #include <roads/roadmanager.h>
 #include <roads/road.h>
 #include <roads/roadsegment.h>
 #include <roads/intersection.h>
 #include <worldsim/avatar.h>
 #include <worldsim/avatarmanager.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <render/Culling/spatialtree.h>
 #include <render/Culling/worldscene.h>
 #include <render/DSG/intersectdsg.h>

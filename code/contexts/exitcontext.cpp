@@ -48,7 +48,7 @@
 #include <ai/actionbuttonmanager.h>
 #include <render/breakables/breakablesmanager.h>
 #include <render/Particles/ParticleManager.h>
-#include <worldsim/skidmarks/skidmarkgenerator.h>
+#include <worldsim/skidmarks/SkidMarkGenerator.h>
 #include <worldsim/skidmarks/skidmarkmanager.h>
 #include <ai/actor/actormanager.h>
 #include <gameflow/gameflow.h>

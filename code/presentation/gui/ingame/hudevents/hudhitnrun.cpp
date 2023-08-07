@@ -19,9 +19,9 @@
 // Scrooby
 #include <app.h>
 #include <group.h>
-#include <page.h>
-#include <text.h>
-#include <sprite.h>
+#include <Page.h>
+#include <Text.h>
+#include <Sprite.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

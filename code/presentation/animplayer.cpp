@@ -24,7 +24,7 @@
 
 #include <presentation/animplayer.h>
 #include <interiors/interiormanager.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
 
 //******************************************************************************

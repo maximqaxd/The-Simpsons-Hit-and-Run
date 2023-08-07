@@ -27,9 +27,9 @@
 
 #include <raddebug.hpp> // Foundation
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
-#include <text.h>
+#include <Page.h>
+#include <Screen.h>
+#include <Text.h>
 
 #ifdef RAD_GAMECUBE
 #include <main/gamecube_extras/gcmanager.h>

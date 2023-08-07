@@ -41,10 +41,10 @@
 
 // Scrooby Header Files
 //
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <group.h>
-#include <sprite.h>
+#include <Sprite.h>
 #include <pure3dobject.h>
 
 #include <string.h>

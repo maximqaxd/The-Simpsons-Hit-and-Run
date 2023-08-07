@@ -39,7 +39,7 @@
 #include <worldsim/coins/sparkle.h>
 #include <worldsim/character/footprint/footprintmanager.h>
 
-#include <worldsim/WorldPhysicsManager.h>
+#include <worldsim/worldphysicsmanager.h>
 
 #include <meta/triggervolumetracker.h> // HACK for drawing the trigger volumes
 

@@ -39,7 +39,7 @@
 #include <mission/rewards/rewardsmanager.h>
 #include <memory/srrmemory.h>
 #include <mission/missionscriptloader.h>
-#include <worldsim/Skidmarks/skidmarkmanager.h>
+#include <worldsim/skidmarks/skidmarkmanager.h>
 #include <presentation/mouthflapper.h>
 #include <presentation/presentation.h>
 #include <presentation/tutorialmanager.h>

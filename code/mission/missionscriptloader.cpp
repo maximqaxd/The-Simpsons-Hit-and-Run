@@ -91,9 +91,9 @@
 
 #include <mission/animatedicon.h>
 
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
+#include <render/RenderManager/RenderLayer.h>
 
 #include <worldsim/avatar.h>
 #include <worldsim/avatarmanager.h>

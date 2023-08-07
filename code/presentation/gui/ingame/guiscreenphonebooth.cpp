@@ -39,12 +39,12 @@
 #include <worldsim/coins/coinmanager.h>
 #include <worldsim/vehiclecentral.h>
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <sprite.h>
-#include <text.h>
+#include <Sprite.h>
+#include <Text.h>
 #include <pure3dobject.h>
 
 #include <p3d/anim/cameraanimation.hpp>

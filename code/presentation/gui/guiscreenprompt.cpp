@@ -29,10 +29,10 @@
 #include <p3d/unicode.hpp>
 #include <raddebug.hpp> // Foundation
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
-#include <text.h>
-#include <sprite.h>
+#include <Page.h>
+#include <Screen.h>
+#include <Text.h>
+#include <Sprite.h>
 #include <group.h>
 #include <pure3dobject.h>
 

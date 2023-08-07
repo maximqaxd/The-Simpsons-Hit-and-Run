@@ -15,8 +15,8 @@
 
 #include <ai/actor/actor.h>   
 #include <ai/actor/actordsg.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <render/IntersectManager/IntersectManager.h>
 #include <render/DSG/fenceentitydsg.h>
 

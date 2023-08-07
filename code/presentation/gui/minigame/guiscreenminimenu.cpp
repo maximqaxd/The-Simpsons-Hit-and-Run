@@ -37,14 +37,14 @@
 
 // Scrooby
 //
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <sprite.h>
-#include <text.h>
+#include <Sprite.h>
+#include <Text.h>
 #include <pure3dobject.h>
-#include <polygon.h>
+#include <Polygon.h>
 
 // ATG
 //

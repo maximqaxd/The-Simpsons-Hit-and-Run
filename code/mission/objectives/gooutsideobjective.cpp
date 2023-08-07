@@ -20,7 +20,6 @@
 //========================================
 
 
-#include <mission/objectives/GoOutsideobjective.h>
 #include <mission/objectives/gooutsideobjective.h>
 
 #include <events/eventmanager.h>

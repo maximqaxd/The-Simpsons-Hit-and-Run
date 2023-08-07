@@ -33,8 +33,8 @@
 #include <memory/srrmemory.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/rewards/rewardsmanager.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 
 #include <p3d/view.hpp>
 
@@ -47,10 +47,10 @@
 #include <stdlib.h>
 #include <group.h>
 #include <layer.h>
-#include <page.h>
+#include <Page.h>
 #include <pure3dobject.h>
-#include <screen.h>
-#include <text.h>
+#include <Screen.h>
+#include <Text.h>
 
 #include <string.h>
 

@@ -26,7 +26,7 @@
 #include <mission/gameplaymanager.h>
 #include <presentation/presentation.h>
 #include <presentation/gui/guisystem.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <worldsim/coins/coinmanager.h>
 #include <worldsim/coins/sparkle.h>
 #include <worldsim/hitnrunmanager.h>

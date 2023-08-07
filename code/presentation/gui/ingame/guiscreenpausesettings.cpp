@@ -31,9 +31,9 @@
 
 #include <raddebug.hpp> // Foundation
 #include <group.h>
-#include <screen.h>
-#include <page.h>
-#include <text.h>
+#include <Screen.h>
+#include <Page.h>
+#include <Text.h>
 #include <strings/unicodestring.h>
 
 //===========================================================================

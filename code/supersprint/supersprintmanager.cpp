@@ -37,8 +37,8 @@
 #include <worldsim/character/character.h>
 #include <worldsim/character/charactermanager.h>
 #include <meta/carstartlocator.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <input/inputmanager.h>
 #include <events/eventmanager.h>
 #include <meta/eventlocator.h>

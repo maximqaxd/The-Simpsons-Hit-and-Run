@@ -33,7 +33,7 @@
 #include <worldsim/character/charactermanager.h>
 #include <worldsim/character/character.h>
 
-#include <Render/Enums/RenderEnums.h>
+#include <render/Enums/RenderEnums.h>
 
 #include <interiors/interiormanager.h>
 

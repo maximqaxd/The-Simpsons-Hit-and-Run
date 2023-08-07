@@ -19,7 +19,7 @@
 
 #include <raddebug.hpp> // Foundation
 #include <group.h>
-#include <text.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

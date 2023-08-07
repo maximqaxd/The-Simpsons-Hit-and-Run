@@ -39,11 +39,11 @@
 
 #include <raddebug.hpp> // Foundation
 
-#include <page.h>
+#include <Page.h>
 #include <group.h>
 #include <pure3dobject.h>
-#include <sprite.h>
-#include <polygon.h>
+#include <Sprite.h>
+#include <Polygon.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

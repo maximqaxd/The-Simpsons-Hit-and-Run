@@ -22,10 +22,10 @@
 #include <sound/soundmanager.h>
 
 // Scrooby
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <group.h>
-#include <sprite.h>
+#include <Sprite.h>
 
 // ATG
 #include <p3d/utility.hpp>

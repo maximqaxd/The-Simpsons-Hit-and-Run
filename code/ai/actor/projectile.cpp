@@ -15,8 +15,8 @@
 
 #include <ai/actor/projectile.h>   
 #include <stateprop/statepropdata.hpp>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <atc/atcmanager.h>
 #include <ai/actor/projectiledsg.h>
 #include <render/IntersectManager/IntersectManager.h>

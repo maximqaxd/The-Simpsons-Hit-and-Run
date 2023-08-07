@@ -27,19 +27,19 @@
 #include <memory/memoryutilities.h>
 #include <mission/gameplaymanager.h>
 #include <mission/missionmanager.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <sound/soundmanager.h>
 
 #include <raddebug.hpp> // Foundation
 #include <p3d/sprite.hpp>
 #include <p3d/utility.hpp>
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <sprite.h>
-#include <polygon.h>
+#include <Sprite.h>
+#include <Polygon.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

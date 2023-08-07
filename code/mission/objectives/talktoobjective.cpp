@@ -36,8 +36,8 @@
 #include <memory/srrmemory.h>
 
 #include <render/DSG/InstStatEntityDSG.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
 #include <render/Culling/worldscene.h>
 #include <worldsim/traffic/trafficmanager.h>
 

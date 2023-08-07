@@ -26,8 +26,8 @@
 #include <p3d/entity.hpp>
 #include <ai/actor/flyingactor.h>
 #include <worldsim/character/charactermanager.h>
-#include <render/rendermanager/worldrenderlayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
+#include <render/RenderManager/RenderManager.h>
 #include <main/game.h>
 
 //===========================================================================

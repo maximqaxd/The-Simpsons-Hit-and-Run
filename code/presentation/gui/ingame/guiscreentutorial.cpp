@@ -26,11 +26,11 @@
 #include <sound/soundmanager.h>
 
 // Scrooby
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <sprite.h>
+#include <Sprite.h>
 
 // ATG
 #include <raddebug.hpp>

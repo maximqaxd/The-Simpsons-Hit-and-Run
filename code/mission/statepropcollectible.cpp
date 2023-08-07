@@ -17,8 +17,8 @@
 //===========================================================================
 
 #include <mission/statepropcollectible.h>
-#include <render/rendermanager/worldrenderlayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
+#include <render/RenderManager/RenderManager.h>
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
 #include <ai/actor/intersectionlist.h>

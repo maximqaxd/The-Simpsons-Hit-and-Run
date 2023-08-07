@@ -40,12 +40,12 @@
 
 #include <group.h>
 #include <layer.h>
-#include <page.h>
-#include <polygon.h>
+#include <Page.h>
+#include <Polygon.h>
 #include <pure3dobject.h>
-#include <screen.h>
-#include <sprite.h>
-#include <text.h>
+#include <Screen.h>
+#include <Sprite.h>
+#include <Text.h>
 
 
 //===========================================================================

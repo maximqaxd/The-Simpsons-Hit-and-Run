@@ -23,8 +23,8 @@
 #include <presentation/language.h>
 
 #include <memory/srrmemory.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 
 #include <raddebug.hpp>
 

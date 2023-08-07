@@ -27,9 +27,9 @@
 #include <memory/leakdetection.h>
 #include <mission/gameplaymanager.h>
 #include <presentation/gui/guisystem.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 #include <render/DSG/StatePropDSG.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderLayer.h>
 #include <ai/actor/actormanager.h>
 
 #include <worldsim/character/footprint/footprintmanager.h>
@@ -56,7 +56,7 @@
 #include <render/Particles/particlemanager.h>
 #include <render/animentitydsgmanager/animentitydsgmanager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <worldsim/skidmarks/skidmarkgenerator.h>
+#include <worldsim/skidmarks/SkidMarkGenerator.h>
 #include <sound/soundmanager.h>
 #include <meta/triggervolumetracker.h>
 #include <render/Loaders/AnimDynaPhysLoader.h>

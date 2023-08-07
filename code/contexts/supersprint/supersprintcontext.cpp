@@ -32,8 +32,8 @@
 #include <main/commandlineoptions.h>
 #include <main/game.h>
 #include <memory/leakdetection.h>
-#include <render/rendermanager/rendermanager.h>
-#include <render/rendermanager/renderlayer.h>
+#include <render/RenderManager/RenderManager.h>
+#include <render/RenderManager/RenderLayer.h>
 
 #include <worldsim/coins/coinmanager.h>
 #include <worldsim/coins/sparkle.h>
@@ -50,7 +50,7 @@
 #include <render/Particles/particlemanager.h>
 #include <render/animentitydsgmanager/animentitydsgmanager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <worldsim/skidmarks/skidmarkgenerator.h>
+#include <worldsim/skidmarks/SkidMarkGenerator.h>
 #include <sound/soundmanager.h>
 #include <meta/triggervolumetracker.h>
 

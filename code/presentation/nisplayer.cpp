@@ -24,7 +24,7 @@
 #include <loading/filehandlerenum.h>
 #include <loading/loadingmanager.h>
 
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 
 
 //******************************************************************************

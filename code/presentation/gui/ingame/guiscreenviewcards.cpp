@@ -22,8 +22,8 @@
 
 // Scrooby
 //
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 
 // ATG

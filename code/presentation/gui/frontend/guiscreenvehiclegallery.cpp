@@ -32,11 +32,11 @@
 
 #include <raddebug.hpp> // Foundation
 
-#include <screen.h>
-#include <page.h>
+#include <Screen.h>
+#include <Page.h>
 #include <layer.h>
 #include <group.h>
-#include <text.h>
+#include <Text.h>
 
 #include <string.h>
 

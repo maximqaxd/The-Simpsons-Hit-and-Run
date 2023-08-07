@@ -26,9 +26,9 @@
 
 #include <raddebug.hpp> // Foundation
 #include <group.h>
-#include <page.h>
+#include <Page.h>
 #include <pure3dobject.h>
-#include <screen.h>
+#include <Screen.h>
 //===========================================================================
 // Global Data, Local Data, Local Classes
 //===========================================================================

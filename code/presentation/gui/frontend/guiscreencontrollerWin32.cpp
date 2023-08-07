@@ -18,8 +18,8 @@
 
 #include <group.h>
 #include <layer.h>
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

@@ -23,7 +23,7 @@
 #include <presentation/presentation.h>
 #include <presentation/presevents/fmvevent.h>
 #include <memory/srrmemory.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/RenderManager.h>
 
 //******************************************************************************
 //

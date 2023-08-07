@@ -22,11 +22,11 @@
 #include <sound/soundmanager.h>
 
 #include <raddebug.hpp> // Foundation
-#include <page.h>
-#include <screen.h>
+#include <Page.h>
+#include <Screen.h>
 #include <group.h>
-#include <sprite.h>
-#include <text.h>
+#include <Sprite.h>
+#include <Text.h>
 
 #include <string.h>
 

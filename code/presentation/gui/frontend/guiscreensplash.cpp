@@ -27,10 +27,10 @@
 #include <main/commandlineoptions.h>
 
 #include <raddebug.hpp> // Foundation
-#include <page.h>
-#include <screen.h>
-#include <sprite.h>
-#include <text.h>
+#include <Page.h>
+#include <Screen.h>
+#include <Sprite.h>
+#include <Text.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

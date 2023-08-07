@@ -19,8 +19,8 @@
 #include <ai/actor/flyingactor.h>
 #include <worldsim/redbrick/vehicle.h>
 #include <worldsim/vehiclecentral.h>
-#include <render/rendermanager/worldrenderlayer.h>
-#include <render/rendermanager/rendermanager.h>
+#include <render/RenderManager/WorldRenderLayer.h>
+#include <render/RenderManager/RenderManager.h>
 #include <meta/eventlocator.h>
 #include <worldsim/character/character.h>
 #include <render/breakables/breakablesmanager.h>
