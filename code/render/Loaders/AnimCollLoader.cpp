@@ -22,7 +22,7 @@
 // Project Includes
 //========================================
 #include <render/Loaders/AnimCollLoader.h>
-#include <render/DSG/AnimCollisionEntityDSG.h>
+#include <render/DSG/animcollisionentitydsg.h>
 
 #include <constants/srrchunks.h>
 #include <constants/chunkids.hpp>

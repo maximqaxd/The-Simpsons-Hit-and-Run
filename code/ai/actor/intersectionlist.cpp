@@ -22,7 +22,7 @@
 #include <float.h>
 #include <render/DSG/DynaPhysDSG.h>
 #include <render/DSG/FenceEntityDSG.h>
-#include <render/DSG/AnimCollisionEntityDSG.h>
+#include <render/DSG/animcollisionentitydsg.h>
 #include <render/IntersectManager/IntersectManager.h>
 
 //===========================================================================

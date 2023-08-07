@@ -24,7 +24,7 @@
 #include <render/DSG/IntersectDSG.h>
 #include <render/DSG/StaticEntityDSG.h>
 #include <render/DSG/FenceEntityDSG.h>
-#include <render/DSG/AnimCollisionEntityDSG.h>
+#include <render/DSG/animcollisionentitydsg.h>
 #include <render/DSG/animentitydsg.h>
 #include <render/DSG/WorldSphereDSG.h>
 #include <roads/roadsegment.h>

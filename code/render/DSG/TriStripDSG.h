@@ -21,7 +21,7 @@
 // Nested Includes
 //===========================================================================
 
-#include <render/DSG/staticentitydsg.h>
+#include <render/DSG/StaticEntityDSG.h>
 #include <p3d/shader.hpp>
 #include <memory/srrmemory.h>
 //===========================================================================
