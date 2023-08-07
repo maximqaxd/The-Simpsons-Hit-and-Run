@@ -46,7 +46,7 @@
 #include <raddebugwatch.hpp>
 #include <Page.h>
 #include <Polygon.h>
-#include <resourcemanager.h>
+#include <ResourceManager.h>
 #include <Screen.h>
 #include <Sprite.h>
 #include <Text.h>

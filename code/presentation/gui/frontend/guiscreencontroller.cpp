@@ -23,13 +23,13 @@
 #include <mission/charactersheet/charactersheetmanager.h>
 
 #include <raddebug.hpp>     // Foundation
-#include <group.h>
-#include <layer.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>
 
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 #include <p3d/unicode.hpp>
 #include <string.h>
 

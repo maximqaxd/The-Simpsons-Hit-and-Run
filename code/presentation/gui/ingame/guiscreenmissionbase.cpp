@@ -38,11 +38,11 @@
 
 #include <ai/actor/actormanager.h>
 
-#include <group.h>
-#include <layer.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Polygon.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Screen.h>
 #include <Sprite.h>
 #include <Text.h>

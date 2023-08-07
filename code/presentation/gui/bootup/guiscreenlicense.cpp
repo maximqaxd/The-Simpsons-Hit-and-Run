@@ -21,7 +21,7 @@
 
 #include <Screen.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 
 #include <p3d/utility.hpp>
 #include <p3d/sprite.hpp>

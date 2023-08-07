@@ -64,7 +64,7 @@
 #include <render/Loaders/instparticlesystemloader.h>
 #include <render/Loaders/breakableobjectloader.h>
 #include <render/Loaders/AnimDynaPhysLoader.h>
-#include <render/Loaders/lensflareloader.h>
+#include <render/Loaders/LensFlareLoader.h>
 #include <p3d/shadow.hpp>
 #include <p3d/anim/animatedobject.hpp>
 #include <p3d/effects/particleloader.hpp>
@@ -124,7 +124,7 @@
 
 #include <radload/radload.hpp>
 
-#include <main/errorswin32.h>
+#include <main/errorsWIN32.h>
 
 #define WIN32_SECTION "WIN32_SECTION"
 #define TIMER_LEAVE 1

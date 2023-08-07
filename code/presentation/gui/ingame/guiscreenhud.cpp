@@ -60,11 +60,11 @@
 
 // Scrooby
 //
-#include <app.h>
-#include <group.h>
-#include <layer.h>
+#include <App.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Screen.h>
 #include <Sprite.h>
 

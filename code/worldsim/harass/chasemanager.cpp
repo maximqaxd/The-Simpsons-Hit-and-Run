@@ -24,7 +24,7 @@
 #include <roads/geometry.h>
 #include <render/Culling/ReserveArray.h>
 #include <render/IntersectManager/IntersectManager.h>
-#include <events/EventManager.h>
+#include <events/eventmanager.h>
 
 #include <mission/gameplaymanager.h>
 

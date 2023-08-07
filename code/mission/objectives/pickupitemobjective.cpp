@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 
-#include <mission/objectives/PickupItemObjective.h>
+#include <mission/objectives/pickupitemobjective.h>
 #include <ai/actor/actor.h>
 #include <ai/actor/actormanager.h>
 #include <stateprop/statepropdata.hpp>

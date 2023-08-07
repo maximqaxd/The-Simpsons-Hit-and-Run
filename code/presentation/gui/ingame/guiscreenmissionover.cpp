@@ -29,7 +29,7 @@
 
 #include <p3d/unicode.hpp>
 #include <raddebug.hpp> // Foundation
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

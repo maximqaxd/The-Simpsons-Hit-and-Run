@@ -16,9 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 // Radcore
-#include <radDebug.hpp>
+#include <raddebug.hpp>
 #include <raddebugwatch.hpp>
-#include <radFile.hpp>
+#include <radfile.hpp>
 // Pure3D
 #include <p3d/utility.hpp>
 

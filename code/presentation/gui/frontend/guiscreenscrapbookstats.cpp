@@ -27,7 +27,7 @@
 //
 #include <Screen.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 #include <Text.h>
 
 // ATG

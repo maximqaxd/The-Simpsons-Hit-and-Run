@@ -16,7 +16,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <memory/classSizeTracker.h>
+#include <memory/classsizetracker.h>
 #include <memory/srrmemory.h>
 #include <map>
 #include <p3d/entity.hpp>
@@ -314,5 +314,5 @@ void ClassSizeTracker::UpdateTotalMemorySize( const char* className )
     UpdateTotalMemorySize( static_cast< tName >( className ) );
     g_DisableClassTracker = false;
 }
-#endif RAD_RELEASE
-#endif USECLASSSIZETRACKER
+#endif //RAD_RELEASE
+#endif //USECLASSSIZETRACKER

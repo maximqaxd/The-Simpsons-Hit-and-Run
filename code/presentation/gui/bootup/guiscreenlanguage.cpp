@@ -22,8 +22,8 @@
 
 #include <raddebug.hpp> // Foundation
 
-#include <app.h>
-#include <group.h>
+#include <App.h>
+#include <Group.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

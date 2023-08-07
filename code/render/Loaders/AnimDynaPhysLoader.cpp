@@ -30,12 +30,12 @@
 #include <p3d/anim/compositedrawable.hpp>
 #include <p3d/chunkfile.hpp>
 #include <p3d/inventory.hpp>
-#include <render/AnimEntityDSGManager/AnimEntityDSGManager.h>
+#include <render/animentitydsgmanager/animentitydsgmanager.h>
 #include <render/DSG/StatePropDSG.h>
 #include <stateprop/statepropdata.hpp>
 #include <p3d/anim/animatedobject.hpp>
 #include <constants/physprop.h>
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 #include <main/game.h>
 #include <radmath/random.hpp>
 #ifndef RAD_RELEASE

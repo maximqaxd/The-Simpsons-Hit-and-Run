@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <loading/LocatorLoader.h>
+#include <loading/locatorloader.h>
 
 #include <constants/srrchunks.h>
 

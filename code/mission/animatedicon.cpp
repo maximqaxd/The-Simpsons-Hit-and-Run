@@ -29,7 +29,7 @@
 #include <mission/gameplaymanager.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <render/Culling/worldscene.h>
+#include <render/Culling/WorldScene.h>
 
 #include <debug/profiler.h>
 

@@ -17,8 +17,8 @@
 #include <presentation/gui/utility/specialfx.h>
 
 // Scrooby
-#include <app.h>
-#include <group.h>
+#include <App.h>
+#include <Group.h>
 #include <Page.h>
 #include <Text.h>
 #include <Sprite.h>

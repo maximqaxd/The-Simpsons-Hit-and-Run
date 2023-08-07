@@ -20,7 +20,7 @@
 // Nested Includes
 //===========================================================================
 
-#include <render/DSG/statepropdsg.h>
+#include <render/DSG/StatePropDSG.h>
 #include <worldsim/redbrick/vehicle.h>
 #include <presentation/gui/utility/hudmap.h>
 

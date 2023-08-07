@@ -24,7 +24,7 @@
 // Scrooby
 #include <Screen.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 #include <Sprite.h>
 
 // ATG

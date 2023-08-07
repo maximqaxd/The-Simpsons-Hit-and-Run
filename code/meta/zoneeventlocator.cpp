@@ -16,7 +16,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/ZoneEventLocator.h>
+#include <meta/zoneeventlocator.h>
 #include <meta/locatorevents.h>
 #include <memory/srrmemory.h>
 #include <events/eventmanager.h>

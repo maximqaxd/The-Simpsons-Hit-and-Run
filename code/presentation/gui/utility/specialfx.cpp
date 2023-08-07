@@ -16,7 +16,7 @@
 // Includes
 //===========================================================================
 #include <presentation/gui/utility/specialfx.h>
-#include <boundeddrawable.h>
+#include <BoundedDrawable.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

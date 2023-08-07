@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/ScriptLocator.h>
+#include <meta/scriptlocator.h>
 
 #include <events/eventmanager.h>
 

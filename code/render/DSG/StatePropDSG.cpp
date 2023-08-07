@@ -32,8 +32,8 @@
 #include <ai/actor/actormanager.h>
 #include <ai/actor/actoranimation.h>
 #include <events/eventenum.h>
-#include <data/persistentworldmanager.h>
-#include <constants/StatePropEnum.h>
+#include <data/PersistentWorldManager.h>
+#include <constants/statepropenum.h>
 #include <worldsim/hitnrunmanager.h>
 #include <sound/soundcollisiondata.h>
 #include <worldsim/avatarmanager.h>

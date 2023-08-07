@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/CollectibleObjective.h>
+#include <mission/objectives/collectibleobjective.h>
 
 #include <events/eventmanager.h>
 

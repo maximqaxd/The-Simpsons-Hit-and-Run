@@ -22,7 +22,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <ai/vehicle/TrafficAI.h>
+#include <ai/vehicle/trafficai.h>
 #include <ai/vehicle/vehicleairender.h>
 #include <worldsim/redbrick/vehicle.h>
 #include <worldsim/vehiclecentral.h>

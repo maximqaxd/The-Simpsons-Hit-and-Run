@@ -19,7 +19,7 @@
 // Project Includes
 //========================================
 #ifndef WORLD_BUILDER
-#include <meta/Locator.h>
+#include <meta/locator.h>
 #else
 #include "Locator.h"
 #endif

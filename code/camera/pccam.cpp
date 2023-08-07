@@ -36,9 +36,9 @@
 #include <choreo/utility.hpp>
 
 #include <input/inputmanager.h>
-#include <input/usercontrollerwin32.h>
-#include <input/mouse.h>
-#include <input/realcontroller.h>
+#include <input/usercontrollerWin32.h>
+#include <input/Mouse.h>
+#include <input/RealController.h>
 
 #include <roads/geometry.h>
 

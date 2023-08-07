@@ -30,11 +30,11 @@
 #include <worldsim/avatarmanager.h>
 
 #include <raddebug.hpp> // Foundation
-#include <group.h>
+#include <Group.h>
 #include <Screen.h>
 #include <Page.h>
 #include <Text.h>
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

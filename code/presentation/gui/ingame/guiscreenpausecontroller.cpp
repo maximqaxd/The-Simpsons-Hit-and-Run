@@ -27,7 +27,7 @@
 #include <raddebug.hpp> // Foundation
 
 #include <Screen.h>
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Sprite.h>
 

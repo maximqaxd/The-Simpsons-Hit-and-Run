@@ -28,7 +28,7 @@
 
 #include <Screen.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 #include <Sprite.h>
 #include <Text.h>
 #include <Polygon.h>

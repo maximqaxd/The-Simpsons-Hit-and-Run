@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/DialogueObjective.h>
+#include <mission/objectives/dialogueobjective.h>
 #include <mission/gameplaymanager.h>
 
 #include <events/eventmanager.h>

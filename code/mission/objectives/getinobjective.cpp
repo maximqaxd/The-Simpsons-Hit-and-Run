@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/GetInObjective.h>
+#include <mission/objectives/getinobjective.h>
 #include <mission/animatedicon.h>
 #include <mission/gameplaymanager.h>
 

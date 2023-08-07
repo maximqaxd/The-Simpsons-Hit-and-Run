@@ -98,9 +98,9 @@
 
 #ifdef RAD_WIN32
 #include <camera/pccam.h>
-#include <input/usercontrollerwin32.h>
-#include <input/mouse.h>
-#include <input/realcontroller.h>
+#include <input/usercontrollerWin32.h>
+#include <input/Mouse.h>
+#include <input/RealController.h>
 #include <camera/supercam.h>
 #include <camera/supercamcontroller.h>
 #endif

@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/FOVLocator.h>
+#include <meta/fovlocator.h>
 #include <camera/supercammanager.h>
 #include <camera/supercamcentral.h>
 

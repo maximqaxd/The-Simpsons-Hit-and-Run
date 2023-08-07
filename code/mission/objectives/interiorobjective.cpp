@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/InteriorObjective.h>
+#include <mission/objectives/interiorobjective.h>
 #include <mission/animatedicon.h>
 #include <mission/gameplaymanager.h>
 

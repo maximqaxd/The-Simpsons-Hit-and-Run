@@ -42,9 +42,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <app.h>
-#include <group.h>
-#include <layer.h>
+#include <App.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Sprite.h>

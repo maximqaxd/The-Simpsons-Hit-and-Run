@@ -28,7 +28,7 @@
 #include <raddebugwatch.hpp>
 #include <Page.h>
 #include <Polygon.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Screen.h>
 
 //===========================================================================

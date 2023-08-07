@@ -27,7 +27,7 @@
 
 #include <constants/movienames.h>
 #include <data/gamedatamanager.h>
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 #include <events/eventmanager.h>
 #include <input/inputmanager.h>
 #include <memory/srrmemory.h>
@@ -45,10 +45,10 @@
 #include <p3d/anim/multicontroller.hpp>
 
 #include <stdlib.h>
-#include <group.h>
-#include <layer.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Screen.h>
 #include <Text.h>
 

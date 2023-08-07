@@ -47,7 +47,7 @@
 #include <worldsim/parkedcars/parkedcarmanager.h>
 #include <ai/actionbuttonmanager.h>
 #include <render/breakables/breakablesmanager.h>
-#include <render/Particles/ParticleManager.h>
+#include <render/Particles/particlemanager.h>
 #include <worldsim/skidmarks/SkidMarkGenerator.h>
 #include <worldsim/skidmarks/skidmarkmanager.h>
 #include <ai/actor/actormanager.h>

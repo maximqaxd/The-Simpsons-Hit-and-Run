@@ -26,10 +26,10 @@
 #include <mission/charactersheet/charactersheetmanager.h>
 
 // Scrooby
-#include <app.h>
+#include <App.h>
 #include <Page.h>
 #include <Screen.h>
-#include <group.h>
+#include <Group.h>
 #include <Text.h>
 #include <Sprite.h>
 

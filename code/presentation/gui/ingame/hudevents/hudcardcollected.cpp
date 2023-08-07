@@ -20,9 +20,9 @@
 #include <mission/gameplaymanager.h>
 
 // Scrooby
-#include <app.h>
+#include <App.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 #include <Sprite.h>
 #include <Text.h>
 

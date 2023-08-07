@@ -23,7 +23,7 @@
 #include <mission/missionstage.h>
 
 // Scrooby
-#include <group.h>
+#include <Group.h>
 #include <Page.h>
 #include <Sprite.h>
 

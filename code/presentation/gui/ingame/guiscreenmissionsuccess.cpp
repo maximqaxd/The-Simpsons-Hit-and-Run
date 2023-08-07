@@ -20,7 +20,7 @@
 #include <mission/gameplaymanager.h>
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenmissionsuccess.h>
-#include <group.h>
+#include <Group.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

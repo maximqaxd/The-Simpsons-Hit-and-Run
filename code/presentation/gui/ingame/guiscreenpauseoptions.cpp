@@ -22,7 +22,7 @@
 #include <memory/srrmemory.h>
 
 #include <raddebug.hpp> // Foundation
-#include <group.h>
+#include <Group.h>
 #include <Screen.h>
 #include <Page.h>
 #include <Text.h>

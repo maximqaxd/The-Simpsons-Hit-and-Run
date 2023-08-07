@@ -15,7 +15,7 @@
 #include <memory/classsizetracker.h>
 #include <render/DSG/InstAnimDynaPhysDSG.h>
 #include <p3d/anim/compositedrawable.hpp>
-#include <render/AnimEntityDSGManager/AnimEntityDSGManager.h>
+#include <render/animentitydsgmanager/animentitydsgmanager.h>
 #include <p3d/anim/pose.hpp>
 #include <p3d/anim/poseanimation.hpp>
 #include <p3d/anim/animate.hpp>

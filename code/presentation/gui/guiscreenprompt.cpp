@@ -28,13 +28,13 @@
 
 #include <p3d/unicode.hpp>
 #include <raddebug.hpp> // Foundation
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>
 #include <Sprite.h>
-#include <group.h>
-#include <pure3dobject.h>
+#include <Group.h>
+#include <Pure3dObject.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

@@ -21,7 +21,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/charactersheet/charactersheet.h>
 #include <mission/gameplaymanager.h>

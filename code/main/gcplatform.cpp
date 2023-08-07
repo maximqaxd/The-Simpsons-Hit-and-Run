@@ -68,7 +68,7 @@
 #include <render/Loaders/BillboardWrappedLoader.h>
 #include <render/Loaders/instparticlesystemloader.h>
 #include <render/Loaders/breakableobjectloader.h>
-#include <render/Loaders/lensflareloader.h>
+#include <render/Loaders/LensFlareLoader.h>
 #include <render/Loaders/AnimDynaPhysLoader.h>
 #include <p3d/shadow.hpp>
 #include <p3d/anim/vertexanimkey.hpp>
@@ -123,7 +123,7 @@
 
 #include <radload/radload.hpp>
 
-#include <main/errorsgc.h>
+#include <main/errorsGC.h>
 #include <presentation/gui/guitextbible.h>
 
 #define GC_SECTION "GC_SECTION"

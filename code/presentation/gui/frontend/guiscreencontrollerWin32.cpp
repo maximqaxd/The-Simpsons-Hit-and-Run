@@ -16,8 +16,8 @@
 #include <camera/supercammanager.h>
 #include <camera/supercamcentral.h>
 
-#include <group.h>
-#include <layer.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 

@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <loading/IntersectionLoader.h>
+#include <loading/intersectionloader.h>
 #include <roads/intersection.h>
 
 #include <constants/srrchunks.h>

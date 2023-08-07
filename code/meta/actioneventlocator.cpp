@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/ActionEventLocator.h>
+#include <meta/actioneventlocator.h>
 #include <memory/srrmemory.h>
 #include <ai/actionbuttonmanager.h>
 #include <ai/actionbuttonhandler.h>

@@ -71,7 +71,7 @@ public:
 
 #ifdef DEBUGWATCH
     static  void AddVariablesToWatcher();
-#endif DEBUGWATCH
+#endif //DEBUGWATCH
     virtual void Advance( float deltaTime );
     void         GetDefaultSettings( const tName& name );
     void         SetCharacter( Character* pCharacter );

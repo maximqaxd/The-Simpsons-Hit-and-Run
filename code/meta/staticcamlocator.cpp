@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/StaticCamLocator.h>
+#include <meta/staticcamlocator.h>
 
 #include <camera/staticcam.h>
 #include <camera/supercammanager.h>

@@ -24,7 +24,7 @@
 #include <raddebug.hpp> // Foundation
 #include <Page.h>
 #include <Screen.h>
-#include <group.h>
+#include <Group.h>
 #include <Sprite.h>
 #include <Text.h>
 

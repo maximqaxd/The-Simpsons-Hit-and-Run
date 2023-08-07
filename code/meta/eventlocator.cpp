@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/EventLocator.h>
+#include <meta/eventlocator.h>
 #include <meta/locatorevents.h>
 #include <events/eventmanager.h>
 

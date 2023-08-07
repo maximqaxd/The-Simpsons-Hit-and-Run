@@ -36,7 +36,7 @@
 #include <render/IntersectManager/IntersectManager.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 #include <mission/gameplaymanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 

@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/TalkToObjective.h>
+#include <mission/objectives/talktoobjective.h>
 #include <mission/animatedicon.h>
 
 #include <events/eventmanager.h>
@@ -38,7 +38,7 @@
 #include <render/DSG/InstStatEntityDSG.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/WorldRenderLayer.h>
-#include <render/Culling/worldscene.h>
+#include <render/Culling/WorldScene.h>
 #include <worldsim/traffic/trafficmanager.h>
 
 //*****************************************************************************

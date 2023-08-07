@@ -40,8 +40,8 @@
 #include <raddebug.hpp> // Foundation
 
 #include <Page.h>
-#include <group.h>
-#include <pure3dobject.h>
+#include <Group.h>
+#include <Pure3dObject.h>
 #include <Sprite.h>
 #include <Polygon.h>
 

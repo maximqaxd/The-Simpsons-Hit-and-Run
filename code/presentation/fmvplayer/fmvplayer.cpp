@@ -28,7 +28,7 @@
 #include <main/game.h>
 #include <main/platform.h>
 #include <gameflow/gameflow.h>
-#include <presentation/fmvplayer/FMVplayer.h>
+#include <presentation/fmvplayer/fmvplayer.h>
 #include <input/inputmanager.h>
 #include <sound/soundmanager.h>
 #include <memory/srrmemory.h>

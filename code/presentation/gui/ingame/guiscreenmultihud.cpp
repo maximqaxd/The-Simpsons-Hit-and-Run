@@ -37,10 +37,10 @@
 
 #include <raddebug.hpp> // Foundation
 
-#include <group.h>
+#include <Group.h>
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
+#include <Layer.h>
 #include <Polygon.h>
 #include <Sprite.h>
 

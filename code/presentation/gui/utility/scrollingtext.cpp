@@ -19,7 +19,7 @@
 #include <presentation/gui/utility/scrollingtext.h>
 
 #include <raddebug.hpp> // Foundation
-#include <app.h>
+#include <App.h>
 #include <Text.h>
 
 //===========================================================================

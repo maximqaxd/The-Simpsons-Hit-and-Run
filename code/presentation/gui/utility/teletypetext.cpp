@@ -18,7 +18,7 @@
 #include <presentation/gui/utility/teletypetext.h>
 
 #include <raddebug.hpp> // Foundation
-#include <group.h>
+#include <Group.h>
 #include <Text.h>
 
 //===========================================================================

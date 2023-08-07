@@ -42,7 +42,7 @@
 #include <render/DSG/DSGFactory.h>
 #include <render/DSG/LensFlareDSG.h>
 #include <render/DSG/animcollisionentitydsg.h>
-#include <render/DSG/animentitydSG.h>
+#include <render/DSG/animentitydsg.h>
 #include <render/Enums/RenderEnums.h>
 #include <constants/srrchunks.h>
 #include <memory/srrmemory.h>

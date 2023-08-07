@@ -21,7 +21,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <camera/BurnoutCam.h>
+#include <camera/burnoutcam.h>
 #include <camera/supercamconstants.h>
 #include <input/inputmanager.h>
 

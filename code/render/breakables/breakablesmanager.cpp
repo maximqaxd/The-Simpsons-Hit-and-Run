@@ -14,10 +14,10 @@
 //===========================================================================
 
 #include <render/Particles/particlemanager.h>
-#include <render/Breakables/breakablesmanager.h>
+#include <render/breakables/breakablesmanager.h>
 
 #include <render/RenderManager/RenderManager.h>
-#include <render/Culling/worldscene.h>
+#include <render/Culling/WorldScene.h>
 #include <render/RenderManager/WorldRenderLayer.h>
 #include <events/eventmanager.h>
 

@@ -19,7 +19,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/InteriorEntranceLocator.h>
+#include <meta/interiorentrancelocator.h>
 #include <memory/srrmemory.h>
 #include <meta/locatorevents.h>
 #include <events/eventmanager.h>

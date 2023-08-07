@@ -19,8 +19,8 @@
 // Project Includes
 //========================================
 #ifndef WORLD_BUILDER
-#include <meta/TriggerLocator.h>
-#include <meta/TriggerVolume.h>
+#include <meta/triggerlocator.h>
+#include <meta/triggervolume.h>
 #include <meta/triggervolumetracker.h>
 #include <memory/srrmemory.h>
 #else

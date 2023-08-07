@@ -43,9 +43,9 @@
 //
 #include <Screen.h>
 #include <Page.h>
-#include <group.h>
+#include <Group.h>
 #include <Sprite.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 
 #include <string.h>
 

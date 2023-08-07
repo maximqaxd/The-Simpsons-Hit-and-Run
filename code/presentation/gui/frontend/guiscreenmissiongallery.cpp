@@ -33,8 +33,8 @@
 
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
-#include <group.h>
+#include <Layer.h>
+#include <Group.h>
 #include <Sprite.h>
 
 //===========================================================================

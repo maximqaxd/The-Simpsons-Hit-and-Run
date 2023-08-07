@@ -85,7 +85,7 @@
 #include <raddebug.hpp>
 #include <raddebugwatch.hpp>
 
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 

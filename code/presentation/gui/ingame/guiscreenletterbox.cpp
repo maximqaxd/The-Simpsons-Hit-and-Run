@@ -25,9 +25,9 @@
 #include <mission/objectives/missionobjective.h>
 
 #include <raddebug.hpp> // Foundation
-#include <group.h>
+#include <Group.h>
 #include <Page.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Screen.h>
 //===========================================================================
 // Global Data, Local Data, Local Classes

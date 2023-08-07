@@ -24,7 +24,7 @@
 //
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
+#include <Layer.h>
 
 // ATG
 //

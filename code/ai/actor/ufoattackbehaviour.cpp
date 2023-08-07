@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 
-#include <ai/actor/UFOAttackBehaviour.h>
+#include <ai/actor/ufoattackbehaviour.h>
 #include <ai/actor/actor.h>
 #include <worldsim/avatarmanager.h>
 #include <math.h>

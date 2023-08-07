@@ -31,7 +31,7 @@
 #include <worldsim/hitnrunmanager.h>
 #include <worldsim/avatarmanager.h>
 #include <raddebug.hpp> // Foundation
-#include <group.h>
+#include <Group.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

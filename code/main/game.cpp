@@ -49,7 +49,7 @@
 #include <memory/srrmemory.h>
 #include <memory/memoryutilities.h>
 
-#include <render/RenderFlow/RenderFlow.h>
+#include <render/RenderFlow/renderflow.h>
 #include <sound/soundmanager.h>
 #include <input/inputmanager.h>
 

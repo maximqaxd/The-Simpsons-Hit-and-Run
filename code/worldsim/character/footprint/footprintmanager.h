@@ -19,7 +19,7 @@
 //===========================================================================
 
 #include <worldsim/character/footprint/footprintmanager.h>
-#include <render/culling/swaparray.h> 
+#include <render/Culling/SwapArray.h> 
 #include <p3d/utility.hpp>
 
 //===========================================================================

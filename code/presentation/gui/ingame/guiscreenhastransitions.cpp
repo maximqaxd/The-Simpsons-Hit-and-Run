@@ -17,7 +17,7 @@
 //===========================================================================
 #include <presentation/gui/ingame/guiscreenhastransitions.h>
 #include <presentation/gui/utility/transitions.h>
-#include <drawable.h>
+#include <Drawable.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

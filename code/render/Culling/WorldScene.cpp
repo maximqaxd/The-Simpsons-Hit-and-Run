@@ -8,7 +8,7 @@
 #include <render/DSG/DynaPhysDSG.h>
 #include <render/DSG/FenceEntityDSG.h>
 #include <render/DSG/AnimCollisionEntityDSG.h>
-#include <render/DSG/AnimEntityDSG.h>
+#include <render/DSG/animentitydsg.h>
 #include <roads/roadsegment.h>
 #include <pedpaths/pathsegment.h>
 #include <meta/triggervolume.h>

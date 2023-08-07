@@ -16,7 +16,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/objectives/FMVObjective.h>
+#include <mission/objectives/fmvobjective.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/gameplaymanager.h>
 

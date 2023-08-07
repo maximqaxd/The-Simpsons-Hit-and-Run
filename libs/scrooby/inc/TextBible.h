@@ -11,7 +11,7 @@
 #ifndef SCROOBY_TEXTBIBLE_H
 #define SCROOBY_TEXTBIBLE_H
 
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 
 namespace Scrooby
 {

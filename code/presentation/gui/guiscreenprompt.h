@@ -22,7 +22,7 @@
 #include <presentation/gui/guiscreen.h>
 #include <presentation/gui/guimenu.h>
 
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 
 //===========================================================================
 // Forward References

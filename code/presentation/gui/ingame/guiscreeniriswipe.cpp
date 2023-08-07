@@ -22,7 +22,7 @@
 
 #include <Screen.h>
 #include <Page.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 #include <Text.h>
 
 #include <p3d/anim/multicontroller.hpp>

@@ -30,7 +30,7 @@
 
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
-#include <render/Culling/worldscene.h>
+#include <render/Culling/WorldScene.h>
 #include <render/DSG/InstStatEntityDSG.h>
 #include <render/RenderManager/RenderManager.h>
 #include <presentation/gui/guisystem.h>
@@ -46,8 +46,8 @@
 #include <roads/roadmanager.h>
 #include <roads/intersection.h>
 #include <roads/road.h>
-#include <render/DSG/AnimEntityDSG.h>
-#include <render/AnimEntityDSGManager/AnimEntityDSGManager.h>
+#include <render/DSG/animentitydsg.h>
+#include <render/animentitydsgmanager/animentitydsgmanager.h>
 #include <interiors/interiormanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 

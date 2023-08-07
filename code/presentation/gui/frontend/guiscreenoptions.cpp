@@ -28,10 +28,10 @@
 #include <memory/srrmemory.h>
 
 #include <raddebug.hpp> // Foundation
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
-#include <group.h>
+#include <Group.h>
 #include <Text.h>
 
 #ifdef RAD_PS2

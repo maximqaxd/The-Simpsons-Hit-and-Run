@@ -72,7 +72,7 @@
 #include <render/Loaders/BillboardWrappedLoader.h>
 #include <render/Loaders/instparticlesystemloader.h>
 #include <render/Loaders/breakableobjectloader.h>
-#include <render/Loaders/lensflareloader.h>
+#include <render/Loaders/LensFlareLoader.h>
 #include <render/Loaders/AnimDynaPhysLoader.h>
 #include <p3d/shadow.hpp>
 #include <p3d/anim/animatedobject.hpp>
@@ -126,7 +126,7 @@
 
 #include <debug/debuginfo.h>
 
-#include <main/errorsps2.h>
+#include <main/errorsPS2.h>
 
 #include <sound/soundmanager.h>
 

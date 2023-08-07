@@ -14,8 +14,8 @@
 
 #include <presentation/gui/guitextbible.h>
 
-#include <app.h>
-#include <textbible.h>
+#include <App.h>
+#include <TextBible.h>
 #include <raddebug.hpp>
 
 #include <sound/soundmanager.h>

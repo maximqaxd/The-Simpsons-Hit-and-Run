@@ -24,12 +24,12 @@
 
 #include <events/eventmanager.h>
 
-#include <app.h>
+#include <App.h>
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
-#include <group.h>
-#include <pure3dobject.h>
+#include <Layer.h>
+#include <Group.h>
+#include <Pure3dObject.h>
 #include <Sprite.h>
 #include <Text.h>
 

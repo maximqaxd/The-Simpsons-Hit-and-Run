@@ -41,11 +41,11 @@
 
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
-#include <group.h>
+#include <Layer.h>
+#include <Group.h>
 #include <Sprite.h>
 #include <Text.h>
-#include <pure3dobject.h>
+#include <Pure3dObject.h>
 
 #include <p3d/anim/cameraanimation.hpp>
 

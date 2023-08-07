@@ -70,7 +70,7 @@
 
 #include <sound/soundmanager.h>
 
-#include <render/Culling/worldscene.h>
+#include <render/Culling/WorldScene.h>
 
 #include <main/commandlineoptions.h>
 #include <worldsim/harass/chasemanager.h>

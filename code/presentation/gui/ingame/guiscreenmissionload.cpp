@@ -28,7 +28,7 @@
 #include <radmath/matrix.hpp>
 #include <radmath/util.hpp>
 #include <loading/loadingmanager.h>
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 
 #include <Screen.h>
 #include <Page.h>

@@ -25,7 +25,7 @@
 #include <render/DSG/StaticEntityDSG.h>
 #include <render/DSG/FenceEntityDSG.h>
 #include <render/DSG/AnimCollisionEntityDSG.h>
-#include <render/DSG/AnimEntityDSG.h>
+#include <render/DSG/animentitydsg.h>
 #include <render/DSG/WorldSphereDSG.h>
 #include <roads/roadsegment.h>
 #include <pedpaths/pathsegment.h>
@@ -53,7 +53,7 @@
 #include <events/eventmanager.h>
 #include <events/eventenum.h>
 
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 
 #include <ai/vehicle/vehicleairender.h>
 

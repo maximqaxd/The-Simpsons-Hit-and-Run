@@ -54,7 +54,7 @@
 #include <worldsim/coins/sparkle.h>
 #include <worldsim/hitnrunmanager.h>
 #include <ai/actor/actormanager.h>
-#include <data/persistentworldmanager.h>
+#include <data/PersistentWorldManager.h>
 #include <worldsim/character/footprint/footprintmanager.h>
 #include <memory/propstats.h>
 #include <simcommon/simenvironment.hpp>

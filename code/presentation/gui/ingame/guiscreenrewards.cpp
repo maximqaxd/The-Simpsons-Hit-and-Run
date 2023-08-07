@@ -29,8 +29,8 @@
 #include <Page.h>
 #include <Sprite.h>
 #include <Text.h>
-#include <pure3dobject.h>
-#include <group.h>
+#include <Pure3dObject.h>
+#include <Group.h>
 #include <Polygon.h>
 
 #include <p3d/unicode.hpp>

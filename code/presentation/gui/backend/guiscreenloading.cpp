@@ -36,8 +36,8 @@
 #include <p3d/utility.hpp>
 #include <Screen.h>
 #include <Page.h>
-#include <layer.h>
-#include <group.h>
+#include <Layer.h>
+#include <Group.h>
 #include <Sprite.h>
 #include <Polygon.h>
 

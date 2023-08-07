@@ -27,7 +27,7 @@
 #include <memory/srrmemory.h>
 #include <render/Loaders/AllWrappers.h>
 #include <p3d/effects/particleloader.hpp>
-#include <render/breakables/BreakablesManager.h>
+#include <render/breakables/breakablesmanager.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

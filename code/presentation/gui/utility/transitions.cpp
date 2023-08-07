@@ -13,7 +13,7 @@
 //===========================================================================
 // Includes
 //===========================================================================
-#include <boundeddrawable.h>
+#include <BoundedDrawable.h>
 #include <contexts/gameplay/gameplaycontext.h>
 #include <events/eventmanager.h>
 #include <input/inputmanager.h>

@@ -18,9 +18,9 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/OcclusionLocator.h>
-#include <meta/LocatorEvents.h>
-#include <events/EventManager.h>
+#include <meta/occlusionlocator.h>
+#include <meta/locatorevents.h>
+#include <events/eventmanager.h>
 
 
 //******************************************************************************

@@ -20,7 +20,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <loading/CameraDataLoader.h>
+#include <loading/cameradataloader.h>
 
 #include <camera/followcamdatachunk.h>
 #include <camera/walkercamdatachunk.h>

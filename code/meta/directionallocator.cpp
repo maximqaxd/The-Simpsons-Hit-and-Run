@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <meta/DirectionalLocator.h>
+#include <meta/directionallocator.h>
 
 
 

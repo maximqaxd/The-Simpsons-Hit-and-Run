@@ -28,11 +28,11 @@
 #include <memory/srrmemory.h>
 
 #include <raddebug.hpp>     // Foundation
-#include <layer.h>
-#include <group.h>
+#include <Layer.h>
+#include <Group.h>
 #include <Page.h>
 #include <Screen.h>
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 #include <Text.h>
 #ifdef RAD_PS2
 #include <libmtap.h>

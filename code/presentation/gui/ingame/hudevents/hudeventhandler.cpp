@@ -16,7 +16,7 @@
 #include <presentation/gui/ingame/hudevents/hudeventhandler.h>
 
 // Scrooby
-#include <group.h>
+#include <Group.h>
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

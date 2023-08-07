@@ -26,7 +26,7 @@
 #include <memory/createheap.h>
 
 #include <raddebug.hpp> // Foundation
-#include <layer.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

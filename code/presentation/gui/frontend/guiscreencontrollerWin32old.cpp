@@ -26,8 +26,8 @@
 #include <events/eventmanager.h>
 
 #include <raddebug.hpp>     // Foundation
-#include <group.h>
-#include <layer.h>
+#include <Group.h>
+#include <Layer.h>
 #include <Page.h>
 #include <Screen.h>
 #include <Text.h>

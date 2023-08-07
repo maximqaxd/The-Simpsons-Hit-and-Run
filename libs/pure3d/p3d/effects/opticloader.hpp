@@ -27,4 +27,4 @@ protected:
     tLensFlare* LoadLensFlare(tChunkFile* chunk, tEntityStore* store);
 };
 
-#endif;
+#endif

@@ -20,7 +20,7 @@
 //========================================
 #include <p3d/utility.hpp>
 #include <p3d/vectorcamera.hpp>
-#include <camera/SnapshotCam.h>
+#include <camera/snapshotcam.h>
 #include <camera/supercamcontroller.h>
 
 #include <memory/srrmemory.h>

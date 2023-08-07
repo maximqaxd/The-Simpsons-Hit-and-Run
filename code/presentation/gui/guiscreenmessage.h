@@ -21,7 +21,7 @@
 //===========================================================================
 #include <presentation/gui/guiscreen.h>
 
-#include <strings/unicodestring.h>
+#include <strings/unicodeString.h>
 
 #ifdef RAD_WIN32
 const float MESSAGE_ICON_CORRECTION_SCALE = 0.875f;

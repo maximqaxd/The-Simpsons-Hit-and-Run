@@ -18,7 +18,7 @@
 //========================================
 // Project Includes
 //========================================
-#include <mission/BonusMissionInfo.h>
+#include <mission/bonusmissioninfo.h>
 #include <mission/animatedicon.h>
 #include <mission/gameplaymanager.h>
 #include <mission/missionmanager.h>
