@@ -547,6 +547,7 @@ target_include_directories(srr2 PRIVATE
 	"libs/radcore/inc/"
 	"libs/radmath/"
 	"libs/radmovie/inc/"
+	"libs/radmusic/inc/"
 	"libs/radscript/inc/"
 	"libs/radsound/inc/"
 	"libs/scrooby/inc/"

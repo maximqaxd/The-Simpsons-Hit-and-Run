@@ -50,7 +50,7 @@
 #include <Screen.h>
 #include <Sprite.h>
 #include <Text.h>
-#include <feloaders.h>
+#include <FeLoaders.h>
 
 // Static pointer to instance of singleton.
 CGuiSystem* CGuiSystem::spInstance = NULL;

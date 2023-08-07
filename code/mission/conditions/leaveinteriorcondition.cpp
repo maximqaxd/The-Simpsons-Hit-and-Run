@@ -20,7 +20,7 @@
 //========================================
 #include <events/eventmanager.h>
 
-#include <mission/conditions/LeaveInteriorCondition.h>
+#include <mission/conditions/leaveinteriorcondition.h>
 
 
 

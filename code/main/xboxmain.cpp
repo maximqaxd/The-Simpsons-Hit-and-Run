@@ -129,7 +129,7 @@ void main()
     //
 #ifdef RAD_DEBUG
     radObject::DumpObjects();
-#endif;
+#endif
 
     //
     // Dump all the singletons.

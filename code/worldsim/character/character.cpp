@@ -32,7 +32,7 @@
 #include <ai/actor/intersectionlist.h>
 
 #include <render/DSG/StatePropDSG.h>
-#include <render/DSG/CollisionEntityDSG.h>
+#include <render/DSG/collisionentitydsg.h>
 
 #include <events/eventenum.h>
 #include <events/eventmanager.h>

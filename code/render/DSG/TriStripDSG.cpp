@@ -1,5 +1,5 @@
 #include <p3d/utility.hpp>
-#include <render/DSG/tristripdsg.h>
+#include <render/DSG/TriStripDSG.h>
 //===========================================================================
 //
 // Description: 

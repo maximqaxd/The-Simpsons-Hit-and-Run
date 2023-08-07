@@ -13,7 +13,7 @@
 // Includes
 //===========================================================================
 
-#include <render/Loaders/InstParticleSystemLoader.h>
+#include <render/Loaders/instparticlesystemloader.h>
 #include <constants/srrchunks.h>
 #include <constants/chunkids.hpp>
 #include <render/Particles/particlemanager.h>

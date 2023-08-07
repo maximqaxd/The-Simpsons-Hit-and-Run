@@ -202,7 +202,7 @@ int main( int argc, char* argv[] )
     //
 #ifdef RAD_DEBUG
     radObject::DumpObjects();
-#endif;
+#endif
 
     //
     // Dump all the singletons.

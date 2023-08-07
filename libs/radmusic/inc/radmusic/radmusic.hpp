@@ -229,4 +229,4 @@ bool         debug_performance_current_beat( performance *, float * );
     
 }
 
-#endif RADMUSIC_HPP
+#endif //RADMUSIC_HPP
