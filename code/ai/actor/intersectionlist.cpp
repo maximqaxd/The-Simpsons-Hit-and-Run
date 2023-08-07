@@ -21,7 +21,7 @@
 #include <simcommon/simstatearticulated.hpp>
 #include <float.h>
 #include <render/DSG/DynaPhysDSG.h>
-#include <render/DSG/fenceentitydsg.h>
+#include <render/DSG/FenceEntityDSG.h>
 #include <render/DSG/AnimCollisionEntityDSG.h>
 #include <render/IntersectManager/IntersectManager.h>
 
