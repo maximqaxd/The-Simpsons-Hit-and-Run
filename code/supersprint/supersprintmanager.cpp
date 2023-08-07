@@ -2176,7 +2176,7 @@ void SuperSprintManager::LoadCharacters()
                 unsigned int k;
                 for ( k = 0; k < SuperSprintData::NUM_PLAYERS && !found; ++k )
                 {
-                    if ( SuperSprintData::CHARACTER_NAMES[ mPlayers[ k ].mCharacterIndex ] != '\0' && 
+                    if ( SuperSprintData::CHARACTER_NAMES[ mPlayers[ k ].mCharacterIndex ] != nullptr && 
                        ( mPlayers[ k ].mCharacterIndex == static_cast<int>( whichName ) ) )
                     {
                         //This name is taken.
