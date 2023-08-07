@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.27)
 
 project(SRR2)
 
+find_package(SDL2 REQUIRED)
+
 set(SOURCES
 	code/ai/actionbuttonhandler.cpp
 	code/ai/actionbuttonmanager.cpp
@@ -10,7 +12,6 @@ set(SOURCES
 	code/ai/actor/actor.cpp
 	code/ai/actor/actordsg.cpp
 	code/ai/actor/actormanager.cpp
-	code/ai/actor/allactor.cpp
 	code/ai/actor/attackbehaviour.cpp
 	code/ai/actor/attractionbehaviour.cpp
 	code/ai/actor/cutcambehaviour.cpp
@@ -24,17 +25,14 @@ set(SOURCES
 	code/ai/actor/ufoattackbehaviour.cpp
 	code/ai/actor/ufobeamalwaysonbehaviour.cpp
 	code/ai/actor/ufobehaviour.cpp
-	code/ai/allai.cpp
 	code/ai/automaticdoor.cpp
 	code/ai/playanimonce.cpp
 	code/ai/sequencer/actioncontroller.cpp
 	code/ai/sequencer/action.cpp
-	code/ai/sequencer/allsequencer.cpp
 	code/ai/sequencer/sequencer.cpp
 	code/ai/sequencer/task.cpp
 	code/ai/state.cpp
 	code/ai/statemanager.cpp
-	code/ai/vehicle/allaivehicle.cpp
 	code/ai/vehicle/chaseai.cpp
 	code/ai/vehicle/potentialfield.cpp
 	code/ai/vehicle/potentials.cpp
@@ -42,13 +40,10 @@ set(SOURCES
 	code/ai/vehicle/vehicleai.cpp
 	code/ai/vehicle/vehicleairender.cpp
 	code/ai/vehicle/waypointai.cpp
-	code/atc/allatc.cpp
 	code/atc/atcloader.cpp
 	code/atc/atcmanager.cpp
-	code/camera/allcamera.cpp
 	code/camera/animatedcam.cpp
 	code/camera/bumpercam.cpp
-	code/camera/burnoutcam.cpp
 	code/camera/chasecam.cpp
 	code/camera/conversationcam.cpp
 	code/camera/debugcam.cpp
@@ -72,60 +67,46 @@ set(SOURCES
 	code/camera/walkercam.cpp
 	code/camera/wrecklesscam.cpp
 	code/camera/wrecklesseventlistener.cpp
-	code/cards/allcards.cpp
 	code/cards/bonuscard.cpp
 	code/cards/card.cpp
 	code/cards/cardgallery.cpp
 	code/cards/cardsdb.cpp
 	code/cards/collectorcard.cpp
-	code/cheats/allcheats.cpp
 	code/cheats/cheatinputhandler.cpp
 	code/cheats/cheatinputsystem.cpp
 	code/cheats/cheats.cpp
-	code/console/allconsole.cpp
 	code/console/console.cpp
 	code/console/debugconsolecallback.cpp
 	code/console/fbstricmp.cpp
 	code/console/nameinsensitive.cpp
 	code/console/upcase.cpp
-	code/contexts/allcontexts.cpp
 	code/contexts/bootupcontext.cpp
 	code/contexts/context.cpp
-	code/contexts/demo/alldemo.cpp
 	code/contexts/demo/democontext.cpp
 	code/contexts/demo/loadingdemocontext.cpp
 	code/contexts/entrycontext.cpp
 	code/contexts/exitcontext.cpp
 	code/contexts/frontendcontext.cpp
-	code/contexts/gameplay/allgameplay.cpp
 	code/contexts/gameplay/gameplaycontext.cpp
 	code/contexts/gameplay/loadinggameplaycontext.cpp
 	code/contexts/loadingcontext.cpp
 	code/contexts/pausecontext.cpp
 	code/contexts/playingcontext.cpp
-	code/contexts/supersprint/allsupersprintctx.cpp
 	code/contexts/supersprint/loadingsupersprintcontext.cpp
 	code/contexts/supersprint/supersprintcontext.cpp
 	code/contexts/supersprint/supersprintfecontext.cpp
-	code/data/alldata.cpp
 	code/data/config/configstring.cpp
 	code/data/config/gameconfigmanager.cpp
 	code/data/gamedatamanager.cpp
-	code/data/memcard/allmemcard.cpp
 	code/data/memcard/memorycardmanager.cpp
-	code/data/PersistentSectors.cpp
 	code/data/PersistentWorldManager.cpp
 	code/data/savegameinfo.cpp
-	code/debug/alldebug.cpp
 	code/debug/debuginfo.cpp
 	code/debug/profiler.cpp
 	code/debug/section.cpp
-	code/events/allevents.cpp
 	code/events/eventlistener.cpp
 	code/events/eventmanager.cpp
-	code/gameflow/allgameflow.cpp
 	code/gameflow/gameflow.cpp
-	code/input/allinput.cpp
 	code/input/basedamper.cpp
 	code/input/button.cpp
 	code/input/constanteffect.cpp
@@ -140,19 +121,12 @@ set(SOURCES
 	code/input/MouseCursor.cpp
 	code/input/RealController.cpp
 	code/input/rumbleeffect.cpp
-	#code/input/rumblegc.cpp
-	#code/input/rumbleps2.cpp
 	code/input/rumblewin32.cpp
-	#code/input/rumblexbox.cpp
 	code/input/steeringspring.cpp
-	code/input/SteeringWheel.cpp
-	code/input/usercontroller.cpp
 	code/input/usercontrollerWin32.cpp
 	code/input/virtualinputs.cpp
 	code/input/wheelrumble.cpp
-	code/interiors/allinteriors.cpp
 	code/interiors/interiormanager.cpp
-	code/loading/allloadmanager.cpp
 	code/loading/cameradataloader.cpp
 	code/loading/cementfilehandler.cpp
 	code/loading/choreofilehandler.cpp
@@ -168,23 +142,13 @@ set(SOURCES
 	code/loading/roadloader.cpp
 	code/loading/scroobyfilehandler.cpp
 	code/loading/soundfilehandler.cpp
-	#code/main/allgcmain.cpp
-	#code/main/allps2main.cpp
 	code/main/commandlineoptions.cpp
 	code/main/game.cpp
-	#code/main/gamecube_extras/gcmanager.cpp
-	#code/main/gcmain.cpp
-	#code/main/gcplatform.cpp
 	code/main/pchsrr2.cpp
-	#code/main/ps2main.cpp
-	#code/main/ps2platform.cpp
 	code/main/singletons.cpp
 	code/main/tuidunaligned.cpp
 	code/main/win32main.cpp
 	code/main/win32platform.cpp
-	#code/main/xboxmain.cpp
-	#code/main/xboxplatform.cpp
-	code/memory/allmemory.cpp
 	code/memory/classsizetracker.cpp
 	code/memory/createheap.cpp
 	code/memory/leakdetection.cpp
@@ -193,7 +157,6 @@ set(SOURCES
 	code/memory/propstats.cpp
 	code/memory/srrmemory.cpp
 	code/meta/actioneventlocator.cpp
-	code/meta/allmeta.cpp
 	code/meta/carstartlocator.cpp
 	code/meta/directionallocator.cpp
 	code/meta/eventlocator.cpp
@@ -210,12 +173,9 @@ set(SOURCES
 	code/meta/triggervolume.cpp
 	code/meta/triggervolumetracker.cpp
 	code/meta/zoneeventlocator.cpp
-	code/mission/allmission.cpp
 	code/mission/animatedicon.cpp
 	code/mission/bonusmissioninfo.cpp
-	code/mission/charactersheet/allcharactersheet.cpp
 	code/mission/charactersheet/charactersheetmanager.cpp
-	code/mission/conditions/allconditions.cpp
 	code/mission/conditions/damagecondition.cpp
 	code/mission/conditions/followcondition.cpp
 	code/mission/conditions/getoutofcarcondition.cpp
@@ -237,7 +197,6 @@ set(SOURCES
 	code/mission/missionstage.cpp
 	code/mission/nocopbonusobjective.cpp
 	code/mission/nodamagebonusobjective.cpp
-	code/mission/objectives/allobjectives.cpp
 	code/mission/objectives/buycarobjective.cpp
 	code/mission/objectives/buyskinobjective.cpp
 	code/mission/objectives/coinobjective.cpp
@@ -261,56 +220,42 @@ set(SOURCES
 	code/mission/objectives/talktoobjective.cpp
 	code/mission/objectives/timerobjective.cpp
 	code/mission/racepositionbonusobjective.cpp
-	code/mission/respawnmanager/allrespawnmanager.cpp
 	code/mission/respawnmanager/respawnentity.cpp
 	code/mission/respawnmanager/respawnmanager.cpp
-	code/mission/rewards/allrewards.cpp
 	code/mission/rewards/merchandise.cpp
 	code/mission/rewards/reward.cpp
 	code/mission/rewards/rewardsmanager.cpp
-	code/mission/safezone/allsafezone.cpp
 	code/mission/safezone/safezone.cpp
 	code/mission/statepropcollectible.cpp
 	code/mission/timeremainbonusobjective.cpp
-	code/mission/ufo/allufo.cpp
 	code/mission/ufo/tractorbeam.cpp
 	code/mission/ufo/ufo.cpp
-	code/pedpaths/allpedpaths.cpp
 	code/pedpaths/path.cpp
 	code/pedpaths/pathmanager.cpp
 	code/pedpaths/pathsegment.cpp
-	code/presentation/allpresentation.cpp
 	code/presentation/animplayer.cpp
 	code/presentation/blinker.cpp
 	code/presentation/cameraplayer.cpp
-	#code/presentation/fmvplayer/allfmvplayergc.cpp
-	#code/presentation/fmvplayer/allfmvplayerps2.cpp
 	code/presentation/fmvplayer/fmvplayer.cpp
 	code/presentation/fmvplayer/fmvuserinputhandler.cpp
-	code/presentation/gui/allgui.cpp
-	code/presentation/gui/backend/allbackend.cpp
 	code/presentation/gui/backend/guimanagerbackend.cpp
 	code/presentation/gui/backend/guiscreendemo.cpp
 	code/presentation/gui/backend/guiscreenloading.cpp
 	code/presentation/gui/backend/guiscreenloadingfe.cpp
-	code/presentation/gui/bootup/allbootup.cpp
 	code/presentation/gui/bootup/guimanagerbootup.cpp
 	code/presentation/gui/bootup/guimanagerlanguage.cpp
 	code/presentation/gui/bootup/guiscreenbootupload.cpp
 	code/presentation/gui/bootup/guiscreenlanguage.cpp
 	code/presentation/gui/bootup/guiscreenlicense.cpp
-	code/presentation/gui/frontend/allfrontend.cpp
 	code/presentation/gui/frontend/guimanagerfrontend.cpp
 	code/presentation/gui/frontend/guiscreencardgallery.cpp
-	code/presentation/gui/frontend/guiscreencontroller.cpp
 	code/presentation/gui/frontend/guiscreencontrollerWin32.cpp
-	code/presentation/gui/frontend/guiscreencontrollerWin32old.cpp
 	code/presentation/gui/frontend/guiscreendisplay.cpp
 	code/presentation/gui/frontend/guiscreenloadgame.cpp
 	code/presentation/gui/frontend/guiscreenmainmenu.cpp
 	code/presentation/gui/frontend/guiscreenmissiongallery.cpp
-	code/presentation/gui/frontend/guiscreenmultichoosechar.cpp
-	code/presentation/gui/frontend/guiscreenmultisetup.cpp
+	#code/presentation/gui/frontend/guiscreenmultichoosechar.cpp
+	#code/presentation/gui/frontend/guiscreenmultisetup.cpp
 	code/presentation/gui/frontend/guiscreenoptions.cpp
 	code/presentation/gui/frontend/guiscreenplaymovie.cpp
 	code/presentation/gui/frontend/guiscreenscrapbookcontents.cpp
@@ -335,12 +280,11 @@ set(SOURCES
 	code/presentation/gui/guitextbible.cpp
 	code/presentation/gui/guiuserinputhandler.cpp
 	code/presentation/gui/guiwindow.cpp
-	code/presentation/gui/ingame/allingame.cpp
 	code/presentation/gui/ingame/guimanageringame.cpp
 	code/presentation/gui/ingame/guiscreencreditspostfmv.cpp
 	code/presentation/gui/ingame/guiscreenhastransitions.cpp
 	code/presentation/gui/ingame/guiscreenhud.cpp
-	code/presentation/gui/ingame/guiscreenhudmap.cpp
+	#code/presentation/gui/ingame/guiscreenhudmap.cpp
 	code/presentation/gui/ingame/guiscreeniriswipe.cpp
 	code/presentation/gui/ingame/guiscreenletterbox.cpp
 	code/presentation/gui/ingame/guiscreenlevelend.cpp
@@ -365,7 +309,6 @@ set(SOURCES
 	code/presentation/gui/ingame/guiscreensavegame.cpp
 	code/presentation/gui/ingame/guiscreentutorial.cpp
 	code/presentation/gui/ingame/guiscreenviewcards.cpp
-	code/presentation/gui/ingame/hudevents/allhudevents.cpp
 	code/presentation/gui/ingame/hudevents/hudcardcollected.cpp
 	code/presentation/gui/ingame/hudevents/hudcoincollected.cpp
 	code/presentation/gui/ingame/hudevents/hudcountdown.cpp
@@ -375,13 +318,11 @@ set(SOURCES
 	code/presentation/gui/ingame/hudevents/hudmissionobjective.cpp
 	code/presentation/gui/ingame/hudevents/hudmissionprogress.cpp
 	code/presentation/gui/ingame/hudevents/hudwaspdestroyed.cpp
-	code/presentation/gui/minigame/allminigame.cpp
 	code/presentation/gui/minigame/guimanagerminigame.cpp
 	code/presentation/gui/minigame/guiscreenminihud.cpp
 	code/presentation/gui/minigame/guiscreenminimenu.cpp
 	code/presentation/gui/minigame/guiscreenminipause.cpp
 	code/presentation/gui/minigame/guiscreenminisummary.cpp
-	code/presentation/gui/utility/allutility.cpp
 	code/presentation/gui/utility/hudmapcam.cpp
 	code/presentation/gui/utility/hudmap.cpp
 	code/presentation/gui/utility/numerictext.cpp
@@ -396,7 +337,6 @@ set(SOURCES
 	code/presentation/playerdrawable.cpp
 	code/presentation/presentationanimator.cpp
 	code/presentation/presentation.cpp
-	code/presentation/presevents/allpresevents.cpp
 	code/presentation/presevents/fmvevent.cpp
 	code/presentation/presevents/nisevent.cpp
 	code/presentation/presevents/presentationevent.cpp
@@ -404,11 +344,8 @@ set(SOURCES
 	code/presentation/simpleanimationplayer.cpp
 	code/presentation/transitionplayer.cpp
 	code/presentation/tutorialmanager.cpp
-	code/render/animentitydsgmanager/allanimentitydsgmanager.cpp
 	code/render/animentitydsgmanager/animentitydsgmanager.cpp
-	code/render/breakables/allbreakables.cpp
 	code/render/breakables/breakablesmanager.cpp
-	code/render/Culling/allculling.cpp
 	code/render/Culling/BoxPts.cpp
 	code/render/Culling/CellBlock.cpp
 	code/render/Culling/Cell.cpp
@@ -423,7 +360,6 @@ set(SOURCES
 	code/render/Culling/SphereSP.cpp
 	code/render/Culling/VectorLib.cpp
 	code/render/Culling/WorldScene.cpp
-	code/render/DSG/alldsg.cpp
 	code/render/DSG/animcollisionentitydsg.cpp
 	code/render/DSG/animentitydsg.cpp
 	code/render/DSG/breakableobjectdsg.cpp
@@ -443,9 +379,7 @@ set(SOURCES
 	code/render/DSG/StaticPhysDSG.cpp
 	code/render/DSG/TriStripDSG.cpp
 	code/render/DSG/WorldSphereDSG.cpp
-	code/render/IntersectManager/allintersect.cpp
 	code/render/IntersectManager/IntersectManager.cpp
-	code/render/Loaders/allloaders.cpp
 	code/render/Loaders/AllWrappers.cpp
 	code/render/Loaders/AnimCollLoader.cpp
 	code/render/Loaders/AnimDSGLoader.cpp
@@ -464,18 +398,14 @@ set(SOURCES
 	code/render/Loaders/StaticPhysLoader.cpp
 	code/render/Loaders/TreeDSGLoader.cpp
 	code/render/Loaders/WorldSphereLoader.cpp
-	code/render/Particles/allparticles.cpp
 	code/render/Particles/particlemanager.cpp
 	code/render/Particles/particlesystemdsg.cpp
 	code/render/Particles/vehicleparticleemitter.cpp
-	code/render/RenderFlow/allrenderflow.cpp
 	code/render/RenderFlow/renderflow.cpp
-	code/render/RenderManager/allrendermanager.cpp
 	code/render/RenderManager/FrontEndRenderLayer.cpp
 	code/render/RenderManager/RenderLayer.cpp
 	code/render/RenderManager/RenderManager.cpp
 	code/render/RenderManager/WorldRenderLayer.cpp
-	code/roads/allroads.cpp
 	code/roads/geometry.cpp
 	code/roads/intersection.cpp
 	code/roads/lane.cpp
@@ -486,14 +416,11 @@ set(SOURCES
 	code/roads/roadsegment.cpp
 	code/roads/roadsegmentdata.cpp
 	code/roads/trafficcontrol.cpp
-	code/sound/allsound.cpp
-	code/sound/avatar/allsoundavatar.cpp
 	code/sound/avatar/avatarsoundplayer.cpp
 	code/sound/avatar/carsoundparameters.cpp
 	code/sound/avatar/soundavatar.cpp
 	code/sound/avatar/vehiclesounddebugpage.cpp
 	code/sound/avatar/vehiclesoundplayer.cpp
-	code/sound/dialog/alldialog.cpp
 	code/sound/dialog/conversation.cpp
 	code/sound/dialog/conversationmatcher.cpp
 	code/sound/dialog/dialogcoordinator.cpp
@@ -508,7 +435,6 @@ set(SOURCES
 	code/sound/listener.cpp
 	code/sound/movingpositional/actorplayer.cpp
 	code/sound/movingpositional/aivehiclesoundplayer.cpp
-	code/sound/movingpositional/allmovingposn.cpp
 	code/sound/movingpositional/animobjsoundplayer.cpp
 	code/sound/movingpositional/avatarvehicleposnplayer.cpp
 	code/sound/movingpositional/movingsoundmanager.cpp
@@ -516,20 +442,14 @@ set(SOURCES
 	code/sound/movingpositional/trafficsoundplayer.cpp
 	code/sound/movingpositional/vehicleposnsoundplayer.cpp
 	code/sound/movingpositional/waspsoundplayer.cpp
-	code/sound/music/allmusic.cpp
 	code/sound/music/musicplayer.cpp
-	code/sound/nis/allnissound.cpp
 	code/sound/nis/nissoundplayer.cpp
 	code/sound/positionalsoundplayer.cpp
 	code/sound/simpsonssoundplayer.cpp
 	code/sound/soundcluster.cpp
-	code/sound/sounddebug/allsounddebug.cpp
 	code/sound/sounddebug/sounddebugdisplay.cpp
 	code/sound/sounddebug/sounddebugpage.cpp
-	code/sound/soundfx/allsoundfx.cpp
-	#code/sound/soundfx/gcreverbcontroller.cpp
 	code/sound/soundfx/positionalsoundsettings.cpp
-	#code/sound/soundfx/ps2reverbcontroller.cpp
 	code/sound/soundfx/reverbcontroller.cpp
 	code/sound/soundfx/reverbsettings.cpp
 	code/sound/soundfx/soundeffectplayer.cpp
@@ -538,10 +458,8 @@ set(SOURCES
 	code/sound/soundfx/soundfxlogic.cpp
 	code/sound/soundfx/soundfxpauselogic.cpp
 	code/sound/soundfx/win32reverbcontroller.cpp
-	#code/sound/soundfx/xboxreverbcontroller.cpp
 	code/sound/soundloader.cpp
 	code/sound/soundmanager.cpp
-	code/sound/soundrenderer/allsoundrenderer.cpp
 	code/sound/soundrenderercallback.cpp
 	code/sound/soundrenderer/dasoundplayer.cpp
 	code/sound/soundrenderer/fader.cpp
@@ -557,42 +475,30 @@ set(SOURCES
 	code/sound/soundrenderer/tunerdebugpage.cpp
 	code/sound/soundrenderer/wireplayers.cpp
 	code/sound/soundrenderer/wiresystem.cpp
-	code/sound/tuning/allsoundtuning.cpp
 	code/sound/tuning/globalsettings.cpp
-	code/stateprop/allstateprop.cpp
 	code/stateprop/stateprop.cpp
 	code/stateprop/statepropdata.cpp
-	code/supersprint/allsupersprint.cpp
 	code/supersprint/supersprintdata.cpp
 	code/supersprint/supersprintmanager.cpp
-	code/worldsim/allworldsim.cpp
 	code/worldsim/avatar.cpp
 	code/worldsim/avatarmanager.cpp
 	code/worldsim/character/aicharactercontroller.cpp
-	code/worldsim/character/allcharacter.cpp
 	code/worldsim/character/charactercontroller.cpp
 	code/worldsim/character/character.cpp
 	code/worldsim/character/charactermanager.cpp
 	code/worldsim/character/charactermappable.cpp
 	code/worldsim/character/characterrenderable.cpp
 	code/worldsim/character/charactertarget.cpp
-	code/worldsim/character/footprint/allfootprint.cpp
-	code/worldsim/character/footprint/footprint.cpp
 	code/worldsim/character/footprint/footprintmanager.cpp
-	code/worldsim/coins/allcoins.cpp
 	code/worldsim/coins/coinmanager.cpp
 	code/worldsim/coins/sparkle.cpp
 	code/worldsim/groundplanepool.cpp
-	code/worldsim/harass/allharass.cpp
 	code/worldsim/harass/chasemanager.cpp
 	code/worldsim/hitnrunmanager.cpp
 	code/worldsim/huskpool.cpp
-	code/worldsim/parkedcars/allparkedcars.cpp
 	code/worldsim/parkedcars/parkedcarmanager.cpp
-	code/worldsim/ped/allped.cpp
 	code/worldsim/ped/pedestrian.cpp
 	code/worldsim/ped/pedestrianmanager.cpp
-	code/worldsim/redbrick/allredbrick.cpp
 	code/worldsim/redbrick/geometryvehicle.cpp
 	code/worldsim/redbrick/physicslocomotioncontrollerforces.cpp
 	code/worldsim/redbrick/physicslocomotion.cpp
@@ -602,7 +508,6 @@ set(SOURCES
 	code/worldsim/redbrick/trafficbodydrawable.cpp
 	code/worldsim/redbrick/trafficlocomotion.cpp
 	code/worldsim/redbrick/vehiclecontroller/aivehiclecontroller.cpp
-	code/worldsim/redbrick/vehiclecontroller/allvehiclecontroller.cpp
 	code/worldsim/redbrick/vehiclecontroller/humanvehiclecontroller.cpp
 	code/worldsim/redbrick/vehiclecontroller/vehiclecontroller.cpp
 	code/worldsim/redbrick/vehiclecontroller/vehiclemappable.cpp
@@ -611,13 +516,10 @@ set(SOURCES
 	code/worldsim/redbrick/vehicleinit.cpp
 	code/worldsim/redbrick/vehiclelocomotion.cpp
 	code/worldsim/redbrick/wheel.cpp
-	code/worldsim/skidmarks/allskidmarks.cpp
 	code/worldsim/skidmarks/skidmark.cpp
 	code/worldsim/skidmarks/SkidMarkGenerator.cpp
 	code/worldsim/skidmarks/skidmarkmanager.cpp
-	code/worldsim/spawn/allspawn.cpp
 	code/worldsim/spawn/spawnmanager.cpp
-	code/worldsim/traffic/alltraffic.cpp
 	code/worldsim/traffic/trafficmanager.cpp
 	code/worldsim/vehiclecentral.cpp
 	code/worldsim/worldcollisionsolveragent.cpp
@@ -627,13 +529,15 @@ set(SOURCES
 
 add_executable(srr2 ${SOURCES})
 target_link_options(srr2 PRIVATE -m32)
-target_compile_options(srr2 PRIVATE -m32)
+target_link_libraries(srr2 SDL2::SDL2)
+target_compile_options(srr2 PRIVATE -m32 -Wno-write-strings)
 target_compile_features(srr2 PRIVATE cxx_std_17)
 target_compile_definitions(srr2 PRIVATE
 	RAD_RELEASE
 	RAD_PC
 	RAD_WIN32
 )
+target_precompile_headers(srr2 PRIVATE code/main/pchsrr2.h)
 target_include_directories(srr2 PRIVATE
 	"code/"
 	"libs/choreo/inc/"
@@ -642,6 +546,7 @@ target_include_directories(srr2 PRIVATE
 	"libs/radcontent/inc/"
 	"libs/radcore/inc/"
 	"libs/radmath/"
+	"libs/radmovie/inc/"
 	"libs/radscript/inc/"
 	"libs/radsound/inc/"
 	"libs/scrooby/inc/"
