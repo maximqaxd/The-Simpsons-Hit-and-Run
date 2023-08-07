@@ -25,8 +25,6 @@
 // Forward References
 //===========================================================================
 class tCompositeDrawable;
-class rmt::Vector;
-class rmt::Quaternion;
 
 //===========================================================================
 // Constants, Typedefs, and Macro Definitions (needed by external clients)
