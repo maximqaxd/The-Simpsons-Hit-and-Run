@@ -304,8 +304,8 @@ public:
 
     void Init( const rmt::Vector& t )
     {
-        this->Init(t);
-        this->GetAverage(mNormalizedAverage);
+        History<rmt::Vector,HISTORY_SIZE>::Init(t);
+        History<rmt::Vector,HISTORY_SIZE>::GetAverage(mNormalizedAverage);
     }
 
     void GetNormalizedAverage( rmt::Vector& vec )
@@ -323,8 +323,8 @@ public:
 
     void UpdateHistory( const rmt::Vector& vec )
     {
-        this->UpdateHistory(vec);
-        this->GetAverage(mNormalizedAverage);
+        History<rmt::Vector,HISTORY_SIZE>::UpdateHistory(vec);
+        History<rmt::Vector,HISTORY_SIZE>::GetAverage(mNormalizedAverage);
     }
 
 protected:

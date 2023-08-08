@@ -7,7 +7,7 @@
 #define _RADMATH_UTIL_HPP
 
 #include <radmath/buildconfig.hpp>
-#include <math.h>
+#include <cmath>
 #include <float.h>
      
 namespace RadicalMathLibrary

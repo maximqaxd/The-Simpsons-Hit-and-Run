@@ -17,7 +17,7 @@ tShader::tShader()
     shader->AddRef();
 }
 
-tShader::tShader(char* shaderName, char* definition)
+tShader::tShader(const char* shaderName, char* definition)
 {
     shader = p3d::device->NewShader(shaderName, definition);
     shader->AddRef();
