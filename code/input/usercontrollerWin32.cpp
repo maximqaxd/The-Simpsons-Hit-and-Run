@@ -36,7 +36,7 @@
 #include <input/inputmanager.h>
 
 #include <input/steeringspring.h>
-#include <input/baseDamper.h>
+#include <input/basedamper.h>
 #include <input/constanteffect.h>
 #include <input/wheelrumble.h>
 #include <presentation/tutorialmanager.h>
