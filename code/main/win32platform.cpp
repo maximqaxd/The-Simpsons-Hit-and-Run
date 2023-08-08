@@ -126,6 +126,7 @@
 
 #include <main/errorsWIN32.h>
 
+#define _stricmp SDL_strcasecmp
 #define WIN32_SECTION "WIN32_SECTION"
 #define TIMER_LEAVE 1
 

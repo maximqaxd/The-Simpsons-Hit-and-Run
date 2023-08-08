@@ -16,6 +16,8 @@
 #include <string.h>
 // Foundation Tech
 #include <raddebug.hpp>
+#include <SDL.h>
+#define strupr SDL_strupr
 
 //========================================
 // Project Includes
