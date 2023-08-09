@@ -409,7 +409,7 @@ class radString
                 str++;
             }
             #else
-                strlwr( m_pBuffer );
+                SDL_strlwr( m_pBuffer );
             #endif
         }
     }
