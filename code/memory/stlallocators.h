@@ -101,6 +101,10 @@ template <class T> class s2alloc
 
 }; // end s2alloc<T> 
 
-
+template<class T, class U>
+bool operator==(const s2alloc<T>&, const s2alloc<U>&) { return true; }
+ 
+template<class T, class U>
+bool operator!=(const s2alloc<T>&, const s2alloc<U>&) { return false; }
 
 #endif //STLALLOCATORS_H
