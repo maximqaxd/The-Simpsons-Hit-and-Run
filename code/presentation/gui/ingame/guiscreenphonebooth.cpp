@@ -15,6 +15,8 @@
 //===========================================================================
 // Includes
 //===========================================================================
+#include <SDL.h>
+
 #include <presentation/gui/ingame/guiscreenphonebooth.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
 #include <presentation/gui/utility/specialfx.h>
@@ -1066,7 +1068,7 @@ CGuiScreenPhoneBooth::HandleMessageForCar( eGuiMessage message,
                     {
                         char textBibleEntry[ 16 ];
                         strcpy( textBibleEntry, OVERRIDE_VEHICLE_NAMES[ s_currentDebugVehicleSelection ] );
-                        UnicodeChar* textBibleString = GetTextBibleString( strupr( textBibleEntry ) );
+                        UnicodeChar* textBibleString = GetTextBibleString( SDL_strupr( textBibleEntry ) );
                         UnicodeString unicodeString;
                         if( textBibleString != NULL )
                         {

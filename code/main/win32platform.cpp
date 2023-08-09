@@ -174,11 +174,8 @@ static const char pddiLibraryName[] = "pddi%sr.dll";
 // title bar.
 static const char ApplicationName[] = "The Simpsons: Hit & Run";
 
-// The window style
-static const DWORD WndStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-
 // The gamma of the desktop.. needed to reset it on alt-tabs.
-static WORD DesktopGammaRamp[ 3 ][ 256 ] = { 0 };
+static Uint16 DesktopGammaRamp[ 3 ][ 256 ] = { 0 };
 
 void LoadMemP3DFile( unsigned char* buffer, unsigned int size, tEntityStore* store )
 {

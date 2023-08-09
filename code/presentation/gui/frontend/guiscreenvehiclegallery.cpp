@@ -15,6 +15,8 @@
 //===========================================================================
 // Includes
 //===========================================================================
+#include <SDL.h>
+
 #include <presentation/gui/frontend/guiscreenvehiclegallery.h>
 #include <presentation/gui/frontend/guiscreenscrapbookcontents.h>
 #include <presentation/gui/utility/specialfx.h>
@@ -636,7 +638,7 @@ CGuiScreenVehicleGallery::OnMenuSelectionMade( int selection )
         strcpy( stringID, m_rewardSelections[ m_pMenu->GetSelection() ]->GetName() );
 
         UnicodeString unicodeString;
-        unicodeString.ReadUnicode( GetTextBibleString( strupr( stringID ) ) );
+        unicodeString.ReadUnicode( GetTextBibleString( SDL_strupr( stringID ) ) );
 
         rAssert( m_vehicleName != NULL );
         m_vehicleName->SetString( 0, unicodeString );

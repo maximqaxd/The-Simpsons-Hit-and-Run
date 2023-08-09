@@ -15,6 +15,8 @@
 //===========================================================================
 // Includes
 //===========================================================================
+#include <SDL.h>
+
 #include <presentation/gui/frontend/guiscreenskingallery.h>
 #include <presentation/gui/frontend/guiscreenscrapbookcontents.h>
 #include <presentation/gui/utility/specialfx.h>
@@ -639,7 +641,7 @@ CGuiScreenSkinGallery::OnMenuSelectionMade( int selection )
         strcpy( stringID, m_rewardSelections[ m_pMenu->GetSelection() ]->GetName() );
 
         UnicodeString unicodeString;
-        unicodeString.ReadUnicode( GetTextBibleString( strupr( stringID ) ) );
+        unicodeString.ReadUnicode( GetTextBibleString( SDL_strupr( stringID ) ) );
 
         rAssert( m_skinName != NULL );
         m_skinName->SetString( 0, unicodeString );
