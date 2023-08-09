@@ -42,10 +42,10 @@
 //
 // Initialially the player list is empty
 //
-Sound::daSoundPlayerBase* radLinkedClass< Sound::daSoundPlayerBase >::s_pLinkedClassHead = NULL;
-Sound::daSoundPlayerBase* radLinkedClass< Sound::daSoundPlayerBase >::s_pLinkedClassTail = NULL;
-Sound::daSoundClipStreamPlayer* radLinkedClass< Sound::daSoundClipStreamPlayer >::s_pLinkedClassHead = NULL;
-Sound::daSoundClipStreamPlayer* radLinkedClass< Sound::daSoundClipStreamPlayer >::s_pLinkedClassTail = NULL;
+template<> Sound::daSoundPlayerBase* radLinkedClass< Sound::daSoundPlayerBase >::s_pLinkedClassHead = NULL;
+template<> Sound::daSoundPlayerBase* radLinkedClass< Sound::daSoundPlayerBase >::s_pLinkedClassTail = NULL;
+template<> Sound::daSoundClipStreamPlayer* radLinkedClass< Sound::daSoundClipStreamPlayer >::s_pLinkedClassHead = NULL;
+template<> Sound::daSoundClipStreamPlayer* radLinkedClass< Sound::daSoundClipStreamPlayer >::s_pLinkedClassTail = NULL;
 
 //=============================================================================
 // Namespace

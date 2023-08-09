@@ -31,8 +31,8 @@
 //
 // Initialially the list is empty
 //
-positionalSoundSettings* radLinkedClass< positionalSoundSettings >::s_pLinkedClassHead = NULL;
-positionalSoundSettings* radLinkedClass< positionalSoundSettings >::s_pLinkedClassTail = NULL;
+template<> positionalSoundSettings* radLinkedClass< positionalSoundSettings >::s_pLinkedClassHead = NULL;
+template<> positionalSoundSettings* radLinkedClass< positionalSoundSettings >::s_pLinkedClassTail = NULL;
 
 //*****************************************************************************
 //

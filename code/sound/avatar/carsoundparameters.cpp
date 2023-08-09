@@ -32,8 +32,8 @@
 //
 // Initialially the list is empty
 //
-carSoundParameters* radLinkedClass< carSoundParameters >::s_pLinkedClassHead = NULL;
-carSoundParameters* radLinkedClass< carSoundParameters >::s_pLinkedClassTail = NULL;
+template<> carSoundParameters* radLinkedClass< carSoundParameters >::s_pLinkedClassHead = NULL;
+template<> carSoundParameters* radLinkedClass< carSoundParameters >::s_pLinkedClassTail = NULL;
 
 static float s_maxPitchDefault = 5.0f;
 static float s_inAirIdleDefault = 0.2f;

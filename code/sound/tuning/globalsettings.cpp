@@ -34,8 +34,8 @@ using namespace Sound;
 //
 // Initialially the list is empty
 //
-globalSettings* radLinkedClass< globalSettings >::s_pLinkedClassHead = NULL;
-globalSettings* radLinkedClass< globalSettings >::s_pLinkedClassTail = NULL;
+template<> globalSettings* radLinkedClass< globalSettings >::s_pLinkedClassHead = NULL;
+template<> globalSettings* radLinkedClass< globalSettings >::s_pLinkedClassTail = NULL;
 
 //******************************************************************************
 //
