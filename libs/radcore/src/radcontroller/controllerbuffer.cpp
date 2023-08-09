@@ -27,7 +27,7 @@
 #include <radmemorymonitor.hpp>
 
 
-static void * operator new[]( size_t size, radMemoryAllocator allocator )
+void * operator new[]( size_t size, radMemoryAllocator allocator )
 {
     return ::radMemoryAlloc( allocator, size );
 }
