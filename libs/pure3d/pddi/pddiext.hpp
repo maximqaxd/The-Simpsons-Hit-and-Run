@@ -248,7 +248,6 @@ struct IRadThreadMutex;
 class pddiExtGLContext : public pddiExtension
 {
 public:
-    virtual void SetMutex(IRadThreadMutex* m) = 0;
     virtual void BeginContext() = 0;
     virtual void EndContext() = 0;
 

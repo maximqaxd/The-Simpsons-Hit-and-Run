@@ -23,7 +23,7 @@ class tTask;
 class tContextInitData : public pddiDisplayInit
 {
 public:
-    void*             hwnd;          // window handle
+    SDL_Window*       window;        // window handle
     unsigned          adapterID;     // display to use
     char              PDDIlib[128];  // PDDI library path
 
@@ -33,11 +33,11 @@ public:
 class tPlatformContext
 {
 public :
-    tContext* context;
-    void* windowHandle;
-    void* pddiLib;
+    tContext*   context;
+    SDL_Window* window;
+    void*       pddiLib;
 
-    tPlatformContext() { context = 0; windowHandle = 0; pddiLib = 0; }
+    tPlatformContext() { context = NULL; window = NULL; pddiLib = 0; }
 };
 
 class tPlatform

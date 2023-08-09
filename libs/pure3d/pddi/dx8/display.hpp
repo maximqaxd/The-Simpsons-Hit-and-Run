@@ -24,8 +24,7 @@ public:
 
     // public interface stuff
     virtual long ProcessWindowMessage(SDL_Window* wnd, const SDL_WindowEvent* event);
-    virtual void SetWindowHandle(void* hWnd);
-    virtual void* GetWindowHandle();
+    virtual void SetWindow(SDL_Window* wnd);
     
     virtual bool InitDisplay(int x, int y, int bpp);
     virtual bool InitDisplay(const pddiDisplayInit*);

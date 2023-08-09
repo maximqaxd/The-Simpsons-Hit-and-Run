@@ -22,12 +22,9 @@
 #include <pddi/gl/glmat.hpp>
 
 #include <pddi/base/debug.hpp>
-#include <radthread.hpp>
 #include <math.h>
 #include <string.h>
-#include <Windows.h>
-
-#include <glad/glad_wgl.h>
+#include <SDL.h>
 
 // vertex arrays rendering
 GLenum primTypeTable[5] =
@@ -51,34 +48,20 @@ static inline void FillGLColour(pddiColour c, float* f)
 class pglExtContext : public pddiExtGLContext 
 {
 public:
-    pglExtContext(pglDisplay* d) : display(d), mutex() {}
-    ~pglExtContext() { if (mutex) mutex->Release(); }
-
-    void SetMutex(IRadThreadMutex* m)
-    {
-        m->AddRef();
-        if (mutex)
-            mutex->Release();
-        mutex = m;
-    }
+    pglExtContext(pglDisplay* d) : display(d) {}
 
     void BeginContext()
     {
-        if (mutex)
-            mutex->Lock();
         display->BeginContext();
     }
 
     void EndContext()
     {
         display->EndContext();
-        if (mutex)
-            mutex->Unlock();
     }
 
 private:
     pglDisplay* display;
-    IRadThreadMutex* mutex;
 };
 
 class pglExtGamma : public pddiExtGammaControl
@@ -132,7 +115,8 @@ void pglContext::BeginFrame()
     pddiBaseContext::BeginFrame();
 
     extContext->BeginContext();
-    wglSwapIntervalEXT(display->GetForceVSync() ? 1 : 0);
+
+    SDL_GL_SetSwapInterval(display->GetForceVSync() ? 1 : 0);
 
     if(display->HasReset())
     {

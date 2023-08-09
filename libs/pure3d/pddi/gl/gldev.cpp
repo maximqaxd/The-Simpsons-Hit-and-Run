@@ -24,13 +24,11 @@
 #include <stdlib.h>
 // #include <io.h>
 #include <pddi/base/debug.hpp>
+#include <SDL.h>
 
 #define PDDI_GL_BUILD 36
 
 static pglDevice gblDevice;
-static int nDisplays;
-pddiDisplayInfo displayInfo[2];
-static pddiModeInfo    displayModes[1024];
 
 char libName [] = "OpenGL";
 
@@ -49,11 +47,19 @@ DLLEXPORT int pddiCreate(int versionMajor, int versionMinor, pddiDevice** device
 //--------------------------------------------------------------
 pglDevice::pglDevice() 
 {
+    nDisplays = 0;
+    displayInfo = NULL;
 }
 
 //--------------------------------------------------------------
 pglDevice::~pglDevice()
 {
+    for( int i = 0; i < nDisplays; i++ )
+    {
+        delete[] displayInfo[i].modeInfo;
+    }
+    delete[] displayInfo;
+    displayInfo = NULL;
 }
 
 //--------------------------------------------------------------
@@ -72,27 +78,36 @@ unsigned pglDevice::GetCaps()
 
 int pglDevice::GetDisplayInfo(pddiDisplayInfo** info)
 {
-    static int generatedInfo = 0;
-
     *info = displayInfo;
 
-    if(generatedInfo)
+    if (displayInfo)
     {
         return nDisplays;
     }
 
-    nDisplays = 1;
-    generatedInfo = 1;
+    int totalDisplay = SDL_GetNumVideoDisplays();
+    displayInfo = new pddiDisplayInfo[totalDisplay];
 
-    displayInfo[0].id = 0;
-    strcpy(displayInfo[0].description,"OpenGL Device");
-    displayInfo[0].pci = 0;
-    displayInfo[0].vendor = 0;
-    displayInfo[0].fullscreenOnly = false;
-    displayInfo[0].caps = 0;
+    nDisplays = 0;
+    for(int i = 0; i < totalDisplay; i++)
+    {
+        const char* displayName = SDL_GetDisplayName(i);
+        int totalModes = SDL_GetNumDisplayModes(i);
+        if (!displayName || totalModes <= 0)
+            continue;
 
-    displayInfo[0].nDisplayModes = pglDisplay::FillDisplayModes(displayModes);
-    displayInfo[0].modeInfo = displayModes;
+        displayInfo[nDisplays].id = i;
+        strcpy(displayInfo[0].description,SDL_GetDisplayName(i));
+        displayInfo[nDisplays].pci = 0;
+        displayInfo[nDisplays].vendor = 0;
+        displayInfo[nDisplays].fullscreenOnly = false;
+        displayInfo[nDisplays].caps = 0;
+
+        displayInfo[nDisplays].modeInfo = new pddiModeInfo[totalModes];
+        displayInfo[nDisplays].nDisplayModes = pglDisplay::FillDisplayModes(i, displayInfo[nDisplays].modeInfo);
+        displayInfo[nDisplays].modeInfo = displayInfo[nDisplays].modeInfo;
+        nDisplays++;
+    }
 
     return nDisplays;
 }
@@ -118,7 +133,7 @@ pddiDisplay *pglDevice::NewDisplay(int id)
     GetDisplayInfo(&dummy);
 
     PDDIASSERT(id < nDisplays);
-    pglDisplay* display = new pglDisplay;
+    pglDisplay* display = new pglDisplay(&displayInfo[id]);
 
     if(display->GetLastError() != PDDI_OK)
     {

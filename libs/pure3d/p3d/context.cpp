@@ -134,14 +134,6 @@ tContext::~tContext(void)
 
 void tContext::Setup(void)
 {
-    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension(PDDI_EXT_GL_CONTEXT);
-    if (gl)
-    {
-        IRadThreadMutex* mutex;
-        radThreadCreateMutex(&mutex);
-        gl->SetMutex(mutex);
-        mutex->Release();
-    }
 }
 
 void tContext::Shutdown(void)

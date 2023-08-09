@@ -38,6 +38,8 @@ protected:
     bool initialized;
     pddiRenderContext* context;
 
+    int nDisplays;
+    pddiDisplayInfo* displayInfo;
 };
 #endif
 

@@ -14,7 +14,6 @@
 // System Includes
 //========================================
 #include <SDL.h>
-#include <SDL_syswm.h>
 // Standard Lib
 #include <stdlib.h>
 #include <string.h>
@@ -303,6 +302,11 @@ bool Win32Platform::InitializeWindow()
         }
     }
 #endif
+
+    // These three attributes must be set prior to creating the first window
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 
     int w, h;
     TranslateResolution( StartingResolution, w, h );
@@ -1541,14 +1545,11 @@ void Win32Platform::ShutdownPure3D()
 void Win32Platform::InitializeContext()
 {
     tContextInitData init;
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION( &wmInfo.version );
-    SDL_GetWindowWMInfo( mWnd, &wmInfo );
 
     //
     // This is the window we want to render into.
     //
-    init.hwnd = wmInfo.info.win.window;
+    init.window = mWnd;
 
     //
     // Set the fullscreen/window mode.

@@ -25,7 +25,7 @@
 
 tContextInitData::tContextInitData()
 {
-    hwnd           = 0;
+    window         = NULL;
     xsize          = 640;
     ysize          = 480;
     bpp            = 32;
@@ -114,7 +114,7 @@ tContext* tPlatform::CreateContext(tContextInitData* d)
     tDebug::CapturePDDIMessages(device);
 
     display = device->NewDisplay(d->adapterID);
-    display->SetWindowHandle(d->hwnd);
+    display->SetWindow(d->window);
     display->InitDisplay( d );
     // build pddiRenderContext
     context = device->NewRenderContext(display);
@@ -137,7 +137,7 @@ tContext* tPlatform::CreateContext(tContextInitData* d)
         {
             contexts[find].context = new tContext(device,display,context);
             contexts[find].pddiLib = PddiLib;
-            contexts[find].windowHandle = d->hwnd;
+            contexts[find].window = d->window;
 
             if(!currentContext)
                 SetActiveContext(contexts[find].context);
@@ -168,7 +168,7 @@ void tPlatform::DestroyContext(tContext* context)
 
     context->Shutdown();
 
-    contexts[foundHandle].windowHandle = NULL;
+    contexts[foundHandle].window = NULL;
     delete context;
     FreeLibrary((HINSTANCE)contexts[foundHandle].pddiLib);
     contexts[foundHandle].context = NULL;

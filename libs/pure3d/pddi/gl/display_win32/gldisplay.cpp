@@ -15,14 +15,7 @@
 
 #include <pddi/gl/glcon.hpp>
 #include <pddi/base/debug.hpp>
-
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_LEAN
-#include <windows.h>
-#include <glad/glad_wgl.h>
 #include <SDL.h>
-
-#include<mmsystem.h>
 
 #include<stdio.h>
 #include<string.h>
@@ -30,29 +23,12 @@
 
 bool pglDisplay::CheckExtension( char *extName )
 {
-    char *p = (char *) glGetString(GL_EXTENSIONS);
-
-    if((p == NULL) || (extName == NULL))
-        return false;
-    
-    char *end;
-    int extNameLen;
-
-    extNameLen = strlen(extName);
-    end = p + strlen(p);
-
-    while (p < end) {
-        int n = strcspn(p, " ");
-        if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
-             return true;
-        }
-        p += (n + 1);
-    }
-    return false;
+    return SDL_GL_ExtensionSupported(extName) == SDL_TRUE;
 }
 
-pglDisplay ::pglDisplay()
+pglDisplay ::pglDisplay(pddiDisplayInfo* info)
 {
+    displayInfo = info;
     mode = PDDI_DISPLAY_WINDOW;
     winWidth = 640;
     winHeight = 480;
@@ -60,42 +36,26 @@ pglDisplay ::pglDisplay()
 
     context = NULL;
 
-    winHWND = NULL;
+    win = NULL;
     hRC = NULL;
-    hFont = NULL;
     prevRC = NULL;
 
     extBGRA = false;
 
     gammaR = gammaG = gammaB = 1.0f;
 
-    GetDeviceGammaRamp((HDC)hDC, initialGammaRamp);
-    windowStyle = 0;
-
     reset = true;
 	m_ForceVSync = false;
+
+    mutex = SDL_CreateMutex();
 }
 
 pglDisplay ::~pglDisplay()
 {
-    HGLRC hRC;
-    HDC   hDC;
-
     /* release and free the device context and rendering context */
-    hRC = wglGetCurrentContext();
-    hDC = wglGetCurrentDC();
-
-    if(hDC && hRC)
-        wglMakeCurrent(hDC, NULL);
-
-    if (hRC)
-        wglDeleteContext(hRC);
-
-    if (hDC)
-        ReleaseDC((HWND)winHWND, hDC);
-
-    ChangeDisplaySettings(NULL,0);
-    SetDeviceGammaRamp((HDC)hDC, &initialGammaRamp);
+    SDL_GL_DeleteContext(hRC);
+    SDL_SetWindowGammaRamp(win, initialGammaRamp[0], initialGammaRamp[1], initialGammaRamp[2]);
+    SDL_DestroyMutex(mutex);
 }
 
 #define KEYPRESSED(x) (GetKeyState((x)) & (1<<(sizeof(int)*8)-1))
@@ -110,24 +70,9 @@ long pglDisplay ::ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* e
             break;
 
         case SDL_WINDOWEVENT_CLOSE:
-        {
-            HGLRC hRC;
-            HDC   hDC;
-
             /* release and free the device context and rendering context */
-            hRC = wglGetCurrentContext();
-            hDC = wglGetCurrentDC();
-
-            if(hDC && hRC)
-                wglMakeCurrent(hDC, NULL);
-
-            if (hRC)
-                wglDeleteContext(hRC);
-
-            if (hDC)
-                ReleaseDC((HWND)winHWND, hDC);
-        }
-        break;
+            SDL_GL_DeleteContext(hRC);
+            break;
 
 		default:
             return 0;
@@ -138,14 +83,10 @@ long pglDisplay ::ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* e
 }
 
 
-void pglDisplay ::SetWindowHandle(void* hWnd)
+void pglDisplay ::SetWindow(SDL_Window* wnd)
 {
-    winHWND = hWnd;
-}
-
-void* pglDisplay ::GetWindowHandle()
-{
-    return winHWND;
+    SDL_GetWindowGammaRamp(wnd, initialGammaRamp[0], initialGammaRamp[1], initialGammaRamp[2]);
+    win = wnd;
 }
 
 bool pglDisplay ::InitDisplay(int x, int y, int bpp)
@@ -175,10 +116,21 @@ MessageCallback(GLenum source,
     const GLchar* message,
     const void* userParam)
 {
-    OutputDebugString(message);
-    OutputDebugString("\n");
-    //if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
-        //DebugBreak();
+    switch(severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH_KHR:
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, message);
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM_KHR:
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, message);
+            break;
+        case GL_DEBUG_SEVERITY_LOW_KHR:
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, message);
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION_KHR:
+            SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, message);
+            break;
+    }
 }
 #endif
 
@@ -197,128 +149,30 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     reset = true;
 
     mode = m;
+    SDL_DisplayMode displayMode = {}, closestMode = {};
+    displayMode.w = x;
+    displayMode.h = y;
+    SDL_DisplayMode* pDisplayMode = SDL_GetClosestDisplayMode(displayInfo->id, &displayMode, &closestMode);
+    if (pDisplayMode)
+        SDL_SetWindowDisplayMode(win, pDisplayMode);
 
-    if(mode == PDDI_DISPLAY_FULLSCREEN)
-    {
-        DEVMODE devMode;
-        ZeroMemory(&devMode,sizeof(DEVMODE));
-        devMode.dmSize = sizeof(DEVMODE);;
-        devMode.dmPelsWidth = x;
-        devMode.dmPelsHeight = y;
-        devMode.dmBitsPerPel = bpp;
-        devMode.dmFields = DM_BITSPERPEL |DM_PELSWIDTH | DM_PELSHEIGHT;
-
-        ChangeDisplaySettings(&devMode,0);
-        windowStyle = GetWindowLong((HWND)winHWND,GWL_STYLE);
-        SetWindowLong((HWND)winHWND,GWL_STYLE,WS_POPUP);
-        ShowWindow((HWND)winHWND,SW_MAXIMIZE);
-        SetForegroundWindow((HWND)winHWND);
-
-        winWidth = x;
-        winHeight = y;
-        winBitDepth = bpp;
-    }
-    else
-    {
-        if(windowStyle)
-        {
-            ChangeDisplaySettings(NULL,0);
-            SetWindowLong((HWND)winHWND,GWL_STYLE,windowStyle);
-
-            RECT clientRect;
-            clientRect.left = 0;
-            clientRect.top = 0;
-            clientRect.right = x;
-            clientRect.bottom = y;
-
-            AdjustWindowRect(&clientRect, windowStyle, FALSE);
-            SetWindowPos((HWND)winHWND,HWND_NOTOPMOST,0,0, 
-                clientRect.right-clientRect.left,
-                clientRect.bottom-clientRect.top, 0);
-            ShowWindow((HWND)winHWND, TRUE);
-            winWidth = x;
-            winHeight = y;
-        }
-        else
-        {
-            RECT rect;
-            GetClientRect((HWND)winHWND, &rect);
-            winWidth = rect.right - rect.left;
-            winHeight = rect.bottom - rect.top;
-            winBitDepth = GetDeviceCaps((HDC)hDC, BITSPIXEL);
-        }
-    }
-
-    if (hDC && hRC)
-        return true;
-
-    prevRC = wglGetCurrentContext();
-    prevDC = wglGetCurrentDC();
-
-    if(hDC && hRC)
-        wglMakeCurrent((HDC)hDC, NULL);
+    SDL_SetWindowFullscreen(win, mode == PDDI_DISPLAY_FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
 
     if (hRC)
-        wglDeleteContext((HGLRC)hRC );
+        return true;
 
-    if (hDC)
-        ReleaseDC((HWND)winHWND, (HDC)hDC);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, bpp == 16 ? 5 : 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, bpp == 16 ? 6 : 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bpp == 16 ? 5 : 8);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+#ifdef RAD_DEBUG
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
 
-    hDC = GetDC((HWND)winHWND);
-
-    static PIXELFORMATDESCRIPTOR pfd = {
-            sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
-            1,                               // version number
-            PFD_DRAW_TO_WINDOW |             // support window
-            PFD_SUPPORT_OPENGL |             // support OpenGL
-            PFD_DOUBLEBUFFER,                // double buffered
-            PFD_TYPE_RGBA,                   // RGBA type
-            winBitDepth,                     // color depth
-            0, 0, 0, 0, 0, 0,                // color bits ignored
-            0,                               // no alpha buffer
-            0,                               // shift bit ignored
-            0,                               // no accumulation buffer
-            0, 0, 0, 0,                      // accum bits ignored
-            32,                              // 32-bit z-buffer   
-            0,                               // no stencil buffer
-            0,                               // no auxiliary buffer
-            PFD_MAIN_PLANE,                  // main layer
-            0,                               // reserved
-            0, 0, 0                          // layer masks ignored
-    };
-
-    int error = GetLastError();
-
-    int pixelformat = ChoosePixelFormat((HDC)hDC, &pfd);
-    error = GetLastError();
-    PDDIASSERT(pixelformat);
-
-    int rc = SetPixelFormat((HDC)hDC, pixelformat, &pfd);
-    error = GetLastError();
-    PDDIASSERT(rc);
-
-    hRC = wglCreateContext( (HDC)hDC );
-    error = GetLastError();
+    prevRC = SDL_GL_GetCurrentContext();
+    hRC = SDL_GL_CreateContext(win);
     PDDIASSERT(hRC);
-    wglMakeCurrent( (HDC)hDC, (HGLRC)hRC );
-
-    if (!gladLoadWGL((HDC)hDC))
-        return false;
-
-    wglMakeCurrent( (HDC)hDC, 0 );
-    wglDeleteContext( (HGLRC)hRC );
-
-    int gl_attribs[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
-        WGL_CONTEXT_FLAGS_ARB,         WGL_CONTEXT_DEBUG_BIT_ARB,
-        0,
-    };
-
-    hRC = wglCreateContextAttribsARB( (HDC)hDC, NULL, gl_attribs );
-    error = GetLastError();
-    PDDIASSERT(hRC);
-    wglMakeCurrent((HDC)hDC, (HGLRC)hRC);
 
     if (!gladLoadGL())
         return false;
@@ -343,13 +197,12 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
             if(*walk == ' ')
             {
                 *walk = 0;
-                OutputDebugString(last);
-                OutputDebugString("\n");
+                SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, last);
                 last = walk+1;
             }
             walk++;
         }
-        OutputDebugString(last);
+        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,last);
     }
 
     extBGRA = CheckExtension("GL_EXT_bgra");
@@ -362,19 +215,15 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     glDebugMessageCallback(MessageCallback, NULL);
 #endif
 
-    wglMakeCurrent((HDC)hDC, NULL);
-
-    PostMessage((HWND)winHWND, WM_ACTIVATE, WA_ACTIVE, (LPARAM)winHWND);
+    int error = SDL_GL_MakeCurrent(win, NULL);
+    PDDIASSERT(!error);
 
     return true;
 }
 
-
-extern pddiDisplayInfo displayInfo[2];
-
 pddiDisplayInfo* pglDisplay ::GetDisplayInfo(void)
 {
-    return &displayInfo[0];
+    return displayInfo;
 }
 
 unsigned pglDisplay ::GetFreeTextureMem()
@@ -425,7 +274,7 @@ void pglDisplay::SetGamma(float r, float g, float b)
     gammaG = g;
     gammaB = b;
 
-    unsigned short gamma[3][256];
+    Uint16 gamma[3][256];
 
     double igr = 1.0 / (double)r;
     double igg = 1.0 / (double)g;
@@ -439,18 +288,19 @@ void pglDisplay::SetGamma(float r, float g, float b)
         double gcg = pow((double)initialGammaRamp[1][i] * n, igg);
         double gcb = pow((double)initialGammaRamp[2][i]  * n, igb);
 
-        gamma[0][i] =   (WORD)(65535.0 * ((1.0 < gcr) ? 1.0 : gcr));
-        gamma[1][i] = (WORD)(65535.0 * ((1.0 < gcg) ? 1.0 : gcg));
-        gamma[2][i] =  (WORD)(65535.0 * ((1.0 < gcb) ? 1.0 : gcb));
+        gamma[0][i] =   (Uint16)(65535.0 * ((1.0 < gcr) ? 1.0 : gcr));
+        gamma[1][i] = (Uint16)(65535.0 * ((1.0 < gcg) ? 1.0 : gcg));
+        gamma[2][i] =  (Uint16)(65535.0 * ((1.0 < gcb) ? 1.0 : gcb));
     }
 
-    SetDeviceGammaRamp((HDC)hDC, &gamma);
+    SDL_SetWindowGammaRamp(win, gamma[0], gamma[1], gamma[2]);
 }
 
 void pglDisplay::SwapBuffers(void)
 {
-    ::SwapBuffers((HDC)hDC);
-    InvalidateRect((HWND)winHWND,NULL,FALSE);
+    BeginContext();
+    SDL_GL_SwapWindow(win);
+    EndContext();
     reset = false;
 }
 
@@ -480,24 +330,19 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
     return winHeight * winWidth * 4;
 }
 
-unsigned pglDisplay::FillDisplayModes(pddiModeInfo* displayModes)
+unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayModes)
 {
-    int i = 0;
     int nModes = 0;
 
-    DEVMODE devMode;
-    HDC hDC = GetDC(NULL);
-    unsigned int bpp = GetDeviceCaps(hDC, BITSPIXEL);
-    ReleaseDC(NULL,hDC);
+    SDL_DisplayMode devMode;
 
-    while(EnumDisplaySettings(NULL,i,&devMode))
+    for (int i = 0; i < SDL_GetNumDisplayModes(displayIndex); i++)
     {
-        i++;
-        if((devMode.dmBitsPerPel == 16) || (devMode.dmBitsPerPel == 32))
+        if(SDL_GetDisplayMode(displayIndex, i, &devMode) == 0)
         {
-            displayModes[nModes].width = devMode.dmPelsWidth;
-            displayModes[nModes].height = devMode.dmPelsHeight;
-            displayModes[nModes].bpp = devMode.dmBitsPerPel;
+            displayModes[nModes].width = devMode.w;
+            displayModes[nModes].height = devMode.h;
+            displayModes[nModes].bpp = 32;
             nModes++;
         }
     }
@@ -508,23 +353,26 @@ unsigned pglDisplay::FillDisplayModes(pddiModeInfo* displayModes)
   
 void pglDisplay::BeginTiming()
 {
-    beginTime = (float)timeGetTime();
+    beginTime = (float)SDL_GetTicks();
 }
 
 float pglDisplay::EndTiming()
 {
-    return (float)timeGetTime() - beginTime;
+    return (float)SDL_GetTicks() - beginTime;
 }
 
 void pglDisplay::BeginContext(void)
 {
-    prevRC = wglGetCurrentContext();
-    prevDC = wglGetCurrentDC();
-    wglMakeCurrent((HDC)hDC,(HGLRC)hRC);
+    SDL_LockMutex(mutex);
+    prevRC = SDL_GL_GetCurrentContext();
+    int error = SDL_GL_MakeCurrent(win, hRC);
+    PDDIASSERT(!error);
 }
 
 void pglDisplay::EndContext(void)
 {
-    wglMakeCurrent((HDC)prevDC,(HGLRC)prevRC);
+    int error = SDL_GL_MakeCurrent(win, prevRC);
+    PDDIASSERT(!error);
+    SDL_UnlockMutex(mutex);
 }
 

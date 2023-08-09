@@ -16,6 +16,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <SDL.h>
+#include <SDL_syswm.h>
 
 D3DFORMAT colourFormatTable[2][4] = {
     {  D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8  },  // 16 bit
@@ -199,9 +200,12 @@ void d3dDisplay::Activate(bool active)
 }
 
 //------------------------------------------------------------------------
-void d3dDisplay::SetWindowHandle(void* wnd)
+void d3dDisplay::SetWindow(SDL_Window* wnd)
 {
-    hWnd = (HWND)wnd;
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION( &wmInfo.version );
+    SDL_GetWindowWMInfo( wnd, &wmInfo );
+    hWnd = wmInfo.info.win.window;
 }
 
 //------------------------------------------------------------------------
@@ -647,12 +651,6 @@ unsigned d3dDisplay::GetFreeVideoMem()
 unsigned d3dDisplay::GetFreeTextureMem()
 {
     return d3dDevice->GetAvailableTextureMem();
-}
-
-//------------------------------------------------------------------------
-void* d3dDisplay::GetWindowHandle()
-{
-    return hWnd;
 }
 
 void d3dDisplay::GetGamma(float* r, float* g, float* b)

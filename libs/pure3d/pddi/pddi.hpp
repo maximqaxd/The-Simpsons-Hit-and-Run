@@ -304,15 +304,8 @@ public:
 
 #ifndef RAD_CONSOLE
 #ifdef RAD_WIN32
-   PDDI_INTERFACE long ProcessWindowMessage(SDL_Window *win, const SDL_WindowEvent *event) PDDI_PURE;
-   PDDI_INTERFACE void SetWindowHandle(void* hWnd) PDDI_PURE;
-   PDDI_INTERFACE void* GetWindowHandle() PDDI_PURE;
-#endif
-#ifdef RAD_LINUX
-   PDDI_INTERFACE void SetXDisplay(void* dpy) PDDI_PURE;
-   PDDI_INTERFACE void* GetXDisplay() PDDI_PURE;
-   PDDI_INTERFACE void SetXWindow(void* dpy) PDDI_PURE;
-   PDDI_INTERFACE void* GetXWindow() PDDI_PURE;
+   PDDI_INTERFACE long ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* event) PDDI_PURE;
+   PDDI_INTERFACE void SetWindow(SDL_Window* win) PDDI_PURE;
 #endif
    PDDI_INTERFACE pddiDisplayInfo* GetDisplayInfo(void) PDDI_PURE;
 #endif

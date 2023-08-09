@@ -9,11 +9,12 @@
 
 class pglContext;
 class pglWrapper;
+struct SDL_mutex;
 
 class pglDisplay : public pddiDisplay
 {
 public:
-    pglDisplay();
+    pglDisplay(pddiDisplayInfo* info);
     ~pglDisplay();
 
     // cross-platform functions
@@ -36,9 +37,8 @@ public:
     unsigned Screenshot(pddiColour* buffer, int nBytes);
 
     // Win32 specific functions
-    long  ProcessWindowMessage(SDL_Window* hWnd, const SDL_WindowEvent* lParam);
-    void  SetWindowHandle(void* hWnd);
-    void* GetWindowHandle();
+    long  ProcessWindowMessage(SDL_Window* wnd, const SDL_WindowEvent* event);
+    void  SetWindow(SDL_Window* wnd);
 
     // internal functions
     
@@ -50,8 +50,7 @@ public:
     bool CheckExtension(char*);
     bool HasReset(void) { return reset; }
 
-
-    static unsigned FillDisplayModes(pddiModeInfo*);
+    static unsigned FillDisplayModes(int, pddiModeInfo*);
 
     void BeginContext(void);
     void EndContext(void);
@@ -67,25 +66,22 @@ private:
     int winBitDepth;
 
     pddiDisplayInit displayInit;
+    pddiDisplayInfo* displayInfo;
 
     pglContext* context;
 
     unsigned short initialGammaRamp[3][256];
     float gammaR,gammaG,gammaB;
 
-    void* winHWND;
+    SDL_Window* win;
     void* hRC;
-    void* hDC;
-    void* hFont;
     void* prevRC;
-    void* prevDC;
 
     bool extBGRA;
     bool reset;
 
-    unsigned windowStyle;
-
     float beginTime;
+    SDL_mutex* mutex;
 };
 
 #endif
