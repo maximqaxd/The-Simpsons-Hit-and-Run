@@ -24,18 +24,7 @@
 // Include Files
 //=============================================================================
 
-#ifdef RAD_WIN32
-    #include <windows.h>
-#endif
-#ifdef RAD_XBOX
-    #include <xtl.h>
-#endif
-#ifdef RAD_PS2
-    #include <eekernel.h>
-#endif
-#ifdef RAD_GAMECUBE
-    #include <os.h>
-#endif 
+#include <SDL.h>
 
 #include <radobject.hpp>
 #include <radmemory.hpp>
@@ -94,29 +83,7 @@ class radThreadSemaphore : public IRadThreadSemaphore,
     //
     unsigned int m_ReferenceCount;    
 
-    //
-    // Windows and XBOX this is implemented using the a semaphore
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    HANDLE    m_Semaphore;
-#endif
-
-    //
-    // PS2 uses semaphore object
-    //
-#ifdef RAD_PS2
-    int       m_Semaphore;        
-#endif
-
-    //
-    // Gamecube uses their weird condition object and a mutex.
-    //
-#ifdef RAD_GAMECUBE
-    OSCond          m_Condition;
-    OSMutex         m_Mutex;
-    int             m_Count;
-#endif
-
+    SDL_sem* m_Semaphore;
 };
 
 #endif
