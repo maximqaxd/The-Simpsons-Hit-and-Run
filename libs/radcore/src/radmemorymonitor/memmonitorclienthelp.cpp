@@ -15,12 +15,6 @@
 //===========================================================================
 #include "pch.hpp"
 
-#if defined RAD_WIN32
-#include <Windows.h>            // IsBadReadPtr( )
-#elif defined RAD_XBOX
-#include <Xtl.h>                // IsBadReadPtr( )
-#endif
-
 #include <radoptions.hpp>
 #include "../radprotocols/memorymonitorprotocol.hpp"
 
@@ -269,14 +263,8 @@ void radMemoryMonitorClient::SendSuspendState( )
 
 bool radMemoryMonitorClient::IsMemoryBlockValid( radMemorySpace memorySpace, unsigned int memStartPos, unsigned int memLength )
 {
-#if defined RAD_WIN32 || defined RAD_XBOX
     //
-    // for win32/XBox, we uses kernal library to find out if memory block is valid,
-    //
-    return ( IsBadReadPtr( (const void *)memStartPos, memLength ) == FALSE );
-#else
-    //
-    // on other platform, we uses per-recorded section to know if memory address is readable.
+    // we use per-recorded section to know if memory address is readable.
     //
     for ( int i = 0; i < MM_MAX_SECTION; i ++ )
     {
@@ -289,8 +277,6 @@ bool radMemoryMonitorClient::IsMemoryBlockValid( radMemorySpace memorySpace, uns
         }
     }
     return false;
-
-#endif
 }
 
 //=============================================================================
