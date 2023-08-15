@@ -22,20 +22,6 @@
 //=============================================================================
 
 #include "pch.hpp"
-#ifdef RAD_WIN32
-#include <windows.h>
-#endif
-#ifdef RAD_XBOX
-#include <xtl.h>
-#endif
-
-#ifdef RAD_PS2
-#include <eekernel.h>
-#endif
-
-#ifdef RAD_GAMECUBE
-#include <os.h>
-#endif
 
 #include <raddispatch.hpp>
 #include <radobject.hpp>
@@ -112,12 +98,7 @@ radDispatcher::radDispatcher
     //
     m_EventQueue = (Event*) radMemoryAlloc( alloc, sizeof(Event) * m_MaxEvents );
 
-    //
-    // Under windows, initialize a critical section for protection.
-    //
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    InitializeCriticalSection( &m_CriticalSection );
-    #endif
+    m_Mutex = SDL_CreateMutex();
 }
 
 //=============================================================================
@@ -139,11 +120,7 @@ radDispatcher::~radDispatcher( void )
     //
     rAssert( m_EventsQueued == 0 );
    
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    
-    DeleteCriticalSection( &m_CriticalSection );
-
-    #endif
+    SDL_DestroyMutex(m_Mutex);
 
     //
     // Free up the memory
@@ -241,18 +218,8 @@ void radDispatcher::QueueCallback
     pDispatchCallback->AddRef( );
 
     //
-    // Protect the addtion of this record the event list. Platform specif locks
-    // required.
-    //
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    EnterCriticalSection( &m_CriticalSection );
-    #endif
-    #ifdef RAD_PS2
-    DI( );
-    #endif
-    #ifdef RAD_GAMECUBE
-    BOOL   oldInterruptMask = OSDisableInterrupts( ); 
-    #endif
+    // Protect the addition of this record to the event list.
+    SDL_LockMutex(m_Mutex);
 
     //
     // Assert that we have not exceeded the maximum number of events in the queue.
@@ -272,17 +239,9 @@ void radDispatcher::QueueCallback
     m_EventsQueued++;
 
     //
-    // Remove protection,
+    // Remove protection
     //
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    LeaveCriticalSection( &m_CriticalSection );
-    #endif
-    #ifdef RAD_PS2
-    EI( );
-    #endif
-    #ifdef RAD_GAMECUBE
-    OSRestoreInterrupts( oldInterruptMask );
-    #endif
+    SDL_UnlockMutex(m_Mutex);
 }
 
 
@@ -383,15 +342,7 @@ unsigned int radDispatcher::Service( void )
     // Protect the manilpulation of this record the event list. Platform specif locks
     // required.
     //
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    EnterCriticalSection( &m_CriticalSection );
-    #endif
-    #ifdef RAD_PS2
-    DI( );
-    #endif
-    #ifdef RAD_GAMECUBE
-    OSDisableInterrupts( );
-    #endif
+    SDL_LockMutex(m_Mutex);
 
     while( (m_EventsQueued != 0) && (eventsToDispatch != 0) )
     {
@@ -410,15 +361,7 @@ unsigned int radDispatcher::Service( void )
         //
         // Now remove lock and invoke event handler.
         //
-        #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-        LeaveCriticalSection( &m_CriticalSection );
-        #endif
-        #ifdef RAD_PS2
-        EI( );
-        #endif
-        #ifdef RAD_GAMECUBE
-        OSEnableInterrupts( );
-        #endif
+        SDL_UnlockMutex(m_Mutex);
 
         event.m_Callback->OnDispatchCallack( event.m_UserData );
 
@@ -434,35 +377,11 @@ unsigned int radDispatcher::Service( void )
         //
         RotateThreadReadyQueue( threadInfo.currentPriority );
         #endif
-    
-        #ifdef RAD_GAMECUBE
-        //
-        // On GameCube, yield to threads at same priority.
-        //
-        OSYieldThread( );
-        #endif    
 
-        #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-        EnterCriticalSection( &m_CriticalSection );
-        #endif
-        #ifdef RAD_PS2
-        DI( );
-        #endif
-
-        #ifdef RAD_GAMECUBE
-        OSDisableInterrupts( );
-        #endif
+        SDL_LockMutex(m_Mutex);
     }
 
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    LeaveCriticalSection( &m_CriticalSection );
-    #endif
-    #ifdef RAD_PS2
-    EI( );
-    #endif
-    #ifdef RAD_GAMECUBE
-    OSEnableInterrupts( );
-    #endif
+    SDL_UnlockMutex(m_Mutex);
 
     return( m_EventsQueued );
           

@@ -26,12 +26,7 @@
 // Include Files
 //=============================================================================
 
-#ifdef RAD_WIN32
-#include <windows.h>
-#endif
-#ifdef RAD_XBOX
-#include <xtl.h>
-#endif 
+#include <SDL.h>
 
 
 #include <raddispatch.hpp>
@@ -92,7 +87,7 @@ class radDispatcher : public IRadDispatcher,
     private:
     
     //
-    // Referecnce count.
+    // Reference count.
     //
     unsigned int        m_ReferenceCount;
 
@@ -112,15 +107,7 @@ class radDispatcher : public IRadDispatcher,
     unsigned int        m_EventQueueTailIndex;
     unsigned int        m_EventsQueued;
 
-    //
-    // Under Windows we require a critical section to protect data structures.
-    //
-    #if defined ( RAD_WIN32 ) || defined( RAD_XBOX )
-    
-    CRITICAL_SECTION    m_CriticalSection;
-
-    #endif
-
+    SDL_mutex*		m_Mutex;
 };
 
 #endif
