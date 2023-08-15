@@ -24,18 +24,7 @@
 // Include Files
 //=============================================================================
 
-#ifdef RAD_WIN32
-    #include <windows.h>
-#endif
-#ifdef RAD_XBOX
-    #include <xtl.h>
-#endif
-#ifdef RAD_PS2
-    #include <eekernel.h>
-#endif
-#ifdef RAD_GAMECUBE
-    #include <os.h>
-#endif 
+#include <SDL.h>
 
 #include <radobject.hpp>
 #include <radmemory.hpp>
@@ -69,6 +58,7 @@
 //
 // Here we have the declaration of the Fiber object.
 //
+#if 0
 class radThreadFiber : public IRadThreadFiber,
                        public radObject
 {
@@ -151,6 +141,7 @@ private:
 #endif
 
 };
+#endif
 
 //
 // This class derives from the thread interface. It has platform specific 
@@ -232,23 +223,7 @@ class radThread : public IRadThread,
     //
     // These statics are the actual thread OS specific entry points.
     // 
-    #if defined(RAD_WIN32) || defined(RAD_XBOX)
-        static DWORD WINAPI InternalThreadEntry( void* param );
-    #endif 
-    #ifdef RAD_PS2
-        static void InternalThreadEntry( void* param );
-    #endif
-    #ifdef RAD_GAMECUBE
-        static void* InternalThreadEntry( void* param );
-    #endif
-    
-    //
-    // This static is the alarm entry point used by the PS2 to cause
-    // threads of equal priority to be rescheduled.
-    //
-    #ifdef RAD_PS2
-        static void AlarmHandler( int id, unsigned short time, void* userData );
-    #endif
+    static int InternalThreadEntry( void* param );
 
     //
     // This member maintains the reference count of this object.
@@ -282,27 +257,9 @@ class radThread : public IRadThread,
     //
     // Platform specific information used to manage the thread.
     //
-    #if defined(RAD_WIN32) || defined(RAD_XBOX)
-        DWORD           m_ThreadId;
-        HANDLE          m_ThreadHandle;
-        static int      s_PriorityMap[ PriorityHigh + 1 ];
-    #endif
-
-    #ifdef RAD_PS2
-        int             m_ThreadId;
-        static int      s_PriorityMap[ PriorityHigh + 1 ];
-        void*           m_Stack;
-        int             m_SuspendCount;
-        bool            m_SuspendedSelf;
-        static int      s_AlarmId;
-    #endif
-
-    #ifdef RAD_GAMECUBE
-        OSThread*           m_ThreadId;
-        OSThread            m_ThreadObject;
-        static OSPriority   s_PriorityMap[ PriorityHigh + 1 ];
-        void*               m_Stack;
-    #endif
+    SDL_threadID    m_ThreadId;
+    SDL_Thread*     m_ThreadHandle;
+    static SDL_ThreadPriority s_PriorityMap[ PriorityHigh + 1 ];
 
     //
     // Here we maintain the actual values used  by the thread local
@@ -314,14 +271,14 @@ class radThread : public IRadThread,
     //
     // Each thread created in the system is by default a fiber as well.
     // 
-    radThreadFiber      m_Fiber;
+    //radThreadFiber      m_Fiber;
 
     //
     // A thread can create new fibers. This member maintains the active
     // fiber for this thread object.
     //
 protected:
-    friend class radThreadFiber;
+    //friend class radThreadFiber;
 
     IRadThreadFiber*    m_pActiveFiber;
 

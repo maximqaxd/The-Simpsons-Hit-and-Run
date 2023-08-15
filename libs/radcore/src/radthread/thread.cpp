@@ -24,19 +24,6 @@
 //=============================================================================
 
 #include "pch.hpp"
-#ifdef RAD_WIN32
-    #define _WIN32_WINNT 0x400
-    #include <windows.h>
-#endif
-#ifdef RAD_XBOX
-    #include <xtl.h>
-#endif
-#ifdef RAD_PS2
-    #include <eekernel.h>
-#endif
-#ifdef RAD_GAMECUBE
-    #include <os.h>
-#endif 
 
 #include <radthread.hpp>
 #include <radmemorymonitor.hpp>
@@ -46,53 +33,6 @@
 //=============================================================================
 // Local Definitions
 //=============================================================================
-
-//
-// These static functions and data structure are used to perform the thread sleep
-// functionality.
-//
-#ifdef RAD_PS2
-    //
-    // On the PS2, we can only create an alarm which runs for a maximum of 
-    // 2.275 seconds. As such, we need to accumulate multiple alarm triggers
-    // to achieve larger durations. This structure is used to hold the information
-    // need to do this.
-    //
-    struct PS2SleepInfo
-    {
-        int             m_ThreadId;         // Thread to ultimately wake up.
-        unsigned short  m_AlarmSetting;     // Value loaded into alarm;
-        unsigned int    m_AlarmCount;       // Count that must be decremented before waking thread.
-        int             m_AlarmId;          // Id of alarm.
-    };         
-
-    static void PS2SleepAlarm( int id, unsigned short time, PS2SleepInfo* pInfo );
-
-#endif
-
-#ifdef RAD_GAMECUBE
-    //
-    // On the GameCube, they screwed up with there alarm functions in that there
-    // is no user data. Hence I have to perform a hack by enclosing their
-    // alarm object in a container object and performing a cast.
-    //
-    struct GCNSleepInfo
-    {
-        OSAlarm         m_Alarm;            // Alarm. Not required, used to get to thread queue.
-        OSThreadQueue   m_ThreadQueue;      // Thread is sleeping on this.
-    };
-
-    static void GCNSleepAlarm( OSAlarm *pAlarm, OSContext* pContext );   
-
-    //
-    // This thread object is used to perform round robin scheduling.
-    //
-    static void* RescheduleThreadEntry( void* param );
-    static unsigned int  s_RescheduleSleepTime;
-    static OSThread      s_RescheduleThread;
-    static unsigned char s_RescheculeStack[ 4096 ];
-
-#endif
 
 //=============================================================================
 // Statics
@@ -114,35 +54,9 @@ radThread* radThread::s_ThreadTable[ MAX_RADTHREADS ];
 // The following table are provided to map our priorities to OS specific 
 // priorities.
 //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    int radThread::s_PriorityMap[ PriorityHigh + 1 ] =
-        { THREAD_PRIORITY_IDLE, THREAD_PRIORITY_LOWEST, THREAD_PRIORITY_NORMAL, 
-          THREAD_PRIORITY_HIGHEST, THREAD_PRIORITY_TIME_CRITICAL };
-#endif 
-#ifdef RAD_PS2
-    int radThread::s_PriorityMap[ PriorityHigh + 1 ] = { 63, 47, 31, 15, 1 };
-#endif
-#ifdef RAD_GAMECUBE
-    //  
-    // Please not that priority 0 is reserved by our internal thread used to 
-    // perform round robin scheduling.
-    //
-    OSPriority radThread::s_PriorityMap[ PriorityHigh + 1 ] = { 31, 23, 15, 7, 1 };
-#endif
-
-//
-// On the PS2, we require additional stuff to manage round-robin scheduling.
-// 
-#ifdef RAD_PS2
-    //
-    // On the PS2, round robin scheduling occurs at 60Hz. May need to expose
-    // this setting to callers if this is not adequate. The time is expressed
-    // in HSYNCS
-    //
-    #define RADTHREAD_PS2_ROUNDROBINTIME 480            
-
-    int radThread::s_AlarmId = -1;
-#endif
+SDL_ThreadPriority radThread::s_PriorityMap[ PriorityHigh + 1 ] =
+        { SDL_THREAD_PRIORITY_LOW, SDL_THREAD_PRIORITY_LOW, SDL_THREAD_PRIORITY_NORMAL,
+          SDL_THREAD_PRIORITY_HIGH, SDL_THREAD_PRIORITY_HIGH };
 
 //
 // This static is used to manage free thread local storgage objects. The
@@ -222,117 +136,7 @@ void radThreadSleep
     unsigned int milliseconds
 )
 {
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    //
-    // Windows is very easy. Just invoke the OS sleep call.
-    // 
-    Sleep( milliseconds );
-#endif
-
-#ifdef RAD_PS2
-    //
-    // On the PS2, check if the timeout is zero. If so, rotate threads of this 
-    // priority.
-    //
-    if( milliseconds == 0 )
-    {
-        //
-        // Get priority of calling thread and rotate threads of this priority.       
-        //
-        ThreadParam threadInfo;
-        ReferThreadStatus( GetThreadId( ), &threadInfo );
-        RotateThreadReadyQueue( threadInfo.currentPriority );
-    }
-    else
-    {
-        //
-        // Here we need to create an alarm. The alarm is used to wakeup the thread.
-        // Alarms use units of horizontal retraces, but though experimentation,
-        // the value was determine to be 16000 ticks per second. We only have a short to work 
-        // with. ie max duration of about 4.095 seconds. 
-        //
-        PS2SleepInfo Info;
-
-        if( milliseconds < 4096 )
-        {
-            //
-            // Here we create an alarm programmed in one shot. The alarm will issue a
-            // wake-up on this thread. There are 16000 horizontal retraces per second
-            //
-            Info.m_AlarmCount = 1;          
-            Info.m_AlarmSetting = milliseconds * (16000 / 1000);
-        }
-        else
-        {
-            //
-            // Here we program the alarm to fire in tenths of seconds as this will be resonable
-            // resolution for a value greater than 4.096 seconds. 
-            //
-            Info.m_AlarmCount = milliseconds / 100 ;
-            Info.m_AlarmSetting = ( 100 * 16000 ) / 1000 ;
-        }
-
-        Info.m_ThreadId = GetThreadId( );
-        Info.m_AlarmId = SetAlarm( Info.m_AlarmSetting, (void(*)(int,unsigned short,void*)) PS2SleepAlarm, &Info );           
-    
-        //
-        // Sleep until the alarm wakes us up.
-        //
-        SleepThread( );
-
-        //
-        // Since sleep is a counted operation, make sure we did not wake up due a some 
-        // other signal and leave the alarm running. This needs to be checked under
-        // protection from interrupts as the alarm runs as an interrupt.
-        //
-        DI( );
-
-        if( Info.m_AlarmId != -1 )
-        {
-            ReleaseAlarm( Info.m_AlarmId );
-        }
-        
-        EI( );
-    }
-
-
-#endif        
-
-#ifdef RAD_GAMECUBE
-    //
-    // The Game cube uses a technique similar to that of the PS2. We use
-    // an alarm to wake us up.
-    //
-    if( milliseconds == 0 )
-    {
-        //
-        // Just allow threads at this priority to run.
-        //
-        OSYieldThread( );
-    }
-    else
-    {
-        //
-        // Create an alarm and thread queue to sleep on. The alarm wakes the
-        // thread.
-        //
-        GCNSleepInfo SleepInfo;
-
-        OSInitAlarm( );
-    
-        OSCreateAlarm( &SleepInfo.m_Alarm );
-        OSInitThreadQueue( &SleepInfo.m_ThreadQueue );
-    
-        OSSetAlarm( &SleepInfo.m_Alarm, OSMillisecondsToTicks( milliseconds ), GCNSleepAlarm );
-
-        //
-        // Now sleep on the thread queue. Alarm will wake us up.
-        //
-        OSSleepThread( &SleepInfo.m_ThreadQueue );
-    }
-    
-#endif
-
+    SDL_Delay( milliseconds );
 }
 
 //=============================================================================
@@ -435,6 +239,7 @@ void radThreadCreateLocalStorage
     *pThreadLocalStorage = new( allocator ) radThreadLocalStorage( );
 }
 
+#if 0
 //=============================================================================
 // Function:    radThreadCreateFiber
 //=============================================================================
@@ -482,6 +287,7 @@ IRadThreadFiber* radThreadGetActiveFiber( void )
 {
     return( radThread::GetActiveFiber( ) );
 }
+#endif
 
 //=============================================================================
 // Public Member Functions
@@ -520,69 +326,7 @@ void radThread::Initialize( unsigned int milliseconds )
     //
     new( s_theThreadMemory ) radThread( );
 
-    #if defined( RAD_WIN32 ) || defined( RAD_XBOX )
-        //
-        // On the windows and XBOX, there currently is no way to control round robin
-        // scheduling.
-        //
-        (void) milliseconds;
-        
-    #endif
-
-    #ifdef RAD_PS2
-
-        //
-        // On the PS2, we create an alarm (whichs runs as an interrupt) to rotate
-        // threads of the same proirity. There is no built in round-robin of threads
-        // of equal priority. 
-        //
-        if( milliseconds == 0 )
-        {
-            //
-            // Set alarm id to -1 indicating no round robin scheduling.
-            //
-            s_AlarmId = -1;
-        }
-        else
-        {
-            //
-            // Start an alarm to periodically reschule the threads. 
-            // There are 16000 horizontal retraces per second
-            //
-            s_AlarmId = SetAlarm( milliseconds * 16, AlarmHandler, NULL );
-        }
-
-    #endif
-
-    #ifdef RAD_GAMECUBE
-    
-        // 
-        // On the game cube we need to do something more complex to get round
-        // robin scheduling running. We must create a very high priority thread
-        // that always sleeps for . We then use an alarm to wake it up. When is goes
-        // back to sleep, the OS will reschedule other threads. This info was
-        // obtain by directly taking to Nintendo as there stuff does not work
-        // as advertized.
-        //
-        if( milliseconds == 0 )
-        {
-            s_RescheduleSleepTime = 0;
-        }
-        else
-        {
-            //
-            // Use static data so no allocations occur.
-            //
-            s_RescheduleSleepTime = milliseconds;
-
-            OSCreateThread( &s_RescheduleThread, RescheduleThreadEntry, NULL, 
-                            (char*) s_RescheculeStack + sizeof( s_RescheculeStack ),
-                             sizeof( s_RescheculeStack ), 0, 0 );
-
-            OSResumeThread( &s_RescheduleThread );
-        }
-
-    #endif
+    (void)milliseconds;
 }
 
 //=============================================================================
@@ -732,32 +476,12 @@ void radThread::AlarmHandler( int id, unsigned short time, void* userData )
 radThread::radThread( void )
     :
     m_ReferenceCount( 1 ),
-    m_IsRunning( true ),
-    m_pActiveFiber( &m_Fiber )
+    m_IsRunning( true )
+    //m_pActiveFiber( &m_Fiber )
 {
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radThread" );
-    //
-    // Using the various platform specific functions, get our current thread id.
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    m_ThreadId = GetCurrentThreadId( );
-    m_ThreadHandle = GetCurrentThread( );
 
-    //
-    // Under windows also initialize this thread as the initial fiber.
-    //
-    m_Fiber.m_Win32Fiber = ConvertThreadToFiber( NULL );
-
-#endif
-
-#ifdef RAD_PS2
-    m_ThreadId = GetThreadId( );
-    m_SuspendCount = 0;
-#endif           
-
-#ifdef RAD_GAMECUBE
-    m_ThreadId = OSGetCurrentThread( );
-#endif
+    m_ThreadId = SDL_ThreadID();
 
     //
     // Add ourself as the first entry in the thread table. No protection
@@ -806,8 +530,8 @@ radThread::radThread
         m_ReferenceCount( 1 ),
         m_IsRunning( true ),
         m_EntryFunction( pEntryFunction ),
-        m_UserData( userData ),
-        m_pActiveFiber( &m_Fiber )
+        m_UserData( userData )
+        //m_pActiveFiber( &m_Fiber )
 {
     //
     // Lets add ourself to the active thread table. Do so under protection 
@@ -832,62 +556,10 @@ radThread::radThread
     rAssertMsg( i != MAX_RADTHREADS, "Too many threads created\n");
 
     //
-    // Now create and start the thread using the OS specific implementation.
+    // Create thread which then sets its own priority.
     //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    //
-    // Create thread suspended so we can set the priority. Then resume it once prioriry is set.
-    //
-    m_ThreadHandle = CreateThread( NULL, stackSize, InternalThreadEntry, this, CREATE_SUSPENDED, &m_ThreadId );
-    
-    SetPriority( priority );             
-        
-    ResumeThread( m_ThreadHandle );    
-
-#endif
-
-#ifdef RAD_PS2   
-
-    //
-    // Allocate memory for stack. Make sure aligned to 16. Also require addtion 16 bytes
-    // for some strange Sony reason.
-    //
-    m_Stack = radMemoryAllocAligned( GetThisAllocator( ), stackSize + 16, 16 );
-
-    ThreadParam threadParam;
-    threadParam.attr = 0x02000000;                  
-    threadParam.entry = InternalThreadEntry;
-    threadParam.initPriority = s_PriorityMap[ priority ];
-    threadParam.stack = m_Stack;
-    threadParam.stackSize = stackSize; 
-    threadParam.option = 0;
-    threadParam.gpReg = &_gp;
-
-    m_ThreadId = CreateThread( &threadParam );
-
-    m_SuspendCount = 0;
-
-    StartThread( m_ThreadId,  (void*) this );
-
-#endif
-
-#ifdef RAD_GAMECUBE
-    //
-    // Thread is initially created in a suspended state. Alter priority once then resume. 
-    // Set up the thread id as GameCube uses a very strange method. Allocate memory for 
-    // the stack.
-    //      
-    m_ThreadId = &m_ThreadObject;
-
-    m_Stack = radMemoryAlloc( GetThisAllocator( ), stackSize );
-
-    OSCreateThread( &m_ThreadObject, InternalThreadEntry, this, (char*) m_Stack + stackSize, stackSize, 15, 0 );
-
-    SetPriority( priority );             
-
-    OSResumeThread( m_ThreadId );
-
-#endif
+    m_Priority = priority;
+    m_ThreadHandle = SDL_CreateThread(InternalThreadEntry, /*name*/nullptr, this);
 
     //
     // Release our protection.
@@ -923,7 +595,7 @@ radThread::~radThread( void )
     //
     // No longer any active fibers.
     //
-    m_pActiveFiber = NULL;
+    //m_pActiveFiber = NULL;
 
     //
     // Check if we are destructing the main thread object. This thread 
@@ -983,30 +655,7 @@ radThread::~radThread( void )
             //
             rWarningMsg( false, "radThread: Memory leak has occurred due to bad thread termination\n");
    
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-            //
-            // Under windows, things are not too bad. Close the thread handle. We will leak this
-            // actual thread object memory.
-            // 
-            CloseHandle( m_ThreadHandle );
-
-            ExitThread( 0 );
-#endif
-
-#ifdef RAD_PS2 
-            //
-            // Under PS2 we leak the memory associated with the stack as well since we cannot
-            // free this memory.
-            //
-            ExitDeleteThread( );               
-#endif
-
-#ifdef GAMECUBE
-            //
-            // On Gamecube we also leak the stack memory.
-            //
-            OSExitThread( NULL );  
-#endif 
+	    //SDL_KillThread(m_ThreadHandle);
         }
         else
         {
@@ -1015,25 +664,7 @@ radThread::~radThread( void )
             // is not the active thread. Perform OS specific terminations. Note on XBOX
             // this cannot be done. 
             //
-#ifdef RAD_XBOX
-            rAssertMsg( false, "On XBOX, thread cannot be terminated by another thread\n");
-#endif
-
-#ifdef RAD_WIN32
-            TerminateThread( m_ThreadHandle, 0 );
-            CloseHandle( m_ThreadHandle );
-#endif
-
-#ifdef RAD_PS2
-            TerminateThread( m_ThreadId );
-            DeleteThread( m_ThreadId );
-            radMemoryFreeAligned( GetThisAllocator( ), m_Stack );
-#endif
-
-#ifdef RAD_GAMECUBE
-            OSCancelThread( m_ThreadId );
-            radMemoryFree( GetThisAllocator( ), m_Stack );
-#endif
+	    //SDL_KillThread(m_ThreadHandle);
             
             //
             // Can release lock. Print warning that this is a bad way to terminate thread
@@ -1053,22 +684,7 @@ radThread::~radThread( void )
         //
         radThreadInternalUnlock( );   
 
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-        WaitForSingleObject( m_ThreadHandle, INFINITE );            
-        CloseHandle( m_ThreadHandle );
-#endif
-
-#ifdef RAD_PS2
-        RotateThreadReadyQueue( s_PriorityMap[ m_Priority ] );
-        DeleteThread( m_ThreadId );
-        radMemoryFreeAligned( GetThisAllocator( ), m_Stack );
-#endif
-
-#ifdef RAD_GAMECUBE
-        void* rcode;
-        OSJoinThread( m_ThreadId, &rcode );
-        radMemoryFree( GetThisAllocator( ), m_Stack );
-#endif
+	SDL_WaitThread(m_ThreadHandle, nullptr);
     }
 }
 
@@ -1086,15 +702,7 @@ radThread::~radThread( void )
 // Notes:
 //------------------------------------------------------------------------------
 
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    DWORD WINAPI radThread::InternalThreadEntry( void* param )
-#endif 
-#ifdef RAD_PS2
-    void radThread::InternalThreadEntry( void* param )
-#endif
-#ifdef RAD_GAMECUBE
-    void* radThread::InternalThreadEntry( void* param )
-#endif
+int radThread::InternalThreadEntry( void* param )
 {
     //
     // Simply invoke the true entry point. Save return code upon return
@@ -1102,11 +710,14 @@ radThread::~radThread( void )
     //
     radThread* pThread = (radThread*) param;
 
+    // In SDL, thread priority can only be set on the current thread, so we do it here.
+    pThread->SetPriority(pThread->m_Priority);
+
     //
     // Under windows, convert this thread to a fiber.
     //
 #if defined(RAD_WIN32) || defined(RAD_XBOX)
-    pThread->m_Fiber.m_Win32Fiber = ConvertThreadToFiber( NULL );
+    //pThread->m_Fiber.m_Win32Fiber = ConvertThreadToFiber( NULL );
 #endif
 
     pThread->m_ReturnCode = (pThread->m_EntryFunction)(pThread->m_UserData );
@@ -1115,21 +726,8 @@ radThread::~radThread( void )
     // Here we consider the thread no longer running.
     //
     pThread->m_IsRunning = false;
-   
-    //
-    // Each OS has different return conventions. We don't use this stuff 
-    // so just return default values.
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    return( 0 );
-#endif 
-#ifdef RAD_PS2
-    // Nothing for the PS2
-#endif
-#ifdef RAD_GAMECUBE
-    return( NULL );
-#endif
 
+    return 0;
 }
 
 //=============================================================================
@@ -1152,19 +750,7 @@ void radThread::SetPriority( Priority priority )
     //
     m_Priority = priority;
 
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    SetThreadPriority( m_ThreadHandle, s_PriorityMap[ priority ] );
-#endif
-
-#ifdef RAD_PS2
-    int oldPriority = ChangeThreadPriority( m_ThreadId, s_PriorityMap[ priority ] );
-    rAssert( oldPriority >= 0 );
-#endif           
-
-#ifdef RAD_GAMECUBE
-    OSSetThreadPriority( m_ThreadId, s_PriorityMap[ priority ] );
-#endif
-
+    SDL_SetThreadPriority( s_PriorityMap[ priority ] );
 }
 
 //=============================================================================
@@ -1203,7 +789,7 @@ void radThread::Suspend( void )
     // Just invoke OS specific implementation.
     //
 #if defined(RAD_WIN32) || defined(RAD_XBOX)
-    SuspendThread( m_ThreadHandle );    
+    //SuspendThread( m_ThreadHandle );    
 #endif
 
 #ifdef RAD_PS2
@@ -1288,7 +874,7 @@ void radThread::Resume( void )
     // Just invoke OS specific implementation.
     //
 #if defined(RAD_WIN32) || defined(RAD_XBOX)
-    ResumeThread( m_ThreadHandle );    
+    //ResumeThread( m_ThreadHandle );    
 #endif
 
 #ifdef RAD_PS2
@@ -1387,15 +973,8 @@ bool radThread::IsRunning
 
 unsigned int radThread::WaitForTermination( void )
 {
-    //
-    // Some day we should make this semaphore-like, not polling
-    //
-    unsigned int ret = 0;
-    while ( IsRunning( &ret ) )
-    {
-        radThreadSleep( 0 );
-    }
-
+    int ret;
+    SDL_WaitThread(m_ThreadHandle, &ret);
     return ret;
 }
 
@@ -1414,21 +993,7 @@ unsigned int radThread::WaitForTermination( void )
 
 bool radThread::IsActive( void )
 {
-    //
-    // Perform platform specific checks.
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    return( m_ThreadId == GetCurrentThreadId( ) );
-#endif
-
-#ifdef RAD_PS2
-    return( m_ThreadId == GetThreadId( ) );
-#endif           
-
-#ifdef RAD_GAMECUBE
-    return( m_ThreadId == OSGetCurrentThread( ) );
-#endif
-
+    return m_ThreadId == SDL_ThreadID();
 }
 
 //=============================================================================
@@ -1577,6 +1142,7 @@ void radThread::SetDefaultLocalStorage
     radThreadInternalUnlock( );
 }
 
+#if 0
 //=============================================================================
 // Function:    radThread::GetActiveFiber
 //=============================================================================
@@ -1605,6 +1171,7 @@ IRadThreadFiber* radThread::GetActiveFiber( void )
 
     return( pThread->m_pActiveFiber );
 }
+#endif
 
 //=============================================================================
 // Function:    radThread::AddRef
@@ -1882,6 +1449,7 @@ void radThreadLocalStorage::Dump( char* pStringBuffer, unsigned int bufferSize )
 
 #endif
 
+#if 0
 //=============================================================================
 // Function:    radThreadFiber::radThreadFiber
 //=============================================================================
@@ -2318,7 +1886,7 @@ returnpoint:
 
 #endif
 
-
+#endif // if 0
 
 
 
