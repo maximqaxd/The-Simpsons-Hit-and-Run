@@ -45,17 +45,6 @@
 #define __STD_C 1
 
 //
-// You should notice that longs have been defined as ints here!!
-//
-//
-#define long int
-//
-//
-//
-//
-//
-
-//
 // These values (plus pAv_) are set int SetMallocState() for each
 // individual allocator
 //
