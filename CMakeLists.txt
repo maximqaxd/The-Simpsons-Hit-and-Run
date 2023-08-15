@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 
 project(SRR2)
 
@@ -540,24 +540,19 @@ set(SRR2_SOURCES
 set(RADCORE_SOURCES
 	#"libs/radcore/src/pch/pch.cpp"
 	#"libs/radcore/src/rad1394/win32lib/rad1394master.cpp"
-	"libs/radcore/src/radcontroller/controllerbuffer.cpp"
-	#"libs/radcore/src/radcontroller/directinputcontroller.cpp" # TODO
-	#"libs/radcore/src/raddebugcommunication/host1394socket.cpp" # TODO
+	#"libs/radcore/src/radcontroller/directinputcontroller.cpp"
+	#"libs/radcore/src/raddebugcommunication/host1394socket.cpp"
 	#"libs/radcore/src/raddebugcommunication/hostchannel.cpp"
 	#"libs/radcore/src/raddebugcommunication/host.cpp"
 	#"libs/radcore/src/raddebugcommunication/hosthiosocket.cpp"
-	#"libs/radcore/src/raddebugcommunication/target1394socket.cpp"
 	#"libs/radcore/src/raddebugcommunication/targetconnection.cpp"
-	#"libs/radcore/src/raddebugcommunication/targetdecichannel.cpp"
-	#"libs/radcore/src/raddebugcommunication/targethiosocket.cpp"
 	#"libs/radcore/src/raddebugcommunication/targetsocketchannel.cpp"
 	#"libs/radcore/src/raddebugcommunication/targetx.cpp"
 	"libs/radcore/src/raddebugconsole/consoleclient.cpp"
 	"libs/radcore/src/raddebug/debug.cpp"
-	"libs/radcore/src/raddebugfileserver/fileserver.cpp"
-	"libs/radcore/src/raddebugwatch/watchclient.cpp"
+	#"libs/radcore/src/raddebugfileserver/fileserver.cpp"
+	#"libs/radcore/src/raddebugwatch/watchclient.cpp"
 	"libs/radcore/src/raddispatch/dispatcher.cpp"
-	#"libs/radcore/src/radfile/common/buffereddrive.cpp"
 	"libs/radcore/src/radfile/common/cementer.cpp"
 	#"libs/radcore/src/radfile/common/drive.cpp"
 	#"libs/radcore/src/radfile/common/drivethread.cpp"
@@ -569,7 +564,6 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radfile/common/radfile.cpp"
 	#"libs/radcore/src/radfile/common/remotedrive.cpp"
 	"libs/radcore/src/radfile/common/requests.cpp"
-	#"libs/radcore/src/radfile/common/signeddrive.cpp"
 	#"libs/radcore/src/radfile/win32/win32drive.cpp"
 	"libs/radcore/src/radkey/radkey.cpp"
 	"libs/radcore/src/radmemory/align.cpp"
@@ -594,7 +588,6 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radobjectlist/weakcallbackwrapper.cpp"
 	"libs/radcore/src/radobjectlist/weakinterfacewrapper.cpp"
 	"libs/radcore/src/radobject/object.cpp"
-	"libs/radcore/src/radobject/refcount.cpp"
 	"libs/radcore/src/radplatform/platform.cpp"
 	"libs/radcore/src/radprofiler/profiler2.cpp"
 	"libs/radcore/src/radprofiler/profiler.cpp"
