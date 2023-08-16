@@ -97,7 +97,7 @@ void CGuiScreenMiniHud::HandleMessage
     {
         switch( message )
         {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             case GUI_MSG_CONTROLLER_BACK:
             {
                 if( GetInputManager()->GetValue( 0, InputManager::KeyboardEsc ) > 0.0f )
@@ -165,7 +165,7 @@ void CGuiScreenMiniHud::HandleMessage
 //===========================================================================
 void CGuiScreenMiniHud::InitIntro()
 {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     GetInputManager()->GetFEMouse()->SetInGameMode( true );
 #endif
 }

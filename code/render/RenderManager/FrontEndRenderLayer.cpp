@@ -139,7 +139,7 @@ void FrontEndRenderLayer::Render()
         // display Scrooby screen (and updates all Pure3d objects)
         //
         mpScroobyApp->DrawFrame( static_cast<float>( g_scroobySimulationTime ) );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         // Update the frontend cursor.
         GetInputManager()->GetFEMouse()->Update();
 #endif

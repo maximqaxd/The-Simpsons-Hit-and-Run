@@ -693,7 +693,7 @@ void CGuiScreenMiniMenu::HandleMessage(	eGuiMessage message,
                             CGuiUserInputHandler* userInputHandler = GetGuiSystem()->GetUserInputHandler( i );
                             if( userInputHandler != NULL )
                             {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                                 if( userInputHandler->IsYAxisOnUp() ||
                                     GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_ARROWUP )
 #else
@@ -705,7 +705,7 @@ void CGuiScreenMiniMenu::HandleMessage(	eGuiMessage message,
                                     m_trackNumLapsArrowU->SetIndex( 1 );
                                 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                                 if( userInputHandler->IsYAxisOnDown() ||
                                     GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_ARROWDOWN )
 #else

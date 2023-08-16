@@ -1074,7 +1074,7 @@ void CGuiMenu::UpdateCurrentSelection( int elapsedTime )
                 CGuiUserInputHandler* userInputHandler = GetGuiSystem()->GetUserInputHandler( i );
                 if( userInputHandler != NULL )
                 {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     if( userInputHandler->IsXAxisOnLeft() || 
                         GetInputManager()->GetFEMouse()->OnSliderHorizontalClickDrag() == MDIR_LEFT )
 #else
@@ -1095,7 +1095,7 @@ void CGuiMenu::UpdateCurrentSelection( int elapsedTime )
                         }
                     }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     if( userInputHandler->IsXAxisOnRight() ||
                         GetInputManager()->GetFEMouse()->OnSliderHorizontalClickDrag() == MDIR_RIGHT )
 #else
@@ -1157,7 +1157,7 @@ void CGuiMenu::UpdateCurrentSelection( int elapsedTime )
                     CGuiUserInputHandler* userInputHandler = GetGuiSystem()->GetUserInputHandler( i );
                     if( userInputHandler != NULL )
                     {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                         if( userInputHandler->IsXAxisOnLeft() || 
                             GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_ARROWLEFT )
 #else
@@ -1169,7 +1169,7 @@ void CGuiMenu::UpdateCurrentSelection( int elapsedTime )
                             m_menuItems[ m_selection ]->m_itemValueArrowL->SetIndex( 1 );
                         }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                         if( userInputHandler->IsXAxisOnRight() || 
                             GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_ARROWRIGHT )
 #else

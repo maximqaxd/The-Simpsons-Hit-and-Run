@@ -79,7 +79,7 @@ CGuiManager::CGuiManager
         m_windowHistory[ j ] = CGuiWindow::GUI_WINDOW_ID_UNDEFINED;
     }
     //Load the mouse cursor.
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     tDrawable* pMouseCursor = p3d::find<tDrawable>("mouse_cursor.png");
     GetInputManager()->GetFEMouse()->InitMouseCursor( pMouseCursor );
 #endif

@@ -317,7 +317,7 @@ void CGuiScreenScrapBookContents::HandleMessage( eGuiMessage message,
                             if( userInputHandler != NULL )
                             {
                                 if( userInputHandler->IsButtonDown( GuiInput::L1 )
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                                     || GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_LTRIGGER
 #endif  
                                     )
@@ -327,7 +327,7 @@ void CGuiScreenScrapBookContents::HandleMessage( eGuiMessage message,
                                 }
 
                                 if( userInputHandler->IsButtonDown( GuiInput::R1 )
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                                     || GetInputManager()->GetFEMouse()->LeftButtonDownOn() == HOTSPOT_RTRIGGER
 #endif  
                                     )

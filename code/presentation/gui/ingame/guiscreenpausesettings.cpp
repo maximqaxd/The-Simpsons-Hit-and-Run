@@ -44,12 +44,12 @@ enum ePauseSettingsMenuItem
 {
     MENU_ITEM_CAMERA,
     MENU_ITEM_JUMP_CAMERAS,
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     MENU_ITEM_INVERT_CAM_CONTROL,
 #endif
     MENU_ITEM_INTERSECT_NAV_SYSTEM,
     MENU_ITEM_RADAR,
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     MENU_ITEM_VIBRATION,
 #endif
     MENU_ITEM_TUTORIAL,
@@ -459,13 +459,13 @@ void CGuiScreenPauseSettings::InitOutro()
     isSettingOn = (m_pMenu->GetSelectionValue( MENU_ITEM_RADAR ) == 1);
     GetGuiSystem()->SetRadarEnabled( isSettingOn );
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     isSettingOn = (m_pMenu->GetSelectionValue( MENU_ITEM_VIBRATION ) == 1);
     GetInputManager()->SetRumbleEnabled( isSettingOn );
 #endif
 
     isSettingOn = (m_pMenu->GetSelectionValue( MENU_ITEM_TUTORIAL ) == 1) 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                   && !(GetInputManager()->GetController(0)->IsTutorialDisabled())
 #endif                  
                   ;
