@@ -125,25 +125,20 @@ CGuiScreenController::CGuiScreenController
 
     // get the platform-specific Controller page
     //
-#ifdef RAD_GAMECUBE
-    pPage = m_pScroobyScreen->GetPage( "ControllerGC" );
-    rAssert( pPage );
-#endif // RAD_GAMECUBE
 
-#ifdef RAD_PS2
-    pPage = m_pScroobyScreen->GetPage( "ControllerPS2" );
-    rAssert( pPage );
-#endif // RAD_PS2
-
-#ifdef RAD_XBOX
-    pPage = m_pScroobyScreen->GetPage( "ControllerXBOX" );
-    rAssert( pPage );
-#endif // RAD_XBOX
-
-#ifdef RAD_WIN32
+#if defined( RAD_PC )
     pPage = m_pScroobyScreen->GetPage( "ControllerPC" );
     rAssert( pPage );
-#endif // RAD_WIN32
+#elif defined( RAD_GAMECUBE )
+    pPage = m_pScroobyScreen->GetPage( "ControllerGC" );
+    rAssert( pPage );
+#elif defined( RAD_PS2 )
+    pPage = m_pScroobyScreen->GetPage( "ControllerPS2" );
+    rAssert( pPage );
+#else // RAD_XBOX
+    pPage = m_pScroobyScreen->GetPage( "ControllerXBOX" );
+    rAssert( pPage );
+#endif
 
     // and make it visible
     //

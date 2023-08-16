@@ -302,7 +302,7 @@ void CGuiScreen::HandleMessage
     }
 
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     if( message == GUI_MSG_WINDOW_ENTER )
     {
         // just entered screen, so re-enable mouse
@@ -848,7 +848,7 @@ CGuiScreen::ApplyWideScreenCorrectionScale( Scrooby::Drawable* drawable )
     drawable->Translate( screenWidthBy2, 0 );
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiScreen::CheckCursorAgainstHotspots
 //===========================================================================

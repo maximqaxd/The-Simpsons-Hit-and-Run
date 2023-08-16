@@ -2,7 +2,7 @@
 #include "simphysics/virtualcm.hpp"
 #include "simcommon/dline2.hpp"
 
-#if defined(RAD_DEBUG) && defined(RAD_PC)
+#if defined(RAD_DEBUG) && defined(RAD_WIN32)
 #include <stdio.h>
 #include "windows.h"
 #endif
@@ -115,7 +115,7 @@ void VirtualCM::Update(const Vector& pos, const Vector& speed, float inDt)
 
 void VirtualCM::PrintOut(float inDt)const
 {
-#if defined(RAD_DEBUG) && defined(RAD_PC)
+#if defined(RAD_DEBUG) && defined(RAD_WIN32)
     if (!GetActive())
         return;
 
@@ -195,7 +195,7 @@ void VirtualCM::DebugDisplay() const
 
 void JointVirtualCM::PrintOut(float inDt)const
 {
-#if defined(RAD_DEBUG) && defined(RAD_PC)
+#if defined(RAD_DEBUG) && defined(RAD_WIN32)
     char buff[250]; buff[0]='\0';
 
     VirtualCM::PrintOut(inDt);

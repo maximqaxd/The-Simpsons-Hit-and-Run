@@ -22,7 +22,7 @@
 // Project Includes
 //========================================
 #include <input/inputmanager.h>
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <input/usercontrollerWin32.h>
 #else
 #include <input/usercontroller.h>
@@ -404,7 +404,7 @@ m_isProScanButtonsPressed( false )
     }
 
     GetGameDataManager()->RegisterGameData( this, 1, "Input Manager" );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_pFEMouse = new FEMouse;
 #endif
 #ifdef RAD_PS2
@@ -419,11 +419,11 @@ InputManager::~InputManager()
 {
     ReleaseAllControllers();
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     mxIControllerSystem2->UnRegisterConnectionChangeCallback( this );
 #endif
     ::radControllerTerminate();
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     delete m_pFEMouse;
     m_pFEMouse = NULL;
 #endif
@@ -434,7 +434,7 @@ void InputManager::EnumerateControllers( void )
     // on the console the controller device and all the mappables are
     // preallocated.  So we don't have to create new associations.
     //
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     ref< IRadController > xIC2;
 #else
     ref< IRadController > radController[ NUM_CONTROLLERTYPES ];
@@ -455,9 +455,9 @@ void InputManager::EnumerateControllers( void )
 
             char szLocation[ 256 ];
 
-#if defined(RAD_XBOX) || defined( RAD_PS2 )
+#if defined(RAD_CONSOLE) && !defined( RAD_GC )
             sprintf( szLocation, "Port%d\\Slot%d", port, slot );
-#elif defined(RAD_WIN32)
+#elif defined(RAD_PC)
             char szJoystickLoc[ 256 ];
             char szMouseLoc[ 256 ];
             char szWheelLoc[ 256 ];
@@ -470,7 +470,7 @@ void InputManager::EnumerateControllers( void )
             sprintf( szLocation, "Channel%d", i );
 #endif
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
             xIC2 = mxIControllerSystem2->GetControllerAtLocation( szLocation );
 #else
             radController[KEYBOARD] = mxIControllerSystem2->GetControllerAtLocation( szLocation );
@@ -488,7 +488,7 @@ void InputManager::EnumerateControllers( void )
             UserController* controller = &mControllerArray[ i ];
 
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             // One keyboard has to be present. (might want to change later)
             if ( (radController[KEYBOARD] == NULL || !radController[KEYBOARD]->IsConnected( )) && (i == 0) )
             {

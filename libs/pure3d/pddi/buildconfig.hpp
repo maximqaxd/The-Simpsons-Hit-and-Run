@@ -29,14 +29,6 @@
 #error No platform define, define one of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_LINUX 
 #endif
 
-#if !defined(RAD_PC) && !defined(RAD_CONSOLE) 
-#error Must define one of RAD_PC, RAD_CONSOLE
-#endif
-
-#if defined(RAD_PC) && defined(RAD_CONSOLE) 
-#error Cannot define RAD_PC and RAD_CONSOLE at the same time!
-#endif
-
 // ---------- Set legacy defines -------------
 
 // This'll proably be defined, but...

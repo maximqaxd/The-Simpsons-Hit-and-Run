@@ -10,7 +10,7 @@
 
 #include <main/commandlineoptions.h>
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
 #include <input/basedamper.h>
 #include <input/steeringspring.h>
 #include <input/constanteffect.h>
@@ -367,7 +367,7 @@ void HumanVehicleController::Update( float timeins )
     Vehicle* vehicle = GetVehicle();
     float speed = vehicle->GetSpeedKmh();
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
     UserController* uc = NULL;
 
     //Set up the output points to default settings.
@@ -560,7 +560,7 @@ void HumanVehicleController::Init()
 
     UserController* uc = NULL;
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
     //Set up the output points to default settings.
 #ifdef RAD_PS2
     //TODO: Make this only set up the active wheel.
@@ -647,10 +647,10 @@ void HumanVehicleController::HandleEvent( EventEnum id, void* pEventData )
     case EVENT_BIG_CRASH:
     case EVENT_BIG_VEHICLE_CRASH:
         {
-#if defined(RAD_PS2) || defined(RAD_GAMECUBE) || defined(RAD_WIN32)
+#if defined(RAD_PS2) || defined(RAD_GAMECUBE) || defined(RAD_PC)
             if ( mHeavyWheelRumble )
             {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                 mHeavyWheelRumble->SetMagDir( static_cast<u16>(speed*20), 90 );
                 mHeavyWheelRumble->SetPPO( 20, 0, 0 );
                 if( mWheelRumble )
@@ -671,7 +671,7 @@ void HumanVehicleController::HandleEvent( EventEnum id, void* pEventData )
     case EVENT_MINOR_CRASH:
     case EVENT_MINOR_VEHICLE_CRASH:
         {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             if ( mWheelRumble )
             {
                 mWheelRumble->SetMagDir( 100, 90 );
@@ -690,7 +690,7 @@ void HumanVehicleController::HandleEvent( EventEnum id, void* pEventData )
                 GetInputManager()->GetController( mControllerId )->ApplyDynaEffect( RumbleEffect::COLLISION1, 333, rc->normalizedForce );
                 GetInputManager()->GetController( mControllerId )->ApplyDynaEffect( RumbleEffect::COLLISION2, 333, rc->normalizedForce );
 
-#if defined(RAD_PS2) || defined(RAD_GAMECUBE) || defined(RAD_WIN32)
+#if defined(RAD_PS2) || defined(RAD_GAMECUBE) || defined(RAD_PC)
                 if ( mConstantEffect )
                 {
                     if ( mWheelRumble && rc->normalizedForce > 0.02f )
@@ -736,7 +736,7 @@ void HumanVehicleController::HandleEvent( EventEnum id, void* pEventData )
 }
 
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
 //=============================================================================
 // HumanVehicleController::SetupRumbleFeatures
 //=============================================================================

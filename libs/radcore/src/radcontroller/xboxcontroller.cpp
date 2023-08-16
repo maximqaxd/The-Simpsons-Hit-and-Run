@@ -22,6 +22,7 @@
 
 #include "pch.hpp"
 #include <stdio.h>
+#include <math.h>
 #include <radobject.hpp>
 #include <radcontroller.hpp>
 #include <raddebug.hpp>
@@ -31,7 +32,8 @@
 #include <radmemorymonitor.hpp>
 #include "radcontrollerbuffer.hpp"
 
-#include <xtl.h>
+#include <Windows.h>
+#include <xinput.h>
 
 //============================================================================
 // Internal Interfaces
@@ -54,7 +56,6 @@ struct IRadControllerXBox
     virtual void iVirtualTimeReMapped( unsigned int virtualTime ) = 0;
     virtual void iVirtualTimeChanged( unsigned int virtualTime ) = 0;
     virtual void iSetBufferTime( unsigned int milliseconds, unsigned int pollingRate ) = 0;
-    virtual void iSetConnected( HANDLE hController ) = 0;
 };
 
 //============================================================================
@@ -79,32 +80,26 @@ static char * g_Xbipt[] =
 
 static XBoxInputPoint g_XBoxPoints[] =
 {
-    { g_Xbipt[ 0 ], "DPadUp",           0x00000001 },
-    { g_Xbipt[ 0 ], "DPadDown",         0x00000002 },
-    { g_Xbipt[ 0 ], "DPadLeft",         0x00000004 },
-    { g_Xbipt[ 0 ], "DPadRight",        0x00000008 },
-    { g_Xbipt[ 0 ], "Start",            0x00000010 },
-    { g_Xbipt[ 0 ], "Back",             0x00000020 },
-    { g_Xbipt[ 0 ], "LeftThumb",        0x00000040 },
-    { g_Xbipt[ 0 ], "RightThumb",       0x00000080 },
-    { g_Xbipt[ 4 ], "A",                sizeof ( WORD ) + ( sizeof( BYTE ) * 0 ) },
-    { g_Xbipt[ 4 ], "B",                sizeof ( WORD ) + ( sizeof( BYTE ) * 1 ) },
-    { g_Xbipt[ 4 ], "X",                sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) },
-    { g_Xbipt[ 4 ], "Y",                sizeof ( WORD ) + ( sizeof( BYTE ) * 3 ) },
-    { g_Xbipt[ 1 ], "AnalogA",          sizeof ( WORD ) + ( sizeof( BYTE ) * 0 ) },
-    { g_Xbipt[ 1 ], "AnalogB",          sizeof ( WORD ) + ( sizeof( BYTE ) * 1 ) },
-    { g_Xbipt[ 1 ], "AnalogX",          sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) },
-    { g_Xbipt[ 1 ], "AnalogY",          sizeof ( WORD ) + ( sizeof( BYTE ) * 3 ) },
-    { g_Xbipt[ 4 ], "Black",            sizeof ( WORD ) + ( sizeof( BYTE ) * 4 ) },
-    { g_Xbipt[ 4 ], "White",            sizeof ( WORD ) + ( sizeof( BYTE ) * 5 ) },
-    { g_Xbipt[ 1 ], "AnalogBlack",      sizeof ( WORD ) + ( sizeof( BYTE ) * 4 ) },
-    { g_Xbipt[ 1 ], "AnalogWhite",      sizeof ( WORD ) + ( sizeof( BYTE ) * 5 ) },
-    { g_Xbipt[ 1 ], "LeftTrigger",      sizeof ( WORD ) + ( sizeof( BYTE ) * 6 ) },
-    { g_Xbipt[ 1 ], "RightTrigger",     sizeof ( WORD ) + ( sizeof( BYTE ) * 7 ) },
-    { g_Xbipt[ 2 ], "LeftStickX",       sizeof ( WORD ) + ( sizeof( BYTE ) * 8 ) + ( sizeof( SHORT ) * 0 ) },
-    { g_Xbipt[ 3 ], "LeftStickY",       sizeof ( WORD ) + ( sizeof( BYTE ) * 8 ) + ( sizeof( SHORT ) * 1 ) },
-    { g_Xbipt[ 2 ], "RightStickX",      sizeof ( WORD ) + ( sizeof( BYTE ) * 8 ) + ( sizeof( SHORT ) * 2 ) },
-    { g_Xbipt[ 3 ], "RightStickY",      sizeof ( WORD ) + ( sizeof( BYTE ) * 8 ) + ( sizeof( SHORT ) * 3 ) }
+    { g_Xbipt[ 0 ], "DPadUp",           XINPUT_GAMEPAD_DPAD_UP },
+    { g_Xbipt[ 0 ], "DPadDown",         XINPUT_GAMEPAD_DPAD_DOWN },
+    { g_Xbipt[ 0 ], "DPadLeft",         XINPUT_GAMEPAD_DPAD_LEFT },
+    { g_Xbipt[ 0 ], "DPadRight",        XINPUT_GAMEPAD_DPAD_RIGHT },
+    { g_Xbipt[ 0 ], "Start",            XINPUT_GAMEPAD_START },
+    { g_Xbipt[ 0 ], "Back",             XINPUT_GAMEPAD_BACK },
+    { g_Xbipt[ 0 ], "LeftThumb",        XINPUT_GAMEPAD_LEFT_THUMB },
+    { g_Xbipt[ 0 ], "RightThumb",       XINPUT_GAMEPAD_RIGHT_THUMB },
+    { g_Xbipt[ 0 ], "A",                XINPUT_GAMEPAD_A },
+    { g_Xbipt[ 0 ], "B",                XINPUT_GAMEPAD_B },
+    { g_Xbipt[ 0 ], "X",                XINPUT_GAMEPAD_X },
+    { g_Xbipt[ 0 ], "Y",                XINPUT_GAMEPAD_Y },
+    { g_Xbipt[ 4 ], "Black",            XINPUT_GAMEPAD_LEFT_SHOULDER },
+    { g_Xbipt[ 4 ], "White",            XINPUT_GAMEPAD_RIGHT_SHOULDER },
+    { g_Xbipt[ 1 ], "LeftTrigger",      sizeof ( WORD ) + ( sizeof( BYTE ) * 0 ) },
+    { g_Xbipt[ 1 ], "RightTrigger",     sizeof ( WORD ) + ( sizeof( BYTE ) * 1 ) },
+    { g_Xbipt[ 2 ], "LeftStickX",       sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) + ( sizeof( SHORT ) * 0 ) },
+    { g_Xbipt[ 3 ], "LeftStickY",       sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) + ( sizeof( SHORT ) * 1 ) },
+    { g_Xbipt[ 2 ], "RightStickX",      sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) + ( sizeof( SHORT ) * 2 ) },
+    { g_Xbipt[ 3 ], "RightStickY",      sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) + ( sizeof( SHORT ) * 3 ) }
 };
 
 static class radControllerSystemXBox* s_pTheXBoxControllerSystem2 = NULL;
@@ -619,13 +614,11 @@ class radControllerXBox
 
         if ( GetRefCount( ) > 1 )
         {
-            if ( m_hController != NULL )
+            if ( m_iController != -1 )
             {
-                XINPUT_STATE xInputState;
+                XINPUT_STATE xInputState{ 0 };
 
-                ::ZeroMemory( & xInputState, sizeof( xInputState ) );
-
-                DWORD rval = XInputGetState( m_hController, & xInputState );
+                DWORD rval = XInputGetState( m_iController, & xInputState );
 
                 rAssert( rval == ERROR_SUCCESS || rval == ERROR_DEVICE_NOT_CONNECTED );
 
@@ -641,7 +634,6 @@ class radControllerXBox
             // Send our output point data to the device here
             //
 
-            if ( m_XInputFeedback.Header.dwStatus != ERROR_IO_PENDING ) 
             {                
                 IRadControllerOutputPoint * pICop2_Left  = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetAt( 0 ) );
                 IRadControllerOutputPoint * pICop2_Right = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetAt( 1 ) );
@@ -651,21 +643,19 @@ class radControllerXBox
         
                 if
                 (
-                    ( newLeftGain  != m_XInputFeedback.Rumble.wLeftMotorSpeed ) ||
-                    ( newRightGain != m_XInputFeedback.Rumble.wRightMotorSpeed )
+                    ( newLeftGain  != m_XInputFeedback.wLeftMotorSpeed ) ||
+                    ( newRightGain != m_XInputFeedback.wRightMotorSpeed )
                 )
                 {
-                    m_XInputFeedback.Header.dwStatus = ERROR_SUCCESS; // ( 0 )
-                    m_XInputFeedback.Header.hEvent   = NULL;
-                    m_XInputFeedback.Rumble.wLeftMotorSpeed =  newLeftGain;
-                    m_XInputFeedback.Rumble.wRightMotorSpeed = newRightGain;
+                    m_XInputFeedback.wLeftMotorSpeed =  newLeftGain;
+                    m_XInputFeedback.wRightMotorSpeed = newRightGain;
 
-					rAssert(m_hController != 0);
+					rAssert(m_iController != 0);
 
                     DWORD result = 0;
-					if(m_hController != 0)
+					if(m_iController != 0)
 					{
-						result = XInputSetState( m_hController, & m_XInputFeedback );
+						result = XInputSetState( m_iController, & m_XInputFeedback );
 					}
 
                     //
@@ -800,32 +790,13 @@ class radControllerXBox
     // radControllerXBox::IsConnection
     //========================================================================
 
-    virtual void iSetConnected( HANDLE hController )
-    {
-        //
-        // The controller system will tell us if our handle has "gone bad"
-        // or if we we're re-opened at the same location.
-        //
-
-        if ( m_hController != NULL )
-        {
-            XInputClose( m_hController );
-        }
-
-        m_hController = hController;
-    }
-
-    //========================================================================
-    // radControllerXBox::IsConnection
-    //========================================================================
-
     virtual bool IsConnected( void )
     {
         //
         // A null handle is the flag for being disconnected.
         //
-
-        return m_hController != NULL;
+        XINPUT_STATE state{ 0 };
+        return XInputGetState(m_iController, &state) != ERROR_DEVICE_NOT_CONNECTED;
     }
 
     //========================================================================
@@ -1112,18 +1083,14 @@ class radControllerXBox
     radControllerXBox::radControllerXBox
     (
         unsigned int thisAllocator,
-        HANDLE hController,
-        unsigned int port,
-        unsigned int slot,
+        DWORD iController,
         unsigned int virtualTime,
         unsigned int bufferTime,
         unsigned int pollingRate
     )
         :
         radRefCount( 0 ),
-        m_hController( hController ),
-        m_Port( port ),
-        m_Slot( slot )
+        m_iController( iController )
     {
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radControllerXBox" );
 
@@ -1163,9 +1130,8 @@ class radControllerXBox
 
 		m_xIString_Location->SetSize( 12 );
         m_xIString_Location->Append( "Port" );
-        m_xIString_Location->Append( (unsigned int) port );
-        m_xIString_Location->Append( "\\Slot" );
-        m_xIString_Location->Append( (unsigned int) slot );
+        m_xIString_Location->Append( (unsigned int) m_iController );
+        m_xIString_Location->Append( "\\Slot0" );
 
         //
         // Create all of our intput points, this is always the same for every
@@ -1187,13 +1153,13 @@ class radControllerXBox
 			// Hand the point its first value
 			//
 
-            if ( m_hController != NULL )
+            if ( m_iController != -1 )
             {
                 XINPUT_STATE xInputState;
 
                 ::ZeroMemory( & xInputState, sizeof( xInputState ) );
 
-                DWORD rval = XInputGetState( m_hController, & xInputState );
+                DWORD rval = XInputGetState( m_iController, & xInputState );
 
                 rAssert( rval == ERROR_SUCCESS );
 
@@ -1227,19 +1193,13 @@ class radControllerXBox
 
     ~radControllerXBox( void )
     {
-        if ( m_hController != NULL )
-        {
-            XInputClose( m_hController );
-        }
     }
 
     //========================================================================
     // radControllerXBox Data Members
     //========================================================================
 
-    HANDLE m_hController;
-    DWORD m_Port;
-    DWORD m_Slot;
+    DWORD m_iController;
 
     ref< IRadObjectList >             m_xIOl_InputPoints;
     ref< IRadObjectList >             m_xIOl_OutputPoints;
@@ -1247,7 +1207,7 @@ class radControllerXBox
     ref< IRadString >                 m_xIString_Location;
     ref< IRadControllerBuffer >       m_xIControllerBuffer2;
     
-    XINPUT_FEEDBACK                 m_XInputFeedback;
+    XINPUT_VIBRATION                  m_XInputFeedback;
 };
 
 //============================================================================
@@ -1274,17 +1234,10 @@ class radControllerSystemXBox
 
         //
         // Check if devices have been inserted or removed
-        //        
-        DWORD deviceInsertions = 0;
-        DWORD deviceRemovals = 0;
-        
-        if ( XGetDeviceChanges( XDEVICE_TYPE_GAMEPAD, & deviceInsertions, & deviceRemovals ) )
+        //
         {
             for ( unsigned int i = 0; i < 4; i ++ )
             {
-                unsigned int deviceMask = 1 << i;
-
-                if ( ( deviceInsertions & deviceMask ) || ( deviceRemovals & deviceMask ) )
                 {
 
                     //
@@ -1303,31 +1256,16 @@ class radControllerSystemXBox
 
 
                     // Is there a controller currently plugged in?
+                    XINPUT_STATE state{ 0 };
+                    DWORD ret = XInputGetState(i, &state);
 
-                    HANDLE hController = ::XInputOpen
-                    (
-                        XDEVICE_TYPE_GAMEPAD,
-                        XDEVICE_PORT0 + i,
-                        XDEVICE_NO_SLOT,
-                        false
-                    );
-
-                    if ( hController != NULL )
+                    if ( ret == ERROR_SUCCESS )
                     {
                         //
                         // Here a device has been inserted, so open it
                         //
 
-                        if ( xIXBoxController2 != NULL )
-                        {
-                            //
-                            // Here the device is already constructed, just set
-                            // it to the connected state.
-                            //
-                            
-                            xIXBoxController2->iSetConnected( hController );
-                        }
-                        else
+                        if ( xIXBoxController2 == NULL )
                         {
                             //
                             // Here the controller at this location has not yet been 
@@ -1347,9 +1285,7 @@ class radControllerSystemXBox
                             xIController2 = new ( g_ControllerSystemAllocator ) radControllerXBox
                             (
                                 g_ControllerSystemAllocator,
-                                hController,
-                                XDEVICE_PORT0 + i,
-                                XDEVICE_NO_SLOT,
+                                i,
                                 virtualTime,
                                 m_EventBufferTime,
                                 pollingRate
@@ -1360,17 +1296,6 @@ class radControllerSystemXBox
                                 xIController2
                             );
                         }                        
-                    }
-                    else
-                    {
-                        //
-                        // Here a device has been removed
-                        //
-
-                        if ( xIXBoxController2 != NULL )
-                        {
-                            xIXBoxController2->iSetConnected( NULL );
-                        }
                     }
 
 

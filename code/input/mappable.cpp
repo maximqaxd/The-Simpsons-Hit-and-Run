@@ -1,6 +1,6 @@
 #include <input/mappable.h>
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <input/usercontrollerWin32.h>
 #else
 #include <input/usercontroller.h>

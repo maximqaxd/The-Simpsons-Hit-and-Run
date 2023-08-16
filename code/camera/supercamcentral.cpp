@@ -1362,7 +1362,7 @@ void SuperCamCentral::SelectSuperCam( SuperCam::Type type, int flags, unsigned i
 		}
 		else
 		{
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             type =  SuperCam::ON_FOOT_CAM;
 #else
             type =  SuperCam::WALKER_CAM;
@@ -1370,7 +1370,7 @@ void SuperCamCentral::SelectSuperCam( SuperCam::Type type, int flags, unsigned i
 		}
     }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     if ( type == SuperCam::ON_FOOT_CAM )
     {
         //Ziemek?   Check the PC cam flag here.

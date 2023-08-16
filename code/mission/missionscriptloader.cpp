@@ -5129,13 +5129,13 @@ void MissionScriptLoader::EnableTutorialMode(int argc,char ** argv)
 {
     int enableInt = atoi( argv[ 1 ] );
     bool enable = ( enableInt != 0 );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 
     if( !GetInputManager()->GetController(0)->IsTutorialDisabled() )
     {
 #endif       
         TutorialManager::GetInstance()->EnableTutorialMode( enable );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     }
 #endif 
 }

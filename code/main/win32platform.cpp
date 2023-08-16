@@ -1805,9 +1805,11 @@ int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
                     }
                     break;
 
+#ifdef RAD_PC
                 case SDL_WINDOWEVENT_LEAVE:
                     GetInputManager()->GetFEMouse()->getCursor()->SetVisible( false );
                     break;
+#endif
                 }
 
                 ShowTheCursor( event->window.event == SDL_WINDOWEVENT_FOCUS_LOST );
@@ -1833,6 +1835,7 @@ int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
 
     case SDL_MOUSEMOTION:  
         {
+#ifdef RAD_PC
             // For some reason beyond my comprehension WM_MOUSEMOVE seems to be getting called regardless if the
             // mouse moved or not. So let the FEMouse determine if we moved.
             FEMouse* pFEMouse = GetInputManager()->GetFEMouse();
@@ -1842,26 +1845,25 @@ int SDLCALL Win32Platform::WndProc( void * userdata, SDL_Event * event )
                 SDL_GetWindowSize( wnd, &w, &h );
                 pFEMouse->Move( event->motion.x, event->motion.y, w, h );
             }
+#endif
 
             ShowTheCursor( false );
 
             break;
         }
 
+#ifdef RAD_PC
     case SDL_MOUSEBUTTONDOWN:
         if (event->button.button == SDL_BUTTON_LEFT)
-        {
             GetInputManager()->GetFEMouse()->ButtonDown( BUTTON_LEFT );
     //        rDebugPrintf("LEFT MOUSE BUTTON PRESSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
-            break;
-        }
+        break;
 
     case SDL_MOUSEBUTTONUP:
         if(event->button.button == SDL_BUTTON_LEFT)
-        {
             GetInputManager()->GetFEMouse()->ButtonUp( BUTTON_LEFT );
-            break;
-        }
+        break;
+#endif
 
         // PDDI will sent this message to enable or disable rendering in response to an
         // application level window event.  For example, if the user clicks away from

@@ -72,7 +72,7 @@ const int PDDI_LIBID_VECTREX    = 12;
 #define PDDI_TEX_TOO_BIG      201
 #define PDDI_TEX_BADFORMAT    202
 
-#ifndef RAD_CONSOLE
+#if defined( RAD_WIN32 ) || defined( RAD_LINUX )
 // code used for library initialisation on a PC
 
 // video mode information
@@ -232,7 +232,7 @@ protected:
 class pddiDevice : public pddiObject
 {
 public:
-#ifndef RAD_CONSOLE
+#if defined( RAD_WIN32 ) || defined( RAD_LINUX )
     PDDI_INTERFACE int GetDisplayInfo(pddiDisplayInfo** info) PDDI_PURE;
 #endif
     PDDI_INTERFACE void GetLibraryInfo(pddiLibInfo* info) PDDI_PURE;
@@ -302,11 +302,9 @@ class pddiDisplay : public pddiObject
 {
 public:
 
-#ifndef RAD_CONSOLE
-#ifdef RAD_WIN32
+#if defined( RAD_WIN32 ) || defined( RAD_LINUX )
    PDDI_INTERFACE long ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* event) PDDI_PURE;
    PDDI_INTERFACE void SetWindow(SDL_Window* win) PDDI_PURE;
-#endif
    PDDI_INTERFACE pddiDisplayInfo* GetDisplayInfo(void) PDDI_PURE;
 #endif
    PDDI_INTERFACE bool InitDisplay(int x, int y, int bpp) PDDI_PURE;

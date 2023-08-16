@@ -96,7 +96,7 @@
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <camera/pccam.h>
 #include <input/usercontrollerWin32.h>
 #include <input/Mouse.h>
@@ -1694,7 +1694,7 @@ void Character::UpdateDesiredDirAndSpeed( const rmt::Vector& dir )
 {
     rmt::Vector direction = dir;
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     SuperCam* cam = GetSuperCamManager()->GetSCC(0)->GetActiveSuperCam();
     PCCam* pPCCam = NULL;
     if( !mIsNPC && cam->GetType() == SuperCam::PC_CAM )  
@@ -1703,7 +1703,7 @@ void Character::UpdateDesiredDirAndSpeed( const rmt::Vector& dir )
     }
 #endif
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     if ( direction.DotProduct( direction ) > 0.001f )
     {
         SetDesiredDir( choreo::GetWorldAngle( direction.x, direction.z ) );

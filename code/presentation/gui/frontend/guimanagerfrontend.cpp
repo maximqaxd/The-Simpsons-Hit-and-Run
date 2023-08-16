@@ -39,7 +39,7 @@
 #include <presentation/gui/frontend/guiscreenmultisetup.h>
 #include <presentation/gui/frontend/guiscreenmultichoosechar.h>
 #include <presentation/gui/frontend/guiscreenoptions.h>
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <presentation/gui/frontend/guiscreencontrollerWin32.h>
 #else
 #include <presentation/gui/frontend/guiscreencontroller.h>

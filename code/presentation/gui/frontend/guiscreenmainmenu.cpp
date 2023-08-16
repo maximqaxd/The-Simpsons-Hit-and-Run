@@ -536,7 +536,7 @@ void CGuiScreenMainMenu::HandleMessage
                             // hide accept button icon
                             //
                             this->SetButtonVisible( BUTTON_ICON_ACCEPT, false );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                             GetInputManager()->GetFEMouse()->SetClickable( false );
 #endif
                             
@@ -550,7 +550,7 @@ void CGuiScreenMainMenu::HandleMessage
                         m_pMenu->GetMenuItem( MENU_ITEM_MAIN_MENU )->GetItemValue()->SetColour( menuHighlightColour );
 
                         this->SetButtonVisible( BUTTON_ICON_ACCEPT, true );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                         GetInputManager()->GetFEMouse()->SetClickable( true );
 #endif
                     }
