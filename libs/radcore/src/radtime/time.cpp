@@ -22,24 +22,9 @@
 //=============================================================================
 
 #include "pch.hpp"
-#ifdef RAD_WIN32
-#include <windows.h>
-#endif
-#ifdef RAD_XBOX
-#include <xtl.h>
-#endif
 
-#ifdef RAD_PS2
-#include <eekernel.h>
-#include <eeregs.h>
-#include <libcdvd.h>
-#include <libscf.h>
-#endif
-
-#ifdef RAD_GAMECUBE
-#include <dolphin/os.h>
-#include <dolphin.h>
-#endif // RAD_GAMECUBE
+#include <cstdint>
+#include <chrono>
 
 #include <radtime.hpp>
 #include <radobject.hpp>
@@ -66,45 +51,7 @@ static unsigned int s_InitializedCount = 0;
 //
 static unsigned int MonthToDay[] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
-//
-// Under windows, maintain frequency of high performance counter.
-//
-#if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-static __int64  s_Win32CountsPerSecond = 0;
-#endif
-
-//
-// Under PS2, maintain free running counters ourself.
-//
-
-#ifdef RAD_PS2
-static volatile unsigned long s_Milliseconds;
-static unsigned long s_MilliCount;   // This stays between 0 and 1000
-static unsigned long s_Seconds;
-static int           s_HandlerId;
-#endif
-
-// 
-// Under RAD_GAMECUBE, retreives time base registers from clcok
-#ifdef RAD_GAMECUBE
-static unsigned int s_Microseconds;
-static unsigned int s_Milliseconds;
-static unsigned int s_Seconds;
-#endif
-
-//=============================================================================
-// Local Function Prototypes
-//=============================================================================
-
-#ifdef RAD_PS2
-static int PS2_TimerIsr( int cause );
-static unsigned long PS2_Microseconds( void );
-static unsigned char PS2BCDtoBin( unsigned char bcd );
-#endif
-
-#if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-static void QueryPerformanceCounterFix( LARGE_INTEGER* count );
-#endif
+static std::chrono::time_point<std::chrono::high_resolution_clock> s_StartTime;
 
 //=============================================================================
 // Public Functions
@@ -130,57 +77,7 @@ void radTimeInitialize(  )
 
     if( s_InitializedCount == 1 )
     {
-        //
-        // Under WIN32, query the performance counter to get the frequency of the
-        // high resolution timer.
-        //
-        #if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-        //
-        // Get the frequency of the high performance counter.
-        //
-        LARGE_INTEGER   frequency;
-        QueryPerformanceFrequency( &frequency );
-        s_Win32CountsPerSecond = frequency.QuadPart;
-        
-        #endif
-
-        //
-        // On the PS2, we install an interrupt handler to maintain a count of 
-        // milliseconds.
-        //
-        #ifdef RAD_PS2
-
-        s_Milliseconds = 0;
-        s_MilliCount = 0;
-        s_Seconds = 0;
-
-        //
-        // Grab a timer 0 interrupt.
-        //
-        s_HandlerId = AddIntcHandler( INTC_TIM0, PS2_TimerIsr, -1 );
-        
-        //
-        // Set up the timer 0 to fire every millisecond. Count is based on a 294.912 Mhz clock divided by 2
-        // divided by 16.
-        //
-        DPUT_T0_COMP( 9216 );               // Set the compare to 1ms 
-        DPUT_T0_MODE( 0x05C1 );             // Start timer, divide by 16, auto reset,
-
-        //
-        // Enable the timer interrupt.
-        //
-        EnableIntc( INTC_TIM0 );
-
-        #endif 
-
-		//
-		// On the RAD_GAMECUBE, we get the timer from OS_TIMER_CLOCK
-		//
-		#ifdef RAD_GAMECUBE
-			s_Microseconds = 0;
-			s_Milliseconds = 0;
-			s_Seconds = 0;
-		#endif // RAD_GAMECUBE
+        s_StartTime = std::chrono::high_resolution_clock::now();
     }
 }
 
@@ -203,20 +100,6 @@ void radTimeTerminate(  )
     // Update initialize count. 
     //
     s_InitializedCount--;
-
-    if( s_InitializedCount == 0 )
-    {
-        //
-        // Under RAD_PS2, free the timer interrupt.
-        //
-        #ifdef RAD_PS2
-
-        DisableIntc( INTC_TIM0 );
-        DPUT_T0_MODE( 0 );            
-        RemoveIntcHandler( INTC_TIM0, s_HandlerId );
-    
-        #endif
-    }
 }
 
 //=============================================================================
@@ -233,44 +116,8 @@ void radTimeTerminate(  )
 unsigned int radTimeGetMicroseconds( void )
 {
     rAssert( s_InitializedCount != 0 );
-
-    //
-    // Under windows we use the high performance counter.
-    //
-    #if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-    LARGE_INTEGER   PerformanceCount;
-    QueryPerformanceCounterFix( &PerformanceCount );
-
-    return( (unsigned int) (( PerformanceCount.QuadPart * 1000000) / s_Win32CountsPerSecond) );
-    #endif
-
-    #ifdef RAD_PS2
-
-    //
-    // Invoke helper function to obtain value of microseond calculation. 
-    //
-    return( (unsigned int) PS2_Microseconds( ) );
-   	
-    #endif
-
-	//
-	// On the RAD_GAMECUBE, return value of timer in seconds
-	//
-	#ifdef RAD_GAMECUBE
-
-		//
-		// Retrieves 32-bit value of lower of time base register
-		//
-		OSTime time = OSGetTime();
-
-		//
-		// Converts ticks to microseconds
-		//
-		s_Microseconds = OSTicksToMicroseconds(time);
-		
-		return (s_Microseconds);
-	
-	#endif // RAD_GAMECUBE
+    auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
+    return (unsigned int)std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 }
 
 
@@ -288,42 +135,8 @@ unsigned int radTimeGetMicroseconds( void )
 radTime64 radTimeGetMicroseconds64( void )
 {
     rAssert( s_InitializedCount != 0 );
-
-    //
-    // Under windows we use the high performance counter.
-    //
-    #if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-    LARGE_INTEGER   PerformanceCount;
-    QueryPerformanceCounterFix( &PerformanceCount );
-
-    return( (unsigned __int64) (( ((unsigned __int64)PerformanceCount.QuadPart)) / (s_Win32CountsPerSecond / 1000000)));
-    #endif
-
-    #ifdef RAD_PS2
-
-    //
-    // Invoke helper function to obtain value of microseond calculation. 
-    //
-    return( PS2_Microseconds( ) );
-	
-    #endif
-
-	//
-	// On the RAD_GAMECUBE, return value of timer in seconds
-	//
-    #ifdef RAD_GAMECUBE
-
-		//
-		// Retrieves 64-bit value of lower of time base register
-		//
-		OSTime time = OSGetTime();
-
-		//
-		// Converts ticks to microseconds
-		//
-		return( OSTicksToMicroseconds(time) );
-	
-    #endif // RAD_GAMECUBE
+    auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
+    return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 }
 
 
@@ -341,43 +154,8 @@ radTime64 radTimeGetMicroseconds64( void )
 unsigned int radTimeGetMilliseconds( void )
 {
     rAssert( s_InitializedCount != 0 );
-
-    //
-    // Under windows we use the high performance counter.
-    //
-    #if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-    LARGE_INTEGER   PerformanceCount;
-    QueryPerformanceCounterFix( &PerformanceCount );
-
-    return( (unsigned int) (( PerformanceCount.QuadPart * 1000) / s_Win32CountsPerSecond) );
-    #endif
-
-    //
-    // Under PS2, simmply return our count.
-    //
-    #ifdef RAD_PS2
-            
-    return( (unsigned int) s_Milliseconds );
-    
-    #endif
-
-	//
-	// On the RAD_GAMECUBE, simply returns value of timer in seconds
-	//
-	#ifdef RAD_GAMECUBE
-		//
-		// Retrieves 32-bit value of lower  of time base register
-		//
-		OSTime time = OSGetTime();
-
-		//
-		// Converts ticks to milliseconds
-		//
-		s_Milliseconds = OSTicksToMilliseconds(time);   
-
-		return (s_Milliseconds);
-	
-	#endif // RAD_GAMECUBE
+    auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
+    return (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
 
 //=============================================================================
@@ -394,43 +172,8 @@ unsigned int radTimeGetMilliseconds( void )
 unsigned int radTimeGetSeconds( void )
 {
     rAssert( s_InitializedCount != 0 );
-
-    //
-    // Under windows we use the high performance counter.
-    //
-    #if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-    LARGE_INTEGER   PerformanceCount;
-    QueryPerformanceCounterFix( &PerformanceCount );
-
-    return( (unsigned int) ( PerformanceCount.QuadPart / s_Win32CountsPerSecond) );
-    #endif
-
-    //
-    // Under PS2, simmply return our count.
-    //
-    #ifdef RAD_PS2
-            
-    return( (unsigned int) s_Seconds );
-    
-    #endif
-
-	//
-	// On the RAD_GAMECUBE, simply returns value of timer in seconds
-	//
-	#ifdef RAD_GAMECUBE
-		//
-		// Retrieves 32-bit value of lower of time base register
-		//
-		OSTime time = OSGetTime();
-
-		//
-		// Converts ticks to seconds
-		//	
-		s_Seconds = OSTicksToSeconds(time);   
-		
-		return (s_Seconds);
-	
-	#endif // RAD_GAMECUBE
+    auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
+    return (unsigned int)std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
 //=============================================================================
@@ -445,62 +188,14 @@ unsigned int radTimeGetSeconds( void )
 
 void radTimeGetDate( radDate* pDate )
 {
-#if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-    SYSTEMTIME time;
-    ::GetLocalTime( &time );
-
-    //
-    // Convert Win32 time to our structure
-    //
-    pDate->m_Year = (unsigned short) time.wYear;
-    pDate->m_Month = (unsigned char) time.wMonth;
-    pDate->m_Day = (unsigned char) time.wDay;
-    pDate->m_Hour = (unsigned char) time.wHour;
-    pDate->m_Minute = (unsigned char) time.wMinute;
-    pDate->m_Second = (unsigned char) time.wSecond;
-
-#elif defined ( RAD_PS2 )
-    sceCdCLOCK time;
-    if ( ::sceCdReadClock( &time ) == 0 || 
-         time.stat & (1 << 0) != 0 || 
-         time.stat & (1 << 1) != 0 ||
-         time.stat & (1 << 7) != 0 
-       )
-    {
-        rDebugPrintf( "radTime: getting date failed. The clock must be broken.\n" );
-        pDate->m_Year = (unsigned short) 0;
-        pDate->m_Month = pDate->m_Day = pDate->m_Hour = pDate->m_Minute = pDate->m_Second = (unsigned char) 0;
-    }
-
-    //
-    // Convert PS2 time to our structure
-    //
-    ::sceScfGetLocalTimefromRTC( &time );
-    pDate->m_Year = 2000 + (unsigned short) PS2BCDtoBin( time.year );
-    pDate->m_Month = PS2BCDtoBin( time.month );
-    pDate->m_Day = PS2BCDtoBin( time.day );
-    pDate->m_Hour = PS2BCDtoBin( time.hour );
-    pDate->m_Minute = PS2BCDtoBin( time.minute );
-    pDate->m_Second = PS2BCDtoBin( time.second );
-
-#elif defined ( RAD_GAMECUBE )
-    OSTime time = ::OSGetTime( );
-    OSCalendarTime calendar;
-    ::OSTicksToCalendarTime( time, &calendar );
-
-    //
-    // Convert GCN time to our structure.
-    //
-    pDate->m_Year = calendar.year;
-    pDate->m_Month = calendar.mon + 1;
-    pDate->m_Day = calendar.mday;
-    pDate->m_Hour = calendar.hour;
-    pDate->m_Minute = calendar.min;
-    pDate->m_Second = calendar.sec;
-
-#else
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
-#endif
+    std::time_t time = std::time(0);
+    std::tm &tm = *std::localtime(&time);
+    pDate->m_Year = (unsigned short) tm.tm_year + 1900;
+    pDate->m_Month = (unsigned char) tm.tm_mon + 1;
+    pDate->m_Day = (unsigned char) tm.tm_mday;
+    pDate->m_Hour = (unsigned char) tm.tm_hour;
+    pDate->m_Minute = (unsigned char) tm.tm_min;
+    pDate->m_Second = (unsigned char) tm.tm_sec;
 
 
 }
@@ -544,56 +239,6 @@ radWeekday radTimeGetWeekday( unsigned short year, unsigned char month, unsigned
 }
 
 //=============================================================================
-// Function:    QueryPerformanceCounterFix
-//=============================================================================
-// Description: This implementation is designed to deal with the problem
-//              of the XBOX reporting time going backwards.
-//
-// Parameters:  where to return performance count
-//
-// Returns:    
-//------------------------------------------------------------------------------
-
-#if defined ( RAD_WIN32 ) || defined ( RAD_XBOX )
-
-static LARGE_INTEGER s_LastCount = {0};
-
-void QueryPerformanceCounterFix( LARGE_INTEGER* count )
-{
-#ifndef RAD_XBOX
-
-    //
-    // If not XBOX, just use the standard performance counter.
-    //
-    QueryPerformanceCounter( count );
-
-#else
-
-    //
-    // Here we make sure that time is not ever going backwards. Note we don't
-    // worry about wrapping as this will occur very infrequenctly. Based on
-    // my fast PC, it would occur every ~81715 years.
-    //
-    LARGE_INTEGER   currentCount;
-
-    QueryPerformanceCounter( &currentCount );
-
-    if( currentCount.QuadPart > s_LastCount.QuadPart )
-    {
-        count->QuadPart = currentCount.QuadPart;
-        s_LastCount.QuadPart = currentCount.QuadPart;
-    }
-    else
-    {
-        rTuneString( "Warning: radTime has detected time going backwards\n");
-        count->QuadPart = s_LastCount.QuadPart;  
-    }
-#endif
-
-}
-#endif
-
-//=============================================================================
 // Function:    radTimeCreateList
 //=============================================================================
 // Description: Invoke this member obtain a new time list. This object is
@@ -621,131 +266,6 @@ void radTimeCreateList
 
     *ppIRadTimerList = new( allocator ) radTimerList( numberOfTimers, allocator );
 }
-
-//=============================================================================
-// PS2_TimerIsr
-//=============================================================================
-// Description: This function is invoked by the hardware every milliseconds.
-//              Current implementation just maintains a free running count
-//              of milliseconds.
-//
-// Parameters:  cause - not used.
-//
-// Returns:     -1. We do not want to share this with any other handler.
-//
-// Notes:       Interrupts are disabled.
-//------------------------------------------------------------------------------
-
-#ifdef RAD_PS2
-
-int PS2_TimerIsr( int cause )
-{
-    (void) cause;
-
-    //
-    // Restart the timer as soon as possible.
-    //
-    DPUT_T0_MODE( 0x05C1 );             
-
-    //
-    // Update free running counters.
-    //
-    s_Milliseconds++;
-    s_MilliCount++;
-
-    if( s_MilliCount == 1000 )
-    {
-        s_MilliCount = 0;
-        s_Seconds++;
-    }
-
-    ExitHandler( );
-
-    return( -1 );
-}
-
-#endif
-
-//=============================================================================
-// Function:    PS2_Microseconds
-//=============================================================================
-// Description: This function is used to determine the value of the free running
-//              microseconds counter on the PS2.
-//
-// Parameters:  
-//
-// Returns:     64 free running count.
-//
-// Notes:       
-//------------------------------------------------------------------------------
-
-#ifdef RAD_PS2
-
-static volatile unsigned int delay;
-
-unsigned long PS2_Microseconds( void )
-{
-    //
-    // Take the value of the milliseconds counter ( counts number of timer wraps ) before
-    // and after reading the free running counter.
-    //
-    unsigned long milliseconds1 = s_Milliseconds;    
-    unsigned short count1 = DGET_T0_COUNT( );
-    
-    //
-    // Add delay here to ensure that if we wrap, the interrupt will be sure to fire.
-    // Without the delay, a problem can occur where the counter has wrapped but the interrupt
-    // has not fired.
-    //
-    for( int i = 0 ; i < 10 ; i++ )
-    {
-        delay++;
-    }
-    unsigned long milliseconds2 = s_Milliseconds;   
-    unsigned short count2 = DGET_T0_COUNT( );
-
-    //
-    // Lets check if the two samples of milliseconds are the same. If so, it means that
-    // the count1 is correct.
-    //
-    if( milliseconds1 == milliseconds2 )
-    {
-        //
-        // Here we base our time on count1. 
-        // Calculate the time using the microseconds and milliseconds. The magic number 
-        // (9216) is the value programmed into the timer chip. It is the number of counts
-        // required to create a millisecond.
-        //
-        return( (milliseconds1 * 1000) + ( ( ( (unsigned int) count1 * 1000 ) / 9216 ) ) );
-    }
-    else
-    {
-        //
-        // Here an interrupt occurred during the read of count1. Hence use count2 and
-        // milliseconds2 as they reflect time better
-        //
-        return( (milliseconds2 * 1000) + ( ( ( (unsigned int) count2 * 1000) / 9216 ) ) );
-    }
-}
-
-#endif
-
-//=============================================================================
-// Function:    PS2BCDtoBin
-//=============================================================================
-// Description: Convert an 8-bit BCD number with one decimal digit per nibble
-//              into a binary number.
-//
-// Parameters:  binary equivalent of bcd
-//
-// Returns:     
-//------------------------------------------------------------------------------
-#ifdef RAD_PS2
-unsigned char PS2BCDtoBin( unsigned char bcd )
-{
-    return ( ( bcd & 0xF ) + ( ( ( bcd >> 4 ) & 0xF ) * 10 ) );
-}
-#endif
 
 //=============================================================================
 // Public Member Functions
