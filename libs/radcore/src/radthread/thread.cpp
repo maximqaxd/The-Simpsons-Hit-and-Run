@@ -559,7 +559,7 @@ radThread::radThread
     // Create thread which then sets its own priority.
     //
     m_Priority = priority;
-    m_ThreadHandle = SDL_CreateThread(InternalThreadEntry, /*name*/nullptr, this);
+    m_ThreadHandle = SDL_CreateThreadWithStackSize(InternalThreadEntry, /*name*/nullptr, stackSize, this);
 
     //
     // Release our protection.
@@ -709,6 +709,7 @@ int radThread::InternalThreadEntry( void* param )
     // from callers function.   
     //
     radThread* pThread = (radThread*) param;
+    pThread->m_ThreadId = SDL_ThreadID();
 
     // In SDL, thread priority can only be set on the current thread, so we do it here.
     pThread->SetPriority(pThread->m_Priority);
@@ -785,74 +786,7 @@ IRadThread::Priority radThread::GetPriority( void )
 
 void radThread::Suspend( void )
 { 
-    //
-    // Just invoke OS specific implementation.
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    //SuspendThread( m_ThreadHandle );    
-#endif
-
-#ifdef RAD_PS2
-    //
-    // The PS2 implementation of this service is more complex due to Sony's 
-    // crappy implmentaiton. Must do this stuff under protection. The reason
-    // for this stuff is that a thread cannot issue suspend on itself. 
-    //
-    radThreadInternalLock( );   
-
-    //
-    // Update the suspension count ourself. Check if someone has tried to resume us already.
-    //
-    m_SuspendCount--;
-
-    if( m_SuspendCount != -1 )
-    {
-        //
-        // Just return. Release protection.
-        //
-        radThreadInternalUnlock( );   
-    }
-    else
-    {
-        //
-        // Here we are going to suspend this thread. If the calling thread is this 
-        // object, then use sleep.
-        //
-        if( m_ThreadId == GetThreadId( ) )
-        {
-            //
-            // Indicate that we suspended ourself, so the resume call can use the
-            // correct sony service.
-            //
-            m_SuspendedSelf = true;
-
-            //
-            // Release exclusion before sleeping.
-            //
-            radThreadInternalUnlock( );   
-
-            SleepThread( );
-        }
-        else
-        {
-            //
-            // Here we are suspending this thread object from another thread.
-            // Indicate this and suspend the thread.
-            //
-            m_SuspendedSelf = false;
-
-            SuspendThread( m_ThreadId );
-
-            radThreadInternalUnlock( );   
-        }
-    }
-
-#endif           
-
-#ifdef RAD_GAMECUBE
-    OSSuspendThread( m_ThreadId );
-#endif    
-
+    rAssertMsg(false, "SDL does not support suspending/resuming threads\n");
 }
 
 //=============================================================================
@@ -870,57 +804,7 @@ void radThread::Suspend( void )
 
 void radThread::Resume( void )
 { 
-    //
-    // Just invoke OS specific implementation.
-    //
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
-    //ResumeThread( m_ThreadHandle );    
-#endif
-
-#ifdef RAD_PS2
-    //
-    // The PS2 implementation of this service is more complex due to Sony's 
-    // crappy implmentaiton. Must do this stuff under protection. The reason
-    // for this stuff is that a thread cannot issue suspend on itself. 
-    //
-    radThreadInternalLock( );   
-
-    //
-    // Update the suspension count ourself. Check if we need to resume a thread.
-    //
-    m_SuspendCount++;
-
-    if( m_SuspendCount == 0 )
-    {
-        //
-        // Here we need to resume the thread. Determine how it was suspended and
-        // use the appropriate sony call.
-        //
-        if( m_SuspendedSelf )
-        {
-            //
-            // Here the thread suspended itself by sleeping. Issue the wake up
-            // call on this thread.
-            //
-            WakeupThread( m_ThreadId );
-        }
-        else
-        {
-            //  
-            // Use resume as thread was suspended by another thread.
-            //
-            ResumeThread( m_ThreadId );
-        }
-    }
-   
-    radThreadInternalUnlock( );   
-
-#endif           
-
-#ifdef RAD_GAMECUBE
-    OSResumeThread( m_ThreadId );
-#endif    
-
+    rAssertMsg(false, "SDL does not support suspending/resuming threads\n");
 }
 
 //=============================================================================
