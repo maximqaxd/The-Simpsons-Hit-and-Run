@@ -628,7 +628,12 @@ target_include_directories(radcore
 target_link_libraries(radcore SDL2::SDL2)
 
 add_library(radcontent OBJECT ${RADCONTENT_SOURCES})
-target_include_directories(radcontent PUBLIC "libs/radcontent/inc/")
+target_include_directories(radcontent
+	PUBLIC "libs/radcontent/inc/"
+	PRIVATE "code/" # wtf
+	PRIVATE "libs/radmath/"
+	PRIVATE "libs/radcontent/src/"
+)
 target_link_libraries(radcontent radcore)
 
 add_executable(srr2 ${SRR2_SOURCES})
@@ -644,8 +649,8 @@ target_include_directories(srr2 PRIVATE
 	"libs/choreo/inc/"
 	"libs/poser/inc/"
 	"libs/pure3d/"
-	"libs/radcontent/inc/"
-	"libs/radcore/inc/"
+	#"libs/radcontent/inc/"
+	#"libs/radcore/inc/"
 	"libs/radmath/"
 	"libs/radmovie/inc/"
 	"libs/radmusic/inc/"
