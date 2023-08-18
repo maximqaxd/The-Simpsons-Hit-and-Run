@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.22)
 project(SRR2)
 
 find_package(SDL2 REQUIRED)
+find_package(PNG REQUIRED)
+find_package(OpenAL REQUIRED)
 
 add_compile_options(
 	-Wno-endif-labels # TODO
@@ -619,44 +621,472 @@ set(RADCONTENT_SOURCES
 	#"libs/radcontent/src/pch/pch.cpp"
 )
 
+set(P3D_SOURCES
+	"libs/pure3d/p3d/ambientlight.cpp"
+	"libs/pure3d/p3d/anim/animate.cpp"
+	"libs/pure3d/p3d/anim/animatedobject.cpp"
+	"libs/pure3d/p3d/anim/billboardobjectanimation.cpp"
+	"libs/pure3d/p3d/anim/cameraanimation.cpp"
+	"libs/pure3d/p3d/anim/channel.cpp"
+	"libs/pure3d/p3d/anim/compositedrawable.cpp"
+	"libs/pure3d/p3d/anim/drawablepose.cpp"
+	"libs/pure3d/p3d/anim/eventanimation.cpp"
+	"libs/pure3d/p3d/anim/event.cpp"
+	"libs/pure3d/p3d/anim/expressionanimation.cpp"
+	"libs/pure3d/p3d/anim/expression.cpp"
+	"libs/pure3d/p3d/anim/expressionoffsets.cpp"
+	"libs/pure3d/p3d/anim/instancedgeometry.cpp"
+	"libs/pure3d/p3d/anim/lightanimation.cpp"
+	"libs/pure3d/p3d/anim/multicontroller.cpp"
+	"libs/pure3d/p3d/anim/polyskin.cpp"
+	"libs/pure3d/p3d/anim/poseanimation.cpp"
+	"libs/pure3d/p3d/anim/pose.cpp"
+	"libs/pure3d/p3d/anim/sequencer.cpp"
+	"libs/pure3d/p3d/anim/shaderanimation.cpp"
+	"libs/pure3d/p3d/anim/skeleton.cpp"
+	"libs/pure3d/p3d/anim/textureanimation.cpp"
+	"libs/pure3d/p3d/anim/vertexanimcontroller.cpp"
+	"libs/pure3d/p3d/anim/vertexanimkey.cpp"
+	"libs/pure3d/p3d/anim/vertexanimobject.cpp"
+	"libs/pure3d/p3d/anim/vertexoffsetexpression.cpp"
+	"libs/pure3d/p3d/anim/visibilityanimation.cpp"
+	"libs/pure3d/p3d/billboardobject.cpp"
+	"libs/pure3d/p3d/bmp.cpp"
+	"libs/pure3d/p3d/camera.cpp"
+	"libs/pure3d/p3d/cameraloader.cpp"
+	"libs/pure3d/p3d/chunkfile.cpp"
+	"libs/pure3d/p3d/context.cpp"
+	"libs/pure3d/p3d/debugdraw.cpp"
+	"libs/pure3d/p3d/directionallight.cpp"
+	"libs/pure3d/p3d/displaylist.cpp"
+	"libs/pure3d/p3d/drawable.cpp"
+	"libs/pure3d/p3d/dxtn.cpp"
+	"libs/pure3d/p3d/effects/effect.cpp"
+	"libs/pure3d/p3d/effects/optic.cpp"
+	"libs/pure3d/p3d/effects/opticlensflare.cpp"
+	"libs/pure3d/p3d/effects/opticloader.cpp"
+	"libs/pure3d/p3d/effects/particlearray.cpp"
+	"libs/pure3d/p3d/effects/particleemitter.cpp"
+	"libs/pure3d/p3d/effects/particlegenerator.cpp"
+	"libs/pure3d/p3d/effects/particleloader.cpp"
+	"libs/pure3d/p3d/effects/particlepool.cpp"
+	"libs/pure3d/p3d/effects/particlesystem.cpp"
+	"libs/pure3d/p3d/effects/particletype.cpp"
+	"libs/pure3d/p3d/effects/particleutility.cpp"
+	"libs/pure3d/p3d/effects/transitionmanager.cpp"
+	"libs/pure3d/p3d/entity.cpp"
+	"libs/pure3d/p3d/error.cpp"
+	"libs/pure3d/p3d/file.cpp"
+	"libs/pure3d/p3d/fileftt.cpp"
+	"libs/pure3d/p3d/font.cpp"
+	"libs/pure3d/p3d/gameattr.cpp"
+	"libs/pure3d/p3d/geometry.cpp"
+	"libs/pure3d/p3d/imageconverter.cpp"
+	"libs/pure3d/p3d/image.cpp"
+	"libs/pure3d/p3d/imagefactory.cpp"
+	"libs/pure3d/p3d/imagefont.cpp"
+	"libs/pure3d/p3d/inventory.cpp"
+	"libs/pure3d/p3d/light.cpp"
+	"libs/pure3d/p3d/lightloader.cpp"
+	"libs/pure3d/p3d/lightschooser.cpp"
+	"libs/pure3d/p3d/loaders.cpp"
+	"libs/pure3d/p3d/loadmanager.cpp"
+	"libs/pure3d/p3d/locator.cpp"
+	"libs/pure3d/p3d/lzr.cpp"
+	"libs/pure3d/p3d/matrixstack.cpp"
+	"libs/pure3d/p3d/memheap.cpp"
+	"libs/pure3d/p3d/memory.cpp"
+	"libs/pure3d/p3d/memorysection.cpp"
+	"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
+	"libs/pure3d/p3d/platform/win32/platform.cpp"
+	"libs/pure3d/p3d/png.cpp"
+	"libs/pure3d/p3d/pointcamera.cpp"
+	"libs/pure3d/p3d/pointlight.cpp"
+	"libs/pure3d/p3d/primgroup.cpp"
+	"libs/pure3d/p3d/rawimage.cpp"
+	"libs/pure3d/p3d/refcounted.cpp"
+	"libs/pure3d/p3d/scenegraph/nodeanimation.cpp"
+	"libs/pure3d/p3d/scenegraph/scenegraph.cpp"
+	"libs/pure3d/p3d/shader.cpp"
+	"libs/pure3d/p3d/shadow/shadow_common.cpp"
+	"libs/pure3d/p3d/shadow/shadow_gc.cpp"
+	"libs/pure3d/p3d/shadow/shadow_generic.cpp"
+	"libs/pure3d/p3d/shadow/shadow_ps2.cpp"
+	"libs/pure3d/p3d/spotlight.cpp"
+	"libs/pure3d/p3d/sprite.cpp"
+	"libs/pure3d/p3d/table.cpp"
+	"libs/pure3d/p3d/targa.cpp"
+	"libs/pure3d/p3d/textdataparser.cpp"
+	"libs/pure3d/p3d/textstring.cpp"
+	"libs/pure3d/p3d/texture.cpp"
+	"libs/pure3d/p3d/texturefont.cpp"
+	"libs/pure3d/p3d/unicode.cpp"
+	"libs/pure3d/p3d/utility.cpp"
+	"libs/pure3d/p3d/vectorcamera.cpp"
+	"libs/pure3d/p3d/vertexlist.cpp"
+	"libs/pure3d/p3d/view.cpp"
+)
+
+set(CHOREO_SOURCES
+	"libs/choreo/src/animation.cpp"
+	"libs/choreo/src/bank.cpp"
+	"libs/choreo/src/basebank.cpp"
+	"libs/choreo/src/blend.cpp"
+	"libs/choreo/src/blendtemplate.cpp"
+	"libs/choreo/src/constants.cpp"
+	"libs/choreo/src/driver.cpp"
+	"libs/choreo/src/engine.cpp"
+	"libs/choreo/src/footblenddriver.cpp"
+	"libs/choreo/src/footblender.cpp"
+	"libs/choreo/src/foot.cpp"
+	"libs/choreo/src/footplanter.cpp"
+	"libs/choreo/src/internalanimation.cpp"
+	"libs/choreo/src/jointblenddriver.cpp"
+	"libs/choreo/src/jointblender.cpp"
+	"libs/choreo/src/load.cpp"
+	"libs/choreo/src/locomotion.cpp"
+	"libs/choreo/src/partition.cpp"
+	"libs/choreo/src/puppet.cpp"
+	"libs/choreo/src/replayblenddriver.cpp"
+	"libs/choreo/src/replayblender.cpp"
+	"libs/choreo/src/replay.cpp"
+	"libs/choreo/src/rig.cpp"
+	"libs/choreo/src/rootblenddriver.cpp"
+	"libs/choreo/src/rootblender.cpp"
+	"libs/choreo/src/root.cpp"
+	"libs/choreo/src/scriptreader.cpp"
+	"libs/choreo/src/scriptwriter.cpp"
+	"libs/choreo/src/synchronization.cpp"
+	"libs/choreo/src/transition.cpp"
+	"libs/choreo/src/utility.cpp"
+)
+
+set(POSER_SOURCES
+	"libs/poser/src/joint.cpp"
+	"libs/poser/src/pose.cpp"
+	"libs/poser/src/posedriver.cpp"
+	"libs/poser/src/poseengine.cpp"
+	"libs/poser/src/transform.cpp"
+)
+
+set(RADMATH_SOURCES
+	"libs/radmath/radmath/matrix.cpp"
+	"libs/radmath/radmath/numerical.cpp"
+	"libs/radmath/radmath/plane.cpp"
+	"libs/radmath/radmath/quaternion.cpp"
+	"libs/radmath/radmath/radmath.cpp"
+	"libs/radmath/radmath/random.cpp"
+	"libs/radmath/radmath/spline.cpp"
+	"libs/radmath/radmath/triangle.cpp"
+	"libs/radmath/radmath/trig.cpp"
+	"libs/radmath/radmath/vector.cpp"
+)
+
+set(RADMOVIE_SOURCES
+	"libs/radmovie/src/common/binkmovieplayer.cpp"
+	"libs/radmovie/src/common/binkradfile.cpp"
+	"libs/radmovie/src/common/binkrenderstrategy.cpp"
+	"libs/radmovie/src/pch/pch.cpp"
+)
+
+set(RADMUSIC_SOURCES
+	"libs/radmusic/src/memory/memory.cpp"
+	"libs/radmusic/src/ods/ods_codegen.cpp"
+	"libs/radmusic/src/ods/ods.cpp"
+	"libs/radmusic/src/ods/ods_memory.cpp"
+	"libs/radmusic/src/ods/ods_parser.cpp"
+	"libs/radmusic/src/ods/ods_util.cpp"
+	"libs/radmusic/src/pch/pch.cpp"
+	"libs/radmusic/src/radmusic/framework/framework.cpp"
+	"libs/radmusic/src/radmusic/music/music_composition.cpp"
+	"libs/radmusic/src/radmusic/music/music_engine.cpp"
+	"libs/radmusic/src/radmusic/music/music_engine_state_fade.cpp"
+	"libs/radmusic/src/radmusic/music/music_engine_state_steady.cpp"
+	"libs/radmusic/src/radmusic/music/music_engine_state_stitch.cpp"
+	"libs/radmusic/src/radmusic/music/music_engine_state_stopped.cpp"
+	"libs/radmusic/src/radmusic/music/music_performance.cpp"
+	"libs/radmusic/src/radmusic/resource/resource_manager.cpp"
+	"libs/radmusic/src/radmusic/schema/schema_util.cpp"
+	"libs/radmusic/src/radmusic/sequence/sequence_player.cpp"
+	"libs/radmusic/src/radmusic/sequence/sequence_region.cpp"
+	"libs/radmusic/src/radmusic/sequence/sequence_stream_graph.cpp"
+)
+
+set(RADSOUND_SOURCES
+	"libs/radsound/src/common/radsoundobject.cpp"
+	"libs/radsound/src/common/radsoundupdatableobject.cpp"
+	"libs/radsound/src/hal/common/audioformat.cpp"
+	"libs/radsound/src/hal/common/banner.cpp"
+	"libs/radsound/src/hal/common/memoryregion.cpp"
+	"libs/radsound/src/hal/common/radsoundfile.cpp"
+	"libs/radsound/src/hal/common/rolloff.cpp"
+	"libs/radsound/src/hal/win32/buffer.cpp"
+	"libs/radsound/src/hal/win32/bufferloader.cpp"
+	"libs/radsound/src/hal/win32/effect.cpp"
+	"libs/radsound/src/hal/win32/listener.cpp"
+	"libs/radsound/src/hal/win32/positionalgroup.cpp"
+	"libs/radsound/src/hal/win32/radsoundwin.cpp"
+	"libs/radsound/src/hal/win32/system.cpp"
+	"libs/radsound/src/hal/win32/voice.cpp"
+	"libs/radsound/src/math/radsoundmath.cpp"
+	"libs/radsound/src/pch/pch.cpp"
+	"libs/radsound/src/radsound/buffereddatasource.cpp"
+	"libs/radsound/src/radsound/clip.cpp"
+	"libs/radsound/src/radsound/clipplayer.cpp"
+	"libs/radsound/src/radsound/datacache.cpp"
+	"libs/radsound/src/radsound/memorydatasource.cpp"
+	"libs/radsound/src/radsound/memoryspaceobject.cpp"
+	"libs/radsound/src/radsound/radicaladpcm.cpp"
+	"libs/radsound/src/radsound/rsdfiledatasource.cpp"
+	"libs/radsound/src/radsound/stitcheddatasource.cpp"
+	"libs/radsound/src/radsound/streamplayer.cpp"
+)
+
+set(RADSCRIPT_SOURCES
+	"libs/radscript/src/factory/radfactory.cpp"
+	"libs/radscript/src/namespace/namespace.cpp"
+	"libs/radscript/src/pch/pch.cpp"
+	"libs/radscript/src/script/remotescript.cpp"
+	"libs/radscript/src/script/script.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoEnum.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoInstance.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoInterface.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoIntLiteral.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoLoader.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoMethod.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoParam.cpp"
+	"libs/radscript/src/typeinfo/TypeInfoSystem.cpp"
+	"libs/radscript/src/typeinfoutil/typeinfodistributor.cpp"
+	"libs/radscript/src/typeinfoutil/typeinfoutil.cpp"
+	"libs/radscript/src/typeinfo/win32/win32typeinfovfcall.cpp"
+)
+
+set(SCROOBY_SOURCES
+	"libs/scrooby/src/FeApp.cpp"
+	"libs/scrooby/src/FeBoundedDrawable.cpp"
+	"libs/scrooby/src/FeChunkHandler.cpp"
+	"libs/scrooby/src/FeDrawable.cpp"
+	"libs/scrooby/src/FeEntity.cpp"
+	"libs/scrooby/src/FeGroup.cpp"
+	"libs/scrooby/src/FeLanguage.cpp"
+	"libs/scrooby/src/FeLayer.cpp"
+	"libs/scrooby/src/FeLoaders.cpp"
+	"libs/scrooby/src/FeMovie.cpp"
+	"libs/scrooby/src/FeOwner.cpp"
+	"libs/scrooby/src/FePage.cpp"
+	"libs/scrooby/src/FeParent.cpp"
+	"libs/scrooby/src/FePolygon.cpp"
+	"libs/scrooby/src/FeProject.cpp"
+	"libs/scrooby/src/FePure3dObject.cpp"
+	"libs/scrooby/src/FeScreen.cpp"
+	"libs/scrooby/src/FeSprite.cpp"
+	"libs/scrooby/src/FeTextBible.cpp"
+	"libs/scrooby/src/FeText.cpp"
+	"libs/scrooby/src/FeTextStyle.cpp"
+	"libs/scrooby/src/ResourceManager/FeResourceManager.cpp"
+	"libs/scrooby/src/scrooby/App.cpp"
+	"libs/scrooby/src/strings/pcstring.cpp"
+	"libs/scrooby/src/strings/stricmp.cpp"
+	"libs/scrooby/src/tLinearTable.cpp"
+	"libs/scrooby/src/utility/AsyncFileLoader.cpp"
+	"libs/scrooby/src/utility/BufferReader.cpp"
+	"libs/scrooby/src/utility/debugMessages.cpp"
+	"libs/scrooby/src/utility/EnumConversion.cpp"
+	"libs/scrooby/src/xml/XMLParser.cpp"
+	"libs/scrooby/src/xml/XMLTree.cpp"
+)
+
+set(SIM_SOURCES
+	"libs/sim/simcollision/collisionanalyser.cpp"
+	"libs/sim/simcollision/collisionanalyserdata.cpp"
+	"libs/sim/simcollision/collisionanalyserdataUID.cpp"
+	"libs/sim/simcollision/collisionanalyserevent.cpp"
+	"libs/sim/simcollision/collisionanalyserinfo.cpp"
+	"libs/sim/simcollision/collisionanalysertranslator.cpp"
+	"libs/sim/simcollision/collision.cpp"
+	"libs/sim/simcollision/collisiondetector.cpp"
+	"libs/sim/simcollision/collisiondisplay.cpp"
+	"libs/sim/simcollision/collisionmanager.cpp"
+	"libs/sim/simcollision/collisionobject.cpp"
+	"libs/sim/simcollision/collisionvolume.cpp"
+	"libs/sim/simcollision/impulsebasedcollisionsolver.cpp"
+	"libs/sim/simcollision/proximitydetection.cpp"
+	"libs/sim/simcollision/subcollisiondetector.cpp"
+	"libs/sim/simcommon/arraymath.cpp"
+	"libs/sim/simcommon/dline2.cpp"
+	"libs/sim/simcommon/impulselink.cpp"
+	"libs/sim/simcommon/kalmann.cpp"
+	"libs/sim/simcommon/largesymmetricmatrix.cpp"
+	"libs/sim/simcommon/physicsproperties.cpp"
+	"libs/sim/simcommon/sbmatrix.cpp"
+	"libs/sim/simcommon/simconstraint.cpp"
+	"libs/sim/simcommon/simenvironment.cpp"
+	"libs/sim/simcommon/simmath.cpp"
+	"libs/sim/simcommon/simstatearticulated.cpp"
+	"libs/sim/simcommon/simstate.cpp"
+	"libs/sim/simcommon/simstateflexible.cpp"
+	"libs/sim/simcommon/simstatetarget.cpp"
+	"libs/sim/simcommon/simtarget.cpp"
+	"libs/sim/simcommon/simulatedobject.cpp"
+	"libs/sim/simcommon/simutility.cpp"
+	"libs/sim/simcommon/skeletoninfo.cpp"
+	"libs/sim/simcommon/symmatrix.cpp"
+	"libs/sim/simcommon/tlist.cpp"
+	"libs/sim/simcommon/trackerjointmodifier.cpp"
+	"libs/sim/simcommon/trajectoryextrapolator.cpp"
+	"libs/sim/simphysics/articulatedphysicsobject.cpp"
+	"libs/sim/simphysics/physicsjoint.cpp"
+	"libs/sim/simphysics/physicsobject.cpp"
+	"libs/sim/simphysics/restingdetector.cpp"
+	"libs/sim/simphysics/virtualcm.cpp"
+)
+
 add_library(radcore OBJECT ${RADCORE_SOURCES})
 target_include_directories(radcore
 	PUBLIC "libs/radcore/inc/"
 	PRIVATE "libs/radcore/src/pch/" # TODO
-	PRIVATE "code/" # wtf
+	PUBLIC "code/" # wtf (radobject.hpp includes memory/classsizetracker.h)
 )
 target_link_libraries(radcore SDL2::SDL2)
 
 add_library(radcontent OBJECT ${RADCONTENT_SOURCES})
 target_include_directories(radcontent
 	PUBLIC "libs/radcontent/inc/"
-	PRIVATE "code/" # wtf
-	PRIVATE "libs/radmath/"
+	#PRIVATE "code/" # wtf
 	PRIVATE "libs/radcontent/src/"
 )
-target_link_libraries(radcontent radcore)
+target_link_libraries(radcontent
+	radcore
+	radmath
+)
+
+add_library(p3d OBJECT ${P3D_SOURCES})
+target_include_directories(p3d
+	PUBLIC "libs/pure3d/"
+	#PRIVATE "code/" # wtf
+	PRIVATE "libs/" # wtf
+)
+target_link_libraries(p3d
+	PNG::PNG
+	radcore
+	radcontent
+	radmath
+)
+
+add_library(choreo OBJECT ${CHOREO_SOURCES})
+target_include_directories(choreo
+	PUBLIC "libs/choreo/inc/"
+)
+target_link_libraries(choreo
+	p3d
+	poser
+)
+
+add_library(poser OBJECT ${POSER_SOURCES})
+target_include_directories(poser
+	PUBLIC "libs/poser/inc/"
+)
+target_link_libraries(poser
+	radcore
+	p3d
+	radmath
+)
+
+add_library(radmath ${RADMATH_SOURCES})
+target_include_directories(radmath
+	PUBLIC "libs/radmath/"
+)
+
+add_library(radmovie ${RADMOVIE_SOURCES})
+target_include_directories(radmovie
+	PUBLIC "libs/radmovie/inc/"
+	PRIVATE "libs/radmovie/src/pch/"
+)
+target_link_libraries(radmovie
+	radcore
+)
+
+add_library(radmusic ${RADMUSIC_SOURCES})
+target_include_directories(radmusic
+	PUBLIC "libs/radmusic/inc/"
+	PRIVATE "libs/radmusic/src/pch/"
+	PRIVATE "libs/radmusic/src/"
+)
+target_link_libraries(radmusic
+	radcore
+	radcontent
+	radsound
+)
+
+add_library(radsound ${RADSOUND_SOURCES})
+target_include_directories(radsound
+	PUBLIC "libs/radsound/inc/"
+	PRIVATE "libs/radsound/src/pch/"
+	PRIVATE "${OPENAL_INCLUDE_DIR}"
+	PRIVATE "libs/radsound/src/common/"
+)
+target_link_libraries(radsound
+	${OPENAL_LIBRARY} # TODO: CMake 3.25 introduces OpenAL::OpenAL
+	radcore
+)
+
+add_library(radscript ${RADSCRIPT_SOURCES})
+target_include_directories(radscript
+	PUBLIC "libs/radscript/inc/"
+	PRIVATE "libs/radscript/src/pch/"
+)
+target_link_libraries(radscript
+	radcore
+)
+
+add_library(scrooby ${SCROOBY_SOURCES})
+target_include_directories(scrooby
+	PUBLIC "libs/scrooby/inc/"
+	PUBLIC "libs/scrooby/src/"
+)
+target_link_libraries(scrooby
+	p3d
+)
+
+add_library(sim ${SIM_SOURCES})
+target_include_directories(sim
+	PUBLIC "libs/sim/"
+)
+target_link_libraries(sim
+	p3d
+)
 
 add_executable(srr2 ${SRR2_SOURCES})
 target_link_libraries(srr2
 	SDL2::SDL2
+	choreo
+	p3d
+	poser
 	radcore
 	radcontent
+	radmath
+	radmovie
+	radmusic
+	radsound
+	radscript
+	scrooby
+	sim
 )
 target_compile_features(srr2 PRIVATE cxx_std_17)
 target_precompile_headers(srr2 PRIVATE "code/main/pchsrr2.h")
 target_include_directories(srr2 PRIVATE
 	"code/"
-	"libs/choreo/inc/"
-	"libs/poser/inc/"
-	"libs/pure3d/"
+	#"libs/choreo/inc/"
+	#"libs/poser/inc/"
+	#"libs/pure3d/"
 	#"libs/radcontent/inc/"
 	#"libs/radcore/inc/"
-	"libs/radmath/"
-	"libs/radmovie/inc/"
-	"libs/radmusic/inc/"
-	"libs/radscript/inc/"
-	"libs/radsound/inc/"
-	"libs/scrooby/inc/"
-	"libs/scrooby/src/"
-	"libs/sim/"
+	#"libs/radmath/"
+	#"libs/radmovie/inc/"
+	#"libs/radmusic/inc/"
+	#"libs/radscript/inc/"
+	#"libs/radsound/inc/"
+	#"libs/scrooby/inc/"
+	#"libs/scrooby/src/"
+	#"libs/sim/"
 )
