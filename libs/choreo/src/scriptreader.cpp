@@ -695,7 +695,7 @@ bool ScriptReader::HandleError()
 // Halt the machine such that a it will break into the debugger if present
 static void choreoBreakToDebugger()
 {
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
+#if defined(WIN32) || defined(RAD_XBOX)
     __asm { int 3 }
 #elif defined(RAD_GAMECUBE) 
    asm(trap);
@@ -708,7 +708,7 @@ static void choreoBreakToDebugger()
 
 static void choreoMessageBox(const char* message)
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     static char buffer[1024];
     
     StrPrintf(buffer, sizeof(buffer), "%s\nClick RETRY to debug", message);
@@ -731,7 +731,7 @@ static void choreoMessageBox(const char* message)
 // print a message to the debugging console
 static void choreoPrintDebugMessage(const char* message)
 {
-#if defined(RAD_WIN32) || defined(RAD_XBOX)
+#if defined(WIN32) || defined(RAD_XBOX)
    OutputDebugString(message);
 #else
    printf(message);
