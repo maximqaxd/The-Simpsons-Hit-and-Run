@@ -12,15 +12,15 @@
 #include <radtypeinfo.hpp>
 
 #if defined (RAD_WIN32) || defined (RAD_XBOX)
-#include "win32\win32typeinfovfcall.h"
+#include "win32/win32typeinfovfcall.h"
 #endif
 
 #ifdef RAD_PS2
-#include "ps2\ps2typeinfovfcall.h"
+#include "ps2/ps2typeinfovfcall.h"
 #endif
 
 #ifdef RAD_GAMECUBE
-#include "gcn\gcntypeinfovfcall.h"
+#include "gcn/gcntypeinfovfcall.h"
 #endif
 
 //============================================================================

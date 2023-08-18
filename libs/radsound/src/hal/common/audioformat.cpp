@@ -5,8 +5,8 @@
 
 #include "pch.hpp"
 #include "audioformat.hpp"
-#include "..\ps2\adpcm\vagheader.hpp"
-#include "..\..\radsound\radicaladpcm.hpp"
+#include "../ps2/adpcm/vagheader.hpp"
+#include "../../radsound/radicaladpcm.hpp"
 
 #ifdef RAD_GAMECUBE
     #include "audioformatgcn.hpp"
