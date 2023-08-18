@@ -18,7 +18,7 @@
 #include "FeLoaders.h"
 #include <string.h>
 
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include "FeApp.h"
 #include "FeGroup.h"
 #include "FeLanguage.h"
@@ -34,8 +34,8 @@
 #include "FeTextStyle.h"
 #include "FeText.h"
 #include "strings/pcstring.h"
-#include "resourcemanager/FeResourceManager.h"
-#include "xml/xmltree.h"
+#include "ResourceManager/FeResourceManager.h"
+#include "xml/XMLTree.h"
 #include "strings/stricmp.h"
 
 //=============================================================================

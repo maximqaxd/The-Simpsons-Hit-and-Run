@@ -25,7 +25,7 @@
 #include <p3d/utility.hpp>
 #include "utility/debugMessages.h"
 
-#include <fecharmap.h>
+#include <FeCharMap.h>
 #include <p3d/unicode.hpp>
 
 #ifdef BITMAP_TEXT_SUPPORT

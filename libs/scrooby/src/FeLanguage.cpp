@@ -13,7 +13,7 @@
 // Includes
 //=============================================================================
 #include "FeLanguage.h"
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include <string.h>
 
 //=============================================================================

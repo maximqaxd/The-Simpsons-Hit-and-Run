@@ -13,6 +13,8 @@
 // Includes
 //===========================================================================
 
+#include <SDL.h>
+
 #include <p3d/chunkfile.hpp>
 #include <p3d/inventory.hpp>
 #include <constants/chunks.h>
@@ -29,7 +31,7 @@
 #include "FeScreen.h"
 #include "FeSprite.h"
 #include "FeText.h"
-#include "resourcemanager/FeResourceManager.h"
+#include "ResourceManager/FeResourceManager.h"
 
 namespace Scrooby
 {
@@ -695,17 +697,17 @@ FeText* FeProjectChunkHandler::LoadTextChunk( tChunkFile* file )
     //
 
     if( 
-        ( stricmp( name , "Message" )             == 0 ) ||
-        ( stricmp( name , "MissionObjective" )    == 0 )
+        ( SDL_strcasecmp( name , "Message" )             == 0 ) ||
+        ( SDL_strcasecmp( name , "MissionObjective" )    == 0 )
       )
     {
         returnMe->Resize( 512 );
     }
     else if( 
-        ( stricmp( name , "Car_Value" )           == 0 ) ||
-        ( stricmp( name , "MissionFailureHint" )  == 0 ) ||
-        ( stricmp( name , "MissionInfo" )         == 0 ) ||
-        ( stricmp( name , "MissionTitle" )        == 0 )
+        ( SDL_strcasecmp( name , "Car_Value" )           == 0 ) ||
+        ( SDL_strcasecmp( name , "MissionFailureHint" )  == 0 ) ||
+        ( SDL_strcasecmp( name , "MissionInfo" )         == 0 ) ||
+        ( SDL_strcasecmp( name , "MissionTitle" )        == 0 )
         )
     {
         returnMe->Resize( 128 );

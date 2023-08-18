@@ -23,7 +23,7 @@
 #include "FeParent.h"
 #include "Project.h"
 #include "strings/pcstring.h"
-#include "resourcemanager/FeResourceManager.h"
+#include "ResourceManager/FeResourceManager.h"
 
 
 //===========================================================================

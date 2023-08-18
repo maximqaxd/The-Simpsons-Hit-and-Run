@@ -29,7 +29,7 @@
 #include <p3d/loadmanager.hpp>
 #include <p3d/imagefactory.hpp>
 #include <string.h>
-#include <feentity.h>
+#include <FeEntity.h>
 //===========================================================================
 // Defines
 //===========================================================================

@@ -18,11 +18,11 @@
 //=============================================================================
 // Nested Includes
 //=============================================================================
-#include <textbible.h>
+#include <TextBible.h>
 #include "FeEntity.h"
 #include "FeLoaders.h"
 #include "utility/rVector.hpp"
-#include "strings/unicodestring.h"
+#include "strings/unicodeString.h"
 
 //=============================================================================
 // Forward References

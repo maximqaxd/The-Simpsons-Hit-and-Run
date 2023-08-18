@@ -19,7 +19,7 @@
 #include "FeProject.h"
 #include "FePage.h"
 #include "FeLoadTags.h"
-#include "resourcemanager/FeResourceManager.h"
+#include "ResourceManager/FeResourceManager.h"
 #include "Page.h"
 #include "tLinearTable.h"
 #include "xml/XMLTree.h"

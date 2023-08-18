@@ -18,8 +18,8 @@
 #include <string.h>
 #include "FeLanguage.h"
 #include "FeTextBible.h"
-#include "strings/UnicodeString.h"
-#include "utility/debugmessages.h"
+#include "strings/unicodeString.h"
+#include "utility/debugMessages.h"
 //=============================================================================
 // Local constants, typedefs, macros
 //=============================================================================

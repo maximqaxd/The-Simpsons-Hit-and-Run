@@ -4,7 +4,7 @@
 #ifndef __FeParent__
 #define __FeParent__
 
-#include "owner.h"
+#include "Owner.h"
 #include <p3d/p3dtypes.hpp>
 #include <tLinearTable.h>
 

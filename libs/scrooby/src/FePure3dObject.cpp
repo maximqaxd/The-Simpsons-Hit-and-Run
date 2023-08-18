@@ -21,7 +21,7 @@
 #include <p3d/view.hpp>
 #include <p3d/scenegraph/scenegraph.hpp>
 #include <p3d/light.hpp>
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include "FeApp.h"
 #include "FePure3dObject.h"
 #include "FeResourceEntry.h"

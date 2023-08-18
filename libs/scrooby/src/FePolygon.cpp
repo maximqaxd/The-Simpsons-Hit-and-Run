@@ -17,7 +17,7 @@
 #include <p3d/shader.hpp>
 #include <p3d/utility.hpp>
 #include <raddebug.hpp>
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 
 //===========================================================================
 // Global Data, Local Data, Local Classes

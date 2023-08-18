@@ -11,7 +11,7 @@
 #include "FeApp.h"
 #include "FeOwner.h"
 #include "FeScreen.h"
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 
 FeDrawable::FeDrawable( const tName& name )       
 :

@@ -19,7 +19,7 @@
 #include "FeApp.h"
 #include "FePage.h"
 #include "FeScreen.h"
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include "ResourceManager/FeResourceManager.h"
 #include "strings/pcstring.h"
 #include "tLinearTable.h"

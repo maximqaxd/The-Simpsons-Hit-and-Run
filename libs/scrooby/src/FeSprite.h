@@ -18,10 +18,10 @@
 //=============================================================================
 // Nested Includes
 //=============================================================================
-#include "sprite.h"
-#include "feparent.h"
-#include "feboundeddrawable.h"
-#include "utility/rvector.hpp"
+#include "Sprite.h"
+#include "FeParent.h"
+#include "FeBoundedDrawable.h"
+#include "utility/rVector.hpp"
 
 //=============================================================================
 // Forward References

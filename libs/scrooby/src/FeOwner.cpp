@@ -25,7 +25,7 @@
 #include "tLinearTable.h"
 #include <raddebug.hpp>
 #include <p3d/utility.hpp>
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include "string.h"
 
 

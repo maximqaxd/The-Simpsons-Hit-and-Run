@@ -14,7 +14,7 @@
 //===========================================================================
 #include "FeApp.h"
 
-#include "utility/debugmessages.h"
+#include "utility/debugMessages.h"
 #include "FeChunkHandler.h"
 #include "FeProject.h"
 #include "FeScreen.h"
@@ -22,8 +22,8 @@
 #include <raddebug.hpp>
 #include <p3d/utility.hpp>
 #include <p3d/loadmanager.hpp>
-#include "feloaders.h"
-#include <fetextbible.h>
+#include "FeLoaders.h"
+#include <FeTextBible.h>
 #include <string.h>
 
 //===========================================================================

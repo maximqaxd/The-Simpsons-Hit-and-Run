@@ -17,12 +17,12 @@
 #include <p3d/camera.hpp>
 #include <p3d/context.hpp>
 #include <p3d/fileftt.hpp>
-#include <p3d/ImageFactory.hpp>
+#include <p3d/imagefactory.hpp>
 #include <p3d/utility.hpp>
 #include "FeApp.h"
 #include "FePage.h"
 #include "FeProject.h"
-#include "resourcemanager/FeResourceManager.h"
+#include "ResourceManager/FeResourceManager.h"
 #include "FeScreen.h"
 #include "FeTextBible.h"
 #include <string.h>
@@ -49,7 +49,7 @@
         #include <dolphin.h>
     #endif
 
-    #ifdef RAD_WIN32
+    #ifdef WIN32
         #define WIN32_EXTRA_LEAN
         #define WIN32_LEAN_AND_MEAN
         #include <Windows.h>
