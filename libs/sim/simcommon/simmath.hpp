@@ -4,6 +4,8 @@
 
 // basic p3d and radlib include  
 
+#include <cmath>
+
 #include <radmath/radmath.hpp>
 #include <raddebug.hpp>
 
@@ -46,8 +48,8 @@ template <class TYPE>
     inline TYPE ClampBetween( TYPE val, const TYPE minv, const TYPE maxv)
 {
     rAssert(minv<=maxv);
-    val = Min(val,maxv);
-    return Max(val,minv);
+    val = std::min(val,maxv);
+    return std::max(val,minv);
 }
 
 inline float ACosSafe(float a)

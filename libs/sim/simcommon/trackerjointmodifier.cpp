@@ -1,5 +1,5 @@
 
-#include <simcommon/TrackerJointModifier.hpp>
+#include <simcommon/trackerjointmodifier.hpp>
 #include <simcommon/simtarget.hpp>
 #include <simcommon/simmath.hpp>
 #include <simcommon/dline2.hpp>
