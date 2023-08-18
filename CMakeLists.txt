@@ -980,6 +980,8 @@ target_include_directories(choreo
 target_link_libraries(choreo
 	p3d
 	poser
+	radcore
+	sim
 )
 
 add_library(poser OBJECT ${POSER_SOURCES})
@@ -1003,6 +1005,7 @@ target_include_directories(radmovie
 	PRIVATE "libs/radmovie/src/pch/"
 )
 target_link_libraries(radmovie
+	p3d
 	radcore
 )
 
@@ -1054,6 +1057,7 @@ target_include_directories(sim
 )
 target_link_libraries(sim
 	p3d
+	poser
 )
 
 add_executable(srr2 ${SRR2_SOURCES})
