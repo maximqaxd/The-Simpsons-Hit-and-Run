@@ -15,8 +15,8 @@
 // Static Initialization
 //============================================================================
 
-radSoundHalVoiceWin * radSoundHalVoiceWin::s_pLinkedClassHead = NULL;
-radSoundHalVoiceWin * radSoundHalVoiceWin::s_pLinkedClassTail = NULL;
+template<> radSoundHalVoiceWin * radLinkedClass<radSoundHalVoiceWin>::s_pLinkedClassHead = NULL;
+template<> radSoundHalVoiceWin * radLinkedClass<radSoundHalVoiceWin>::s_pLinkedClassTail = NULL;
 
 //========================================================================
 // radSoundHalVoiceWin::radSoundHalVoiceWin

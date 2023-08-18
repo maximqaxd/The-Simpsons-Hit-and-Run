@@ -6,8 +6,8 @@
 #include "pch.hpp"
 #include "bufferloader.hpp"
 
-radSoundBufferLoaderWin * radLinkedClass< radSoundBufferLoaderWin >::s_pLinkedClassHead = NULL;
-radSoundBufferLoaderWin * radLinkedClass< radSoundBufferLoaderWin >::s_pLinkedClassTail = NULL;
+template<> radSoundBufferLoaderWin * radLinkedClass< radSoundBufferLoaderWin >::s_pLinkedClassHead = NULL;
+template<> radSoundBufferLoaderWin * radLinkedClass< radSoundBufferLoaderWin >::s_pLinkedClassTail = NULL;
 
 //=========================================================================
 // radSoundBufferLoaderWin::radSoundBufferLoaderWin

@@ -37,8 +37,8 @@
 //
 // By default there are no namespaces
 //
-IRadNameSpace* radLinkedClass< IRadNameSpace >::s_pLinkedClassHead = NULL;
-IRadNameSpace* radLinkedClass< IRadNameSpace >::s_pLinkedClassTail = NULL;
+template<> IRadNameSpace* radLinkedClass< IRadNameSpace >::s_pLinkedClassHead = NULL;
+template<> IRadNameSpace* radLinkedClass< IRadNameSpace >::s_pLinkedClassTail = NULL;
 
 
 //=============================================================================
