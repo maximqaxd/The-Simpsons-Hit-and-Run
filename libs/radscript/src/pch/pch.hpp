@@ -9,7 +9,7 @@
 //
 // only win32 and xbox take advantage of the pch at this moment.
 //
-#if defined RAD_WIN32 || defined RAD_XBOX
+#if defined WIN32 || defined RAD_XBOX
 //
 // Microsoft header files
 //

@@ -12,16 +12,6 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef RAD_WIN32
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_LEAN
-#include <windows.h>
-#endif
-
-#ifdef RAD_XBOX
-#include<xtl.h>
-#endif
-
 class AdaptPDDI : public pddiDevice::MessageCallback
 {
     void Info(const char* message)
