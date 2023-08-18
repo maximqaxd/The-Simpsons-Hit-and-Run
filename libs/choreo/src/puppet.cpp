@@ -118,7 +118,7 @@ AnimationDriver* Puppet::PlayAnimation(tUID animUID,
 
     //P3DASSERT(anim != 0);
     if (anim == 0)
-        return false;
+        return nullptr;
     
 	// use temporary memory for drivers
     radMemoryAllocator oldAlloc = ::radMemorySetCurrentAllocator(RADMEMORY_ALLOC_TEMP);
@@ -285,7 +285,7 @@ LocomotionDriver* Puppet::PlayLocomotion(tUID locoUID,
     Locomotion* loco = choreo::find<Locomotion>(m_Bank, locoUID);
     P3DASSERT(loco != 0);
     if (loco == 0)
-        return false;
+        return nullptr;
     
     LocomotionDriver* locoDriver;
     
@@ -319,7 +319,7 @@ LocomotionDriver* Puppet::PlayLocomotion(tUID locoUID,
     // check to make sure we can create a new driver slot
     P3DASSERT(m_DriverCount < m_MaxDriverCount);
     if (m_DriverCount >= m_MaxDriverCount)
-        return false;
+        return nullptr;
     
 	// use temporary memory for drivers
     radMemoryAllocator oldAlloc = ::radMemorySetCurrentAllocator(RADMEMORY_ALLOC_TEMP);
@@ -387,7 +387,7 @@ SynchronizationDriver* Puppet::PlaySynchronization(tUID locoUID,
     Locomotion* loco = choreo::find<Locomotion>(m_Bank, locoUID);
     P3DASSERT(loco != 0);
     if (loco == 0)
-        return false;
+        return nullptr;
     
     SynchronizationDriver* syncDriver;
     
@@ -423,7 +423,7 @@ SynchronizationDriver* Puppet::PlaySynchronization(tUID locoUID,
     // check to make sure we can create a new driver slot
     P3DASSERT(m_DriverCount < m_MaxDriverCount);
     if (m_DriverCount >= m_MaxDriverCount)
-        return false;
+        return nullptr;
     
 	// use temporary memory for drivers
     radMemoryAllocator oldAlloc = ::radMemorySetCurrentAllocator(RADMEMORY_ALLOC_TEMP);
