@@ -45,7 +45,7 @@ static void * p3d_png_malloc(png_structp, png_size_t size)
     return p3d::MallocTemp(size);
 }
 
-static void p3d_png_free(png_structp, png_structp data)
+static void p3d_png_free(png_structp, void* data)
 {
     p3d::FreeTemp(data);
 }
@@ -121,7 +121,7 @@ void tPNGHandler::CreateImage(tFile* file, tImageHandler::Builder* builder)
     png_set_bgr(pPNG);
     
     // expand 24 bit pixels to 32
-    if(pngInfo->pixel_depth != 32)
+    if(png_get_channels(pPNG, pngInfo) == PNG_COLOR_TYPE_RGB)
     {
         png_set_filler(pPNG, 0xff, PNG_FILLER_AFTER);
     }
