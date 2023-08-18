@@ -37,8 +37,8 @@ radMemoryTwoWayAllocator::radMemoryTwoWayAllocator( void )
     m_pBottom( NULL ),
     m_pCurrentTop( NULL ),
     m_pCurrentBottom( NULL ),
-    m_NumTopAllocations( NULL ),
-    m_NumBottomAllocations( NULL ),
+    m_NumTopAllocations( 0 ),
+    m_NumBottomAllocations( 0 ),
     m_Direction( IRadMemoryTwoWayAllocator::TopDown )
 {
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radMemoryTwoWayAllocator" );    

@@ -35,7 +35,7 @@ extern "C" void radStackTraceWin32Get( unsigned int * results, int max, const vo
 
   while (max--)
   {
-    if (curfp != NULL &&     // is this frame pointer not NULL
+    if (curfp != 0 &&     // is this frame pointer not NULL
         curfp > prevfp &&    // this frame pointer has to be greater than the previous
         !(curfp & 0x3))      // has to be 4byte aligned
     {
@@ -48,7 +48,7 @@ extern "C" void radStackTraceWin32Get( unsigned int * results, int max, const vo
     {
       (*results++) = last;
 
-      curfp = NULL;
+      curfp = 0;
     }
   }
 }
