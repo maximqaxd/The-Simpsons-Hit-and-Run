@@ -1294,9 +1294,13 @@ class radControllerSystemXBox
                             (
                                 xIController2
                             );
-                        }                        
+                        }
+                        else
+                        {
+                            Release( );
+                            return;
+                        }
                     }
-
 
                     IRadWeakInterfaceWrapper * pIWir;
 
@@ -1308,9 +1312,7 @@ class radControllerSystemXBox
                         IRadControllerConnectionChangeCallback * pCallback = (IRadControllerConnectionChangeCallback *) pIWir->GetWeakInterface( );
                         pCallback->OnControllerConnectionStatusChange( xIController2 );
                     }
-
-                                                                                 
-                }                
+                }
             }
         }
 
