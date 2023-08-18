@@ -325,9 +325,9 @@ void Matrix::Transpose(void)
 
 void Matrix::InvertOrtho(void)
 {
-    register float t0 = - m[3][0];
-    register float t1 = - m[3][1];
-    register float t2 = - m[3][2];
+    float t0 = - m[3][0];
+    float t1 = - m[3][1];
+    float t2 = - m[3][2];
 
     Transpose();
     IdentityProjection();
