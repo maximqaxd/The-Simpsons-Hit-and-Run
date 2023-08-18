@@ -2115,32 +2115,32 @@ tBillboardQuad::~tBillboardQuad()
 inline void TransformQuick(Vector4& v)
 {
     asm __volatile__(
-    "
+    R"(
         lqc2 vf01, 0x00(%0)
         vmulaw.xyz ACC, vf13, vf00
         vmaddaz.xyz ACC, vf12, vf01
         vmadday.xyz ACC, vf11, vf01
         vmaddx.xyz vf01, vf10, vf01
         sqc2 vf01, 0x00(%0)
-    " : "+r" (&v) );
+    )" : "+r" (&v) );
 }
 
 inline void AddQuick(Vector4& r, const Vector& v)
 {
     asm __volatile__(
-    "
+    R"(
         lqc2 vf01, 0x00(%0)
         lqc2 vf02, 0x00(%1)
         vadd.xyz vf01, vf01, vf02
         sqc2 vf01, 0x00(%0)
-    " : "+r" (&r) : "r" (&v) );
+    )" : "+r" (&r) : "r" (&v) );
 }
 
 // the normalized result is scaled by r.w (r = normalize(a-b) * r.w)
 inline void SubAndNormalizeQuick(Vector4& r, const Vector& a, const Vector& b)
 {
     asm __volatile__(
-    "
+    R"(
         lqc2 vf09, 0x00(%0)
         lqc2 vf02, 0x00(%1)
         lqc2 vf03, 0x00(%2)
@@ -2154,19 +2154,19 @@ inline void SubAndNormalizeQuick(Vector4& r, const Vector& a, const Vector& b)
         vwaitq                       # zzzzz...
         vmulq.xyz vf01, vf01,  Q     #
         sqc2 vf01, 0(%0)
-    " : "+r" (&r) : "r" (&a), "r" (&b) );
+    )" : "+r" (&r) : "r" (&a), "r" (&b) );
 }
 
 // loads aligned matrix into vf10-vf13
 inline void LoadMatrix(const Matrix& m)
 {
     asm __volatile__(
-    "
+    R"(
         lqc2 vf10, 0x00(%0)
         lqc2 vf11, 0x10(%0)
         lqc2 vf12, 0x20(%0)
         lqc2 vf13, 0x30(%0)
-    " : : "r" (&m) );
+    )" : : "r" (&m) );
 }
 
 void tBillboardQuad::Display(pddiPrimStream* stream, const Matrix& world, const Matrix& camera, const Matrix& worldToCamera, float intensityBias)
