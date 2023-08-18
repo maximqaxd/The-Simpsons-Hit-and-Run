@@ -17,7 +17,7 @@
 #include <input/wheelrumble.h>
 #endif
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 const short         DEFAULT_SPRING_COEFF        = 3000;
 #else
 const short         DEFAULT_SPRING_COEFF        = 50;
@@ -45,7 +45,7 @@ float gSpringSpeed = 80.0f;
 #else
 const float gDamperSpeed = 200.0f;
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 const u16 gSpringMax = 1000;
 const unsigned char gSpringSlip = 20;
 const short gDamperMax = 100;

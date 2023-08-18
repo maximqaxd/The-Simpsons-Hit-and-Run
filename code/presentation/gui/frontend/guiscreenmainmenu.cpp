@@ -437,7 +437,7 @@ void CGuiScreenMainMenu::HandleMessage
                 }
             }
         }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         else if( param1 == PROMPT_CONFIRM_QUIT )
         {
             switch( param2 )

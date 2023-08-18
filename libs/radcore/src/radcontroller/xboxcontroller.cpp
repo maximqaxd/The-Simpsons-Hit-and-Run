@@ -74,8 +74,7 @@ static char * g_Xbipt[] =
     "Button",
     "AnalogButton",
     "XAxis",
-    "YAxis",
-    "AnalogAsDigital"
+    "YAxis"
 };
 
 static XBoxInputPoint g_XBoxPoints[] =
@@ -92,8 +91,8 @@ static XBoxInputPoint g_XBoxPoints[] =
     { g_Xbipt[ 0 ], "B",                XINPUT_GAMEPAD_B },
     { g_Xbipt[ 0 ], "X",                XINPUT_GAMEPAD_X },
     { g_Xbipt[ 0 ], "Y",                XINPUT_GAMEPAD_Y },
-    { g_Xbipt[ 4 ], "Black",            XINPUT_GAMEPAD_LEFT_SHOULDER },
-    { g_Xbipt[ 4 ], "White",            XINPUT_GAMEPAD_RIGHT_SHOULDER },
+    { g_Xbipt[ 0 ], "Black",            XINPUT_GAMEPAD_LEFT_SHOULDER },
+    { g_Xbipt[ 0 ], "White",            XINPUT_GAMEPAD_RIGHT_SHOULDER },
     { g_Xbipt[ 1 ], "LeftTrigger",      sizeof ( WORD ) + ( sizeof( BYTE ) * 0 ) },
     { g_Xbipt[ 1 ], "RightTrigger",     sizeof ( WORD ) + ( sizeof( BYTE ) * 1 ) },
     { g_Xbipt[ 2 ], "LeftStickX",       sizeof ( WORD ) + ( sizeof( BYTE ) * 2 ) + ( sizeof( SHORT ) * 0 ) },

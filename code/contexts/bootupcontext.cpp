@@ -338,7 +338,7 @@ void BootupContext::OnStart( ContextEnum previousContext )
     //
     GetLoadingManager()->AddCallback( this );
 
-#if defined( RAD_WIN32 ) && defined( SHOW_MOVIES )
+#if defined( RAD_PC ) && defined( SHOW_MOVIES )
     GetInputManager()->GetFEMouse()->SetInGameMode( true );
 #endif
 }
@@ -364,7 +364,7 @@ void BootupContext::OnStop( ContextEnum nextContext )
     // release GUI bootup
     GetGuiSystem()->HandleMessage( GUI_MSG_RELEASE_BOOTUP );
 
-#if defined( RAD_WIN32 ) && defined( SHOW_MOVIES )
+#if defined( RAD_PC ) && defined( SHOW_MOVIES )
     GetInputManager()->GetFEMouse()->SetInGameMode( false );
 #endif
 

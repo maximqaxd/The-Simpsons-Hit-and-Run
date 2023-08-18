@@ -27,7 +27,7 @@ public:
         DPadDown,
         DPadLeft,
         DPadRight,
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         GetOutCar,
         MouseLookLeft,
         MouseLookRight,
