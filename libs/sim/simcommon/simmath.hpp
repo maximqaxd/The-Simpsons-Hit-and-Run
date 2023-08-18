@@ -4,7 +4,7 @@
 
 // basic p3d and radlib include  
 
-#include <cmath>
+#include <algorithm>
 
 #include <radmath/radmath.hpp>
 #include <raddebug.hpp>
