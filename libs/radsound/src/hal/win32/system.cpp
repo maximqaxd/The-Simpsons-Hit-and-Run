@@ -7,8 +7,8 @@
 #include "listener.hpp"
 #include "buffer.hpp"
 #include "voice.hpp"
-#include "..\common\banner.hpp"
-#include "..\common\memoryregion.hpp"
+#include "../common/banner.hpp"
+#include "../common/memoryregion.hpp"
 #include <radplatform.hpp>
 #include <efx.h>
 
@@ -61,8 +61,6 @@ radSoundHalSystem::~radSoundHalSystem( void )
 
 	radSoundHalMemoryRegion::Terminate( );
     ::radMemoryFreeAligned( GetThisAllocator( ), m_pSoundMemory );
-
-    ::CoUninitialize( );
 
     s_pRsdSystem = NULL;
 }
@@ -210,7 +208,7 @@ void radSoundHalSystem::GetStats( IRadSoundHalSystem::Stats * pStats )
 {
     rAssert( pStats );
 
-    ::ZeroMemory( pStats, sizeof( IRadSoundHalSystem::Stats ) );
+    ::memset( pStats, 0, sizeof( IRadSoundHalSystem::Stats ) );
 
 	//
 	// Get voice info
