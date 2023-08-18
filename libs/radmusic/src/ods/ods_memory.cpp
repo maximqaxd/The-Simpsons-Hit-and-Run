@@ -9,7 +9,6 @@
 //-----------------------------------------------------------------------------
 
 #include "pch.hpp"
-#include <SDL.h>
 #include <ods/ods.hpp>
 #include <radload/loader.hpp>
 #include <radfile.hpp>
@@ -1174,7 +1173,7 @@ stream_functions debug_printf_stream_functions = { debug_printf_write, debug_pri
 
 int VsnPrintf( char *buffer, size_t count, const char *format, va_list argptr )
 {
-    return SDL_vsnprintf( buffer, count, format, argptr );
+    return vsnprintf( buffer, count, format, argptr );
 }
     
 bool stream_printf( stream_info * p_si, const char * fmt, ... )
