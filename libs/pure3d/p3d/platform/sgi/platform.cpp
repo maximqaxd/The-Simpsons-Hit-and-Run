@@ -6,8 +6,6 @@
 #include <p3d/platform/sgi/platform.hpp>
 #include <p3d/platform/sgi/plat_filemap.hpp>
 #include <error.hpp>
-#include <fstream.h>
-#include <strstream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

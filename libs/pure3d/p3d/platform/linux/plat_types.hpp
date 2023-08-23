@@ -6,7 +6,7 @@
 #ifndef _PLAT_TYPES_HPP
 #define _PLAT_TYPES_HPP
 
-#ifndef LINUX
+#ifndef __linux__
 #error Linux platform header included in non-Linux build
 #endif
 

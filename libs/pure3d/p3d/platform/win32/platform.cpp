@@ -10,8 +10,6 @@
 
 #include <constants/version.hpp>
 
-#include <fstream>
-#include <strstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

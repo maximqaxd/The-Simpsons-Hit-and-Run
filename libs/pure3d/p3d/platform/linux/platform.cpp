@@ -6,8 +6,6 @@
 #include <p3d/platform/linux/platform.hpp>
 #include <p3d/platform/linux/plat_filemap.hpp>
 #include <p3d/error.hpp>
-#include <fstream.h>
-#include <strstream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
