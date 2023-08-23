@@ -64,7 +64,7 @@ static unsigned int s_AllocCount = 0;
 //=============================================================================
 
 #ifndef RAD_GAMECUBE
-static void * __stdcall BinkAllocate( U64 bytes )
+static void * BinkAllocate( U64 bytes )
 #else
 static void * BinkAllocate( unsigned long bytes )
 #endif
@@ -78,7 +78,7 @@ static void * BinkAllocate( unsigned long bytes )
 //=============================================================================
 
 #ifndef RAD_GAMECUBE
-static void __stdcall BinkFree( void * pBuffer )
+static void BinkFree( void * pBuffer )
 #else
 static void BinkFree( void * pBuffer )
 #endif
@@ -128,8 +128,8 @@ static void BinkAramFree( void * pBuffer )
 // Static initialization
 //=============================================================================
 
-radMoviePlayerBink * radLinkedClass< radMoviePlayerBink >::s_pLinkedClassHead = NULL;
-radMoviePlayerBink * radLinkedClass< radMoviePlayerBink >::s_pLinkedClassTail = NULL;
+template<> radMoviePlayerBink * radLinkedClass< radMoviePlayerBink >::s_pLinkedClassHead = NULL;
+template<> radMoviePlayerBink * radLinkedClass< radMoviePlayerBink >::s_pLinkedClassTail = NULL;
 
 //=============================================================================
 // radMoviePlayerBink::radMoviePlayerBink
