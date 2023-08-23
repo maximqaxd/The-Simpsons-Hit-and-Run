@@ -556,17 +556,17 @@ set(RADCORE_SOURCES
 	#"libs/radcore/src/raddebugwatch/watchclient.cpp"
 	"libs/radcore/src/raddispatch/dispatcher.cpp"
 	"libs/radcore/src/radfile/common/cementer.cpp"
-	#"libs/radcore/src/radfile/common/drive.cpp"
-	#"libs/radcore/src/radfile/common/drivethread.cpp"
+	"libs/radcore/src/radfile/common/drive.cpp"
+	"libs/radcore/src/radfile/common/drivethread.cpp"
 	"libs/radcore/src/radfile/common/filecache.cpp"
 	"libs/radcore/src/radfile/common/file.cpp"
 	"libs/radcore/src/radfile/common/filesystem.cpp"
-	#"libs/radcore/src/radfile/common/instancedrive.cpp"
-	#"libs/radcore/src/radfile/common/platformdrives.cpp"
+	"libs/radcore/src/radfile/common/instancedrive.cpp"
+	"libs/radcore/src/radfile/common/platformdrives.cpp"
 	"libs/radcore/src/radfile/common/radfile.cpp"
 	#"libs/radcore/src/radfile/common/remotedrive.cpp"
 	"libs/radcore/src/radfile/common/requests.cpp"
-	#"libs/radcore/src/radfile/win32/win32drive.cpp"
+	"libs/radcore/src/radfile/win32/win32drive.cpp"
 	"libs/radcore/src/radkey/radkey.cpp"
 	"libs/radcore/src/radmemory/align.cpp"
 	"libs/radcore/src/radmemory/binallocator.cpp"
@@ -697,8 +697,8 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/memheap.cpp"
 	"libs/pure3d/p3d/memory.cpp"
 	"libs/pure3d/p3d/memorysection.cpp"
-	"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
-	"libs/pure3d/p3d/platform/win32/platform.cpp"
+	#"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
+	#"libs/pure3d/p3d/platform/win32/platform.cpp"
 	"libs/pure3d/p3d/png.cpp"
 	"libs/pure3d/p3d/pointcamera.cpp"
 	"libs/pure3d/p3d/pointlight.cpp"
@@ -887,6 +887,7 @@ set(SCROOBY_SOURCES
 	"libs/scrooby/src/scrooby/App.cpp"
 	"libs/scrooby/src/strings/pcstring.cpp"
 	"libs/scrooby/src/strings/stricmp.cpp"
+	"libs/scrooby/src/strings/UnicodeString.cpp"
 	"libs/scrooby/src/tLinearTable.cpp"
 	"libs/scrooby/src/utility/AsyncFileLoader.cpp"
 	"libs/scrooby/src/utility/BufferReader.cpp"
@@ -939,6 +940,32 @@ set(SIM_SOURCES
 	"libs/sim/simphysics/physicsobject.cpp"
 	"libs/sim/simphysics/restingdetector.cpp"
 	"libs/sim/simphysics/virtualcm.cpp"
+)
+
+set(BINK_SOURCES
+	"libs/sdks/linux/bink/binkacd.cpp"
+	"libs/sdks/linux/bink/binkasyncRR.c"
+	"libs/sdks/linux/bink/binkasyncthread.c"
+	"libs/sdks/linux/bink/binkcomm.c"
+	"libs/sdks/linux/bink/binkfile.c"
+	"libs/sdks/linux/bink/binklnx.c"
+	"libs/sdks/linux/bink/binkmarkers.c"
+	"libs/sdks/linux/bink/binkpa.c"
+	"libs/sdks/linux/bink/binkplugin.c"
+	"libs/sdks/linux/bink/binkpluginlnx.c"
+	"libs/sdks/linux/bink/binkread.c"
+	"libs/sdks/linux/bink/binkssmix.c"
+	"libs/sdks/linux/bink/binkutil.c"
+	"libs/sdks/linux/bink/blitter.c" # custom
+	"libs/sdks/linux/bink/cpp_rratomics.cpp"
+	"libs/sdks/linux/bink/expand2.c"
+	"libs/sdks/linux/bink/popmal.c"
+	"libs/sdks/linux/bink/posix_defread.c"
+	"libs/sdks/linux/bink/posix_radmem.c"
+	"libs/sdks/linux/bink/posix_rrCpu.c"
+	"libs/sdks/linux/bink/posix_rrThreads2.c"
+	"libs/sdks/linux/bink/radfft.cpp"
+	"libs/sdks/linux/bink/x86_cpu.c"
 )
 
 add_library(radcore OBJECT ${RADCORE_SOURCES})
@@ -1005,6 +1032,7 @@ target_include_directories(radmovie
 	PRIVATE "libs/radmovie/src/pch/"
 )
 target_link_libraries(radmovie
+	bink
 	p3d
 	radcore
 	radsound
@@ -1061,9 +1089,23 @@ target_link_libraries(sim
 	poser
 )
 
+add_library(bink ${BINK_SOURCES})
+target_compile_definitions(bink
+	PRIVATE
+		USING_EGT
+		NO_BINK10_SUPPORT
+)
+target_compile_options(bink
+	PRIVATE -Wno-multichar
+)
+target_include_directories(bink
+	PUBLIC "libs/sdks/linux/bink/"
+)
+
 add_executable(srr2 ${SRR2_SOURCES})
 target_link_libraries(srr2
 	SDL2::SDL2
+	bink
 	choreo
 	p3d
 	poser
