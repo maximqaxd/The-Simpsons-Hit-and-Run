@@ -1007,6 +1007,7 @@ target_include_directories(radmovie
 target_link_libraries(radmovie
 	p3d
 	radcore
+	radsound
 )
 
 add_library(radmusic ${RADMUSIC_SOURCES})
