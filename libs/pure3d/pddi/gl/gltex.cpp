@@ -225,7 +225,7 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
     {
         unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = new char[ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize];
+            bits[i] = new char[size_t(ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize)];
     }
     else
     {
