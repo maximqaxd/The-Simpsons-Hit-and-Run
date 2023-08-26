@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.25)
 
 project(SRR2)
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_net REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
@@ -549,7 +550,7 @@ set(RADCORE_SOURCES
 	#"libs/radcore/src/raddebugcommunication/hosthiosocket.cpp"
 	#"libs/radcore/src/raddebugcommunication/targetconnection.cpp"
 	#"libs/radcore/src/raddebugcommunication/targetsocketchannel.cpp"
-	#"libs/radcore/src/raddebugcommunication/targetx.cpp"
+	"libs/radcore/src/raddebugcommunication/targetx.cpp"
 	"libs/radcore/src/raddebugconsole/consoleclient.cpp"
 	"libs/radcore/src/raddebug/debug.cpp"
 	#"libs/radcore/src/raddebugfileserver/fileserver.cpp"
@@ -564,7 +565,7 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radfile/common/instancedrive.cpp"
 	"libs/radcore/src/radfile/common/platformdrives.cpp"
 	"libs/radcore/src/radfile/common/radfile.cpp"
-	#"libs/radcore/src/radfile/common/remotedrive.cpp"
+	"libs/radcore/src/radfile/common/remotedrive.cpp"
 	"libs/radcore/src/radfile/common/requests.cpp"
 	"libs/radcore/src/radfile/win32/win32drive.cpp"
 	"libs/radcore/src/radkey/radkey.cpp"
@@ -697,8 +698,8 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/memheap.cpp"
 	"libs/pure3d/p3d/memory.cpp"
 	"libs/pure3d/p3d/memorysection.cpp"
-	#"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
-	#"libs/pure3d/p3d/platform/win32/platform.cpp"
+	"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
+	"libs/pure3d/p3d/platform/win32/platform.cpp"
 	"libs/pure3d/p3d/png.cpp"
 	"libs/pure3d/p3d/pointcamera.cpp"
 	"libs/pure3d/p3d/pointlight.cpp"
@@ -951,8 +952,8 @@ set(BINK_SOURCES
 	"libs/sdks/linux/bink/binklnx.c"
 	"libs/sdks/linux/bink/binkmarkers.c"
 	"libs/sdks/linux/bink/binkpa.c"
-	"libs/sdks/linux/bink/binkplugin.c"
-	"libs/sdks/linux/bink/binkpluginlnx.c"
+	#"libs/sdks/linux/bink/binkplugin.c"
+	#"libs/sdks/linux/bink/binkpluginlnx.c"
 	"libs/sdks/linux/bink/binkread.c"
 	"libs/sdks/linux/bink/binkssmix.c"
 	"libs/sdks/linux/bink/binkutil.c"
@@ -966,6 +967,19 @@ set(BINK_SOURCES
 	"libs/sdks/linux/bink/posix_rrThreads2.c"
 	"libs/sdks/linux/bink/radfft.cpp"
 	"libs/sdks/linux/bink/x86_cpu.c"
+)
+
+set(PDDI_SOURCES
+	"libs/pure3d/pddi/base/basecontext.cpp"
+	"libs/pure3d/pddi/base/baseshader.cpp"
+	"libs/pure3d/pddi/base/font.cpp"
+	"libs/pure3d/pddi/base/pddiobj.cpp"
+	"libs/pure3d/pddi/gl/display_win32/gldisplay.cpp"
+	"libs/pure3d/pddi/gl/glcon.cpp"
+	"libs/pure3d/pddi/gl/gldev.cpp"
+	"libs/pure3d/pddi/gl/glmat.cpp"
+	"libs/pure3d/pddi/gl/gltex.cpp"
+	"libs/pure3d/pddi/gl/glad/src/glad.c"
 )
 
 add_library(radcore OBJECT ${RADCORE_SOURCES})
@@ -987,6 +1001,16 @@ target_link_libraries(radcontent
 	radmath
 )
 
+add_library(pddi OBJECT ${PDDI_SOURCES})
+target_include_directories(pddi
+	PUBLIC "libs/pure3d/"
+	PRIVATE "libs/pure3d/pddi/gl/glad/include/"
+)
+target_link_libraries(pddi
+	SDL2::SDL2
+	radmath
+)
+
 add_library(p3d OBJECT ${P3D_SOURCES})
 target_include_directories(p3d
 	PUBLIC "libs/pure3d/"
@@ -995,6 +1019,7 @@ target_include_directories(p3d
 )
 target_link_libraries(p3d
 	PNG::PNG
+	pddi
 	radcore
 	radcontent
 	radmath
@@ -1021,12 +1046,12 @@ target_link_libraries(poser
 	radmath
 )
 
-add_library(radmath ${RADMATH_SOURCES})
+add_library(radmath OBJECT ${RADMATH_SOURCES})
 target_include_directories(radmath
 	PUBLIC "libs/radmath/"
 )
 
-add_library(radmovie ${RADMOVIE_SOURCES})
+add_library(radmovie OBJECT ${RADMOVIE_SOURCES})
 target_include_directories(radmovie
 	PUBLIC "libs/radmovie/inc/"
 	PRIVATE "libs/radmovie/src/pch/"
@@ -1038,7 +1063,7 @@ target_link_libraries(radmovie
 	radsound
 )
 
-add_library(radmusic ${RADMUSIC_SOURCES})
+add_library(radmusic OBJECT ${RADMUSIC_SOURCES})
 target_include_directories(radmusic
 	PUBLIC "libs/radmusic/inc/"
 	PRIVATE "libs/radmusic/src/pch/"
@@ -1050,19 +1075,18 @@ target_link_libraries(radmusic
 	radsound
 )
 
-add_library(radsound ${RADSOUND_SOURCES})
+add_library(radsound OBJECT ${RADSOUND_SOURCES})
 target_include_directories(radsound
 	PUBLIC "libs/radsound/inc/"
 	PRIVATE "libs/radsound/src/pch/"
-	PRIVATE "${OPENAL_INCLUDE_DIR}"
 	PRIVATE "libs/radsound/src/common/"
 )
 target_link_libraries(radsound
-	${OPENAL_LIBRARY} # TODO: CMake 3.25 introduces OpenAL::OpenAL
+	OpenAL::OpenAL
 	radcore
 )
 
-add_library(radscript ${RADSCRIPT_SOURCES})
+add_library(radscript OBJECT ${RADSCRIPT_SOURCES})
 target_include_directories(radscript
 	PUBLIC "libs/radscript/inc/"
 	PRIVATE "libs/radscript/src/pch/"
@@ -1071,7 +1095,7 @@ target_link_libraries(radscript
 	radcore
 )
 
-add_library(scrooby ${SCROOBY_SOURCES})
+add_library(scrooby OBJECT ${SCROOBY_SOURCES})
 target_include_directories(scrooby
 	PUBLIC "libs/scrooby/inc/"
 	PUBLIC "libs/scrooby/src/"
@@ -1080,7 +1104,7 @@ target_link_libraries(scrooby
 	p3d
 )
 
-add_library(sim ${SIM_SOURCES})
+add_library(sim OBJECT ${SIM_SOURCES})
 target_include_directories(sim
 	PUBLIC "libs/sim/"
 )
@@ -1089,7 +1113,7 @@ target_link_libraries(sim
 	poser
 )
 
-add_library(bink ${BINK_SOURCES})
+add_library(bink OBJECT ${BINK_SOURCES})
 target_compile_definitions(bink
 	PRIVATE
 		USING_EGT
@@ -1105,9 +1129,11 @@ target_include_directories(bink
 add_executable(srr2 ${SRR2_SOURCES})
 target_link_libraries(srr2
 	SDL2::SDL2
+	SDL2_net::SDL2_net # TODO: port debug socket stuff to SDL2_net
 	bink
 	choreo
 	p3d
+	pddi
 	poser
 	radcore
 	radcontent
