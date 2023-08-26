@@ -338,7 +338,7 @@ pddiLockInfo* pglTexture::Lock(int mipMap, pddiRect* rect)
     }
     else
     {
-        unsigned int blocksize = lock.format == PDDI_TEXTYPE_DXT1 ? 8 : 16;
+        unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
         lock.pitch = ceil(double(xSize>>mipMap)/4)*blocksize;
         lock.bits = bits[mipMap];
     }
