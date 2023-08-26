@@ -30,6 +30,7 @@
 #include <events/eventenum.h>
 #include <events/eventmanager.h>
 
+#include <worldsim/character/character.h>
 #include <worldsim/character/charactercontroller.h>
 #include <radmath/radmath.hpp>
 #include <worldsim/redbrick/vehicle.h>
