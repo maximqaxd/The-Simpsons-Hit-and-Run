@@ -435,7 +435,7 @@ void radSoundHalVoiceWin::SetPitchInternal( void )
         {
             alSource3i( m_Source, AL_AUXILIARY_SEND_FILTER,
                 refSystem->GetOpenALAuxSlot( i ),
-                i, NULL );
+                i, 0 );
             rWarningMsg( alGetError() == AL_NO_ERROR, "Failed to set the source aux send filter" );
         }
 

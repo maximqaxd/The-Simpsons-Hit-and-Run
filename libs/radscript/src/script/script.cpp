@@ -91,7 +91,7 @@ void IRadScript::UnLoad( void )
         radMemoryFreeAligned( m_pFileMemory );
 
         m_pFileMemory = NULL;
-        m_FileSize = NULL;
+        m_FileSize = 0;
     }
 }
 
