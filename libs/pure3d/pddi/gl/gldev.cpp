@@ -32,7 +32,7 @@ static pglDevice gblDevice;
 
 char libName [] = "OpenGL";
 
-DLLEXPORT int pddiCreate(int versionMajor, int versionMinor, pddiDevice** device)
+int pddiCreate(int versionMajor, int versionMinor, pddiDevice** device)
 {
     if((versionMajor != PDDI_VERSION_MAJOR) || (versionMinor != PDDI_VERSION_MINOR))
     {

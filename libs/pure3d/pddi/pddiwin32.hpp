@@ -30,7 +30,7 @@ typedef uint16_t PDDI_U16;
 class pddiDevice;
 
 // prototype for the initialization function through implicit linking
-extern "C" DLLEXPORT int pddiCreate(int versionMajor, int versionMinor, pddiDevice** dev);
+int pddiCreate(int versionMajor, int versionMinor, pddiDevice** dev);
 
 // prototype for the initialization function through LoadLibrary
 typedef int (*PDDICREATEPROC)(int, int, pddiDevice**);
