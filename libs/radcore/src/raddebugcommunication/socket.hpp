@@ -39,7 +39,7 @@
 // Interface
 //=============================================================================
 
-#if defined( SN_TCPIP ) || defined( RAD_WIN32 ) || defined( RAD_XBOX )
+#if defined( SN_TCPIP ) || defined( WIN32 ) || defined( RAD_XBOX )
 //
 // Game cubes socket is a pure abstract interface. The other platfroms should
 // be as well and this should be cleaned up.

@@ -33,7 +33,7 @@
 #include <radthread.hpp>
 #include <raddebugcommunication.hpp>
 
-#ifdef RAD_WIN32
+#ifdef WIN32
 #include <windows.h>
 #endif 
 #ifdef RAD_XBOX
@@ -54,7 +54,7 @@ class rDbgComSocketTargetChannel;
 // Defintions
 //=============================================================================
 
-#if defined( RAD_PS2) || defined( RAD_GAMECUBE )
+#ifndef WIN32
 #define SOCKET int
 #endif
 

@@ -25,9 +25,9 @@
 //=============================================================================
 
 #include "pch.hpp"
-#ifdef RAD_WIN32
+#ifdef WIN32
 #include <windows.h>
-#endif // RAD_WIN32
+#endif // WIN32
 #ifdef RAD_XBOX
 #include <xtl.h>
 #endif // RAD_XBOX 
