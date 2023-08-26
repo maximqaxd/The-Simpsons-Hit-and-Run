@@ -13,7 +13,7 @@ class tLinuxFileMap : public tFileMem
 public:
     tLinuxFileMap(const char* filename);
 
-    bool IsOpen(void) { return memory != NULL;}
+    bool IsOpen(void) { return GetMemory() != NULL;}
 
 protected:
     virtual ~tLinuxFileMap();

@@ -4,7 +4,11 @@
 
 
 #include <p3d/platform/win32/platform.hpp>
+#ifdef WIN32
 #include <p3d/platform/win32/plat_filemap.hpp>
+#else
+#include <p3d/platform/linux/plat_filemap.hpp>
+#endif
 #include <p3d/utility.hpp>
 #include <p3d/memory.hpp>
 
@@ -13,13 +17,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-//#define WIN32_LEAN_AND_MEAN
-//#define WIN32_EXTRA_LEAN
-#define _WIN32_WINNT 0x0400
-#include <windows.h>
-#include <winbase.h>
-#include <winnt.h>
 
 tContextInitData::tContextInitData()
 {
@@ -73,8 +70,6 @@ tContext* tPlatform::CreateContext(tContextInitData* d)
 {
     P3DASSERT(nContexts < P3D_MAX_CONTEXTS);
 
-    HINSTANCE PddiLib;
-    PDDICREATEPROC PddiCreate;
     pddiDevice* device;
     pddiDisplay* display;
     pddiRenderContext* context;
@@ -84,19 +79,7 @@ tContext* tPlatform::CreateContext(tContextInitData* d)
 
     p3d::UsePermanentMem( true );
 
-    PddiLib = LoadLibrary(d->PDDIlib);
-    if(!PddiLib)
-    {
-        int rc = GetLastError();
-        if(rc == 126)
-            P3DVERIFY(FALSE, "PDDI DLL Load Error : PDDI library not found, or DirectX/OpenGL not present");
-        else
-            P3DVERIFY(FALSE, "PDDI DLL Load Error : PDDI library exists, but could not be loaded (Could be incorrect DirectX version)");
-    }
-    PddiCreate = (PDDICREATEPROC)GetProcAddress(PddiLib, "pddiCreate");
-    P3DVERIFY(PddiCreate != NULL, "Can't find DLL export function: pddiCreate()");
-
-    int success = PddiCreate(PDDI_VERSION_MAJOR, PDDI_VERSION_MINOR, &device);
+    int success = pddiCreate(PDDI_VERSION_MAJOR, PDDI_VERSION_MINOR, &device);
     if(success != PDDI_OK)
     {
         if(success == PDDI_VERSION_ERROR)
@@ -134,7 +117,6 @@ tContext* tPlatform::CreateContext(tContextInitData* d)
         if(!contexts[find].context)
         {
             contexts[find].context = new tContext(device,display,context);
-            contexts[find].pddiLib = PddiLib;
             contexts[find].window = d->window;
 
             if(!currentContext)
@@ -168,7 +150,6 @@ void tPlatform::DestroyContext(tContext* context)
 
     contexts[foundHandle].window = NULL;
     delete context;
-    FreeLibrary((HINSTANCE)contexts[foundHandle].pddiLib);
     contexts[foundHandle].context = NULL;
     contexts[foundHandle].pddiLib = NULL;
     nContexts--;
@@ -194,10 +175,10 @@ void tPlatform::SetActiveContext(tContext* context)
 
 tFile* tPlatform::OpenFile(const char* filename)
 {
-#if 0
-    tWin32FileAsync* file = new tWin32FileAsync(filename);
-#else
+#ifdef WIN32
     tWin32FileMap* file = new tWin32FileMap(filename);
+#else
+    tLinuxFileMap* file = new tLinuxFileMap(filename);
 #endif
 
     if(!file->IsOpen())
@@ -208,6 +189,7 @@ tFile* tPlatform::OpenFile(const char* filename)
     return file;
 }
 
+#if 0
 P3D_U64 tPlatform::GetTimeFreq(void)
 {
     LARGE_INTEGER frequency;
@@ -221,6 +203,7 @@ P3D_U64 tPlatform::GetTime(void)
     QueryPerformanceCounter(&currentTime);
     return currentTime.QuadPart;
 }
+#endif
 
 //------------------------------------------------------------------------
 bool tPlatform::ProcessWindowsMessage(SDL_Window* win, const SDL_WindowEvent* event)
