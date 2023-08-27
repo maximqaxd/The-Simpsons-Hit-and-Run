@@ -62,7 +62,7 @@ extern "C" int main( int argc, char *argv[] )
     //
     // Initialize SDL subsystems
     //
-    SDL_Init( SDL_INIT_EVENTS | SDL_INIT_VIDEO );
+    SDL_Init( SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER );
 
     //
     // Have to get FTech setup first so that we can use all the memory services.
