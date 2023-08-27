@@ -183,6 +183,13 @@ class radControllerOutputPointSDL
         m_Gain = value;
     }
 
+    // FIXME
+    long GetOffset() const { return 0; }
+    void UpdateEffect(const DIEFFECT*) {}
+    void Start() {}
+    void Stop() {}
+    void ReleaseEffect() {}
+
     //========================================================================
     // radControllerOutputPointSDL Data Members
     //========================================================================
