@@ -996,7 +996,7 @@ class radControllerSDL
     // radControllerSDL::radControllerSDL
     //========================================================================
 
-    radControllerSDL::radControllerSDL
+    radControllerSDL
     (
         unsigned int thisAllocator,
         SDL_GameController * pController,
