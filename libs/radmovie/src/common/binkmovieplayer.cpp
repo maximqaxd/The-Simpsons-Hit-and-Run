@@ -64,9 +64,9 @@ static unsigned int s_AllocCount = 0;
 //=============================================================================
 
 #ifndef RAD_GAMECUBE
-static void * BinkAllocate( U64 bytes )
+static void * RADLINK BinkAllocate( U64 bytes )
 #else
-static void * BinkAllocate( unsigned long bytes )
+static void * RADLINK BinkAllocate( unsigned long bytes )
 #endif
 {
     ::radMemorySetAllocationName( "BinkAllocate" );
@@ -78,9 +78,9 @@ static void * BinkAllocate( unsigned long bytes )
 //=============================================================================
 
 #ifndef RAD_GAMECUBE
-static void BinkFree( void * pBuffer )
+static void RADLINK BinkFree( void * pBuffer )
 #else
-static void BinkFree( void * pBuffer )
+static void RADLINK BinkFree( void * pBuffer )
 #endif
 {
     ::radMemoryFreeAligned( pBuffer );
