@@ -444,7 +444,7 @@ void radMemoryMonitorClient::Service( void )
     //
     while ( m_bSuspended && m_pChannel && m_bAttached )
     {
-#if defined RAD_WIN32
+#if defined WIN32
         ::Sleep( 5 );   // if on PC, don't take entire CPU cycle
 #endif
         radDbgComService( );
@@ -495,8 +495,6 @@ void radMemoryMonitorClient::Suspend( void )
     m_bSuspended = true;
     m_bSendSuspendedState = true;
 }
-
-extern void main();
 
 //===========================================================================
 // radMemoryMonitorClient::DeclarePlatform

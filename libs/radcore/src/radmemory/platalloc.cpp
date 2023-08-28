@@ -12,7 +12,7 @@
 
     #include <malloc.h>
 
-#elif defined RAD_WIN32 || defined RAD_XBOX
+#elif defined WIN32 || defined RAD_XBOX
     
     #include <stdlib.h>
     
@@ -115,19 +115,7 @@ void * radMemoryPlatAlloc( unsigned int numberOfBytes )
         numberOfBytes = 1;
     }
 
-#if defined MALLOC_DEBUG
-#define MALLOC_OK
-    pMemory = _malloc_dbg(numberOfBytes, _NORMAL_BLOCK, NULL, 0);
-#endif
-
-#ifdef RAD_GAMECUBE
-#define MALLOC_OK
-    pMemory = OSAlloc( numberOfBytes );
-#endif
-
-#if ! defined( MALLOC_OK )
     pMemory = malloc( numberOfBytes );
-#endif
     
     rWarningMsg( pMemory != NULL, "radMemory: Platform (malloc) allocator failed to allocate memory\n" );
     return pMemory;
@@ -139,20 +127,7 @@ void * radMemoryPlatAlloc( unsigned int numberOfBytes )
 
 void radMemoryPlatFree( void * pMemory )
 {
-#if defined MALLOC_DEBUG
-    _free_dbg(pMemory, _NORMAL_BLOCK);
-#endif
-
-#ifdef RAD_GAMECUBE
-    if ( pMemory != NULL )
-    {	
-        OSFree( pMemory );
-    }
-#endif
-
-#if ! defined( MALLOC_OK )
-	free( pMemory );
-#endif
+    free( pMemory );
 }
 
 //============================================================================

@@ -10,8 +10,10 @@
 #include <pddi/buildconfig.hpp>
 
 // PDDI Debugging support
-#if defined (RAD_WIN32) || defined (RAD_XBOX)
+#if defined (WIN32) || defined (RAD_XBOX)
     #define pddiBreak() { __asm { int 3 } }
+#else
+    #define pddiBreak() { __builtin_trap(); }
 #endif
 
 #ifdef RAD_PS2
