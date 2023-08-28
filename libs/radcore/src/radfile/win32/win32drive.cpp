@@ -181,8 +181,9 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
 )
 {
     std::string tmp(fileName);
-    std::replace(tmp.begin(), tmp.end(), '\\', std::filesystem::path::preferred_separator);
+    std::replace(tmp.begin(), tmp.end(), '\\', '/');
     std::filesystem::path path(tmp);
+    path.make_preferred();
     if (std::filesystem::exists(path))
     {
         *pSize = std::filesystem::file_size(path);
