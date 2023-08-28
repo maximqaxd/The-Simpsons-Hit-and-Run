@@ -121,7 +121,7 @@ void tPNGHandler::CreateImage(tFile* file, tImageHandler::Builder* builder)
     png_set_bgr(pPNG);
     
     // expand 24 bit pixels to 32
-    if(png_get_channels(pPNG, pngInfo) == PNG_COLOR_TYPE_RGB)
+    if(png_get_channels(pPNG, pngInfo) != 4)
     {
         png_set_filler(pPNG, 0xff, PNG_FILLER_AFTER);
     }
