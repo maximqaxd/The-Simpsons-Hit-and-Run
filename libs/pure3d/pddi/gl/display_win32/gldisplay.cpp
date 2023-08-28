@@ -164,7 +164,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, bpp == 16 ? 5 : 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, bpp == 16 ? 6 : 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bpp == 16 ? 5 : 8);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
 #ifdef RAD_DEBUG
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -172,6 +172,8 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
 
     prevRC = SDL_GL_GetCurrentContext();
     hRC = SDL_GL_CreateContext(win);
+    if (!hRC)
+        fprintf(stderr, "SDL_GL_CreateContext() error: %s\n", SDL_GetError());
     PDDIASSERT(hRC);
 
     if (!gladLoadGL())
