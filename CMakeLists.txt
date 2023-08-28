@@ -13,7 +13,7 @@ add_compile_options(
 	-Wno-write-strings # TODO
 )
 add_compile_definitions(
-	RAD_RELEASE
+	RAD_DEBUG
 	RAD_CONSOLE
 	RAD_WIN32
 )
@@ -992,6 +992,7 @@ target_include_directories(radcore
 	PRIVATE "libs/radcore/src/pch/" # TODO
 	PUBLIC "code/" # wtf (radobject.hpp includes memory/classsizetracker.h)
 )
+target_compile_features(radcore PUBLIC cxx_std_17)
 target_link_libraries(radcore SDL2::SDL2)
 
 add_library(radcontent OBJECT ${RADCONTENT_SOURCES})
