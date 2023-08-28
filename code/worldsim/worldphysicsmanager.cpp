@@ -913,8 +913,8 @@ void WorldPhysicsManager::RemoveFromAnyOtherCurrentDynamicsListAndCollisionArea(
     }
     else
     {
-        rAssert( dynamic_cast< Character* >( obj )==false);
-        rAssert( dynamic_cast< Vehicle* >( obj )==false);    
+        rAssert( dynamic_cast< Character* >( obj )==nullptr);
+        rAssert( dynamic_cast< Vehicle* >( obj )==nullptr);    
     }
 
     for(i = 0; i < mNumCollisionAreas; i++)
