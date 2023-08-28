@@ -33,7 +33,7 @@
 #include <radmemorymonitor.hpp>
 #include <radmemory.hpp>
 #include <radthread.hpp>
-#include "..\radprotocols\memorymonitorprotocol.hpp"
+#include "../radprotocols/memorymonitorprotocol.hpp"
 
 //=============================================================================
 // Forward Class Declarations
