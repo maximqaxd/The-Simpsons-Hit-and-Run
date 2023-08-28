@@ -1125,8 +1125,7 @@ void PascalCString::Replace( const PascalCString& stFind, const PascalCString& s
 //=============================================================================
 void PascalCString::ToUpper( void )
 {
-    int index = 0;
-    for ( index; index < Length(); ++index )
+    for ( int index = 0; index < Length(); ++index )
     {
         m_szString[ index ] = toupper( m_szString[ index ] );
     }
@@ -1139,8 +1138,7 @@ void PascalCString::ToUpper( void )
 //=============================================================================
 void PascalCString::ToLower( void )
 {
-    int index = 0;
-    for ( index; index < Length(); ++index )
+    for ( int index = 0; index < Length(); ++index )
     {
         m_szString[ index ] = tolower( m_szString[ index ] );
     }
@@ -1154,7 +1152,7 @@ void PascalCString::ToLower( void )
 PascalCString PascalCString::FullFilename()
 {
     int index = Length();
-    for( index; index >= 0; index-- )
+    for( ; index >= 0; index-- )
     {
         if( (m_szString[index] == '/') || (m_szString[index] == '\\') )
         {
@@ -1175,7 +1173,7 @@ PascalCString PascalCString::FullFilename()
 PascalCString PascalCString::JustFilename()
 {
     int index = Length();
-    for( index; index >= 0; index-- )
+    for( ; index >= 0; index-- )
     {
         if( (m_szString[index] == '/') || (m_szString[index] == '\\') )
         {
@@ -1206,7 +1204,7 @@ PascalCString PascalCString::JustExtension()
 {
     int index = Length();
     bool found = false;
-    for( index; index > 0; index-- )
+    for( ; index > 0; index-- )
     {
         if( m_szString[index] == '.' )
         {
@@ -1236,7 +1234,7 @@ PascalCString PascalCString::JustExtension()
 PascalCString PascalCString::JustPath()
 {
     int index = Length();
-    for( index; index > 0; index-- )
+    for( ; index > 0; index-- )
     {
         if( (m_szString[index] == '/') || (m_szString[index] == '\\') )
         {

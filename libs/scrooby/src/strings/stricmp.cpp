@@ -53,7 +53,7 @@ int rstricmp( const char* string1, const char* string2 )
     const char* index1 = string1;
     const char* index2 = string2;
 
-    while( ( *index1 != NULL ) && ( *index2 != NULL ) )
+    while( ( *index1 != 0 ) && ( *index2 != 0 ) )
     {
         char c1 = toupper( *index1 );
         char c2 = toupper( *index2 );
@@ -68,11 +68,11 @@ int rstricmp( const char* string1, const char* string2 )
         index1++;
         index2++;
     }
-    if( (*index1 == NULL) && (*index2 != NULL) )
+    if( (*index1 == 0) && (*index2 != 0) )
     {
         return -1;
     }
-    else if( (*index1 != NULL) && (*index2 == NULL) )
+    else if( (*index1 != 0) && (*index2 == 0) )
     {
         return 1;
     }
@@ -102,7 +102,7 @@ int rstrincmp( const char *string1, const char *string2, int tCount)
     const char* index1 = string1;
     const char* index2 = string2;
 
-    while( ( *index1 != NULL ) && ( *index2 != NULL ) && ( tCount != 0 ) )
+    while( ( *index1 != 0 ) && ( *index2 != 0 ) && ( tCount != 0 ) )
     {
         char c1 = toupper( *index1 );
         char c2 = toupper( *index2 );
@@ -118,11 +118,11 @@ int rstrincmp( const char *string1, const char *string2, int tCount)
         index2++;
         tCount--;
     }
-    if( (*index1 == NULL) && (*index2 != NULL) )
+    if( (*index1 == 0) && (*index2 != 0) )
     {
         return -1;
     }
-    else if( (*index1 != NULL) && (*index2 == NULL) )
+    else if( (*index1 != 0) && (*index2 == 0) )
     {
         return 1;
     }

@@ -243,8 +243,7 @@ int FeResourceManager::AddResource( const char* filename, FeEntity* parent, Reso
     newResource->m_Status = RM_NOT_LOADED;
     if( mDeletedResources )
     {
-        int i = 0;
-        for( i; i < mResources.Size(); i++ )
+        for( int i = 0; i < mResources.Size(); i++ )
         {
             if( mResources[i] == NULL )
             {
@@ -279,8 +278,7 @@ int FeResourceManager::AddAlias( const tName& alias, int index )
     newAlias->m_resourceIndex = index;
     if( mDeletedAliases )
     {
-        int i = 0;
-        for( i; i < mAliases.Size(); i++ )
+        for( int i = 0; i < mAliases.Size(); i++ )
         {
             if( mAliases[i] == NULL )
             {
@@ -324,8 +322,7 @@ int FeResourceManager::AddPure3dAttributes( const char* camera, const char* anim
     newEntry->m_resourceIndex = index;
     if( mDeletedAttributes )
     {
-        int i = 0;
-        for( i; i < mP3DAttributes.Size(); i++ )
+        for( int i = 0; i < mP3DAttributes.Size(); i++ )
         {
             if( mP3DAttributes[i] == NULL )
             {
