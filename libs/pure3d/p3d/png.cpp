@@ -103,14 +103,6 @@ void tPNGHandler::CreateImage(tFile* file, tImageHandler::Builder* builder)
         return;
     }
     
-    // palette handling
-    if(png_get_valid(pPNG, pngInfo, PNG_INFO_PLTE))
-    {
-        // pnglib likes to set the alpha of palette entry 0 to 0.
-        // this will supress that
-        png_set_strip_alpha(pPNG);
-    }
-    
     // convert 16 bit/channel images to 8 bit/channel   
     if(channelDepth == 16)
     {
