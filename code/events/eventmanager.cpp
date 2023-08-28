@@ -262,12 +262,10 @@ int EventManager::TriggerEvent( EventEnum id, void* pEventData ) const
         el->HandleEvent( id, pEventData );
         size = listeners.size();    //the event may have added or removed listeners
         
-        // if the current event was removed we need to detect that
-        EventListener* newel = listeners[ i ];
-
+        // If the current event was removed we need to detect that.
         // Don't want to do anything if we are now past the end of the list, 
         // or if the current event hasn't changed
-        if((i < size) && (newel != el))
+        if((i < size) && (listeners[i] != el))
         {
             // we have removed the current event
             // back the array index off one so that we will 
