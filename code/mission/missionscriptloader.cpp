@@ -809,12 +809,12 @@ void MissionScriptLoader::InitLevelPlayerVehicle( int argc, char** argv )
     if ( eslot == GameplayManager::eDefaultCar )
     {
         //Save this as the default level data.
-        sprintf( GetGameplayManager()->mDefaultLevelVehicleName, vehicleName );
+        strcpy( GetGameplayManager()->mDefaultLevelVehicleName, vehicleName );
         if ( argc == 5 )
         {
-            sprintf( GetGameplayManager()->mDefaultLevelVehicleConfile, confile );
+            strcpy( GetGameplayManager()->mDefaultLevelVehicleConfile, confile );
         }
-        sprintf( GetGameplayManager()->mDefaultLevelVehicleLocator, locator );
+        strcpy( GetGameplayManager()->mDefaultLevelVehicleLocator, locator );
     }
 
 }

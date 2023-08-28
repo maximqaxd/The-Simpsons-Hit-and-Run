@@ -875,8 +875,6 @@ inline float Character::GetDesiredSpeed( void ) const
 	return mfDesiredSpeed;
 }
 /*
-
-/*
 ==============================================================================
 Character::SetDesiredDir
 ==============================================================================

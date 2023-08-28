@@ -289,7 +289,7 @@ inline void SuperSprintDrawable::DisplayCarData()
         position = 1;
     }
 
-    sprintf( displayText, seperator);
+    strcpy( displayText, seperator);
 
     int i;
     for ( i = 0; i < GetGameplayManager()->GetNumPlayers(); ++ i )
@@ -351,7 +351,7 @@ inline void SuperSprintDrawable::DisplayPlayerData()
 {
     char displayText[1024];
     const char* seperator = "\n";
-    sprintf( displayText, seperator);
+    strcpy( displayText, seperator);
 
     unsigned int position = 1;
 

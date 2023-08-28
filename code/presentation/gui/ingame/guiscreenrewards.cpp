@@ -521,7 +521,7 @@ IGuiScreenRewards::InsertPreviewObject( PreviewObject* previewObjects,
     {
         if( pReward->GetRewardType() == Reward::ALT_PLAYERCAR )
         {
-            sprintf( previewObjects[ newSlot ].nameModel, "%s",
+            strcpy( previewObjects[ newSlot ].nameModel,
                      pReward->GetName() );
 
             // 3D models for cars are not the same as the in-game ones
