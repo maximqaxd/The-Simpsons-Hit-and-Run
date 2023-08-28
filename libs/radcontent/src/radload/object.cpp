@@ -29,8 +29,8 @@ void InitializeHeapDebugging()
 {
     if( !initialized )
     {
-        memset( maxUsed, MAX_HASHES*sizeof(unsigned int), 0 );
-        memset( addresses, MAX_HASHES*MAX_ADDRESSES_PER_HASH*sizeof(void*), 0 ); 
+        memset( maxUsed, 0, MAX_HASHES*sizeof(unsigned int) );
+        memset( addresses, 0, MAX_HASHES*MAX_ADDRESSES_PER_HASH*sizeof(void*) ); 
         initialized = true;
     }
 }
