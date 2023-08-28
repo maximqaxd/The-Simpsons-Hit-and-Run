@@ -108,7 +108,7 @@ void rDebugSetOutputHandler     ( radDebugOutputHandler * pOutputProc );
 //
 
 #ifdef __linux__
-        #define rReleaseBreak() { raise(SIGTRAP); }
+        #define rReleaseBreak() { __builtin_trap(); }
 #elif defined (RAD_WIN32) || defined (RAD_XBOX)
 	#define rReleaseBreak() { __asm { int 3 } }
 #endif
