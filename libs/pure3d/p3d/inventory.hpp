@@ -12,6 +12,7 @@
 #define _INVENTORY_HPP
 
 #include <p3d/p3dtypes.hpp>
+#include <p3d/context.hpp>
 #include <p3d/stack.hpp>
 #include <p3d/entity.hpp>
 #include <p3d/safecast.hpp>
