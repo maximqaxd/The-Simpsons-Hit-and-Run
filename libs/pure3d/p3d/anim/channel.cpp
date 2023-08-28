@@ -686,7 +686,7 @@ tEntityChannel::tEntityChannel(int nKeys, tAnimationMemoryBlock* block) :
     memset(values,0,sizeof(tEntity*)*numKeys);
 
     // For Entity channels the interpolate flag is a bitmask.
-    interpolate = ~0;
+    interpolate = 1;
 }
 
 //--------------------------------------------------------------

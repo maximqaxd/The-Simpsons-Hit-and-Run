@@ -480,9 +480,9 @@ ref< IRadSoundHalDataSource >
     rsd_file_file_name( ptr_rsd_file, file_name, 256 );
     
     char file_path[ 256 ];
-    strncpy( file_path, p_rm->search_path, 256 );
-    strncat( file_path, file_name, 256 );
-    strncat( file_path, ".rsd", 256 );
+    strncpy( file_path, p_rm->search_path, 255 );
+    strncat( file_path, file_name, 255 );
+    strncat( file_path, ".rsd", 255 );
 
     ref< IRadSoundRsdFileDataSource > refIRadSoundRsdFileDataSource =
         radSoundRsdFileDataSourceCreate( p_rm->ai_allocator );

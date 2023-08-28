@@ -143,10 +143,10 @@ public:
         register unsigned int variance = ((unsigned)colourVar) | ((unsigned)colourVar<<8) | ((unsigned)colourVar<<16) | ((unsigned)alphaVar<<24);
         register unsigned int offset = 0x80808080;
 
-        asm __volatile__ ("
+        asm __volatile__ (R"(
             paddsb %0, %1, %2
             paddub %0, %0, %3
-            "
+            )"
             : "+d" (result)
             : "d" (colour), "d" (variance), "d" (offset) );
 

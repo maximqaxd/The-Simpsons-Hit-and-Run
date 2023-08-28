@@ -91,7 +91,7 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
         //
 
         ALCint attr[] = {
-            ALC_FREQUENCY, systemDescription.m_SamplingRate,
+            ALC_FREQUENCY, (ALCint)systemDescription.m_SamplingRate,
             ALC_MAX_AUXILIARY_SENDS, m_NumAuxSends,
             0
         };

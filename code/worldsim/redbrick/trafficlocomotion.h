@@ -46,8 +46,7 @@ public:
 
     void Clear()
     {
-        int i=0;
-        for(i; i<MAX_ITEMS; i++)
+        for(int i=0; i<MAX_ITEMS; i++)
         {
             mItems[i].next = -1;
         }
