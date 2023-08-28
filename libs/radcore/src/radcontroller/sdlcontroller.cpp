@@ -185,7 +185,7 @@ class radControllerOutputPointSDL
 
     // FIXME
     long GetOffset() const { return 0; }
-    void UpdateEffect(const DIEFFECT*) {}
+    void UpdateEffect(const SDL_HapticEffect*) {}
     void Start() {}
     void Stop() {}
     void ReleaseEffect() {}

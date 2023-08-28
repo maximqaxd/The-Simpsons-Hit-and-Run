@@ -8,12 +8,13 @@ find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
 add_compile_options(
+	-ggdb
 	-Wno-endif-labels # TODO
 	-Wno-write-strings # TODO
 )
 add_compile_definitions(
 	RAD_RELEASE
-	RAD_PC
+	RAD_CONSOLE
 	RAD_WIN32
 )
 
@@ -63,7 +64,7 @@ set(SRR2_SOURCES
 	"code/camera/firstpersoncam.cpp"
 	"code/camera/followcam.cpp"
 	"code/camera/kullcam.cpp"
-	"code/camera/pccam.cpp"
+	#"code/camera/pccam.cpp"
 	"code/camera/railcam.cpp"
 	"code/camera/relativeanimatedcam.cpp"
 	"code/camera/reversecam.cpp"
@@ -136,8 +137,9 @@ set(SRR2_SOURCES
 	"code/input/rumbleeffect.cpp"
 	"code/input/rumblewin32.cpp"
 	#"code/input/steeringspring.cpp"
+	"code/input/usercontroller.cpp"
 	#"code/input/usercontrollerWin32.cpp"
-	"code/input/virtualinputs.cpp"
+	#"code/input/virtualinputs.cpp"
 	#"code/input/wheelrumble.cpp"
 	"code/interiors/interiormanager.cpp"
 	"code/loading/cameradataloader.cpp"
@@ -262,7 +264,8 @@ set(SRR2_SOURCES
 	"code/presentation/gui/bootup/guiscreenlicense.cpp"
 	"code/presentation/gui/frontend/guimanagerfrontend.cpp"
 	"code/presentation/gui/frontend/guiscreencardgallery.cpp"
-	"code/presentation/gui/frontend/guiscreencontrollerWin32.cpp"
+	"code/presentation/gui/frontend/guiscreencontroller.cpp"
+	#"code/presentation/gui/frontend/guiscreencontrollerWin32.cpp"
 	"code/presentation/gui/frontend/guiscreendisplay.cpp"
 	"code/presentation/gui/frontend/guiscreenloadgame.cpp"
 	"code/presentation/gui/frontend/guiscreenmainmenu.cpp"
@@ -521,7 +524,7 @@ set(SRR2_SOURCES
 	"code/worldsim/redbrick/trafficbodydrawable.cpp"
 	"code/worldsim/redbrick/trafficlocomotion.cpp"
 	"code/worldsim/redbrick/vehiclecontroller/aivehiclecontroller.cpp"
-	#"code/worldsim/redbrick/vehiclecontroller/humanvehiclecontroller.cpp"
+	"code/worldsim/redbrick/vehiclecontroller/humanvehiclecontroller.cpp"
 	"code/worldsim/redbrick/vehiclecontroller/vehiclecontroller.cpp"
 	"code/worldsim/redbrick/vehiclecontroller/vehiclemappable.cpp"
 	"code/worldsim/redbrick/vehicle.cpp"
@@ -544,6 +547,7 @@ set(RADCORE_SOURCES
 	#"libs/radcore/src/pch/pch.cpp"
 	#"libs/radcore/src/rad1394/win32lib/rad1394master.cpp"
 	#"libs/radcore/src/radcontroller/directinputcontroller.cpp"
+	"libs/radcore/src/radcontroller/sdlcontroller.cpp"
 	#"libs/radcore/src/raddebugcommunication/host1394socket.cpp"
 	#"libs/radcore/src/raddebugcommunication/hostchannel.cpp"
 	#"libs/radcore/src/raddebugcommunication/host.cpp"
