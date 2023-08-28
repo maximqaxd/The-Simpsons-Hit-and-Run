@@ -668,7 +668,7 @@ class radControllerSDL
 
         m_xIOl_InputPoints->Reset( );
 
-        while ( pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) )))
         {
             pICip2->iVirtualTimeReMapped( virtualTime );
         }
@@ -693,7 +693,7 @@ class radControllerSDL
 
                 IRadControllerInputPointSDL* pIXbcip2;
 
-                while( pIXbcip2 = reinterpret_cast<IRadControllerInputPointSDL*>(m_xIOl_InputPoints->GetNext()) )
+                while((pIXbcip2 = reinterpret_cast<IRadControllerInputPointSDL*>(m_xIOl_InputPoints->GetNext())))
                 {
                     pIXbcip2->iVirtualTimeChanged( virtualTime );
                 }
@@ -769,7 +769,7 @@ class radControllerSDL
 
         IRadControllerInputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) )))
         {
             if ( strcmp( pICip2->GetType( ), pType ) == 0 )
             {
@@ -799,7 +799,7 @@ class radControllerSDL
 
         IRadControllerOutputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) )))
         {
             if ( strcmp( pICip2->GetType( ), pType ) == 0 )
             {
@@ -833,7 +833,7 @@ class radControllerSDL
 
         IRadControllerInputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) )))
         {
             if ( strcmp( pICip2->GetType( ), pType ) == 0 )
             {
@@ -872,7 +872,7 @@ class radControllerSDL
 
         IRadControllerOutputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) )))
         {
             if ( strcmp( pICip2->GetType( ), pType ) == 0 )
             {
@@ -908,7 +908,7 @@ class radControllerSDL
 
         IRadControllerInputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerInputPointSDL * >( m_xIOl_InputPoints->GetNext( ) )))
         {
             if ( strcmp( pName, pICip2->GetName( ) ) == 0 )
             {
@@ -939,7 +939,7 @@ class radControllerSDL
 
         IRadControllerOutputPoint * pICip2;
 
-        while ( pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) ) )
+        while ((pICip2 = reinterpret_cast< IRadControllerOutputPoint * >( m_xIOl_OutputPoints->GetNext( ) )))
         {
             if ( strcmp( pName, pICip2->GetName( ) ) == 0 )
             {
@@ -1203,7 +1203,7 @@ class radControllerSystemSDL
 
         sys->m_xIOl_Callbacks->Reset( );
 
-        while( pIWir = reinterpret_cast< IRadWeakInterfaceWrapper * >( sys->m_xIOl_Callbacks->GetNext( ) ) )
+        while((pIWir = reinterpret_cast< IRadWeakInterfaceWrapper * >( sys->m_xIOl_Callbacks->GetNext( ) )))
         {
 
             IRadControllerConnectionChangeCallback * pCallback = (IRadControllerConnectionChangeCallback *) pIWir->GetWeakInterface( );
@@ -1228,7 +1228,7 @@ class radControllerSystemSDL
 
         IRadControllerSDL * pIXbc2;
 
-        while ( pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) ) )
+        while ((pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) )))
         {
             //
             // The controller stamps packets with virtual time, so
@@ -1286,7 +1286,7 @@ class radControllerSystemSDL
 
         IRadController * pIC2;
 
-        while ( pIC2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) ) )
+        while ((pIC2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) )))
         {
             if ( strcmp( pIC2->GetLocation(), pLocation ) == 0 )
             {
@@ -1333,7 +1333,7 @@ class radControllerSystemSDL
 
         IRadControllerSDL * pIDipc2;
 
-        while ( pIDipc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) ) )
+        while ((pIDipc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) )))
         {
             pIDipc2->iSetBufferTime( milliseconds, pollingRate );
         }
@@ -1368,7 +1368,7 @@ class radControllerSystemSDL
 
         IRadControllerSDL * pIXbc2;
 
-        while ( pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) ) )
+        while ((pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) )))
         {
             pIXbc2->iVirtualTimeReMapped( radTimeGetMilliseconds() + m_VirtualTimeAdjust );
         }       
@@ -1388,7 +1388,7 @@ class radControllerSystemSDL
 
         IRadControllerSDL * pIXbc2;
 
-        while ( pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) ) )
+        while ((pIXbc2 = reinterpret_cast< IRadControllerSDL * >( m_xIOl_Controllers->GetNext( ) )))
         {
             pIXbc2->iVirtualTimeChanged( virtualTime );
         }
@@ -1453,7 +1453,7 @@ class radControllerSystemSDL
 
         m_xIOl_Callbacks->Reset( );
 
-        while ( pIWir = reinterpret_cast< IRadWeakInterfaceWrapper * >( m_xIOl_Callbacks->GetNext( ) ) )
+        while ((pIWir = reinterpret_cast< IRadWeakInterfaceWrapper * >( m_xIOl_Callbacks->GetNext( ) )))
         {
             if ( pIWir->GetWeakInterface() == pCallback )
             {
@@ -1570,7 +1570,7 @@ class radControllerSystemSDL
 
                 m_xIOl_Callbacks->Reset();
 
-                while( pIWir = reinterpret_cast<IRadWeakInterfaceWrapper*>(m_xIOl_Callbacks->GetNext()) )
+                while((pIWir = reinterpret_cast<IRadWeakInterfaceWrapper*>(m_xIOl_Callbacks->GetNext())))
                 {
 
                     IRadControllerConnectionChangeCallback* pCallback = (IRadControllerConnectionChangeCallback*)pIWir->GetWeakInterface();
