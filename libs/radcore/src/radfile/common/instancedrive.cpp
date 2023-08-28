@@ -924,7 +924,7 @@ void radInstanceDrive::SetPriority( radFilePriority priority )
     rWarningMsg( m_OutstandingRequests == 0,
         "radFileSystem: changing the priority of a drive while there are outstanding requests." );
 
-    m_Priority = m_Priority;
+    m_Priority = priority;
 }
 
 //=============================================================================
