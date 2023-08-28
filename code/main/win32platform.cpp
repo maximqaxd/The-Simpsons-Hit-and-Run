@@ -826,6 +826,7 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
 
             char errorString[256];
             sprintf( errorString, "%s:\n%s", ERROR_STRINGS[error], adjustedName );
+            fprintf(stderr, "error: %s\n", errorString);
             DisplaySplashScreen( Error, errorString, 1.0f, 0.0f, 0.0f, tColour(255, 255, 255), 0 );
             mErrorState = P_ERROR;
             mPauseForError = true;
@@ -839,6 +840,7 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
     case HardwareFailure:
         {
             //This could be the wrong disc.
+            fprintf(stderr, "error: %s\n", ERROR_STRINGS[error]);
             DisplaySplashScreen( Error, ERROR_STRINGS[error], 1.0f, 0.0f, 0.0f, tColour(255, 255, 255), 0 );
             mErrorState = P_ERROR;
             mPauseForError = true;
