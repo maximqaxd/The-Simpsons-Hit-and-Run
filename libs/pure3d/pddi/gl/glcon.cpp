@@ -86,6 +86,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     disp->SetContext(this);
 
     display->BeginContext();
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     DefaultState();
     display->EndContext();
     contextID = 0;
@@ -897,8 +898,6 @@ void pglContext::SetFog(pddiColour colour, float start, float end)
 
 int pglContext::GetMaxTextureDimension(void)
 {
-    int maxTexSize;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     return maxTexSize;
 }
 
