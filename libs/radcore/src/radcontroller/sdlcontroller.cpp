@@ -1006,14 +1006,14 @@ class radControllerSDL
     radControllerSDL
     (
         unsigned int thisAllocator,
-        SDL_GameController * pController,
+        int iController,
         unsigned int virtualTime,
         unsigned int bufferTime,
         unsigned int pollingRate
     )
         :
         radRefCount( 0 ),
-        m_pController( pController )
+        m_pController( SDL_GameControllerOpen( iController ) )
     {
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radControllerSDL" );
 
@@ -1032,10 +1032,13 @@ class radControllerSDL
         ::radStringCreate( & m_xIString_Location, g_ControllerSystemAllocator );
 
         //
-        // Create our location name based on the controller path
+        // Create our location name based on our port and slot
         //
 
-        m_xIString_Location->Append( SDL_GameControllerPath( m_pController ) );
+		m_xIString_Location->SetSize( 12 );
+        m_xIString_Location->Append( "Port" );
+        m_xIString_Location->Append( (unsigned int) iController );
+        m_xIString_Location->Append( "\\Slot0" );
 
         //
         // Create all of our intput points, this is always the same for every
@@ -1138,10 +1141,11 @@ class radControllerSystemSDL
         ref< IRadController > xIController2;
         ref< IRadControllerSDL > xISDLController2;
 
-        if( event->type == SDL_CONTROLLERDEVICEREMOVED )
-            xIController2 = sys->GetControllerAtLocation( SDL_GameControllerPath( SDL_GameControllerFromInstanceID( event->cdevice.which ) ) );
-        else
-            xIController2 = sys->GetControllerAtLocation( SDL_GameControllerPathForIndex( event->cdevice.which ) );
+        char location[255];
+
+        sprintf( location, "Port%d\\Slot0", event->cdevice.which );
+
+        xIController2 = sys->GetControllerAtLocation( location );
 
         xISDLController2 = (IRadControllerSDL*) xIController2.m_pInterface;
 
@@ -1150,7 +1154,6 @@ class radControllerSystemSDL
             //
             // Here a device has been inserted, so open it
             //
-            SDL_GameController* controller = SDL_GameControllerOpen( event->cdevice.which );
 
             if( xISDLController2 == NULL )
             {
@@ -1172,7 +1175,7 @@ class radControllerSystemSDL
                 xIController2 = new ( g_ControllerSystemAllocator ) radControllerSDL
                 (
                     g_ControllerSystemAllocator,
-                    controller,
+                    event->cdevice.which,
                     virtualTime,
                     sys->m_EventBufferTime,
                     pollingRate
@@ -1192,14 +1195,8 @@ class radControllerSystemSDL
         else if( event->type == SDL_CONTROLLERDEVICEREMOVED )
         {
             //
-            // Here a device has been removed
+            // TODO: Here a device has been removed
             //
-            if( xISDLController2 != NULL )
-            {
-                //We need to remove this from the set as the next thing to 
-                //plug in could be a new type of controller.
-                sys->m_xIOl_Controllers->RemoveObject( xIController2 );
-            }
         }
 
         IRadWeakInterfaceWrapper * pIWir;
@@ -1545,34 +1542,29 @@ class radControllerSystemSDL
             if( SDL_IsGameController( i ) )
             {
                 ref< IRadController > xIController2;
-                SDL_GameController* controller = SDL_GameControllerOpen( i );
+                unsigned int virtualTime = 0;
+                unsigned int pollingRate = 10;
 
-                if( controller != NULL )
+                virtualTime = radTimeGetMilliseconds() + m_VirtualTimeAdjust;
+
+                if( m_xITimer != NULL )
                 {
-                    unsigned int virtualTime = 0;
-                    unsigned int pollingRate = 10;
-
-                    virtualTime = radTimeGetMilliseconds() + m_VirtualTimeAdjust;
-
-                    if( m_xITimer != NULL )
-                    {
-                        pollingRate = m_xITimer->GetTimeout();
-                    }
-
-                    xIController2 = new (g_ControllerSystemAllocator) radControllerSDL
-                    (
-                        g_ControllerSystemAllocator,
-                        controller,
-                        virtualTime,
-                        m_EventBufferTime,
-                        pollingRate
-                    );
-
-                    m_xIOl_Controllers->AddObject
-                    (
-                        xIController2
-                    );
+                    pollingRate = m_xITimer->GetTimeout();
                 }
+
+                xIController2 = new (g_ControllerSystemAllocator) radControllerSDL
+                (
+                    g_ControllerSystemAllocator,
+                    i,
+                    virtualTime,
+                    m_EventBufferTime,
+                    pollingRate
+                );
+
+                m_xIOl_Controllers->AddObject
+                (
+                    xIController2
+                );
 
                 IRadWeakInterfaceWrapper* pIWir;
 
