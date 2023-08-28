@@ -734,7 +734,7 @@ static void choreoPrintDebugMessage(const char* message)
 #if defined(WIN32) || defined(RAD_XBOX)
    OutputDebugString(message);
 #else
-   printf(message);
+   printf("%s", message);
 #endif
 }
 

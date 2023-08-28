@@ -145,7 +145,7 @@ bool tP3DFileHandler::CheckExtension(char* file)
             if(SDL_strcasecmp(extensions[i], &file[len-extLen]) == 0)
                 return true;
         }
-        if((len == extLen-1))
+        if(len == extLen-1)
         {
           if(strcmp(&extensions[i][1], &file[len-extLen+1]) == 0)
               return true;

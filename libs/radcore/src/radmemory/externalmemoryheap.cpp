@@ -678,7 +678,7 @@ ExternalMemoryObject * ExternalMemoryHeap::AllocateFirstFit
 
     while ( pEmo_Ptr != NULL )
     {
-        if ( ( pEmo_Ptr->m_ReferenceCount == 0 ) )
+        if ( pEmo_Ptr->m_ReferenceCount == 0 )
         {
             //
             // We have to adjust this block's size for aligning this memory block

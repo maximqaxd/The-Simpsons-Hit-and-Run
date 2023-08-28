@@ -280,8 +280,8 @@ void radMemoryMonitorClient::Initialize( unsigned int BufferSize, bool SyncMode,
 
     m_uRxBufferSize         = MM_RX_BUFFER_SIZE;
     memset( m_pRxBuffer, 0, MM_RX_BUFFER_SIZE );
-    m_uRxBytesQueued        = NULL;
-    m_uRxBytesProcessed     = NULL;
+    m_uRxBytesQueued        = 0;
+    m_uRxBytesProcessed     = 0;
 
     m_pTxBuffer1            = NULL;
     m_pTxBuffer2            = NULL;
