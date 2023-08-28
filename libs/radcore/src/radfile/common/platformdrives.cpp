@@ -60,12 +60,14 @@ void PlatformDrivesGetDefaultDrive( char* driveSpec )
 //
 // Get the current drive
 //
-#ifdef RAD_WIN32
+#ifdef WIN32
     char bigDir[ radFileFilenameMax + 1 ];
     ::GetCurrentDirectory( radFileFilenameMax, bigDir );
     strncpy( driveSpec, bigDir, 2 );
     driveSpec[ 2 ] = '\0';
     strupr( driveSpec );
+#else
+    strcpy(driveSpec, "/");
 #endif // RAD_WIN32
 }
 
@@ -80,7 +82,7 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
         return true;
     }
 
-#ifdef RAD_WIN32
+#ifdef WIN32
     if( (strlen( driveSpec ) == 2) && (*driveSpec >= 'A') && (*driveSpec <= 'Z') )
     {
         unsigned int index = *driveSpec - 'A';
@@ -176,6 +178,8 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
         return false;
     }
 #endif // RAD_GAMECUBE
+
+    return strcmp(driveSpec, "/") == 0;
 }
 
 //=============================================================================
