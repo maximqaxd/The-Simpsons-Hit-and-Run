@@ -15,7 +15,7 @@ int ParticleSystemRandomData::msCurFloat=0;
 unsigned ParticleSystemRandomData::msIntRands[ParticleSystemRandomData::msIntRandMod];
 float    ParticleSystemRandomData::msFloatRands[ParticleSystemRandomData::msFloatRandMod];
 
-/*
+#if 0
 //*****************************************************************************
 //
 // ParticleSystemRandomFloat
@@ -49,7 +49,7 @@ int ParticleSystemRandomInt(int mean, int variance)
         return 0;
     }
 }
-*/
+
 //*****************************************************************************
 //
 // ParticleCalcFloatLookUpTable
@@ -150,3 +150,4 @@ rmt::Vector4 p3dCalcPlaneEqn(rmt::Matrix transform, rmt::Vector v1, rmt::Vector 
 
     return rmt::Vector4(normal.x,normal.y,normal.z,(normal.x*(-v1.x))+(normal.y*(-v1.y))+(normal.z*(-v1.z)));
 }
+#endif

@@ -262,7 +262,7 @@ void RemoteCommandServer::CallFunction( char* fname, int argc, char* argv )
 	//
 	// If a function pointer wasn't returned, we reply to the request with a failure message
 	//
-	if( ( rf == NULL ) )
+	if( rf == NULL )
 	{
 		rDebugString( "\nREMOTE FUNCTION NOT FOUND\n" );
 		m_RemoteCommandTarget->SendRemoteFunctionReply( HrcsFail );

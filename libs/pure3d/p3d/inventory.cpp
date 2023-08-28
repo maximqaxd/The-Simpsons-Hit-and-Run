@@ -350,7 +350,7 @@ void tInventory::Dump (bool detail)
     for (unsigned i = 0; i < nSection; i++)
     {
         tEntityTable* table = section[i];
-        rDebugPrintf ("Section %p: %d elements\n", table->GetUID(), table->GetElementCount ()); 
+        rDebugPrintf ("Section %zu: %d elements\n", (radInt64)table->GetUID(), table->GetElementCount ()); 
 
         if (detail)
         {

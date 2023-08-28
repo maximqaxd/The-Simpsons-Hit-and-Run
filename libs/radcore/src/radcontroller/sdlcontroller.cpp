@@ -313,7 +313,7 @@ class radControllerInputPointSDL
 
             m_xIOl_Callbacks->Reset( );
 
-            if ( pIWcr = reinterpret_cast< IRadWeakCallbackWrapper * >( m_xIOl_Callbacks->GetNext( ) ) )
+            if ((pIWcr = reinterpret_cast< IRadWeakCallbackWrapper * >( m_xIOl_Callbacks->GetNext( ) )))
             {
                 IRadControllerInputPointCallback * pCallback = ( IRadControllerInputPointCallback* ) pIWcr->GetWeakInterface( );
                 unsigned int userData = (unsigned int) pIWcr->GetUserData( );
@@ -460,7 +460,7 @@ class radControllerInputPointSDL
 
         m_xIOl_Callbacks->Reset( );
 
-        if ( pIWcr = reinterpret_cast< IRadWeakCallbackWrapper * >( m_xIOl_Callbacks->GetNext( ) ) )
+        if ((pIWcr = reinterpret_cast< IRadWeakCallbackWrapper * >( m_xIOl_Callbacks->GetNext( ) )))
         {
             if ( pIWcr->GetWeakInterface( ) == pCallback )
             {
