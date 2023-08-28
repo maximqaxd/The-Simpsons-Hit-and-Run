@@ -95,8 +95,7 @@ void tTransitionManager::Display()
     p3d::stack->Translate( mVector );
 
     pddiPrimStream* stream = p3d::pddi->BeginPrims( mShader->GetShader(), PDDI_PRIM_TRIANGLES, PDDI_V_CT, mXSize*mYSize*6 );
-    int i = 0;
-    for( i; i < mXSize*mYSize; i++ )
+    for( int i = 0; i < mXSize*mYSize; i++ )
     {
         stream->Vertex( &mPositions[i].tri[0].point[0].pos, mColour, &mPositions[i].tri[0].point[0].uv );
         stream->Vertex( &mPositions[i].tri[0].point[1].pos, mColour, &mPositions[i].tri[0].point[1].uv );
@@ -194,16 +193,13 @@ void tTransitionManager::Advance( float delta )
     if( !mPositions )
     {
         mPositions = new tTransitionManager::overlayQuad[mXSize * mYSize];
-        int x = 0;
-        int y = 0;
         float xUnit = 1.0f / static_cast<float>(mXSize);
         float vUnit = 1.0f / static_cast<float>(mYSize);
         float yUnit = vUnit / (p3d::display->GetWidth() / p3d::display->GetHeight());
 
-        for( y; y < mYSize; y++ )
+        for( int y = 0; y < mYSize; y++ )
         {
-            x = 0;
-            for( x; x < mXSize; x++ )
+            for( int x = 0; x < mXSize; x++ )
             {
                 mPositions[y*mYSize+x].tri[0].point[0].pos.Set( x*xUnit, y*yUnit, 0.0f );
                 mPositions[y*mYSize+x].tri[0].point[0].uv.Set( x*xUnit, (mYSize-y)*vUnit );
@@ -253,8 +249,7 @@ void tTransitionManager::Advance( float delta )
         break;
     case TRANSITION_EXPLODE:
         {
-            int i = 0;
-            for( i; i < mYSize*mXSize; i++ )
+            for( int i = 0; i < mYSize*mXSize; i++ )
             {
                 float rand = mRand.Float();
                 mPositions[i].tri[0].point[0].pos.x += (mPositions[i].tri[0].point[0].pos.x - 0.49f) * percent + rand;
@@ -278,8 +273,7 @@ void tTransitionManager::Advance( float delta )
         break;
     case TRANSITION_SHATTER:
         {
-            int i = 0;
-            for( i; i < mYSize*mXSize; i++ )
+            for( int i = 0; i < mYSize*mXSize; i++ )
             {
                 float rand = (mRand.Float() - 0.005f)*100.0f;
                 if( percent < rand )
@@ -308,8 +302,7 @@ void tTransitionManager::Advance( float delta )
         break;
     case TRANSITION_SPLIT_SLIDE_VERTICAL:
         {
-            int i = 0;
-            for( i; i < mYSize*mXSize; i++ )
+            for( int i = 0; i < mYSize*mXSize; i++ )
             {
                 float sign = (i % 2 == 0) ? 1.0f : -1.0f;
                 mPositions[i].tri[0].point[0].pos.y += percent*sign;
@@ -323,9 +316,8 @@ void tTransitionManager::Advance( float delta )
         break;
     case TRANSITION_SPLIT_SLIDE_HORIZONTAL:
         {
-            int i = 0;
             float sign = 1.0f;
-            for( i; i < mYSize*mXSize; i++ )
+            for( int i = 0; i < mYSize*mXSize; i++ )
             {
                 if( i % mYSize == 0 )
                 {
