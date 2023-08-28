@@ -23,6 +23,7 @@
 //=============================================================================
 
 #include "pch.hpp"
+#include <algorithm>
 #include <limits.h>
 #include "win32drive.hpp"
 #include <filesystem>
@@ -179,7 +180,9 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
     unsigned int*       pSize 
 )
 {
-    std::filesystem::path path(fileName);
+    std::string tmp(fileName);
+    std::replace(tmp.begin(), tmp.end(), '\\', std::filesystem::path::preferred_separator);
+    std::filesystem::path path(tmp);
     if (std::filesystem::exists(path))
     {
         *pSize = std::filesystem::file_size(path);
@@ -502,9 +505,9 @@ void radWin32Drive::SetMediaInfo( void )
     //
     const char* realDriveName = m_DriveName;
 
-    rAssert( strlen( realDriveName ) == 2 );
+    //rAssert( strlen( realDriveName ) == 2 );
     strcpy(m_MediaInfo.m_VolumeName, realDriveName );
-    strcat(m_MediaInfo.m_VolumeName, "\\");
+    //strcat(m_MediaInfo.m_VolumeName, "\\");
     
     std::error_code error;
     std::filesystem::space_info space = std::filesystem::space(realDriveName);
