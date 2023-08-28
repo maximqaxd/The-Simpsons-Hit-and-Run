@@ -270,10 +270,9 @@ void daSoundPlayerManager::UglyHackPostInitialize( IDaSoundTuner* pTuner )
 // Description: Get the size of the sound player object
 //-----------------------------------------------------------------------------
 
-unsigned int daSoundPlayerManager::GetObjectSize( void )
+size_t daSoundPlayerManager::GetObjectSize( void )
 {
-    unsigned int thisSize = sizeof( *this );
-    return thisSize;
+    return sizeof( *this );
 }
 
 unsigned int daSoundPlayerManager::GetNumUsedClipPlayers()

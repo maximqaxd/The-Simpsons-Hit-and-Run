@@ -3171,30 +3171,30 @@ bool rControllerInputPoint2::iHandleEvent( unsigned char* buffer, unsigned int l
 
 void rControllerSystem2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rControllerSystem2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rControllerSystem2] At Memory Location:[%p]\n", this );
 }
 void iControllerLocation2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [iControllerLocation2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [iControllerLocation2] At Memory Location:[%p]\n", this );
 }
 
 void rController2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rController2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rController2] At Memory Location:[%p]\n", this );
 }
 void iControllerOutputHandler2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [iControllerOutputHandler2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [iControllerOutputHandler2] At Memory Location:[%p]\n", this );
 }
 
 void rControllerOutputPoint2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rControllerOutputPoint2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rControllerOutputPoint2] At Memory Location:[%p]\n", this );
 }
 
 void rControllerInputPoint2::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rControllerInputPoint2] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rControllerInputPoint2] At Memory Location:[%p]\n", this );
 }
 
 #endif

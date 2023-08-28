@@ -719,7 +719,7 @@ bool DebugConsole::IsBufferFull( )
 
 void DebugConsole::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [DebugConsole] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [DebugConsole] At Memory Location:[%p]\n", this );
 }
 
 #endif
@@ -1967,7 +1967,7 @@ void ConsoleClient::Release( void )
 
 void ConsoleClient::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [ConsoleClient] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [ConsoleClient] At Memory Location:[%p]\n", this );
 }
 
 #endif

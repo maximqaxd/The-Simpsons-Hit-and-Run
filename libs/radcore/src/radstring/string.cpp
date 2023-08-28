@@ -56,7 +56,7 @@ class radString
 
     #ifdef RAD_DEBUG
 
-        virtual unsigned int GetObjectSize( void )
+        virtual size_t GetObjectSize( void )
         {
             return sizeof(*this) + ( m_pBuffer ? GetSize( ) : 0 );
         }

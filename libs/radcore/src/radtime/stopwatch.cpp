@@ -571,7 +571,7 @@ unsigned int radStopwatch::GetTime( void ) const
 
 void radStopwatch::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radStopwatch] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radStopwatch] At Memory Location:[%p]\n", this );
 }
 
 #endif

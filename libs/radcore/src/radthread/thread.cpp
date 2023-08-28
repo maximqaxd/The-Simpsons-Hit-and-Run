@@ -1135,7 +1135,7 @@ void radThread::Release
 
 void radThread::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radThread] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radThread] At Memory Location:[%p]\n", this );
 }
 
 #endif
@@ -1328,7 +1328,7 @@ void radThreadLocalStorage::Release
 
 void radThreadLocalStorage::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radThreadLocalStorage] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radThreadLocalStorage] At Memory Location:[%p]\n", this );
 }
 
 #endif
@@ -1618,7 +1618,7 @@ void radThreadFiber::Release
 
 void radThreadFiber::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radThreadFiber] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radThreadFiber] At Memory Location:[%p]\n", this );
 }
 
 #endif

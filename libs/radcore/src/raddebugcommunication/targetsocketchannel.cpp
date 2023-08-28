@@ -1382,7 +1382,7 @@ void rDbgComSocketTargetChannel::Unlock( void )
 void rDbgComSocketTargetChannel::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
     Lock( );
-    sprintf( pStringBuffer, "Object: [rDbgComSocketTargetChannel] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rDbgComSocketTargetChannel] At Memory Location:[%p]\n", this );
     Unlock( );
 }
 

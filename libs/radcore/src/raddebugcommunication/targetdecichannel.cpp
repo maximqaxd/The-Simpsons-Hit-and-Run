@@ -1307,7 +1307,7 @@ void rDbgComDECITargetChannel::Release( void )
 #ifdef RAD_DEBUG
 void rDbgComDECITargetChannel::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rDbgComDECITargetChannel] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rDbgComDECITargetChannel] At Memory Location:[%p]\n", this );
 }
 
 #endif

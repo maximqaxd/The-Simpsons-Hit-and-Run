@@ -676,7 +676,7 @@ float radSimpleStatistic::GetPercentile( unsigned int percent )
 
 void radSimpleStatistic::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radSimpleStatistic] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radSimpleStatistic] At Memory Location:[%p]\n", this );
 }
 
 #endif

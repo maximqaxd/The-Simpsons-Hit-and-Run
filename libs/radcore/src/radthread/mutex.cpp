@@ -225,7 +225,7 @@ void radThreadMutex::Release
 
 void radThreadMutex::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radThreadMutex] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radThreadMutex] At Memory Location:[%p]\n", this );
 }
 
 #endif

@@ -117,7 +117,7 @@ public:
     void Initialize( void );
     void UglyHackPostInitialize( IDaSoundTuner* pTuner );
     void ServiceOncePerFrame( void );
-    unsigned int GetObjectSize( void );
+    size_t GetObjectSize( void );
     void CaptureFreePlayer(
         daSoundClipStreamPlayer** ppPlayer,
         IDaSoundResource* pResource,

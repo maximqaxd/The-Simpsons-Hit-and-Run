@@ -979,7 +979,7 @@ SOCKET rDbgComTargetConnection::GetSocket( void )
 void rDbgComTargetConnection::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
     Lock( );
-    sprintf( pStringBuffer, "Object: [rDbgComTargetConnection] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rDbgComTargetConnection] At Memory Location:[%p]\n", this );
     Unlock( );
 }
 

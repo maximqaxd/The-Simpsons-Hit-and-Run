@@ -186,7 +186,7 @@ void radDispatcher::Release( void )
 
 void radDispatcher::Dump( char * pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radDispatcher] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radDispatcher] At Memory Location:[%p]\n", this );
 }
 
 #endif

@@ -1048,7 +1048,7 @@ void rDbgComTarget::Release( void )
 void rDbgComTarget::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
     Lock( );
-    sprintf( pStringBuffer, "Object: [radDbgComTarget] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radDbgComTarget] At Memory Location:[%p]\n", this );
     Unlock( );
 }
 

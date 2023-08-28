@@ -228,7 +228,7 @@ void radThreadSemaphore::Release
 
 void radThreadSemaphore::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [radThreadSemaphore] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [radThreadSemaphore] At Memory Location:[%p]\n", this );
 }
 
 #endif

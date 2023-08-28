@@ -534,7 +534,7 @@ void rad1394Client::Release
 
 void rad1394Client::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [rad1394Client] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [rad1394Client] At Memory Location:[%p]\n", this );
 }
 
 #endif

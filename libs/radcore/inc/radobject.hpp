@@ -132,24 +132,24 @@ inline void radRelease( IRefCount * pRefObject, void * pParentObject )
 	virtual void AddRef( void ) { radRefCount::Implement_AddRef(); } \
 	virtual void Release( void ) { radRefCount::Implement_Release(); } \
 	virtual void Dump( char * pStringBuffer, unsigned int bufferSize ) { \
-					  sprintf( pStringBuffer, "Object: [%s] At Memory Location:[0x%x]\n", pClassName, (unsigned int) this ); \
+					  sprintf( pStringBuffer, "Object: [%s] At Memory Location:[%p]\n", pClassName, this ); \
 					  }
 
 
 #define IMPLEMENT_REFCOUNTED( pClassName ) \
 	virtual void AddRef( void ) { radRefCount::Implement_AddRef(); } \
 	virtual void Release( void ) { radRefCount::Implement_Release(); } \
-	virtual unsigned int GetObjectSize( void ) { return sizeof( *this); } \
+	virtual size_t GetObjectSize( void ) { return sizeof( *this); } \
 	virtual void Dump( char * pStringBuffer, unsigned int bufferSize ) { \
-					  sprintf( pStringBuffer, "Object: [%s] At Memory Location:[0x%x]\n", pClassName, (unsigned int) this ); \
+					  sprintf( pStringBuffer, "Object: [%s] At Memory Location:[%p]\n", pClassName, this ); \
 					  }
 
 
 
 #define IMPLEMENT_BASEOBJECT( pClassName ) virtual void Dump( char * pStringBuffer, unsigned int bufferSize ) { \
-                                                              sprintf( pStringBuffer, "Object: [%s] At Memory Location:[0x%x]\n", pClassName, (unsigned int) this ); \
+                                                              sprintf( pStringBuffer, "Object: [%s] At Memory Location:[%p]\n", pClassName, this ); \
                                                               } \
-										   virtual unsigned int GetObjectSize( void ) { return sizeof( *this); }
+										   virtual size_t GetObjectSize( void ) { return sizeof( *this); }
 #else
 #define IMPLEMENT_REFCOUNTED_NOSIZE( pClassName ) \
 	virtual void AddRef( void ) { radRefCount::Implement_AddRef(); } \
@@ -174,7 +174,7 @@ class radBaseObject
 		inline virtual ~radBaseObject( void );
 
 		#ifdef RAD_DEBUG
-			virtual unsigned int GetObjectSize( void );
+			virtual size_t GetObjectSize( void );
 			virtual void Dump( char* pStringBuffer, unsigned int bufferSize );
 			static  void DumpObjects( void );
 		#endif

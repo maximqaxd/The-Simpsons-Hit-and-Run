@@ -14,6 +14,7 @@
 // Included Files
 //-----------------------------------------------------------------------------
 #include "pch.hpp"
+#include <cstdint>
 #include "platalloc.hpp"
 #include "raddebug.hpp"
 #include "radmemory.hpp"
@@ -428,7 +429,7 @@ void StaticHeap::GetStatus
 //=============================================================================
 void  StaticHeap::PrintOutOfMemoryMessage( size_t requested )
 {
-    size_t available = reinterpret_cast< unsigned int >( m_End ) - reinterpret_cast< unsigned int >( m_CurrentPointer ); 
+    size_t available = reinterpret_cast< uintptr_t >( m_End ) - reinterpret_cast< uintptr_t >( m_CurrentPointer ); 
     rReleasePrintf( "Static heap full - requested:%d.\tavailable:%d.\toverflow:%d.\n", requested, available, m_Overflow );
     //rReleaseAssert( false );
 }

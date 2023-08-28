@@ -1786,7 +1786,7 @@ bool DebugWatchClient::IsCompletePacket(unsigned int bytesRemaining, unsigned ch
 
 void DebugWatchClient::Dump( char* pStringBuffer, unsigned int bufferSize )
 {
-    sprintf( pStringBuffer, "Object: [DebugWatchClient] At Memory Location:[0x%x]\n", (unsigned int) this );
+    sprintf( pStringBuffer, "Object: [DebugWatchClient] At Memory Location:[%p]\n", this );
 }
 
 #endif
