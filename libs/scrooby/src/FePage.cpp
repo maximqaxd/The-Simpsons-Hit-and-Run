@@ -62,8 +62,7 @@ FePage::FePage( const char* fullFileName, FeProject* project )
 //===========================================================================
 FePage::~FePage()
 {
-    int i = 0;
-    for( i; i < mResources.Size(); i++ )
+    for( int i = 0; i < mResources.Size(); i++ )
     {
         FeApp::GetInstance()->GetFeResourceManager().RemoveResource( mResources[i] );
     }

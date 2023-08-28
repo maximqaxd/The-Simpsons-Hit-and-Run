@@ -55,7 +55,6 @@ radSoundHalVoiceWin::~radSoundHalVoiceWin
 	if ( m_xRadSoundHalPositionalGroup != NULL )
 	{
 		m_xRadSoundHalPositionalGroup->RemovePositionalEntity( this );
-		m_xRadSoundHalPositionalGroup;
 	}
 
     if (m_Source)

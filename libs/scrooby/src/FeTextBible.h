@@ -90,12 +90,7 @@ inline unsigned int FeTextBible::GetLanguageIndex()
 
 inline char FeTextBible::GetCurrentLanguageID()
 {
-    if( m_languageIDs != NULL )
-    {
-        return m_languageIDs[ m_index ];
-    }
-
-    return '\0';
+    return m_languageIDs[ m_index ];
 }
 
 #endif

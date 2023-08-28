@@ -466,7 +466,7 @@ unsigned pddiBaseContext::GetClearStencil(void)
 void pddiBaseContext::Clear(unsigned bufferMask)
 {
     // for warning
-    bufferMask;
+    (void)bufferMask;
 }
 
 void pddiBaseContext::IdentityMatrix(pddiMatrixType id)
@@ -1187,7 +1187,7 @@ bool pddiAssertFailed(const char *file, int line, const char *cond, const char *
     }
     else
     {
-        printf(msgbuf);
+        printf("%s", msgbuf);
     }
     return true;
 }

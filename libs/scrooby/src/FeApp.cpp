@@ -857,7 +857,7 @@ void FeApp::UnloadProject( Scrooby::Project* pProject )
     
     FeProject* feProject = dynamic_cast<FeProject*>(pProject);
     unsigned int i = 0;
-    for( i; i < static_cast<unsigned int>(m_Projects.Size()); i++ )
+    for( ; i < static_cast<unsigned int>(m_Projects.Size()); i++ )
     {
         if( feProject == m_Projects[i] )
         {

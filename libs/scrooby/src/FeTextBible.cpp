@@ -185,7 +185,7 @@ void FeTextBible::SetLanguage( unsigned int index )
 void FeTextBible::SetLanguage( char language )
 {
     int i = strlen( m_languageIDs );
-    for( i; i >= 0; i-- )
+    for( ; i >= 0; i-- )
     {
         if( m_languageIDs[i] == language )
         {

@@ -71,7 +71,7 @@ radSoundHalSystem::~radSoundHalSystem( void )
 
 void radSoundHalSystem::Initialize( const SystemDescription & systemDescription )
 {
-    rAssertMsg( systemDescription.m_SamplingRate != NULL, 
+    rAssertMsg( systemDescription.m_SamplingRate != 0, 
         "ERROR radsound: system sampling rate must be set"
         "to the highest sampling rate required by your program (probably 48000Hz)" );
 

@@ -923,8 +923,7 @@ void FeResourceManager::RemoveResource( int resourceID, const char* inventorySec
 
 void FeResourceManager::RemoveAlias( int resourceID )
 {
-    int i = 0;
-    for( i; i < mAliases.Size(); i++ )
+    for( int i = 0; i < mAliases.Size(); i++ )
     {
         if( mAliases[i] )
         {
@@ -940,8 +939,7 @@ void FeResourceManager::RemoveAlias( int resourceID )
 
 void FeResourceManager::RemoveP3DAttributes( int resourceID )
 {
-    int i = 0;
-    for( i; i < mP3DAttributes.Size(); i++ )
+    for( int i = 0; i < mP3DAttributes.Size(); i++ )
     {
         if( mP3DAttributes[i] )
         {
@@ -1047,11 +1045,10 @@ FeResourceManager::SetSecondaryInventorySection( const char* name )
 //===========================================================================
 void FeResourceManager::SetLocalizationLanguage( const Scrooby::XLLanguage lang )
 {
-    int i = 0;
     if( m_eLang != lang )
     {
         m_eLang = lang;
-        for( i; i < mResources.Size(); i++ )
+        for( int i = 0; i < mResources.Size(); i++ )
         {
             if( mResources[i] )
             {
@@ -1100,8 +1097,7 @@ void FeResourceManager::UnloadProject(  Scrooby::Project* project )
     rAssert( feProject != NULL );
 
     int size = feProject->GetChildrenCount();
-    int i;
-    for( i = 0; i < size; i++ )
+    for( int i = 0; i < size; i++ )
     {
         FeEntity* child = feProject->GetChildIndex( i );
         FeScreen* screen = dynamic_cast< FeScreen* >( child );

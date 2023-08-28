@@ -119,16 +119,16 @@ MessageCallback(GLenum source,
     switch(severity)
     {
         case GL_DEBUG_SEVERITY_HIGH_KHR:
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, message);
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM_KHR:
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, message);
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", message);
             break;
         case GL_DEBUG_SEVERITY_LOW_KHR:
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, message);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION_KHR:
-            SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, message);
+            SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", message);
             break;
     }
 }
@@ -199,12 +199,12 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
             if(*walk == ' ')
             {
                 *walk = 0;
-                SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, last);
+                SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", last);
                 last = walk+1;
             }
             walk++;
         }
-        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,last);
+        SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", last);
     }
 
     extBGRA = CheckExtension("GL_EXT_bgra");

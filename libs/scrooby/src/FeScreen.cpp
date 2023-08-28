@@ -247,8 +247,7 @@ void FeScreen::DisplayBackground()
 
     p3d::stack->Translate( -0.5f, -0.5f / aspect, 0.5f );
     bool done = false;
-    int i = 0;
-    for( i; (i < GetChildrenCount()) && !done; i++ )
+    for( int i = 0; (i < GetChildrenCount()) && !done; i++ )
     {
         FeEntity* feEntity = this->GetChildIndex( i );
         rAssert( feEntity );
@@ -300,8 +299,7 @@ void FeScreen::DisplayForeground()
 
     p3d::stack->Translate( -0.5f, -0.5f / aspect, 0.5f );
     bool draw = false;
-    int i = 0;
-    for( i; i < GetChildrenCount(); i++ )
+    for( int i = 0; i < GetChildrenCount(); i++ )
     {
         FeEntity* feEntity = this->GetChildIndex( i );
         rAssert( feEntity );
