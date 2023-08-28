@@ -4,6 +4,7 @@
 
 
 #include "pch.hpp"
+#include <raddebug.hpp>
 //
 // (C) 2001 Radical Entertainment
 //
@@ -15,6 +16,29 @@
 
 int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numParams )
 {
+#ifdef __GNUC__
+    auto vtable = *(size_t**)pThat;
+    auto method = vtable[vtbloffset];
+    int* param = (int*)pParams;
+    if (numParams == 1)
+    {
+        using F = void(void*, int);
+        ((F*)method)(pThat, *(int*)pParams);
+    }
+    else if (numParams == 2)
+    {
+        using F = void(void *, int, int);
+        ((F*)method)(pThat, param[0], param[1]);
+    }
+    else if (numParams == 3)
+    {
+        using F = void(void *, int, int, int);
+        ((F*)method)(pThat, param[0], param[1], param[2]);
+    }
+    else
+        rAssert(false);
+    return 0;
+#else
     __asm
     {
 
@@ -45,4 +69,5 @@ int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numPara
 
             call dword ptr [edx]               ; ok, do it, return ( if any ) will be in eax.
     }
+#endif
 }

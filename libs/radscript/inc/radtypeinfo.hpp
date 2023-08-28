@@ -1155,8 +1155,8 @@ inline IRadTypeInfo * IRadTypeInfoSystem::GetTypeInfo( IRefCount * pIRefCount )
 
         char interfaceName[ 128 ]; 
         const char * pClassName = NULL;
-    
-        #if defined (RAD_WIN32) || defined (RAD_XBOX)
+
+        #if defined (WIN32) || defined (RAD_XBOX)
         {
             //
             // The pName takes the form "class Scope::ClassName" or
@@ -1184,7 +1184,7 @@ inline IRadTypeInfo * IRadTypeInfoSystem::GetTypeInfo( IRefCount * pIRefCount )
         }
         #endif
    
-	    #ifdef RAD_PS2
+	    #if defined(RAD_PS2) || defined(__GNUC__)
 
             unsigned int crappyGccShit;
 
