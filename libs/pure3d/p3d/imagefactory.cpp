@@ -629,7 +629,7 @@ tImageFactory::tImageFactory() :
     AddHandler(new tBMPHandler);
     AddHandler(new tTargaHandler); 
     AddHandler(new tRawImageHandler);
-#if defined(WIN32) || defined(RAD_GAMECUBE)
+#if defined(RAD_WIN32) || defined(RAD_GAMECUBE)
     AddHandler( new tDXTNHandler );
 #endif
 }
