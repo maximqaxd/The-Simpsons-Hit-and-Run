@@ -124,32 +124,32 @@ void FinishedZone()
 //
 static char* sLevelLoadList[] = 
 {
-   "ART\\L1_TERRA.P3D", //L1
-   "ART\\L2_TERRA.P3D", //L2
-   "ART\\L3_TERRA.p3d", //L3
-   "ART\\L4_TERRA.P3D", //L4
-   "ART\\L5_TERRA.P3D", //L5
-   "ART\\L6_TERRA.P3D", //L6
-   "ART\\L7_TERRA.P3D", //L7
-   "ART\\B00.P3D",       //SUPER_SPRINT
-   "ART\\B01.P3D",       //SUPER_SPRINT
-   "ART\\B02.P3D",       //SUPER_SPRINT
-   "ART\\B03.P3D",       //SUPER_SPRINT
-   "ART\\B04.P3D",       //SUPER_SPRINT
-   "ART\\B05.P3D",       //SUPER_SPRINT
-   "ART\\B06.P3D",       //SUPER_SPRINT
-   "ART\\B07.P3D"       //SUPER_SPRINT
+   "art\\L1_TERRA.p3d", //L1
+   "art\\l2_TERRA.p3d", //L2
+   "art\\l3_TERRA.p3d", //L3
+   "art\\L4_TERRA.p3d", //L4
+   "art\\l5_TERRA.p3d", //L5
+   "art\\l6_TERRA.p3d", //L6
+   "art\\L7_TERRA.p3d", //L7
+   "art\\b00.p3d",       //SUPER_SPRINT
+   "art\\b01.p3d",       //SUPER_SPRINT
+   "art\\b02.p3d",       //SUPER_SPRINT
+   "art\\b03.p3d",       //SUPER_SPRINT
+   "art\\b04.p3d",       //SUPER_SPRINT
+   "art\\b05.p3d",       //SUPER_SPRINT
+   "art\\b06.p3d",       //SUPER_SPRINT
+   "art\\B07.p3d"       //SUPER_SPRINT
 };
 
 static char* sIntersectLoadList[] = 
 {
-   "ART\\L1_INTER.P3D", //L1
-   "ART\\L2_INTER.P3D", //L2
-   "ART\\L3_INTER.p3d", //L3
-   "ART\\L4_INTER.P3D", //L4
-   "ART\\L5_INTER.P3D", //L5
-   "ART\\L6_INTER.P3D", //L6
-   "ART\\L7_INTER.P3D", //L7
+   "art\\l1_inter.p3d", //L1
+   "art\\l2_inter.p3d", //L2
+   "art\\l3_inter.p3d", //L3
+   "art\\l4_inter.p3d", //L4
+   "art\\l5_inter.p3d", //L5
+   "art\\l6_inter.p3d", //L6
+   "art\\l7_inter.p3d", //L7
    "",
    "",
    "",
