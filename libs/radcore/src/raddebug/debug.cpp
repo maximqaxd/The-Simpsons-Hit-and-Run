@@ -73,7 +73,7 @@ int rDebugVsnPrintf( char *buffer, size_t count, const char *format, va_list arg
 
 int rDebugSnPrintf( char *buffer, size_t count, const char *format ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     va_start( va_alist, format ); 
     int retval = rDebugVsnPrintf( buffer, count, format, va_alist );
     va_end( va_alist ); 
@@ -497,7 +497,7 @@ void rDebuggerString_Implementation( const char* string )
 
 void rReleasePrintf( const char *fmt, ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     char    printfstr[ RAD_DEBUG_PRINT_MAX_LENGTH ];
 
     va_start( va_alist, fmt ); 
@@ -518,7 +518,7 @@ void rReleasePrintf( const char *fmt, ... )
 
 void rTunePrintf( const char *fmt, ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     char    printfstr[ RAD_DEBUG_PRINT_MAX_LENGTH ];
 
     va_start( va_alist, fmt ); 
@@ -540,7 +540,7 @@ void rTunePrintf( const char *fmt, ... )
 
 void rDebugPrintf( const char *fmt, ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     char    printfstr[ RAD_DEBUG_PRINT_MAX_LENGTH ];
 
     va_start( va_alist, fmt ); 
@@ -562,7 +562,7 @@ void rDebugPrintf( const char *fmt, ... )
 
 void rDebugChannelPrintf( const char * pChannel, const char *fmt, ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     char    printfstr[ RAD_DEBUG_PRINT_MAX_LENGTH ];
 
     va_start( va_alist, fmt ); 

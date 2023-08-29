@@ -119,7 +119,7 @@ void print(const char* s)
 // oct30/2001 amb - this function couldnt be inlined because use of va_args
 void printf(const char* s, ...)
 {
-    va_list va_alist = {0}; 
+    va_list va_alist;
     char    printfstr[ 1024 ];
 
     va_start( va_alist, s ); 
