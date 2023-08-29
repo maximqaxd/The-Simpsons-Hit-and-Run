@@ -41,10 +41,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef __linux__
-#include <signal.h>
-#endif
-
 //=============================================================================
 // Definitions
 //=============================================================================
@@ -107,7 +103,7 @@ void rDebugSetOutputHandler     ( radDebugOutputHandler * pOutputProc );
 // in release.
 //
 
-#ifdef __linux__
+#ifdef __GNUC__
         #define rReleaseBreak() { __builtin_trap(); }
 #elif defined (RAD_WIN32) || defined (RAD_XBOX)
 	#define rReleaseBreak() { __asm { int 3 } }
