@@ -39,7 +39,7 @@
 #define MASK_ROUNDED     0x40000000
 #define MASK_ALIGNMENT   0x20000000
 #define MASK_SIZE        0x1FFFFFFF
-#endif NOT_ENCODE
+#endif // NOT_ENCODE
 
 #define FREE_VALUE    0xFEEDF00D
 #define USED_VALUE    0x12345678

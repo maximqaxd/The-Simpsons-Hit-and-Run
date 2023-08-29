@@ -49,4 +49,4 @@ struct performance
 };
 
 }
-#endif PERFORMANCE_HPP
+#endif // PERFORMANCE_HPP

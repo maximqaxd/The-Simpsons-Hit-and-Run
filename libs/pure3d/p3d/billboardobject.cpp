@@ -1196,7 +1196,7 @@ tBillboardQuadGroup::tBillboardQuadGroup():
 #ifdef RAD_XBOX
     numPixelsVisible = 1;
     maxPixelsVisible = 1;
-#endif RAD_XBOX 
+#endif // RAD_XBOX
     boundingBox.high.Set(0.0f,0.0f,0.0f);
     boundingBox.low.Set(0.0f,0.0f,0.0f);
 }

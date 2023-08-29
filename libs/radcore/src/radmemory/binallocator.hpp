@@ -302,7 +302,7 @@ inline void radMemoryBinAllocator::InternalBin::FillFreeBody( void * pMemory )
             ((unsigned int*) pMemory)[ f ] = BODY_FREE_FILL;
         }
 
-    #endif RADMEMORY_BIN_ALLOCATOR_DEBUG
+    #endif // RADMEMORY_BIN_ALLOCATOR_DEBUG
 }
 
 //============================================================================
@@ -443,7 +443,7 @@ inline void radMemoryBinAllocator::InternalBin::FillAllocBody( void * pMemory )
             ((unsigned int*) pMemory)[ f ] = BODY_ALLOC_FILL;
         }
 
-    #endif RADMEMORY_BIN_ALLOCATOR_DEBUG
+    #endif // RADMEMORY_BIN_ALLOCATOR_DEBUG
 }
 
 //============================================================================

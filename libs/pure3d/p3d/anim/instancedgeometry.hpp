@@ -34,5 +34,5 @@ protected:
     tInstancedGeometry* next;
 };
 
-#endif _INSTANCEDGEOMETRY_HPP_
+#endif // _INSTANCEDGEOMETRY_HPP_
 

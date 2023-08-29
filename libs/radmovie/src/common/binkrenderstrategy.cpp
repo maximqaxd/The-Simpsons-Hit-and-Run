@@ -456,4 +456,4 @@ IRadMovieRenderStrategy * radMovieSimpleFullScreenRenderStrategyCreate( radMemor
 }
 
 
-#endif RAD_MOVIEPLAYER_USE_BINK
+#endif // RAD_MOVIEPLAYER_USE_BINK

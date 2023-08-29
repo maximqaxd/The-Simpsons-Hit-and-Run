@@ -50,4 +50,4 @@ extern "C" void radStackTraceWin32Get( unsigned int * results,
 
 #endif // RAD_WIN32 || RAD_XBOX
 
-#endif RADSTACKTRACE_HPP
+#endif // RADSTACKTRACE_HPP
