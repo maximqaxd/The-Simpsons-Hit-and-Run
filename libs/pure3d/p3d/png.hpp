@@ -11,7 +11,7 @@
 class tPNGHandler : public tImageHandler
 {
 public:
-    char* GetExtension() { return "png"; }
+    const char* GetExtension() { return "png"; }
     bool CanLoad()       { return true; }
     bool CanSave()       { return false; }
 

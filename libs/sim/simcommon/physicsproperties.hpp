@@ -64,7 +64,7 @@ public:
     static float CombinedFrictCoeff(const PhysicsProperties* inProperties1, const PhysicsProperties* inProperties2);
     
 protected:
-    static PhysicsProperties* GetPhysicsProperties(tEntityStore* store, char* inName, float inRest, float inFrict, float inTangRest, float density = 1.0f);
+    static PhysicsProperties* GetPhysicsProperties(tEntityStore* store, const char* inName, float inRest, float inFrict, float inTangRest, float density = 1.0f);
 
     virtual void Update();
     

@@ -11,7 +11,7 @@
 class tDXTNHandler : public tImageHandler
 {
 public:
-    char* GetExtension() { return "dds"; }
+    const char* GetExtension() { return "dds"; }
     bool CanLoad()       { return true; }
     bool CanSave()       { return false; }
 

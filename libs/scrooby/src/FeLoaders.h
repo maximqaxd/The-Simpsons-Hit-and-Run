@@ -52,7 +52,7 @@ public:
     virtual tLoadStatus Load( tFile* file, tEntityStore* store );
 protected:
     ~FeProjectFileHandler();
-    char** m_extensions;
+    const char** m_extensions;
     
     // These handle the parsing for the individual XML types supported.
     FePage* LoadPage( XMLTree* loadTree );

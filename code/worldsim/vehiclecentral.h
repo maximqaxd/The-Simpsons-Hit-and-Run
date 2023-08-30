@@ -60,7 +60,7 @@ class VehicleCentral : public LoadingManager::ProcessRequestsCallback
         void PreLoad();
         void Unload();
         
-        Vehicle* InitVehicle( const char* name, bool addToActiveVehicleList = true, char* confile = 0, VehicleType vt = VT_USER, 
+        Vehicle* InitVehicle( const char* name, bool addToActiveVehicleList = true, const char* confile = 0, VehicleType vt = VT_USER, 
                               DriverInit s = ALLOW_DRIVER, bool playercar = false, bool startoutofcar = true);
         
         // returns index if successful, otherwise -1

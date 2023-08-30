@@ -42,7 +42,7 @@ class SimpleAnimationPlayer : public AnimationPlayer
 
         virtual void ClearData();
 
-        void SetNameData( char* controller, char* camera, char* animation );
+        void SetNameData( const char* controller, const char* camera, const char* animation );
 
         void SetCycleMode( p3dCycleMode cycleMode ) { mCycleMode = cycleMode; }
         void SetIntroLoop(unsigned nFrames);

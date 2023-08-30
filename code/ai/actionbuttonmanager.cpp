@@ -138,13 +138,13 @@ ActionButtonManager::AddVehicleSelectInfo
 ==============================================================================
 Description:    Scripter hook
 
-Parameters:     ( int argc, char** argv )
+Parameters:     ( int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void ActionButtonManager::AddVehicleSelectInfo( int argc, char** argv )
+void ActionButtonManager::AddVehicleSelectInfo( int argc, const char** argv )
 {
     rWarningMsg( false, "ActionButtonManager::AddVehicleSelectInfo() function is deprecated!" );
 /*
@@ -167,13 +167,13 @@ ActionButtonManager::ClearVehicleSelectInfo
 ==============================================================================
 Description:    Scripter hook
 
-Parameters:     ( int argc, char** argv )
+Parameters:     ( int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void ActionButtonManager::ClearVehicleSelectInfo( int argc, char** argv )
+void ActionButtonManager::ClearVehicleSelectInfo( int argc, const char** argv )
 {
     rWarningMsg( false, "ActionButtonManager::ClearVehicleSelectInfo() function is deprecated!" );
 /*

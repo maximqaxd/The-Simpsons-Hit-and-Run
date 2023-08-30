@@ -678,12 +678,12 @@ void MissionScriptLoader::OnExecuteScriptComplete( void* pUserData )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetLanguage( int argc, char** argv )
+void MissionScriptLoader::SetLanguage( int argc, const char** argv )
 {
 #ifdef PAL
     const char languageID = argv[ 1 ][ 0 ];
@@ -727,12 +727,12 @@ void MissionScriptLoader::SetLanguage( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::InitLevelPlayerVehicle( int argc, char** argv )
+void MissionScriptLoader::InitLevelPlayerVehicle( int argc, const char** argv )
 {
     char locator[64], vehicleName[64], confile[64], slot[64];
     GameplayManager::eCarSlots eslot = GameplayManager::eDefaultCar;
@@ -824,12 +824,12 @@ void MissionScriptLoader::InitLevelPlayerVehicle( int argc, char** argv )
 //=============================================================================
 // Description: Moves a Player car to a locator.
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::PlacePlayerCar( int argc, char** argv )
+void MissionScriptLoader::PlacePlayerCar( int argc, const char** argv )
 {
     char locator[64], vehicleName[64];
     strcpy( vehicleName, argv[ 1 ]);
@@ -858,14 +858,14 @@ void MissionScriptLoader::PlacePlayerCar( int argc, char** argv )
 }
 
 /*
-void MissionScriptLoader::EnableTraffic( int argc, char** argv )
+void MissionScriptLoader::EnableTraffic( int argc, const char** argv )
 {
     ITrafficSpawnController* p_TrafficController= TrafficManager::GetSpawnController();
     rAssert(p_TrafficController);
     p_TrafficController->EnableTraffic();    
 
 }
-void MissionScriptLoader::DisableTraffic( int argc, char** argv )
+void MissionScriptLoader::DisableTraffic( int argc, const char** argv )
 {
 
     ITrafficSpawnController* p_TrafficController= TrafficManager::GetSpawnController();
@@ -879,12 +879,12 @@ void MissionScriptLoader::DisableTraffic( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddPurchaseCarReward( int argc, char** argv )
+void MissionScriptLoader::AddPurchaseCarReward( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
 
@@ -962,7 +962,7 @@ void MissionScriptLoader::AddPurchaseCarReward( int argc, char** argv )
     HeapMgr()->PopHeap( GMA_LEVEL_OTHER );
 }
 
-void MissionScriptLoader::SetPostLevelFMV( int argc, char** argv )
+void MissionScriptLoader::SetPostLevelFMV( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     GetGameplayManager()->SetPostLevelFMV( argv[ 1 ] );
@@ -978,7 +978,7 @@ void MissionScriptLoader::SetPostLevelFMV( int argc, char** argv )
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CreateChaseManager(int argc,char** argv)
+void MissionScriptLoader::CreateChaseManager(int argc, const char** argv)
 {
 	char vehiclename [64];
 	char confile [64];
@@ -1007,7 +1007,7 @@ void MissionScriptLoader::CreateChaseManager(int argc,char** argv)
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetChaseSpawnRate (int argc,char** argv)
+void MissionScriptLoader::SetChaseSpawnRate (int argc, const char** argv)
 {
 
 	char vehiclename [64];
@@ -1032,7 +1032,7 @@ void MissionScriptLoader::SetChaseSpawnRate (int argc,char** argv)
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::KillAllChaseAI(int argc,char** argv)
+void MissionScriptLoader::KillAllChaseAI(int argc, const char** argv)
 {
 
 	char vehiclename [64];
@@ -1053,12 +1053,12 @@ void MissionScriptLoader::KillAllChaseAI(int argc,char** argv)
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddMission( int argc, char** argv )
+void MissionScriptLoader::AddMission( int argc, const char** argv )
 {
     int index = GetGameplayManager()->GetNumMissions();
     
@@ -1115,12 +1115,12 @@ MEMTRACK_POP_GROUP( "Mission" );
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddBonusMission( int argc, char** argv )
+void MissionScriptLoader::AddBonusMission( int argc, const char** argv )
 {
     int index = GameplayManager::MAX_MISSIONS + GetGameplayManager()->GetNumBonusMissions();
 
@@ -1181,12 +1181,12 @@ MEMTRACK_POP_GROUP( "Mission" );
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CloseMission( int argc, char** argv )
+void MissionScriptLoader::CloseMission( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpMission != NULL, "Mission already closed!\n" );
     spInstance->mpMission = NULL;
@@ -1197,12 +1197,12 @@ void MissionScriptLoader::CloseMission( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetForcedCar( int argc, char** argv )
+void MissionScriptLoader::SetForcedCar( int argc, const char** argv )
 {
     spInstance->mpMission->SetForcedCar( true );
 }
@@ -1212,12 +1212,12 @@ void MissionScriptLoader::SetForcedCar( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetDemoLoopTime( int argc, char** argv )
+void MissionScriptLoader::SetDemoLoopTime( int argc, const char** argv )
 {
     if ( ( CommandLineOptions::Get( CLO_DEMO_TEST ) ||
            GetCheatInputSystem()->IsCheatEnabled( CHEAT_ID_DEMO_TEST ) ) &&
@@ -1240,12 +1240,12 @@ void MissionScriptLoader::SetDemoLoopTime( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SelectMission( int argc, char** argv )
+void MissionScriptLoader::SelectMission( int argc, const char** argv )
 {
     GameplayManager* gpm = GetGameplayManager();
     int missionNum = gpm->GetMissionNumByName( argv[1] );
@@ -1284,12 +1284,12 @@ void MissionScriptLoader::SelectMission( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetMissionNameIndex( int argc, char** argv )
+void MissionScriptLoader::SetMissionNameIndex( int argc, const char** argv )
 {
     rAssert( spInstance->mpMission != NULL );
 
@@ -1302,13 +1302,13 @@ void MissionScriptLoader::SetMissionNameIndex( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
 /*
-void MissionScriptLoader::InitMissionPlayerVehicle( int argc, char** argv )
+void MissionScriptLoader::InitMissionPlayerVehicle( int argc, const char** argv )
 {
     // don't think this is ever called
     
@@ -1347,12 +1347,12 @@ void MissionScriptLoader::InitMissionPlayerVehicle( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetMissionResetPlayerInCar( int argc, char** argv )
+void MissionScriptLoader::SetMissionResetPlayerInCar( int argc, const char** argv )
 {
     //Find the locator named argv[ 1 ]
     CarStartLocator* loc = p3d::find<CarStartLocator>( argv[ 1 ] );
@@ -1376,12 +1376,12 @@ void MissionScriptLoader::SetMissionResetPlayerInCar( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetMissionResetPlayerOutCar( int argc, char** argv )
+void MissionScriptLoader::SetMissionResetPlayerOutCar( int argc, const char** argv )
 {
     //Find the locator named argv[ 1 ]
     Locator* playerLoc = p3d::find<Locator>( argv[ 1 ] );
@@ -1434,12 +1434,12 @@ void MissionScriptLoader::SetMissionResetPlayerOutCar( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetDynaLoadData( int argc, char** argv )
+void MissionScriptLoader::SetDynaLoadData( int argc, const char** argv )
 {
     if(argc == 3)
     {
@@ -1456,12 +1456,12 @@ void MissionScriptLoader::SetDynaLoadData( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddBonusObjective( int argc, char** argv )
+void MissionScriptLoader::AddBonusObjective( int argc, const char** argv )
 {
     rAssert( spInstance->mpMission );
 
@@ -1520,12 +1520,12 @@ void MissionScriptLoader::AddBonusObjective( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddObjective( int argc, char** argv )
+void MissionScriptLoader::AddObjective( int argc, const char** argv )
 {
     // The AddObjective script command takes between 1 and 3 parameters
     // The first parameter is the objective type.
@@ -1745,12 +1745,12 @@ MEMTRACK_POP_GROUP( "Mission - Objectives" );
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddNPC( int argc, char** argv )
+void MissionScriptLoader::AddNPC( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_MISSION );
     //Find the locator named argv[ 2 ]
@@ -1765,7 +1765,7 @@ void MissionScriptLoader::AddNPC( int argc, char** argv )
 }
 
 //=============================================================================
-void MissionScriptLoader::AddDriver( int argc, char** argv )
+void MissionScriptLoader::AddDriver( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_MISSION );
 
@@ -1780,7 +1780,7 @@ void MissionScriptLoader::AddDriver( int argc, char** argv )
 }
 
 //=============================================================================
-void MissionScriptLoader::RemoveNPC( int argc, char** argv )
+void MissionScriptLoader::RemoveNPC( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_MISSION );
     //Find the locator named argv[ 2 ]
@@ -1789,7 +1789,7 @@ void MissionScriptLoader::RemoveNPC( int argc, char** argv )
 }
 
 //=============================================================================
-void MissionScriptLoader::RemoveDriver( int argc, char** argv )
+void MissionScriptLoader::RemoveDriver( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_MISSION );
     //Find the locator named argv[ 2 ]
@@ -1802,12 +1802,12 @@ void MissionScriptLoader::RemoveDriver( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetTalkToTarget( int argc, char** argv )
+void MissionScriptLoader::SetTalkToTarget( int argc, const char** argv )
 {
     if ( spInstance->mObjType != MissionObjective::OBJ_TALKTO )
     {
@@ -1843,12 +1843,12 @@ void MissionScriptLoader::SetTalkToTarget( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetDialogueInfo( int argc, char** argv )
+void MissionScriptLoader::SetDialogueInfo( int argc, const char** argv )
 {
     if ( spInstance->mObjType != MissionObjective::OBJ_DIALOGUE )
     {
@@ -1867,12 +1867,12 @@ void MissionScriptLoader::SetDialogueInfo( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetDialoguePositions( int argc, char** argv )
+void MissionScriptLoader::SetDialoguePositions( int argc, const char** argv )
 {
     if ( spInstance->mObjType != MissionObjective::OBJ_DIALOGUE )
     {
@@ -1933,12 +1933,12 @@ void MissionScriptLoader::SetDialoguePositions( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetRaceLaps( int argc, char** argv )
+void MissionScriptLoader::SetRaceLaps( int argc, const char** argv )
 {
     rAssert( spInstance->mObjType == MissionObjective::OBJ_RACE );
 
@@ -1951,12 +1951,12 @@ void MissionScriptLoader::SetRaceLaps( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::BindCollectibleToWaypoint( int argc, char** argv )
+void MissionScriptLoader::BindCollectibleToWaypoint( int argc, const char** argv )
 {
     rAssert( spInstance->mObjType == MissionObjective::OBJ_DUMP );
     CollectDumpedObjective* cdo = reinterpret_cast<CollectDumpedObjective*>(spInstance->mpObjective);
@@ -1968,12 +1968,12 @@ void MissionScriptLoader::BindCollectibleToWaypoint( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AllowUserDump( int argc, char** argv )
+void MissionScriptLoader::AllowUserDump( int argc, const char** argv )
 {
     rAssert( spInstance->mObjType == MissionObjective::OBJ_DUMP ||
              spInstance->mObjType == MissionObjective::OBJ_DELIVERY );
@@ -1986,12 +1986,12 @@ void MissionScriptLoader::AllowUserDump( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetVehicleToLoad( int argc, char** argv )
+void MissionScriptLoader::SetVehicleToLoad( int argc, const char** argv )
 {
     rAssert( spInstance->mObjType == MissionObjective::OBJ_LOAD_VEHICLE );
     
@@ -2012,12 +2012,12 @@ void MissionScriptLoader::SetVehicleToLoad( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CloseObjective( int argc, char** argv )
+void MissionScriptLoader::CloseObjective( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpObjective != NULL, "Objective already closed!\n" );
     spInstance->mpObjective = NULL;
@@ -2032,12 +2032,12 @@ void MissionScriptLoader::CloseObjective( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddCollectible( int argc, char** argv )
+void MissionScriptLoader::AddCollectible( int argc, const char** argv )
 {
     bool bValid = spInstance->mObjType == MissionObjective::OBJ_DELIVERY ||
                   spInstance->mObjType == MissionObjective::OBJ_RACE ||
@@ -2078,12 +2078,12 @@ void MissionScriptLoader::AddCollectible( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddCollectibleStateProp( int argc, char** argv )
+void MissionScriptLoader::AddCollectibleStateProp( int argc, const char** argv )
 {
     rmt::Vector position;    
     const char* statepropName = argv[1];
@@ -2099,12 +2099,12 @@ void MissionScriptLoader::AddCollectibleStateProp( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void  
 //
 //=============================================================================
-void MissionScriptLoader::SetCollectibleEffect( int argc, char** argv )
+void MissionScriptLoader::SetCollectibleEffect( int argc, const char** argv )
 {
     if ( spInstance->mpObjective->GetObjectiveType() == MissionObjective::OBJ_GOTO )
     {
@@ -2126,12 +2126,12 @@ void MissionScriptLoader::SetCollectibleEffect( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetDestination( int argc, char** argv )
+void MissionScriptLoader::SetDestination( int argc, const char** argv )
 {
     MissionObjective::ObjectiveTypeEnum type = spInstance->mObjType;
 
@@ -2186,12 +2186,12 @@ void MissionScriptLoader::SetDestination( int argc, char** argv )
 //=============================================================================
 // Description: Turn the arrival dialogue off for a goto objective 
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::TurnGotoDialogOff( int argc, char** argv )
+void MissionScriptLoader::TurnGotoDialogOff( int argc, const char** argv )
 {
     rAssert( spInstance->mpObjective->GetObjectiveType() == MissionObjective::OBJ_GOTO || spInstance->mpObjective->GetObjectiveType() == MissionObjective::OBJ_GO_OUTSIDE );
 
@@ -2203,12 +2203,12 @@ void MissionScriptLoader::TurnGotoDialogOff( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::MustActionTrigger( int argc, char** argv )
+void MissionScriptLoader::MustActionTrigger( int argc, const char** argv )
 {
     rAssertMsg( spInstance->mpObjective->GetObjectiveType() == MissionObjective::OBJ_GOTO, "MustActionTrigger can only be applied to GOTO objectives!\n" );
 
@@ -2220,12 +2220,12 @@ void MissionScriptLoader::MustActionTrigger( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStageVehicle( int argc, char** argv )
+void MissionScriptLoader::AddStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
     char vehiclename[32];
@@ -2374,12 +2374,12 @@ MEMTRACK_POP_GROUP( "Mission - Stage Vehicle" );
 //=============================================================================
 // Description: Used to move a staged Vehicle from one location to another. This vehicle must have been 
 // Initialized or the command to fail. and 
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::MoveStageVehicle( int argc, char** argv )
+void MissionScriptLoader::MoveStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
     char vehiclename[32];
@@ -2457,12 +2457,12 @@ MEMTRACK_POP_GROUP( "Mission - Stage Vehicle" );
 //=============================================================================
 // Description: Used to give a staged Vehicle a new AI type . Call this  on a vehicle that is idle.
 // This vehicle must have been Initialized via AddStageVehicle or the command to fail.  
-// Parameters:  ( int argc, char** argv ) vehicle,locator,AI
+// Parameters:  ( int argc, const char** argv ) vehicle,locator,AI
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::ActivateVehicle( int argc, char** argv )
+void MissionScriptLoader::ActivateVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
 #if (RAD_TUNE||RAD_DEBUG)
@@ -2568,12 +2568,12 @@ MEMTRACK_POP_GROUP( "Mission - Stage Vehicle" );
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStageWaypoint( int argc, char** argv )
+void MissionScriptLoader::AddStageWaypoint( int argc, const char** argv )
 {
     Locator* locator = p3d::find<Locator>( argv[ 1 ] );
     rTuneAssertMsg( locator != NULL, "Could not find the requested waypoint locator\n" );
@@ -2588,12 +2588,12 @@ void MissionScriptLoader::AddStageWaypoint( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStageCharacter( int argc, char** argv )
+void MissionScriptLoader::AddStageCharacter( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -2654,12 +2654,12 @@ void MissionScriptLoader::AddStageCharacter( int argc, char** argv )
 //              we should change up the music and make it more dramatic for
 //              this stage.
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStageMusicChange( int argc, char** argv )
+void MissionScriptLoader::AddStageMusicChange( int argc, const char** argv )
 {
     spInstance->mpStage->SetMusicChangeFlag();
 }
@@ -2670,12 +2670,12 @@ void MissionScriptLoader::AddStageMusicChange( int argc, char** argv )
 // Description: Sets an indicator for the music player to say that we should
 //              continue playing music out of the car for this stage.
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetStageMusicAlwaysOn( int argc, char** argv )
+void MissionScriptLoader::SetStageMusicAlwaysOn( int argc, const char** argv )
 {
     spInstance->mpStage->SetMusicAlwaysOnFlag();
 }
@@ -2686,12 +2686,12 @@ void MissionScriptLoader::SetStageMusicAlwaysOn( int argc, char** argv )
 // Description: Sets the event name of a dialog line to play when stage
 //              is completed
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCompletionDialog( int argc, char** argv )
+void MissionScriptLoader::SetCompletionDialog( int argc, const char** argv )
 {
     spInstance->mpStage->SetDialogKey( ::radMakeKey32( argv[1] ) );
 
@@ -2707,12 +2707,12 @@ void MissionScriptLoader::SetCompletionDialog( int argc, char** argv )
 // Description: Sets the name of a music event to trigger when the current
 //              stage begins
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetStageStartMusicEvent( int argc, char** argv )
+void MissionScriptLoader::SetStageStartMusicEvent( int argc, const char** argv )
 {
     spInstance->mpStage->SetStageStartMusicEvent( ::radMakeCaseInsensitiveKey32( argv[1] ) );
 }
@@ -2722,12 +2722,12 @@ void MissionScriptLoader::SetStageStartMusicEvent( int argc, char** argv )
 //=============================================================================
 // Description: Set a state in that funky radMusic matrix stuff
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetMusicState( int argc, char** argv )
+void MissionScriptLoader::SetMusicState( int argc, const char** argv )
 {
     spInstance->mpStage->SetStageMusicState( ::radMakeCaseInsensitiveKey32( argv[1] ),
                                              ::radMakeCaseInsensitiveKey32( argv[2] ) );
@@ -2738,12 +2738,12 @@ void MissionScriptLoader::SetMusicState( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetStageCamera( int argc, char** argv )
+void MissionScriptLoader::SetStageCamera( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
     if ( spInstance->mpStage == NULL )
@@ -2780,12 +2780,12 @@ void MissionScriptLoader::SetStageCamera( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::ResetToThisStage( int argc, char** argv )
+void MissionScriptLoader::ResetToThisStage( int argc, const char** argv )
 {
     int stagNum = spInstance->spInstance->mpMission->GetNumStages() - 1;
     spInstance->mpMission->SetResetToStage( stagNum );
@@ -2796,12 +2796,12 @@ void MissionScriptLoader::ResetToThisStage( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetTrafficDensity( int argc, char** argv )
+void MissionScriptLoader::SetTrafficDensity( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -2818,12 +2818,12 @@ void MissionScriptLoader::SetTrafficDensity( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddCondition( int argc, char** argv )
+void MissionScriptLoader::AddCondition( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( spInstance->mMissionHeap );
 
@@ -2954,12 +2954,12 @@ MEMTRACK_POP_GROUP( "Mission - Conditions" );
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CloseCondition( int argc, char** argv )
+void MissionScriptLoader::CloseCondition( int argc, const char** argv )
 {
     spInstance->mpCondition = NULL;
     spInstance->mCondType = MissionCondition::COND_INVALID;
@@ -2971,12 +2971,12 @@ void MissionScriptLoader::CloseCondition( int argc, char** argv )
 // Description: should the animations for a particular character be randomized
 //              or not?
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AmbientAnimationRandomize( int argc, char** argv )
+void MissionScriptLoader::AmbientAnimationRandomize( int argc, const char** argv )
 {
     rAssert( argc == 3 );
     int characterNumber = atoi( argv[ 1 ] );
@@ -2990,15 +2990,15 @@ void MissionScriptLoader::AmbientAnimationRandomize( int argc, char** argv )
 //=============================================================================
 // Description: adds an ambient animation to be played during conversations
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::ClearAmbientAnimations( int argc, char** argv )
+void MissionScriptLoader::ClearAmbientAnimations( int argc, const char** argv )
 {
     rAssert( argc == 2 );
-    char* bonusMissionName = argv[ 1 ];
+    const char* bonusMissionName = argv[ 1 ];
     const int index = GetGameplayManager()->GetMissionNumByName( bonusMissionName ) - GameplayManager::MAX_MISSIONS;  //the bonus missions come after the regular missions
     rAssert( index >= 0 );
     BonusMissionInfo* bmi = GetGameplayManager()->GetBonusMissionInfo( index );
@@ -3011,12 +3011,12 @@ void MissionScriptLoader::ClearAmbientAnimations( int argc, char** argv )
 //=============================================================================
 // Description: adds an ambient animation to be played during conversations
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddAmbientNpcAnimation( int argc, char** argv )
+void MissionScriptLoader::AddAmbientNpcAnimation( int argc, const char** argv )
 {
     if( argc == 2 )
     {
@@ -3025,7 +3025,7 @@ void MissionScriptLoader::AddAmbientNpcAnimation( int argc, char** argv )
     else
     {
         rAssert( argc == 3 );
-        char* bonusMissionName = argv[ 2 ];
+        const char* bonusMissionName = argv[ 2 ];
         const int index = GetGameplayManager()->GetMissionNumByName( bonusMissionName ) - GameplayManager::MAX_MISSIONS;  //the bonus missions come after the regular missions
         rAssert( index >= 0 );
         BonusMissionInfo* bmi = GetGameplayManager()->GetBonusMissionInfo( index );
@@ -3039,12 +3039,12 @@ void MissionScriptLoader::AddAmbientNpcAnimation( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddAmbientPcAnimation( int argc, char** argv )
+void MissionScriptLoader::AddAmbientPcAnimation( int argc, const char** argv )
 {
     if( argc == 2 )
     {
@@ -3055,7 +3055,7 @@ void MissionScriptLoader::AddAmbientPcAnimation( int argc, char** argv )
     else
     {
         rAssert( argc == 3 );
-        char* bonusMissionName = argv[ 2 ];
+        const char* bonusMissionName = argv[ 2 ];
         const int index = GetGameplayManager()->GetMissionNumByName( bonusMissionName ) - GameplayManager::MAX_MISSIONS;  //the bonus missions come after the regular missions
         rAssert( index >= 0 );
         BonusMissionInfo* bmi = GetGameplayManager()->GetBonusMissionInfo( index );
@@ -3069,14 +3069,14 @@ void MissionScriptLoader::AddAmbientPcAnimation( int argc, char** argv )
 //=============================================================================
 // Description: Sets the best side locator name for the conversation cameras
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCamBestSide( int argc, char** argv )
+void MissionScriptLoader::SetCamBestSide( int argc, const char** argv )
 {
-    char* name = argv[ 1 ];
+    const char* name = argv[ 1 ];
     if( argc == 2 )
     {
         spInstance->mpStage->SetBestSideLocator( name );
@@ -3084,7 +3084,7 @@ void MissionScriptLoader::SetCamBestSide( int argc, char** argv )
     else
     {
         rAssert( argc == 3 );
-        char* bonusMissionName = argv[ 2 ];
+        const char* bonusMissionName = argv[ 2 ];
         const int index = GetGameplayManager()->GetMissionNumByName( bonusMissionName ) - GameplayManager::MAX_MISSIONS;  //the bonus missions come after the regular missions
         rAssert( index >= 0 );
         BonusMissionInfo* bmi = GetGameplayManager()->GetBonusMissionInfo( index );
@@ -3098,12 +3098,12 @@ void MissionScriptLoader::SetCamBestSide( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCamName( int argc, char** argv )
+void MissionScriptLoader::SetConversationCamName( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_TEMP );
     spInstance->mpStage->SetConversationCamName( argv[ 1 ] );
@@ -3115,12 +3115,12 @@ void MissionScriptLoader::SetConversationCamName( int argc, char** argv )
 //=============================================================================
 // Description: sets up the conversation camera used when the PC is talking
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCamPcName( int argc, char** argv )
+void MissionScriptLoader::SetConversationCamPcName( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_TEMP );
     spInstance->mpStage->SetConversationCamPcName( argv[ 1 ] );
@@ -3131,12 +3131,12 @@ void MissionScriptLoader::SetConversationCamPcName( int argc, char** argv )
 //=============================================================================
 // Description: sets up the conversation camera used when the NPC is talking
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCamNpcName( int argc, char** argv )
+void MissionScriptLoader::SetConversationCamNpcName( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_TEMP );
     spInstance->mpStage->SetConversationCamNpcName( argv[ 1 ] );
@@ -3148,12 +3148,12 @@ void MissionScriptLoader::SetConversationCamNpcName( int argc, char** argv )
 //=============================================================================
 // Description: sets the conversation camera for a particular line of dialog
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCam( int argc, char** argv )
+void MissionScriptLoader::SetConversationCam( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_TEMP );
     int lineOfDialog = atoi( argv[ 1 ] );
@@ -3165,7 +3165,7 @@ void MissionScriptLoader::SetConversationCam( int argc, char** argv )
     else
     {
         rAssert( argc == 4 );
-        char* bonusMissionName = argv[ 3 ];
+        const char* bonusMissionName = argv[ 3 ];
         const int index = GetGameplayManager()->GetMissionNumByName( bonusMissionName ) - GameplayManager::MAX_MISSIONS;  //the bonus missions come after the regular missions
         rAssert( index >= 0 );
         BonusMissionInfo* bmi = GetGameplayManager()->GetBonusMissionInfo( index );
@@ -3180,12 +3180,12 @@ void MissionScriptLoader::SetConversationCam( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCamAngle( int argc, char** argv )
+void MissionScriptLoader::SetConversationCamAngle( int argc, const char** argv )
 {
     rAssert( argc == 2 );
     const char* cameraName = argv[ 1 ];
@@ -3197,12 +3197,12 @@ void MissionScriptLoader::SetConversationCamAngle( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConversationCamDistance( int argc, char** argv )
+void MissionScriptLoader::SetConversationCamDistance( int argc, const char** argv )
 {
     rAssert( argc == 3 );
     const char* cameraName = argv[ 1 ];
@@ -3215,12 +3215,12 @@ void MissionScriptLoader::SetConversationCamDistance( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetPresentationBitmap( int argc, char** argv )
+void MissionScriptLoader::SetPresentationBitmap( int argc, const char** argv )
 {
     bool changeRequired = !CGuiScreenMissionLoad::IsCurrentBitmap( argv[ 1 ] );
     if( changeRequired )
@@ -3235,12 +3235,12 @@ void MissionScriptLoader::SetPresentationBitmap( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetAnimatedCameraMulticontrollerName( int argc, char** argv )
+void MissionScriptLoader::SetAnimatedCameraMulticontrollerName( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     AnimatedCam::SetMulticontroller( argv[ 1 ] );
@@ -3251,12 +3251,12 @@ void MissionScriptLoader::SetAnimatedCameraMulticontrollerName( int argc, char**
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void
 //
 //=============================================================================
-void MissionScriptLoader::SetAnimatedCameraName( int argc, char** argv )
+void MissionScriptLoader::SetAnimatedCameraName( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     AnimatedCam::ClearCamera();
@@ -3268,12 +3268,12 @@ void MissionScriptLoader::SetAnimatedCameraName( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void
 //
 //=============================================================================
-void MissionScriptLoader::SetMissionStartMulticontrollerName( int argc, char** argv )
+void MissionScriptLoader::SetMissionStartMulticontrollerName( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     AnimatedCam::SetMissionStartMulticontroller( argv[ 1 ] );
@@ -3284,12 +3284,12 @@ void MissionScriptLoader::SetMissionStartMulticontrollerName( int argc, char** a
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void
 //
 //=============================================================================
-void MissionScriptLoader::SetMissionStartCameraName ( int argc, char** argv )
+void MissionScriptLoader::SetMissionStartCameraName ( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     AnimatedCam::SetMissionStartCamera( argv[ 1 ] );
@@ -3300,12 +3300,12 @@ void MissionScriptLoader::SetMissionStartCameraName ( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetPlayerCarName( int argc, char** argv )
+void MissionScriptLoader::SetPlayerCarName( int argc, const char** argv )
 {
     GetSSM()->SetVehicle( ::atoi(argv[1]), argv[2] );
 }
@@ -3315,7 +3315,7 @@ void MissionScriptLoader::SetPlayerCarName( int argc, char** argv )
 Description:    Plays a FMV, usually after a mission. Note that it causes the HUD
                 to be un/reloaded.
 =============================================================================*/
-void MissionScriptLoader::SetFMVInfo( int argc, char** argv )
+void MissionScriptLoader::SetFMVInfo( int argc, const char** argv )
 {
     rAssert( argc > 1 );
 
@@ -3339,12 +3339,12 @@ void MissionScriptLoader::SetFMVInfo( int argc, char** argv )
 // Description: marks a specific character as a child character - camera
 //              will be set lower in this case
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CharacterIsChild( int argc, char** argv )
+void MissionScriptLoader::CharacterIsChild( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     AnimatedCam::SetMulticontroller( argv[ 1 ] );
@@ -3354,12 +3354,12 @@ void MissionScriptLoader::CharacterIsChild( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetFollowDistances( int argc, char** argv )
+void MissionScriptLoader::SetFollowDistances( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition != NULL );
     
@@ -3391,12 +3391,12 @@ void MissionScriptLoader::SetFollowDistances( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCondMinHealth( int argc, char** argv )
+void MissionScriptLoader::SetCondMinHealth( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition != NULL );
     
@@ -3424,12 +3424,12 @@ void MissionScriptLoader::SetCondMinHealth( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetConditionPosition( int argc, char** argv )
+void MissionScriptLoader::SetConditionPosition( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition != NULL );
     rAssert( spInstance->mCondType == MissionCondition::COND_POSITION );
@@ -3443,12 +3443,12 @@ void MissionScriptLoader::SetConditionPosition( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCondTime( int argc, char** argv )
+void MissionScriptLoader::SetCondTime( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition->GetType() == MissionCondition::COND_PLAYER_OUT_OF_VEHICLE );
     GetOutOfCarCondition* goocc = static_cast<GetOutOfCarCondition*>(spInstance->mpCondition);
@@ -3460,12 +3460,12 @@ void MissionScriptLoader::SetCondTime( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetHitNRun( int argc, char** argv )
+void MissionScriptLoader::SetHitNRun( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition->GetType() == MissionCondition::COND_TIME_OUT );
     TimeOutCondition* toc = static_cast<TimeOutCondition*>(spInstance->mpCondition);
@@ -3477,12 +3477,12 @@ void MissionScriptLoader::SetHitNRun( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetObjTargetVehicle( int argc, char** argv )
+void MissionScriptLoader::SetObjTargetVehicle( int argc, const char** argv )
 {
     rAssert( spInstance->mpObjective != NULL );
     
@@ -3544,12 +3544,12 @@ void MissionScriptLoader::SetObjTargetVehicle( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetObjTargetBoss( int argc, char** argv )
+void MissionScriptLoader::SetObjTargetBoss( int argc, const char** argv )
 {
     rAssert( spInstance->mpObjective != NULL );
 
@@ -3570,12 +3570,12 @@ void MissionScriptLoader::SetObjTargetBoss( int argc, char** argv )
 //=============================================================================
 // Description: Set an object that the user must pickup in his vehicle
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetPickupTarget( int argc, char** argv )
+void MissionScriptLoader::SetPickupTarget( int argc, const char** argv )
 {
     rAssert( spInstance->mObjType == MissionObjective::OBJ_PICKUP_ITEM );
     rAssert( dynamic_cast< PickupItemObjective* >( spInstance->mpObjective ) != NULL );
@@ -3589,7 +3589,7 @@ void MissionScriptLoader::SetPickupTarget( int argc, char** argv )
 //=============================================================================
 // Description: The PC character will rock out during this objective
 //=============================================================================
-void MissionScriptLoader::AllowRockOut( int argc, char** argv )
+void MissionScriptLoader::AllowRockOut( int argc, const char** argv )
 {
     spInstance->mpObjective->SetRockOut(true);
 }
@@ -3601,12 +3601,12 @@ void MissionScriptLoader::AllowRockOut( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetObjDistance( int argc, char** argv )
+void MissionScriptLoader::SetObjDistance( int argc, const char** argv )
 {
     rAssert( spInstance->mpObjective != NULL );
 
@@ -3634,12 +3634,12 @@ void MissionScriptLoader::SetObjDistance( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCondTargetVehicle( int argc, char** argv )
+void MissionScriptLoader::SetCondTargetVehicle( int argc, const char** argv )
 {
     rAssert( spInstance->mpCondition != NULL );
     
@@ -3679,12 +3679,12 @@ void MissionScriptLoader::SetCondTargetVehicle( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStage( int argc, char** argv )
+void MissionScriptLoader::AddStage( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage == NULL, "No stage active\n" );
 
@@ -3773,12 +3773,12 @@ void MissionScriptLoader::AddStage( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetStageMessageIndex( int argc, char** argv )
+void MissionScriptLoader::SetStageMessageIndex( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -3791,12 +3791,12 @@ void MissionScriptLoader::SetStageMessageIndex( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetStageTime( int argc, char** argv )
+void MissionScriptLoader::SetStageTime( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
     int factor = GetCheatInputSystem()->IsCheatEnabled(CHEAT_ID_EXTRA_TIME) ? 5 : 1;
@@ -3808,12 +3808,12 @@ void MissionScriptLoader::SetStageTime( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddStageTime( int argc, char** argv )
+void MissionScriptLoader::AddStageTime( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
     int factor = GetCheatInputSystem()->IsCheatEnabled(CHEAT_ID_EXTRA_TIME) ? 5 : 1;
@@ -3825,12 +3825,12 @@ void MissionScriptLoader::AddStageTime( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::ShowStageComplete( int argc, char** argv )
+void MissionScriptLoader::ShowStageComplete( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
     spInstance->mpStage->ShowStageComplete( true );
@@ -3842,12 +3842,12 @@ void MissionScriptLoader::ShowStageComplete( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetHUDIcon( int argc, char** argv )
+void MissionScriptLoader::SetHUDIcon( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -3859,12 +3859,12 @@ void MissionScriptLoader::SetHUDIcon( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetIrisWipe( int argc, char** argv )
+void MissionScriptLoader::SetIrisWipe( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -3876,12 +3876,12 @@ void MissionScriptLoader::SetIrisWipe( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetFadeOut( int argc, char** argv )
+void MissionScriptLoader::SetFadeOut( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "No stage active\n" );
 
@@ -3893,18 +3893,18 @@ void MissionScriptLoader::SetFadeOut( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::CloseStage( int argc, char** argv )
+void MissionScriptLoader::CloseStage( int argc, const char** argv )
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "Stage already closed!\n" );
     spInstance->mpStage = NULL;
 }
 
-void MissionScriptLoader::SetVehicleAIParams( int argc, char** argv )
+void MissionScriptLoader::SetVehicleAIParams( int argc, const char** argv )
 {
 #if (RAD_TUNE || RAD_DEBUG)
     char errMsg[256];
@@ -3942,12 +3942,12 @@ void MissionScriptLoader::SetVehicleAIParams( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetBonusMissionStart( int argc, char** argv )
+void MissionScriptLoader::SetBonusMissionStart( int argc, const char** argv )
 {
     rAssert( spInstance->mpStage );
 
@@ -4082,18 +4082,18 @@ bool MissionScriptLoader::GetDirectionalArrowType( const char* string, Direction
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::LoadP3DFile( int argc, char** argv )
+void MissionScriptLoader::LoadP3DFile( int argc, const char** argv )
 {
 #ifdef MEMORYTRACKER_ENABLED
     char name[256];
     sprintf( name, "Mission - Load: %s", argv[1] );
 #else
-    char* name = "";
+    const char* name = "";
 #endif
 
     // HACK HACK HACK : ignore loads ona bunch of stuff that we know we have preloaded
@@ -4167,11 +4167,11 @@ void MissionScriptLoader::LoadP3DFile( int argc, char** argv )
 
     if ( argc == 4 )
     {
-        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap, argv[ 3 ], argv[ 1 ], 0, name );
+        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap, argv[ 3 ], argv[ 1 ], 0, (void*)name );
     }
     else
     {
-        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap,  0, name );
+        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap,  0, (void*)name );
     }
 }
 
@@ -4182,12 +4182,12 @@ void MissionScriptLoader::LoadP3DFile( int argc, char** argv )
 // Description: Use this to load any vehicle that may get unloaded during a level gameplay session,
 // ie player car,ai car, forced car into its own iventory section.
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::LoadDisposableCar( int argc, char** argv )
+void MissionScriptLoader::LoadDisposableCar( int argc, const char** argv )
 {    
     
     if (strcmp (argv[3],"DEFAULT")== 0)
@@ -4290,13 +4290,13 @@ MissionScriptLoader::AddCharacter
 ==============================================================================
 Description:    Comment
 
-Parameters:     (int argc, char** argv )
+Parameters:     (int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void MissionScriptLoader::AddCharacter(int argc, char** argv )
+void MissionScriptLoader::AddCharacter(int argc, const char** argv )
 {
     rAssert( argc == 3 );
     GetCharacterManager( )->AddPCCharacter( argv[ 1 ], argv[ 2 ] );
@@ -4308,12 +4308,12 @@ void MissionScriptLoader::AddCharacter(int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddNPCCharacterBonusMission( int argc, char** argv )
+void MissionScriptLoader::AddNPCCharacterBonusMission( int argc, const char** argv )
 {
     char uniqueName[16];
     sprintf(uniqueName, "b_%s", argv[1]);
@@ -4360,12 +4360,12 @@ void MissionScriptLoader::AddNPCCharacterBonusMission( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetBonusMissionDialoguePositions( int argc, char** argv )
+void MissionScriptLoader::SetBonusMissionDialoguePositions( int argc, const char** argv )
 {
     if ( GetGameplayManager()->mIsDemo )
     {
@@ -4428,12 +4428,12 @@ void MissionScriptLoader::SetBonusMissionDialoguePositions( int argc, char** arg
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddAmbientCharacter( int argc, char** argv )
+void MissionScriptLoader::AddAmbientCharacter( int argc, const char** argv )
 {
     Locator* loc = p3d::find<Locator>( argv[2] );
     if(!loc)
@@ -4449,7 +4449,7 @@ void MissionScriptLoader::AddAmbientCharacter( int argc, char** argv )
     c->AddToWorldScene();
 }
 
-void MissionScriptLoader::AddBonusMissionNPCWaypoint( int argc, char** argv )
+void MissionScriptLoader::AddBonusMissionNPCWaypoint( int argc, const char** argv )
 {
     // Check syntax: commandname, NPCname, locatorname
     rTuneAssertMsg( argc == 3, "AddBonusMissionNPCWaypoint takes 2 args: NPCName, locatorName" ); 
@@ -4469,7 +4469,7 @@ void MissionScriptLoader::AddBonusMissionNPCWaypoint( int argc, char** argv )
     rTuneAssertMsg( succeeded, "Failed adding waypoint for a Bonus Mission NPC" );
 }
 
-void MissionScriptLoader::AddObjectiveNPCWaypoint( int argc, char** argv )
+void MissionScriptLoader::AddObjectiveNPCWaypoint( int argc, const char** argv )
 {
 #if (RAD_TUNE || RAD_DEBUG)
     char errMsg[ 256 ];
@@ -4582,7 +4582,7 @@ bool MissionScriptLoader::AddNPCWaypoint( const char* npcName, const char* locNa
 }
 
 
-void MissionScriptLoader::AddPurchaseCarNPCWaypoint( int argc, char** argv )
+void MissionScriptLoader::AddPurchaseCarNPCWaypoint( int argc, const char** argv )
 {
 
     // Check syntax: commandname, NPCname, locatorname
@@ -4601,7 +4601,7 @@ void MissionScriptLoader::AddPurchaseCarNPCWaypoint( int argc, char** argv )
     rTuneAssertMsg( succeeded, "Failed to add waypoint for Purchase Car Reward NPC." );
 }
 
-void MissionScriptLoader::AddAmbientNPCWaypoint( int argc, char** argv )
+void MissionScriptLoader::AddAmbientNPCWaypoint( int argc, const char** argv )
 {
     // Check syntax: commandname, NPCname, locatorname
     rTuneAssertMsg( argc == 3, "AddAmbientNPCWaypoint takes 2 args: NPCName, locatorName" ); 
@@ -4621,12 +4621,12 @@ void MissionScriptLoader::AddAmbientNPCWaypoint( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::ActivateTrigger( int argc, char** argv )
+void MissionScriptLoader::ActivateTrigger( int argc, const char** argv )
 {
     Locator* loc;
     
@@ -4642,12 +4642,12 @@ void MissionScriptLoader::ActivateTrigger( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::DeactivateTrigger( int argc, char** argv )
+void MissionScriptLoader::DeactivateTrigger( int argc, const char** argv )
 {
     Locator* loc;
     
@@ -4663,12 +4663,12 @@ void MissionScriptLoader::DeactivateTrigger( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::InitAIVehicle(  int argc, char** argv )
+void MissionScriptLoader::InitAIVehicle(  int argc, const char** argv )
 {
     char locator[16], vehicleName[16], aitype[16];
     strcpy( vehicleName, argv[ 1 ]);
@@ -4709,12 +4709,12 @@ void MissionScriptLoader::InitAIVehicle(  int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddAIWaypoint(  int argc, char** argv )
+void MissionScriptLoader::AddAIWaypoint(  int argc, const char** argv )
 {
     rAssert( spInstance->mpCurrentVehicleAI );
 
@@ -4733,20 +4733,20 @@ MissionScriptLoader::CreateAnimPhysObject
 ==============================================================================
 Description:    Comment
 
-Parameters:     ( int argc, char** argv )
+Parameters:     ( int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void MissionScriptLoader::CreateAnimPhysObject( int argc, char** argv )
+void MissionScriptLoader::CreateAnimPhysObject( int argc, const char** argv )
 {
 // No longer neccessary; loading being done uniformly now.
 // You have been assimilated.
     rTuneAssertMsg( false, "No longer neccessary; loading being done uniformly now.  You have been assimilated.\n" );
 }
 
-void MissionScriptLoader::CreateActionEventTrigger( int argc, char** argv )
+void MissionScriptLoader::CreateActionEventTrigger( int argc, const char** argv )
 {
 //const char* triggerName, rmt::Vector& pos, float r );
     rmt::Vector pos;
@@ -4758,27 +4758,27 @@ void MissionScriptLoader::CreateActionEventTrigger( int argc, char** argv )
 
     GetActionButtonManager()->CreateActionEventTrigger( argv[1], pos, r );
 }
-void MissionScriptLoader::LinkActionToObjectJoint( int argc, char** argv )
+void MissionScriptLoader::LinkActionToObjectJoint( int argc, const char** argv )
 {
     //const char* objectName, const char* jointName, const char* triggerName, const char* typeName, const char* buttonName );
 
     GetActionButtonManager()->LinkActionToObjectJoint( argv[1], argv[2], argv[3], argv[4], argv[5] );
 }
-void MissionScriptLoader::LinkActionToObject( int argc, char** argv )
+void MissionScriptLoader::LinkActionToObject( int argc, const char** argv )
 {
     //const char* objectName, const char* triggerName, const char* typeName, const char* buttonName = (const char*)0 );
     
     GetActionButtonManager()->LinkActionToObject( argv[1], argv[2], argv[3], argv[4], argv[5], false );
 }
 
-void MissionScriptLoader::SetCoinDrawable( int argc, char** argv )
+void MissionScriptLoader::SetCoinDrawable( int argc, const char** argv )
 {
     rAssert( argc >= 1 );
     tDrawable* coinDrawable = p3d::find<tDrawable>( argv[ 1 ] );
     GetCoinManager()->SetCoinDrawable( coinDrawable );
 }
 
-void MissionScriptLoader::SetParticleTexture( int argc, char** argv )
+void MissionScriptLoader::SetParticleTexture( int argc, const char** argv )
 {
     tTexture* t = p3d::find<tTexture>( argv[ 2 ] );
     int i = atoi( argv[ 1 ] );
@@ -4786,7 +4786,7 @@ void MissionScriptLoader::SetParticleTexture( int argc, char** argv )
 }
 
 //adds a safezone to a stage
-void MissionScriptLoader::AddSafeZone(int argc, char** argv)
+void MissionScriptLoader::AddSafeZone(int argc, const char** argv)
 {
     Locator* locator = NULL;
     
@@ -4807,7 +4807,7 @@ void MissionScriptLoader::AddSafeZone(int argc, char** argv)
 
 
 //create a new ped group 
-void MissionScriptLoader::CreatePedGroup(int argc,char** argv)
+void MissionScriptLoader::CreatePedGroup(int argc, const char** argv)
     {
         rAssert(argc == 2);
         int groupid = atoi(argv[1]);
@@ -4816,7 +4816,7 @@ void MissionScriptLoader::CreatePedGroup(int argc,char** argv)
         GetMissionScriptLoader()->mp_ModelGroup->numModels =0;
     }
 
-void  MissionScriptLoader::AddPed(int argc,char** argv)
+void  MissionScriptLoader::AddPed(int argc, const char** argv)
     {
         //if you asserted here then the wrong number of arguements have been passed
         rAssert(argc == 3);
@@ -4840,7 +4840,7 @@ void  MissionScriptLoader::AddPed(int argc,char** argv)
     }
 
 //Closes a ped grp.
-void MissionScriptLoader::ClosePedGroup(int argc, char** argv)
+void MissionScriptLoader::ClosePedGroup(int argc, const char** argv)
     {
         if (spInstance->mp_ModelGroup->numModels == 0 )
             {
@@ -4855,7 +4855,7 @@ void MissionScriptLoader::ClosePedGroup(int argc, char** argv)
     }
 
 
-void MissionScriptLoader::UsePedGroup( int argc, char** argv )
+void MissionScriptLoader::UsePedGroup( int argc, const char** argv )
 {
     rTuneAssert(argc == 2);
     int groupId = atoi(argv[1]);
@@ -4866,7 +4866,7 @@ void MissionScriptLoader::UsePedGroup( int argc, char** argv )
     spInstance->mpMission->SetInitPedGroup( groupId );
 }
 
-void MissionScriptLoader::BindReward (int argc,char** argv)
+void MissionScriptLoader::BindReward (int argc, const char** argv)
     {
 
         char name [16];
@@ -4979,7 +4979,7 @@ void MissionScriptLoader::BindReward (int argc,char** argv)
 
 
 //use to set the cars attributes displayed in the phone booth interface
-void MissionScriptLoader::SetCarAttributes(int argc,char** argv)
+void MissionScriptLoader::SetCarAttributes(int argc, const char** argv)
 {
     char CarName [16] = "NULL";
 
@@ -5007,12 +5007,12 @@ void MissionScriptLoader::SetCarAttributes(int argc,char** argv)
 //=============================================================================
 // Description: 
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetTotalGags(int argc,char ** argv)
+void MissionScriptLoader::SetTotalGags(int argc, const char** argv)
 {
     rAssert( argc >= 2 );
     int level = atoi( argv[ 1 ] ) - 1;
@@ -5026,12 +5026,12 @@ void MissionScriptLoader::SetTotalGags(int argc,char ** argv)
 //=============================================================================
 // Description: 
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetTotalWasps(int argc,char ** argv)
+void MissionScriptLoader::SetTotalWasps(int argc, const char** argv)
 {
     rAssert( argc >= 2 );
     int level = atoi( argv[ 1 ] ) - 1;
@@ -5041,7 +5041,7 @@ void MissionScriptLoader::SetTotalWasps(int argc,char ** argv)
 }
 
 //create a new traffic group 
-void MissionScriptLoader::CreateTrafficGroup(int argc,char** argv)
+void MissionScriptLoader::CreateTrafficGroup(int argc, const char** argv)
     {
         rAssert(argc == 2);
         int groupid = atoi(argv[1]);
@@ -5050,7 +5050,7 @@ void MissionScriptLoader::CreateTrafficGroup(int argc,char** argv)
         spInstance->mp_TrafficGroup->ClearGroup();
     }
 
-void  MissionScriptLoader::AddTrafficModel(int argc,char** argv)
+void  MissionScriptLoader::AddTrafficModel(int argc, const char** argv)
     {
         //check if group is full, if its full then dont add the ped
         {
@@ -5080,14 +5080,14 @@ void  MissionScriptLoader::AddTrafficModel(int argc,char** argv)
     }
 
 //Closes a traffic grp.
-void MissionScriptLoader::CloseTrafficGroup(int argc, char** argv)
+void MissionScriptLoader::CloseTrafficGroup(int argc, const char** argv)
     {        
         spInstance->mp_TrafficGroup =NULL;
     }
 
     
 //setting the respawn vaules inside the respawn manager
-void MissionScriptLoader::SetRespawnRate(int argc,char ** argv)
+void MissionScriptLoader::SetRespawnRate(int argc, const char** argv)
 {
     int seconds =0;
     seconds = atoi(argv[2]);
@@ -5120,12 +5120,12 @@ void MissionScriptLoader::SetRespawnRate(int argc,char ** argv)
 //=============================================================================
 // Description: Triggers the tutorial mode to be enabled
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::EnableTutorialMode(int argc,char ** argv)
+void MissionScriptLoader::EnableTutorialMode(int argc, const char** argv)
 {
     int enableInt = atoi( argv[ 1 ] );
     bool enable = ( enableInt != 0 );
@@ -5145,12 +5145,12 @@ void MissionScriptLoader::EnableTutorialMode(int argc,char ** argv)
 //=============================================================================
 // Description: starts the 321go countdown
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::StartCountdown(int argc,char ** argv)
+void MissionScriptLoader::StartCountdown(int argc, const char** argv)
 {
     tUID secondUID;
 
@@ -5171,12 +5171,12 @@ void MissionScriptLoader::StartCountdown(int argc,char ** argv)
 //=============================================================================
 // Description: 
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::AddToCountdownSequence(int argc,char ** argv)
+void MissionScriptLoader::AddToCountdownSequence(int argc, const char** argv)
 {
     if( argc > 2 )
     {
@@ -5195,12 +5195,12 @@ void MissionScriptLoader::AddToCountdownSequence(int argc,char ** argv)
 // Description: this is the camera that will be used when a car is loaded from
 //              a phone booth
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::SetCarStartCamera( int argc, char** argv )
+void MissionScriptLoader::SetCarStartCamera( int argc, const char** argv )
 {
 }
 
@@ -5209,12 +5209,12 @@ void MissionScriptLoader::SetCarStartCamera( int argc, char** argv )
 //=============================================================================
 // Description: should we trigger the patty and selma screen when we're done
 //
-// Parameters:  (  int argc, char** argv )
+// Parameters:  (  int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::GoToPattyAndSelmaScreenWhenDone( int argc, char** argv )
+void MissionScriptLoader::GoToPattyAndSelmaScreenWhenDone( int argc, const char** argv )
 {
     spInstance->mpStage->GoToPattyAndSelmaScreenWhenDone();
 }
@@ -5224,12 +5224,12 @@ void MissionScriptLoader::GoToPattyAndSelmaScreenWhenDone( int argc, char** argv
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::StreetRacePropsLoad( int argc, char** argv )
+void MissionScriptLoader::StreetRacePropsLoad( int argc, const char** argv )
 {
      spInstance->mpMission->LoadStreetRaceProps( argv[ 1 ] );
 }
@@ -5240,25 +5240,25 @@ void MissionScriptLoader::StreetRacePropsLoad( int argc, char** argv )
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
 //=============================================================================
-void MissionScriptLoader::StreetRacePropsUnload( int argc, char** argv )
+void MissionScriptLoader::StreetRacePropsUnload( int argc, const char** argv )
 {
      spInstance->mpMission->UnloadStreetRaceProps( argv[ 1 ] );
 }
 
 
-void MissionScriptLoader::UseElapsedTime(int argc,char** argv)
+void MissionScriptLoader::UseElapsedTime(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: UseElapsedTime needs to be in a stage \n" );
     spInstance->mpStage->UseElapsedTime();
 }
 
     
-void MissionScriptLoader::AttachStatePropCollectible(int argc,char** argv)
+void MissionScriptLoader::AttachStatePropCollectible(int argc, const char** argv)
 {
     HeapMgr()->PushHeap( GMA_LEVEL_MISSION );
 
@@ -5273,7 +5273,7 @@ void MissionScriptLoader::AttachStatePropCollectible(int argc,char** argv)
     HeapMgr()->PopHeap( GMA_LEVEL_MISSION );
 }
 
-void MissionScriptLoader::ShowHUD(int argc,char** argv)
+void MissionScriptLoader::ShowHUD(int argc, const char** argv)
 {
     bool isShowHUD = ( strcmp( argv[ 1 ], "false" ) != 0 );
 
@@ -5281,14 +5281,14 @@ void MissionScriptLoader::ShowHUD(int argc,char** argv)
     spInstance->mpMission->ShowHUD( isShowHUD );
 }
 
-void MissionScriptLoader::SetNumValidFailureHints( int argc, char** argv )
+void MissionScriptLoader::SetNumValidFailureHints( int argc, const char** argv )
 {
     rAssert( spInstance != NULL && spInstance->mpMission != NULL );
     spInstance->mpMission->SetNumValidFailureHints( atoi( argv[ 1 ] ) );
 }
 
 //used to set the ParTime for Gamble Missions ONLY!!!!
-void MissionScriptLoader::SetParTime(int argc,char** argv)
+void MissionScriptLoader::SetParTime(int argc, const char** argv)
 {
     int i =0;
     //first check that this we have a race objective first
@@ -5314,7 +5314,7 @@ void MissionScriptLoader::SetParTime(int argc,char** argv)
 
 
 //Sets The entery fee for a stage.
-void MissionScriptLoader::SetRaceEnteryFee(int argc, char** argv)
+void MissionScriptLoader::SetRaceEnteryFee(int argc, const char** argv)
 {
     int enteryfee = -1;
     enteryfee=atoi(argv[1]);
@@ -5330,7 +5330,7 @@ void MissionScriptLoader::SetRaceEnteryFee(int argc, char** argv)
 
 
 //Set the Coins Fee Required to Pass a Coin Objective 
-void MissionScriptLoader::SetCoinFee(int argc,char** argv)
+void MissionScriptLoader::SetCoinFee(int argc, const char** argv)
 {
     int coinfee=0;
     coinfee=atoi(argv[1]);
@@ -5352,14 +5352,14 @@ void MissionScriptLoader::SetCoinFee(int argc,char** argv)
 
 
 //Force the MF player in their car on mission stage start
-void MissionScriptLoader::PutMFPlayerInCar(int argc,char** argv)
+void MissionScriptLoader::PutMFPlayerInCar(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: PutMFPlayerInCar needs to be in a stage \n" );
     spInstance->mpStage->PutMFPlayerInCar();
 }
 
 // Set which element of a stateprop is to be treated as the shadow (or light pool) 
-void MissionScriptLoader::SetStatepropShadow(int argc,char** argv)
+void MissionScriptLoader::SetStatepropShadow(int argc, const char** argv)
 {
     const char* compDrawName = argv[1];
     const char* compDrawElement = argv[2];
@@ -5391,103 +5391,103 @@ void MissionScriptLoader::TreeOfWoeErrorMsg(const char* outputbuffer)
 }
 
 
-void MissionScriptLoader::DisableHitAndRun(int argc,char** argv)
+void MissionScriptLoader::DisableHitAndRun(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: DisableHitAndRun needs to be in a stage \n" );
     spInstance->mpStage->DisableHitAndRun();
     GetHitnRunManager()->DisableHitnRun();
 }
 
-void MissionScriptLoader::EnableHitAndRun(int argc,char** argv)
+void MissionScriptLoader::EnableHitAndRun(int argc, const char** argv)
 {
     GetHitnRunManager()->EnableHitnRun();
 }
 
-void MissionScriptLoader::ResetHitAndRun(int argc,char** argv)
+void MissionScriptLoader::ResetHitAndRun(int argc, const char** argv)
 {
     GetHitnRunManager()->ResetState();
 }
 
-void MissionScriptLoader::SetNumChaseCars(int argc,char** argv)
+void MissionScriptLoader::SetNumChaseCars(int argc, const char** argv)
 {
     int numofcars =0;
     numofcars = atoi(argv[1]);
     GetHitnRunManager()->SetNumChaseCars(numofcars);
 }
 
-void MissionScriptLoader::SetHitAndRunDecay(int argc,char** argv)
+void MissionScriptLoader::SetHitAndRunDecay(int argc, const char** argv)
 {
     float value = 0.0f;
     value = static_cast<float>(atof(argv[1]));
     GetHitnRunManager()->SetDecayRate(value);
 }
 
-void MissionScriptLoader::SetHitAndRunDecayInterior(int argc,char** argv)
+void MissionScriptLoader::SetHitAndRunDecayInterior(int argc, const char** argv)
 {
     float value = 0.0f;
     value = static_cast<float>(atof(argv[1]));
     GetHitnRunManager()->SetDecayRateInside(value);
 }
 
-void MissionScriptLoader::SetHitAndRunMeter(int argc,char** argv)
+void MissionScriptLoader::SetHitAndRunMeter(int argc, const char** argv)
 {
     float value = 0.0f;
     value = static_cast<float>(atof(argv[1]));
     GetHitnRunManager()->SetHitnRunValue(value);
 }
 
-void MissionScriptLoader::SwapInDefaultCar(int argc,char** argv)
+void MissionScriptLoader::SwapInDefaultCar(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: SwapInDefaultCar needs to be in a stage \n" );
     spInstance->mpStage->SwapInDefaultCar();
 }
 
 
-void MissionScriptLoader::SetSwapDefaultCarRespawnLocatorName(int argc,char** argv)
+void MissionScriptLoader::SetSwapDefaultCarRespawnLocatorName(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: SetSwapDefaultCarLocator needs to be in a stage \n" );
     spInstance->mpStage->SetSwapDefaultCarRespawnLocatorName(argv[1]);
 }
 
-void MissionScriptLoader::SetSwapForcedCarRespawnLocatorName(int argc,char** argv)
+void MissionScriptLoader::SetSwapForcedCarRespawnLocatorName(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: SetSwapForcedCarLocator needs to be in a stage \n" );
     spInstance->mpStage->SetSwapForcedCarRespawnLocatorName(argv[1]);
 }
 
-void MissionScriptLoader::SetSwapPlayerRespawnLocatorName(int argc,char** argv)
+void MissionScriptLoader::SetSwapPlayerRespawnLocatorName(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: SetSwapPlayerLocator needs to be in a stage \n" );
     spInstance->mpStage->SetSwapPlayerRespawnLocatorName(argv[1]);
 }
 
 
-void MissionScriptLoader::NoTrafficForStage(int argc,char** argv)
+void MissionScriptLoader::NoTrafficForStage(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command:NoTrafficForStage needs to be in a stage \n" );
     spInstance->mpStage->DisableTraffic();
 }
 
 
-void MissionScriptLoader::ClearTrafficForStage(int argc,char** argv)
+void MissionScriptLoader::ClearTrafficForStage(int argc, const char** argv)
 {
     rTuneAssertMsg( spInstance->mpStage != NULL, "This Command: ClearTrafficForStage needs to be in a stage \n" );
     spInstance->mpStage->ClearTrafficForStage();
 }
 
 
-void MissionScriptLoader::AddGlobalProp(int argc,char** argv)
+void MissionScriptLoader::AddGlobalProp(int argc, const char** argv)
 {
     //GetGlobalPropManager()->AddProp(argv[1]));
 }
 
-void MissionScriptLoader::PlacePlayerAtLocatorName(int argc,char** argv)
+void MissionScriptLoader::PlacePlayerAtLocatorName(int argc, const char** argv)
 {
     rTuneAssertMsg(spInstance->mpStage != NULL," You must USE: PlacePlayerAtLocatorName inside the Stage Command!! \n");
     spInstance->mpStage->SetPlayerRespawnLocatorName(argv[1]);
 }
 
-void MissionScriptLoader::msPlacePlayerCarAtLocatorName(int argc,char** argv)
+void MissionScriptLoader::msPlacePlayerCarAtLocatorName(int argc, const char** argv)
 {
     rTuneAssertMsg(spInstance->mpStage != NULL," You must USE: msPlacePlayerCarAtLocatorName inside the Stage Command!! \n");
     spInstance->mpStage->SetmsPlayerCarRespawnLocatorName(argv[1]);
@@ -5495,7 +5495,7 @@ void MissionScriptLoader::msPlacePlayerCarAtLocatorName(int argc,char** argv)
 
 
 
-void MissionScriptLoader::SetStageAIRaceCatchupParams( int argc, char** argv )
+void MissionScriptLoader::SetStageAIRaceCatchupParams( int argc, const char** argv )
 {
     rAssert( spInstance );
 
@@ -5539,7 +5539,7 @@ void MissionScriptLoader::SetStageAIRaceCatchupParams( int argc, char** argv )
     spInstance->mpStage->SetAIRaceCatchupParams( vehicle, params );
 
 }
-void MissionScriptLoader::SetStageAIEvadeCatchupParams( int argc, char** argv )
+void MissionScriptLoader::SetStageAIEvadeCatchupParams( int argc, const char** argv )
 {
     rAssert( spInstance );
 
@@ -5578,7 +5578,7 @@ void MissionScriptLoader::SetStageAIEvadeCatchupParams( int argc, char** argv )
 
 
 }
-void MissionScriptLoader::SetStageAITargetCatchupParams( int argc, char** argv )
+void MissionScriptLoader::SetStageAITargetCatchupParams( int argc, const char** argv )
 {
     rAssert( spInstance );
 
@@ -5618,7 +5618,7 @@ void MissionScriptLoader::SetStageAITargetCatchupParams( int argc, char** argv )
 
 
 
-void MissionScriptLoader::SetPauseDuration(int argc,char** argv)
+void MissionScriptLoader::SetPauseDuration(int argc, const char** argv)
 {
     if (spInstance->mpObjective != NULL)
     {
@@ -5644,31 +5644,31 @@ void MissionScriptLoader::SetPauseDuration(int argc,char** argv)
 }
 
 
-void MissionScriptLoader::SetCharacterToHide(int argc,char** argv)
+void MissionScriptLoader::SetCharacterToHide(int argc, const char** argv)
 {
     rTuneAssert(spInstance->mpStage != NULL);
     spInstance->mpStage->SetCharacterToHide(argv[1]);
 }
 
-void MissionScriptLoader::SetLevelOver(int argc,char** argv)
+void MissionScriptLoader::SetLevelOver(int argc, const char** argv)
 {
     rTuneAssert(spInstance->mpStage != NULL);
     spInstance->mpStage->SetLevelOver();
 }
 
-void MissionScriptLoader::SetGameOver(int argc, char** argv)
+void MissionScriptLoader::SetGameOver(int argc, const char** argv)
 {
     rTuneAssert(spInstance->mpStage != 0);
     spInstance->mpStage->SetGameOver();
 }
 
-void MissionScriptLoader::StayInBlack(int argc,char** argv)
+void MissionScriptLoader::StayInBlack(int argc, const char** argv)
 {
     rTuneAssertMsg(spInstance->mpStage != NULL,"You cant use this command to a Stage that doesnt exist, Use AddStage() before this command! \n");
     spInstance->mpStage->mbStayBlackForStage= true;
 }
 
-void MissionScriptLoader::AllowMissionAbort(int argc,char** argv)
+void MissionScriptLoader::AllowMissionAbort(int argc, const char** argv)
 {
     rTuneAssertMsg(spInstance->mpStage != NULL,"You cant use this command to a Stage that doesnt exist, Use AddStage() before this command! \n");
 

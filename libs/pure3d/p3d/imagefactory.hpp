@@ -65,7 +65,7 @@ public:
 
     virtual bool CanLoad() = 0;
     virtual bool CanSave() = 0;
-    virtual char* GetExtension() = 0;
+    virtual const char* GetExtension() = 0;
 
     virtual bool CheckExtension(char* filename);
     virtual bool CheckFormat(Format) = 0;

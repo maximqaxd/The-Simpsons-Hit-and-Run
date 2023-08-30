@@ -11,7 +11,7 @@
 class tTargaHandler : public tImageHandler
 {
 public:
-    char* GetExtension() { return "tga"; }
+    const char* GetExtension() { return "tga"; }
     bool CanLoad()       { return true; }
     bool CanSave()       { return true; }
 

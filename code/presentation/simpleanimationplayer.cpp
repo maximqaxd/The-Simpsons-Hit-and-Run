@@ -165,7 +165,7 @@ void SimpleAnimationPlayer::ClearData()
 // Return:      void 
 //
 //=============================================================================
-void SimpleAnimationPlayer::SetNameData( char* controller, char* camera, char* animation )
+void SimpleAnimationPlayer::SetNameData( const char* controller, const char* camera, const char* animation )
 {
     strcpy( msController, controller );
     if( camera != NULL )

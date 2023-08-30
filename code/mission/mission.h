@@ -58,7 +58,7 @@ public:
 
     // Gets the index in the text bible of the name of this mission
     char* GetName() { return( &mcName[ 0 ] ); }
-    void SetName( char* name );
+    void SetName( const char* name );
 
     // Stages in this mission
     void SetNumStages( int num ) { mNumMissionStages = num; }
@@ -291,7 +291,7 @@ private:
 // Return:      void 
 //
 //=============================================================================
-inline void Mission::SetName( char* name ) 
+inline void Mission::SetName( const char* name ) 
 { 
     strcpy( &mcName[ 0 ], name ); 
 }

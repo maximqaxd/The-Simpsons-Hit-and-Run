@@ -297,7 +297,7 @@ void DebugInfo::OnSwitch()
 // Return:      
 //
 //==============================================================================
-bool DebugInfo::Push(char* szSection)
+bool DebugInfo::Push(const char* szSection)
 {
 MEMTRACK_PUSH_GROUP( "DebugInfo" );
     HeapMgr()->PushHeap (GMA_DEBUG);
@@ -444,7 +444,7 @@ void DebugInfo::SetAutoReset(bool autoreset)
 // Return:      
 //
 //==============================================================================
-void DebugInfo::Reset(char* sectionName)
+void DebugInfo::Reset(const char* sectionName)
 {
    rAssert(_NumSection>0);
    rAssert(_StackSize>0);

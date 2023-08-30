@@ -130,7 +130,7 @@ VehicleCentral::VehicleCentral() :
 // console hooks
 //==============
 
-static void ConsoleHookSetGasScale(int argc, char** argv)
+static void ConsoleHookSetGasScale(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -140,7 +140,7 @@ static void ConsoleHookSetGasScale(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetGasScale(value);
 }
 
-static void ConsoleHookSetSlipGasScale(int argc, char** argv)
+static void ConsoleHookSetSlipGasScale(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -150,7 +150,7 @@ static void ConsoleHookSetSlipGasScale(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetSlipGasScale(value);
 }
 
-static void ConsoleHookSetHighSpeedGasScale(int argc, char** argv)
+static void ConsoleHookSetHighSpeedGasScale(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -161,7 +161,7 @@ static void ConsoleHookSetHighSpeedGasScale(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetGasScaleSpeedThreshold(int argc, char** argv)
+static void ConsoleHookSetGasScaleSpeedThreshold(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -172,7 +172,7 @@ static void ConsoleHookSetGasScaleSpeedThreshold(int argc, char** argv)
 }
         
 
-static void ConsoleHookSetBrakeScale(int argc, char** argv)
+static void ConsoleHookSetBrakeScale(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -182,7 +182,7 @@ static void ConsoleHookSetBrakeScale(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetBrakeScale(value);
 }
 
-static void ConsoleHookSetTopSpeedKmh(int argc, char** argv)
+static void ConsoleHookSetTopSpeedKmh(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -192,7 +192,7 @@ static void ConsoleHookSetTopSpeedKmh(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetTopSpeedKmh(value);
 }
 
-static void ConsoleHookSetMass(int argc, char** argv)
+static void ConsoleHookSetMass(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -202,7 +202,7 @@ static void ConsoleHookSetMass(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetMass(value);
 }
 
-static void ConsoleHookSetMaxWheelTurnAngle(int argc, char** argv)
+static void ConsoleHookSetMaxWheelTurnAngle(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -213,7 +213,7 @@ static void ConsoleHookSetMaxWheelTurnAngle(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetHighSpeedSteeringDrop(int argc, char** argv)
+static void ConsoleHookSetHighSpeedSteeringDrop(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -224,7 +224,7 @@ static void ConsoleHookSetHighSpeedSteeringDrop(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetTireLateralStaticGrip(int argc, char** argv)
+static void ConsoleHookSetTireLateralStaticGrip(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -235,7 +235,7 @@ static void ConsoleHookSetTireLateralStaticGrip(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetTireLateralResistanceNormal(int argc, char** argv)
+static void ConsoleHookSetTireLateralResistanceNormal(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -246,7 +246,7 @@ static void ConsoleHookSetTireLateralResistanceNormal(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetTireLateralResistanceSlip(int argc, char** argv)
+static void ConsoleHookSetTireLateralResistanceSlip(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -257,7 +257,7 @@ static void ConsoleHookSetTireLateralResistanceSlip(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetEBrakeEffect(int argc, char** argv)
+static void ConsoleHookSetEBrakeEffect(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -268,7 +268,7 @@ static void ConsoleHookSetEBrakeEffect(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetCMOffsetX(int argc, char** argv)
+static void ConsoleHookSetCMOffsetX(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -279,7 +279,7 @@ static void ConsoleHookSetCMOffsetX(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetCMOffsetY(int argc, char** argv)
+static void ConsoleHookSetCMOffsetY(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -290,7 +290,7 @@ static void ConsoleHookSetCMOffsetY(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetCMOffsetZ(int argc, char** argv)
+static void ConsoleHookSetCMOffsetZ(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -301,7 +301,7 @@ static void ConsoleHookSetCMOffsetZ(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetSuspensionLimit(int argc, char** argv)
+static void ConsoleHookSetSuspensionLimit(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -312,7 +312,7 @@ static void ConsoleHookSetSuspensionLimit(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetSpringK(int argc, char** argv)
+static void ConsoleHookSetSpringK(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -323,7 +323,7 @@ static void ConsoleHookSetSpringK(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetDamperC(int argc, char** argv)
+static void ConsoleHookSetDamperC(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -334,7 +334,7 @@ static void ConsoleHookSetDamperC(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetHitPoints(int argc, char** argv)
+static void ConsoleHookSetHitPoints(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -345,7 +345,7 @@ static void ConsoleHookSetHitPoints(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetSuspensionYOffset(int argc, char** argv)
+static void ConsoleHookSetSuspensionYOffset(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -355,7 +355,7 @@ static void ConsoleHookSetSuspensionYOffset(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetSuspensionYOffset(value);
 }
 
-static void ConsoleHookSetBurnoutRange(int argc, char** argv)
+static void ConsoleHookSetBurnoutRange(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -366,7 +366,7 @@ static void ConsoleHookSetBurnoutRange(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetMaxSpeedBurstTime(int argc, char** argv)
+static void ConsoleHookSetMaxSpeedBurstTime(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -377,7 +377,7 @@ static void ConsoleHookSetMaxSpeedBurstTime(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetDonutTorque(int argc, char** argv)
+static void ConsoleHookSetDonutTorque(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -388,7 +388,7 @@ static void ConsoleHookSetDonutTorque(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetSlipSteeringNoEBrake(int argc, char** argv)
+static void ConsoleHookSetSlipSteeringNoEBrake(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -398,7 +398,7 @@ static void ConsoleHookSetSlipSteeringNoEBrake(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetTireLateralResistanceSlipWithoutEBrake(value);
 }
 
-static void ConsoleHookSetSlipEffectNoEBrake(int argc, char** argv)
+static void ConsoleHookSetSlipEffectNoEBrake(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -409,7 +409,7 @@ static void ConsoleHookSetSlipEffectNoEBrake(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetWeebleOffset(int argc, char** argv)
+static void ConsoleHookSetWeebleOffset(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -420,7 +420,7 @@ static void ConsoleHookSetWeebleOffset(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetWheelieRange(int argc, char** argv)
+static void ConsoleHookSetWheelieRange(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -431,7 +431,7 @@ static void ConsoleHookSetWheelieRange(int argc, char** argv)
 }
 
 
-static void ConsoleHookSetWheelieOffsetY(int argc, char** argv)
+static void ConsoleHookSetWheelieOffsetY(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -441,7 +441,7 @@ static void ConsoleHookSetWheelieOffsetY(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetWheelieYOffset(value);
 }
 
-static void ConsoleHookSetWheelieOffsetZ(int argc, char** argv)
+static void ConsoleHookSetWheelieOffsetZ(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -451,7 +451,7 @@ static void ConsoleHookSetWheelieOffsetZ(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetWheelieZOffset(value);
 }
 
-static void ConsoleHookSetShininess( int argc, char** argv )
+static void ConsoleHookSetShininess( int argc, const char** argv )
 {
     if( argc != 2 )
     {
@@ -462,7 +462,7 @@ static void ConsoleHookSetShininess( int argc, char** argv )
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetShininess( ref );
 }
 
-static void ConsoleHookSetShadowAdjustments( int argc, char** argv )
+static void ConsoleHookSetShadowAdjustments( int argc, const char** argv )
 {
     if( argc != 9 )
     {
@@ -477,7 +477,7 @@ static void ConsoleHookSetShadowAdjustments( int argc, char** argv )
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetShadowAdjustments( Adjustments );
 }
 
-static void ConsoleHookSetDriverName(int argc, char** argv)
+static void ConsoleHookSetDriverName(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -486,7 +486,7 @@ static void ConsoleHookSetDriverName(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetDriverName(argv[1]);
 }
 
-static void ConsoleHookSetHasDoors(int argc, char** argv)
+static void ConsoleHookSetHasDoors(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -495,7 +495,7 @@ static void ConsoleHookSetHasDoors(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->mHasDoors = (atoi(argv[1]) != 0);
 }
 
-static void ConsoleHookSetCharactersVisible(int argc, char** argv)
+static void ConsoleHookSetCharactersVisible(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -504,7 +504,7 @@ static void ConsoleHookSetCharactersVisible(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->mVisibleCharacters = (atoi(argv[1]) != 0);
 }
 
-static void ConsoleHookSetIrisTransition(int argc, char** argv)
+static void ConsoleHookSetIrisTransition(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -513,7 +513,7 @@ static void ConsoleHookSetIrisTransition(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->mIrisTransition = (atoi(argv[1]) != 0);
 }
 
-static void ConsoleHookSetAllowSlide(int argc, char** argv)
+static void ConsoleHookSetAllowSlide(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -522,7 +522,7 @@ static void ConsoleHookSetAllowSlide(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->mAllowSlide = (atoi(argv[1]) != 0);
 }
 
-static void ConsoleHookSetHighRoof(int argc, char** argv)
+static void ConsoleHookSetHighRoof(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -531,7 +531,7 @@ static void ConsoleHookSetHighRoof(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->mHighRoof = (atoi(argv[1]) != 0);
 }
 
-static void ConsoleHookSetCharacterScale(int argc, char** argv)
+static void ConsoleHookSetCharacterScale(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -541,7 +541,7 @@ static void ConsoleHookSetCharacterScale(int argc, char** argv)
 }
 
 //Chuck: added this for Gambling Races.
-static void ConsoleHookSetGamblingOdds(int argc, char** argv)
+static void ConsoleHookSetGamblingOdds(int argc, const char** argv)
 {
     if(argc != 2)
     {
@@ -551,7 +551,7 @@ static void ConsoleHookSetGamblingOdds(int argc, char** argv)
     GetVehicleCentral()->GetCurrentVehicleUnderConstruction()->SetGamblingOdds(value);
 }
 
-static void ConsoleHookSuppressDriver(int argc, char** argv)
+static void ConsoleHookSuppressDriver(int argc, const char** argv)
 {
     GetVehicleCentral()->AddSuppressedDriver(argv[1]);
 }
@@ -882,7 +882,7 @@ void VehicleCentral::Unload()
 // Return:      void 
 //
 //=============================================================================
-Vehicle* VehicleCentral::InitVehicle( const char* name, bool addToActiveVehicleList, char* confile, VehicleType vt, DriverInit driver, bool playercar, bool startoutofcar)
+Vehicle* VehicleCentral::InitVehicle( const char* name, bool addToActiveVehicleList, const char* confile, VehicleType vt, DriverInit driver, bool playercar, bool startoutofcar)
 {
     HeapMgr()->PushHeap( GetGameplayManager()->GetCurrentMissionHeap() );
 

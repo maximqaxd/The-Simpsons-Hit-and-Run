@@ -86,8 +86,8 @@ public:
     // Returns NULL if none found
     ActionButton::ActionEventHandler* FindHandler( const ActionEventLocator* locator )const;
 
-    static void AddVehicleSelectInfo( int argc, char** argv );
-    static void ClearVehicleSelectInfo( int argc, char** argv );
+    static void AddVehicleSelectInfo( int argc, const char** argv );
+    static void ClearVehicleSelectInfo( int argc, const char** argv );
 
     virtual void OnProcessRequestsComplete( void* pUserData );
 

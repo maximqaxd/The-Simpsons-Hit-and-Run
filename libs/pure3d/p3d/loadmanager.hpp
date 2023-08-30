@@ -91,7 +91,7 @@ public:
     void RemoveHandler(unsigned chunkID);
     void RemoveAllHandlers(void);
 
-    void AddAlternateExtension(char*);
+    void AddAlternateExtension(const char*);
 
 protected:
     ~tP3DFileHandler();
@@ -207,9 +207,9 @@ public:
     void SwitchTask(void);
     void TriggerCallbacks(void);
 
-    tFileHandler* AddHandler(tFileHandler*, char* ext);
-    tFileHandler* GetHandler(char* ext);
-    void RemoveHandler(char* ext);
+    tFileHandler* AddHandler(tFileHandler*, const char* ext);
+    tFileHandler* GetHandler(const char* ext);
+    void RemoveHandler(const char* ext);
     void RemoveAllHandlers(void);
 
     tP3DFileHandler* GetP3DHandler();

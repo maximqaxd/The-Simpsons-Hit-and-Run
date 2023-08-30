@@ -57,10 +57,10 @@ class FunctionList
 	
 		FunctionList( radMemoryAllocator alloc );
 		~FunctionList( void );
-		void Add( char* functionName, RemoteFunction rfptr, void* userData );
-		bool Remove( char* functionName );
-		void Get( char* functionName, RemoteFunction* prfptr, void** userData );
-    	char* GetNextName( void );
+		void Add( const char* functionName, RemoteFunction rfptr, void* userData );
+		bool Remove( const char* functionName );
+		void Get( const char* functionName, RemoteFunction* prfptr, void** userData );
+		const char* GetNextName( void );
 		void ResetNextName( void );
 		void Kill( void );
 		unsigned int NumFunctions( void );
@@ -109,8 +109,8 @@ class RemoteCommandServer
 		//
 		// bIRemoteCommandServer Functions
 		//
-		virtual void RegisterRemoteFunction( char* functionName, RemoteFunction rfptr, void* userData );
-		virtual void UnRegisterRemoteFunction( char* functionName );
+		virtual void RegisterRemoteFunction( const char* functionName, RemoteFunction rfptr, void* userData );
+		virtual void UnRegisterRemoteFunction( const char* functionName );
 
 		void Initialize( void );
 		void Terminate( void );

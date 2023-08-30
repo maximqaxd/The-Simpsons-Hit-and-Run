@@ -46,8 +46,8 @@ public:
     const Locator* GetCollectibleLocator( unsigned int num );
     void MoveCollectible( unsigned int num, const rmt::Vector& newPos );
 
-    void AddCollectibleLocatorName( char* locatorname, char* p3dname, radKey32 dialogName, tUID speakerName, float scale );
-    void SetCollectEffectName( char* name );
+    void AddCollectibleLocatorName( const char* locatorname, const char* p3dname, radKey32 dialogName, tUID speakerName, float scale );
+    void SetCollectEffectName( const char* name );
 
     void AllowUserDump();
 

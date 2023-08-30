@@ -127,7 +127,7 @@ void CharacterSheetManager::DestroyInstance()
 
 
 //set a  mission complete this includes StreetRaces and BonusMissions
-void CharacterSheetManager::SetMissionComplete(RenderEnums::LevelEnum level,char* name, bool completed_secondary_objective,int seconds)
+void CharacterSheetManager::SetMissionComplete(RenderEnums::LevelEnum level, const char* name, bool completed_secondary_objective,int seconds)
     {
         MissionRecord* p_missionrecord =NULL;
         
@@ -241,7 +241,7 @@ void CharacterSheetManager::SetMissionComplete(RenderEnums::LevelEnum level,char
     }
 
     //inc the number of attempts
-    void CharacterSheetManager::IncrementMissionAttempt(RenderEnums::LevelEnum level, char* name)
+    void CharacterSheetManager::IncrementMissionAttempt(RenderEnums::LevelEnum level, const char* name)
     {
         MissionRecord* pMissionRecord =NULL;
         pMissionRecord = spInstance->GetMissionRecord(level,name);
@@ -257,7 +257,7 @@ void CharacterSheetManager::SetMissionComplete(RenderEnums::LevelEnum level,char
     }
 
     //update the mission as user chose to skip it
-    void CharacterSheetManager::SetMissionSkipped(RenderEnums::LevelEnum level,char* name)
+    void CharacterSheetManager::SetMissionSkipped(RenderEnums::LevelEnum level, const char* name)
     {
         MissionRecord* pMissionRecord =NULL;
         pMissionRecord = spInstance->GetMissionRecord(level,name);
@@ -316,7 +316,7 @@ void CharacterSheetManager::SetMissionComplete(RenderEnums::LevelEnum level,char
          
 
 //get a ptr to the record, you shouldn't  modify the record though, use the set methods to modify instead
-MissionRecord* CharacterSheetManager::QueryMissionStatus(RenderEnums::LevelEnum level, char*  name)
+MissionRecord* CharacterSheetManager::QueryMissionStatus(RenderEnums::LevelEnum level, const char*  name)
     {
         return (GetMissionRecord(level,name) );
     }
@@ -328,12 +328,12 @@ MissionRecord* CharacterSheetManager::QueryMissionStatus(RenderEnums::LevelEnum 
     }
 
 //get a ptr to the record, you shouldn't  modify the record though, use the set methods to modify instead
-MissionRecord* CharacterSheetManager::QueryStreetRaceStatus(RenderEnums::LevelEnum level, char*  name)
+MissionRecord* CharacterSheetManager::QueryStreetRaceStatus(RenderEnums::LevelEnum level, const char*  name)
     {
         return (GetStreetRaceRecord(level,name) );
     }
 
-    MissionRecord* CharacterSheetManager::QueryBonusMissionStatus( RenderEnums::LevelEnum level, char* name )
+    MissionRecord* CharacterSheetManager::QueryBonusMissionStatus( RenderEnums::LevelEnum level, const char* name )
     {
         return GetBonusMissionRecord( level, name );        
     }
@@ -506,7 +506,7 @@ void CharacterSheetManager::InitCharacterSheet()
     }
 
 //this is called from the missionscriptloader to fill in charactersheet                
-int CharacterSheetManager::AddMission(RenderEnums::LevelEnum level, char* name)
+int CharacterSheetManager::AddMission(RenderEnums::LevelEnum level, const char* name)
     {
         //if mission is not in the list then
        if (GetMissionRecord(level,name) == NULL)       
@@ -543,7 +543,7 @@ int CharacterSheetManager::AddMission(RenderEnums::LevelEnum level, char* name)
 
 
 //this is called from the missionscriptloader to fill in charactersheet                
-int CharacterSheetManager::AddStreetRace(RenderEnums::LevelEnum level, char* name)
+int CharacterSheetManager::AddStreetRace(RenderEnums::LevelEnum level, const char* name)
 {
     //if mission is not in the list then
     if (GetStreetRaceRecord(level,name) == NULL)       
@@ -579,7 +579,7 @@ int CharacterSheetManager::AddStreetRace(RenderEnums::LevelEnum level, char* nam
 
 
     //this is called from the missionscriptloader to fill in charactersheet                
-int CharacterSheetManager::AddBonusMission(RenderEnums::LevelEnum level, char* name)
+int CharacterSheetManager::AddBonusMission(RenderEnums::LevelEnum level, const char* name)
     {
 
         
@@ -616,7 +616,7 @@ int CharacterSheetManager::AddBonusMission(RenderEnums::LevelEnum level, char* n
     }//end function
 
     //Add a card the Card List for a level            
-int CharacterSheetManager::AddCard(RenderEnums::LevelEnum level, char* name)
+int CharacterSheetManager::AddCard(RenderEnums::LevelEnum level, const char* name)
     {
         //if mission is not in the list then
        if (GetCollectableRecord(level,eCard,name) == NULL)       
@@ -814,7 +814,7 @@ void CharacterSheetManager::SaveData(GameDataByte* dataBuffer,unsigned int numBy
 
 
     //method for collecting stuff
-    void CharacterSheetManager::SetCardCollected(RenderEnums::LevelEnum level,char* name)
+    void CharacterSheetManager::SetCardCollected(RenderEnums::LevelEnum level, const char* name)
     {
         Record* pCollectableRecord = spInstance->GetCollectableRecord(level,eCard,name);
         rAssert(pCollectableRecord);        
@@ -901,7 +901,7 @@ CurrentMissionStruct CharacterSheetManager::QueryHighestMission()
     }
     
     //use this to query if player has collect a card. This should be called at load time so we dont create the card uneccessarily
-    bool CharacterSheetManager::QueryCardCollected(RenderEnums::LevelEnum level,char* CardName)
+    bool CharacterSheetManager::QueryCardCollected(RenderEnums::LevelEnum level, const char* CardName)
     {
         Record* pRecord = NULL;
 
@@ -1243,7 +1243,7 @@ CharacterSheetManager::~CharacterSheetManager()
 
 
 //Get a ptr to a mission record for missions
-MissionRecord* CharacterSheetManager::GetMissionRecord(RenderEnums::LevelEnum level, char* name)
+MissionRecord* CharacterSheetManager::GetMissionRecord(RenderEnums::LevelEnum level, const char* name)
     {
         //check to see if name array is too long
         if (strlen (name) > 16)
@@ -1279,7 +1279,7 @@ MissionRecord* CharacterSheetManager::GetMissionRecord(RenderEnums::LevelEnum le
     }
 
 //Get a ptr to a mission record for streetraces
-MissionRecord* CharacterSheetManager::GetStreetRaceRecord(RenderEnums::LevelEnum level, char* name)
+MissionRecord* CharacterSheetManager::GetStreetRaceRecord(RenderEnums::LevelEnum level, const char* name)
     {
         //check to see if name array is too long
         if (strlen (name) > 16)
@@ -1317,7 +1317,7 @@ MissionRecord* CharacterSheetManager::GetStreetRaceRecord(RenderEnums::LevelEnum
 
 
     //get a ptr to a bonusmission record
-    MissionRecord* CharacterSheetManager::GetBonusMissionRecord (RenderEnums::LevelEnum level, char* name)
+    MissionRecord* CharacterSheetManager::GetBonusMissionRecord (RenderEnums::LevelEnum level, const char* name)
     {
        if (strlen(name)>16)
        {
@@ -1338,7 +1338,7 @@ MissionRecord* CharacterSheetManager::GetStreetRaceRecord(RenderEnums::LevelEnum
 
 
     //private method for getting a collectable record internal use only
-    Record* CharacterSheetManager::GetCollectableRecord(RenderEnums::LevelEnum level,CharacterSheetManager::eCollectableType type,char* name)
+    Record* CharacterSheetManager::GetCollectableRecord(RenderEnums::LevelEnum level,CharacterSheetManager::eCollectableType type, const char* name)
     {
         if (strlen(name) >16)
         {
@@ -1637,7 +1637,7 @@ int CharacterSheetManager::QueryNumStreetRacesCompleted(RenderEnums::LevelEnum l
 }
 
 
-CarCharacterSheet* CharacterSheetManager::GetCarCharacterSheet(char* name)
+CarCharacterSheet* CharacterSheetManager::GetCarCharacterSheet(const char* name)
 {
     for (int i=0;i<=mCharacterSheet.mCarInventory.mCounter;i++)
     {
@@ -1892,7 +1892,7 @@ CharacterSheetManager::IsAllStoryMissionsCompleted()
         }
     }
 
-    int CharacterSheetManager::AddGambleRace(RenderEnums::LevelEnum level,char* name)
+    int CharacterSheetManager::AddGambleRace(RenderEnums::LevelEnum level, const char* name)
     {
         strcpy(mCharacterSheet.mLevelList[level].mGambleRace.mName,name);
 //        mCharacterSheet.mLevelList[level].mGambleRace.mBestTime = -1;
@@ -1913,7 +1913,7 @@ CharacterSheetManager::IsAllStoryMissionsCompleted()
         return mCharacterSheet.mLevelList[level].mGambleRace.mBestTime;
     }
 
-    int CharacterSheetManager::GetStreetRaceBestTime(RenderEnums::LevelEnum level,char* name)
+    int CharacterSheetManager::GetStreetRaceBestTime(RenderEnums::LevelEnum level, const char* name)
     {
         for (int i =0; i <MAX_STREETRACES;i++)
         {
@@ -1952,7 +1952,7 @@ CharacterSheetManager::IsAllStoryMissionsCompleted()
         return mCharacterSheet.mLevelList[level].mCurrentSkin;
     }
 
-    int CharacterSheetManager::SetCurrentSkin(RenderEnums::LevelEnum level,char* skinName)
+    int CharacterSheetManager::SetCurrentSkin(RenderEnums::LevelEnum level, const char* skinName)
     {
         strncpy(mCharacterSheet.mLevelList[level].mCurrentSkin,skinName,16);
         mCharacterSheet.mLevelList[level].mCurrentSkin[15] = '\0';

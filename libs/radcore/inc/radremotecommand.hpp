@@ -88,12 +88,12 @@ struct IRadRemoteCommand : public IRefCount
 	// The UserData will be stored witht the function pointer and passed to the 
 	// function when the function is called.
 	//
-	virtual void RegisterRemoteFunction( char* functionName, RemoteFunction rfptr, void* userData ) = 0;
+	virtual void RegisterRemoteFunction( const char* functionName, RemoteFunction rfptr, void* userData ) = 0;
 	
 	//
 	// This is self-explanatory.  Clients are responsible for UnRegistering
 	//
-	virtual void UnRegisterRemoteFunction( char* functionName ) = 0;
+	virtual void UnRegisterRemoteFunction( const char* functionName ) = 0;
 };
 
 

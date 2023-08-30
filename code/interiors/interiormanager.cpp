@@ -1563,7 +1563,7 @@ void InteriorManager::HandleEvent( EventEnum id, void* pEventData )
 // Return:      
 //
 //==============================================================================
-void InteriorManager::ConsoleClearGagBindings( int argc, char** argv )
+void InteriorManager::ConsoleClearGagBindings( int argc, const char** argv )
 {
     GetInteriorManager()->ClearGagBindings();
 }
@@ -1591,13 +1591,13 @@ void InteriorManager::ClearGagBindings()
 // Return:      
 //
 //==============================================================================
-void InteriorManager::ConsoleAddGagBinding( int argc, char** argv )
+void InteriorManager::ConsoleAddGagBinding( int argc, const char** argv )
 {
     // Convert interior name to UID
     //
     tUID interiorUID = tName::MakeUID( argv[1] );
 
-    char* gagFileName = argv[2];
+    const char* gagFileName = argv[2];
     
     // Select cycle mode.
     //
@@ -1628,7 +1628,7 @@ void InteriorManager::ConsoleAddGagBinding( int argc, char** argv )
     //
     // Get the name of the sound resource to play with this gag
     //
-    char* gagSound = argv[5];
+    const char* gagSound = argv[5];
 
     // Send it on down...
     //
@@ -1650,10 +1650,10 @@ void InteriorManager::ConsoleAddGagBinding( int argc, char** argv )
 void InteriorManager::AddGagBinding
 ( 
     tUID interiorUID, 
-    char* gagFileName, 
+    const char* gagFileName, 
     p3dCycleMode cycleMode, 
     int weight,
-    char* gagSound
+    const char* gagSound
 )
 {
     // Can raise the max if necessary.
@@ -1696,7 +1696,7 @@ void InteriorManager::AddGagBinding
     ++mBindingCount;
 }
 
-void InteriorManager::GagBegin(char* gagFileName)
+void InteriorManager::GagBegin(const char* gagFileName)
 {
     rAssert(!mBuildingGag);
     mBuildingGag = true;
@@ -1728,12 +1728,12 @@ void InteriorManager::GagEnd(void)
     ++mBindingCount;
 }
 
-void InteriorManager::ConsoleGagBegin(int argc, char** argv )
+void InteriorManager::ConsoleGagBegin(int argc, const char** argv )
 {
     GetInteriorManager()->GagBegin(argv[1]);
 }
 
-void InteriorManager::ConsoleGagSetInterior(int argc, char** argv )
+void InteriorManager::ConsoleGagSetInterior(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->interiorUID = tEntity::MakeUID(argv[1]);
 
@@ -1747,7 +1747,7 @@ void InteriorManager::ConsoleGagSetInterior(int argc, char** argv )
     }
 }
 
-void InteriorManager::ConsoleGagSetCycle(int argc, char** argv )
+void InteriorManager::ConsoleGagSetCycle(int argc, const char** argv )
 {
     // Select cycle mode.
     //
@@ -1779,22 +1779,22 @@ void InteriorManager::ConsoleGagSetCycle(int argc, char** argv )
     GetInteriorManager()->GetBuildBinding()->cycleMode = cycleMode;
 }
 
-void InteriorManager::ConsoleGagSetWeight(int argc, char** argv )
+void InteriorManager::ConsoleGagSetWeight(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->weight = atoi(argv[1]);
 }
 
-void InteriorManager::ConsoleGagSetSound(int argc, char** argv )
+void InteriorManager::ConsoleGagSetSound(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->soundID = ::radMakeKey32(argv[1]);
 }
 
-void InteriorManager::ConsoleGagSetIntro( int argc, char** argv )
+void InteriorManager::ConsoleGagSetIntro( int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->loopIntro = atoi(argv[1]);
 }
 
-void InteriorManager::ConsoleGagSetOutro( int argc, char** argv )
+void InteriorManager::ConsoleGagSetOutro( int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->loopOutro = atoi(argv[1]);
 }
@@ -1803,14 +1803,14 @@ void InteriorManager::ConsoleGagSetOutro( int argc, char** argv )
 Description:    Play the FMV specified by file name. Note that PlayFMV causes
                 the HUD to be un/reloaded.
 =============================================================================*/
-void InteriorManager::ConsoleGagPlayFMV( int argc, char** argv )
+void InteriorManager::ConsoleGagPlayFMV( int argc, const char** argv )
 {
     rAssert( argc > 1 );
     rAssert( strlen( argv[ 1 ] ) < 13 ); // Enforce 8.3 file naming.
     strcpy( GetInteriorManager()->GetBuildBinding()->gagFMVFileName, argv[ 1 ] );
 }
 
-void InteriorManager::ConsoleGagSetTrigger(int argc, char** argv )
+void InteriorManager::ConsoleGagSetTrigger(int argc, const char** argv )
 {
     rAssert((argc == 4) || (argc == 6));
 
@@ -1839,7 +1839,7 @@ void InteriorManager::ConsoleGagSetTrigger(int argc, char** argv )
     GetInteriorManager()->GetBuildBinding()->triggerRadius = (float)atof(argv[argc-1]);
 }
 
-void InteriorManager::ConsoleGagSetPosition(int argc, char** argv )
+void InteriorManager::ConsoleGagSetPosition(int argc, const char** argv )
 {
     rAssert((argc == 2) || (argc == 4));
 
@@ -1855,12 +1855,12 @@ void InteriorManager::ConsoleGagSetPosition(int argc, char** argv )
     }
 }
 
-void InteriorManager::ConsoleGagSetRandom(int argc, char** argv )
+void InteriorManager::ConsoleGagSetRandom(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->random = atoi(argv[1]) != 0;
 }
 
-void InteriorManager::ConsoleGagSetCameraShake(int argc, char** argv )
+void InteriorManager::ConsoleGagSetCameraShake(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->cameraShake = true;
     GetInteriorManager()->GetBuildBinding()->shakeDelay = (float)atof(argv[1]);
@@ -1873,7 +1873,7 @@ void InteriorManager::ConsoleGagSetCameraShake(int argc, char** argv )
     }
 }
 
-void InteriorManager::ConsoleGagSetCoins(int argc, char** argv )
+void InteriorManager::ConsoleGagSetCoins(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->coins = atoi(argv[1]);
     if(argc == 3)
@@ -1882,29 +1882,29 @@ void InteriorManager::ConsoleGagSetCoins(int argc, char** argv )
     }
 }
 
-void InteriorManager::ConsoleGagSetSparkle(int argc, char** argv )
+void InteriorManager::ConsoleGagSetSparkle(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->sparkle = atoi(argv[1]) != 0;
 }
 
-void InteriorManager::ConsoleGagSetAnimCollision(int argc, char** argv )
+void InteriorManager::ConsoleGagSetAnimCollision(int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->animBV = atoi(argv[1]) != 0;
 }
 
-void InteriorManager::ConsoleGagSetLoadDistances( int argc, char** argv )
+void InteriorManager::ConsoleGagSetLoadDistances( int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->loadDist = atoi(argv[1]);
     GetInteriorManager()->GetBuildBinding()->unloadDist = atoi(argv[2]);
 }
 
-void InteriorManager::ConsoleGagSetSoundLoadDistances( int argc, char** argv )
+void InteriorManager::ConsoleGagSetSoundLoadDistances( int argc, const char** argv )
 {
     GetInteriorManager()->GetBuildBinding()->soundLoadDist = atoi(argv[1]);
     GetInteriorManager()->GetBuildBinding()->soundUnloadDist = atoi(argv[2]);
 }
 
-void InteriorManager::ConsoleGagSetPersist( int argc, char** argv )
+void InteriorManager::ConsoleGagSetPersist( int argc, const char** argv )
 {
     if(atoi(argv[1]))
     {
@@ -1916,7 +1916,7 @@ void InteriorManager::ConsoleGagSetPersist( int argc, char** argv )
     }
 } 
 
-void InteriorManager::ConsoleGagCheckCollCards(int argc, char** argv)
+void InteriorManager::ConsoleGagCheckCollCards(int argc, const char** argv)
 {
     GetInteriorManager()->GetBuildBinding()->i_S_Movie = 1;
 
@@ -1933,7 +1933,7 @@ void InteriorManager::ConsoleGagCheckCollCards(int argc, char** argv)
     GetInteriorManager()->GetBuildBinding()->rejectDialogID = ::radMakeKey32(argv[5]);
 }
 
-void InteriorManager::ConsoleGagCheckMovie(int argc, char** argv)
+void InteriorManager::ConsoleGagCheckMovie(int argc, const char** argv)
 {
     GetInteriorManager()->GetBuildBinding()->i_S_Movie = 2;
 
@@ -1950,7 +1950,7 @@ void InteriorManager::ConsoleGagCheckMovie(int argc, char** argv)
     GetInteriorManager()->GetBuildBinding()->rejectDialogID = ::radMakeKey32(argv[4]);
 }
 
-void InteriorManager::ConsoleGagEnd(int argc, char** argv )
+void InteriorManager::ConsoleGagEnd(int argc, const char** argv )
 {
     GetInteriorManager()->GagEnd();
 }

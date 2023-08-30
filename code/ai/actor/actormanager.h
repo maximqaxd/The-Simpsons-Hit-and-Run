@@ -105,17 +105,17 @@ class ActorManager : public EventListener
         void SetupConsoleFunctions();
         bool WithinAliveRange( int index );
         // Console functions
-        static void AddFlyingActor( int argc, char** argv );
-        static void AddFlyingActorByLocator( int argc, char** argv );
-        static void AddBehaviour( int argc, char** argv );
-        static void AddRespawnBehaviourPosition( int argc, char** argv );
-        static void SetCollisionAttributes( int argc, char** argv );
-        static void AddSpawnPointScript( int argc, char** argv );
-        static void AddSpawnPointByLocatorScript( int argc, char** argv );
-        static void SetProjectileStats( int argc, char** argv );
-        static void PreallocateActors( int argc, char** argv ); 
-        static void SetActorRotationSpeed( int argc, char** argv );
-        static void AddShield( int argc, char** argv );
+        static void AddFlyingActor( int argc, const char** argv );
+        static void AddFlyingActorByLocator( int argc, const char** argv );
+        static void AddBehaviour( int argc, const char** argv );
+        static void AddRespawnBehaviourPosition( int argc, const char** argv );
+        static void SetCollisionAttributes( int argc, const char** argv );
+        static void AddSpawnPointScript( int argc, const char** argv );
+        static void AddSpawnPointByLocatorScript( int argc, const char** argv );
+        static void SetProjectileStats( int argc, const char** argv );
+        static void PreallocateActors( int argc, const char** argv ); 
+        static void SetActorRotationSpeed( int argc, const char** argv );
+        static void AddShield( int argc, const char** argv );
 private:
         static ActorManager* sp_Instance;
 

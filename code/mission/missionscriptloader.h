@@ -79,201 +79,201 @@ private:
     //
     // *** for GameCube only ***
     //
-    static void SetLanguage( int argc, char** argv );
+    static void SetLanguage( int argc, const char** argv );
 
     //
     // Level functions
     //
-    static void InitLevelPlayerVehicle( int argc, char** argv );
-    static void PlacePlayerCar( int argc, char** argv );
+    static void InitLevelPlayerVehicle( int argc, const char** argv );
+    static void PlacePlayerCar( int argc, const char** argv );
     /*
-	static void DisableTraffic (int argc, char** argv );
-	static void EnableTraffic (int argc, char** argv );
+	static void DisableTraffic (int argc, const char** argv );
+	static void EnableTraffic (int argc, const char** argv );
     */
-    static void AddPurchaseCarReward( int argc, char** argv );
-    static void SetPostLevelFMV( int argc, char** argv );
+    static void AddPurchaseCarReward( int argc, const char** argv );
+    static void SetPostLevelFMV( int argc, const char** argv );
 
-    static void AddGlobalProp(int argc,char** argv );
+    static void AddGlobalProp(int argc, const char** argv );
     
     //Ped Group 
-    static void CreatePedGroup(int argc, char** argv );
-    static void AddPed(int argc, char** argv );
-    static void ClosePedGroup (int argc, char** argv );
-    static void UsePedGroup( int argc, char** argv );
+    static void CreatePedGroup(int argc, const char** argv );
+    static void AddPed(int argc, const char** argv );
+    static void ClosePedGroup (int argc, const char** argv );
+    static void UsePedGroup( int argc, const char** argv );
     
     //Reward Binding
-    static void BindReward(int argc, char** argv);
-    static void SetCarAttributes(int argc, char** argv);
+    static void BindReward(int argc, const char** argv);
+    static void SetCarAttributes(int argc, const char** argv);
 
     //Wasps and Gags (in rewards script)
-    static void SetTotalGags(int argc, char** argv);
-    static void SetTotalWasps(int argc, char** argv);
+    static void SetTotalGags(int argc, const char** argv);
+    static void SetTotalWasps(int argc, const char** argv);
 
     //Traffic Group
-    static void CreateTrafficGroup(int argc, char** argv);
-    static void AddTrafficModel(int argc, char** argv);
-    static void CloseTrafficGroup(int argc, char** argv);
+    static void CreateTrafficGroup(int argc, const char** argv);
+    static void AddTrafficModel(int argc, const char** argv);
+    static void CloseTrafficGroup(int argc, const char** argv);
 
 	//
 	//Chase/Harrass AI Car functions
 	//
-	static void CreateChaseManager(int argc ,char** argv );
-    static void DisableHitAndRun(int argc,char** argv );
-    static void EnableHitAndRun(int argc,char** argv );
-    static void SetHitAndRunMeter(int argc,char** argv );
-    static void SetNumChaseCars(int argc,char** argv );
-	static void SetChaseSpawnRate(int argc, char** argv );
-	static void KillAllChaseAI(int argc,char** argv);
-    static void ResetHitAndRun(int argc,char** argv );
-    static void SetHitAndRunDecay(int argc,char** argv );
-    static void SetHitAndRunDecayInterior(int argc,char** argv );
+	static void CreateChaseManager(int argc, const char** argv );
+    static void DisableHitAndRun(int argc, const char** argv );
+    static void EnableHitAndRun(int argc, const char** argv );
+    static void SetHitAndRunMeter(int argc, const char** argv );
+    static void SetNumChaseCars(int argc, const char** argv );
+	static void SetChaseSpawnRate(int argc, const char** argv );
+	static void KillAllChaseAI(int argc, const char** argv);
+    static void ResetHitAndRun(int argc, const char** argv );
+    static void SetHitAndRunDecay(int argc, const char** argv );
+    static void SetHitAndRunDecayInterior(int argc, const char** argv );
 
     //
     // Mission functions
     //
-    static void AddMission( int argc, char** argv );
-    static void AddBonusMission( int argc, char** argv );
-    static void SelectMission( int argc, char** argv );
-    static void SetMissionNameIndex( int argc, char** argv );
-    //static void InitMissionPlayerVehicle( int argc, char** argv );
-    static void SetMissionResetPlayerInCar( int argc, char** argv );
-    static void SetMissionResetPlayerOutCar( int argc, char** argv );
-    static void SetDynaLoadData( int argc, char** argv );
-    static void AddBonusObjective( int argc, char** argv );
-    static void SetForcedCar( int argc, char** argv );
-    static void CloseMission( int argc, char** argv );
-    static void SetDemoLoopTime( int argc, char** argv );  //This isn't really dependant on the mission.
-    static void StreetRacePropsLoad(int argc, char** argv);
-    static void StreetRacePropsUnload(int argc, char** argv);
-    static void UseElapsedTime(int argc,char** argv);
-    static void AttachStatePropCollectible(int argc,char** argv);
-    static void ShowHUD(int argc,char** argv);
-    static void SetNumValidFailureHints(int argc,char** argv);
+    static void AddMission( int argc, const char** argv );
+    static void AddBonusMission( int argc, const char** argv );
+    static void SelectMission( int argc, const char** argv );
+    static void SetMissionNameIndex( int argc, const char** argv );
+    //static void InitMissionPlayerVehicle( int argc, const char** argv );
+    static void SetMissionResetPlayerInCar( int argc, const char** argv );
+    static void SetMissionResetPlayerOutCar( int argc, const char** argv );
+    static void SetDynaLoadData( int argc, const char** argv );
+    static void AddBonusObjective( int argc, const char** argv );
+    static void SetForcedCar( int argc, const char** argv );
+    static void CloseMission( int argc, const char** argv );
+    static void SetDemoLoopTime( int argc, const char** argv );  //This isn't really dependant on the mission.
+    static void StreetRacePropsLoad(int argc, const char** argv);
+    static void StreetRacePropsUnload(int argc, const char** argv);
+    static void UseElapsedTime(int argc,const char** argv);
+    static void AttachStatePropCollectible(int argc,const char** argv);
+    static void ShowHUD(int argc,const char** argv);
+    static void SetNumValidFailureHints(int argc,const char** argv);
 
     //
     // Mission Stage functions
     //
-    static void AddStage( int argc, char** argv );
-    static void SetStageMessageIndex( int argc, char** argv );
-    static void SetStageTime( int argc, char** argv );
-    static void AddStageTime( int argc, char** argv );
-    static void AddStageVehicle( int argc, char** argv );	
-    static void AddStageWaypoint( int argc, char** argv );
-    static void AddStageCharacter( int argc, char** argv );
-    static void AddStageMusicChange( int argc, char** argv );
-    static void SetStageMusicAlwaysOn( int argc, char** argv );
-    static void SetStageStartMusicEvent( int argc, char** argv );
-    static void SetCompletionDialog( int argc, char** argv );
-    static void SetMusicState( int argc, char** argv );
-    static void SetStageCamera( int argc, char** argv );
-	static void MoveStageVehicle( int argc, char** argv );
-	static void ActivateVehicle(int argc, char** argv );
-    static void ResetToThisStage( int argc, char** argv );
-    static void SetTrafficDensity( int argc, char** argv );
-    static void AddSafeZone ( int argc, char** argv ); 
-    static void SetBonusMissionStart( int argc, char** argv );
-    static void ShowStageComplete( int argc, char** argv );
-    static void SetHUDIcon( int argc, char** argv );
-    static void SetIrisWipe( int argc, char** argv );
-    static void SetFadeOut( int argc, char** argv );
-    static void CloseStage( int argc, char** argv );
-    static void SetVehicleAIParams( int argc, char** argv );
-    static void SetCoinFee(int argc,char** argv);
-    static void PutMFPlayerInCar(int argc,char** argv);
-    static void SetStatepropShadow(int argc,char** argv);
-    static void SwapInDefaultCar(int argc,char** argv);
-    static void SetSwapPlayerRespawnLocatorName(int argc,char** argv);
-    static void SetSwapDefaultCarRespawnLocatorName(int argc,char** argv);
-    static void SetSwapForcedCarRespawnLocatorName(int argc,char** argv);
-    static void NoTrafficForStage(int argc,char** argv);
-    static void ClearTrafficForStage(int argc,char** argv);
-    static void PlacePlayerAtLocatorName(int argc,char** argv);
-    static void msPlacePlayerCarAtLocatorName(int argc,char** argv);
-    static void SetCharacterToHide(int argc,char** argv);
-    static void SetLevelOver(int argc,char** argv);
-    static void SetGameOver(int argc, char** argv);
-    static void StayInBlack(int argc,char** argv);
-    static void AllowMissionAbort(int argc,char** argv);
+    static void AddStage( int argc, const char** argv );
+    static void SetStageMessageIndex( int argc, const char** argv );
+    static void SetStageTime( int argc, const char** argv );
+    static void AddStageTime( int argc, const char** argv );
+    static void AddStageVehicle( int argc, const char** argv );	
+    static void AddStageWaypoint( int argc, const char** argv );
+    static void AddStageCharacter( int argc, const char** argv );
+    static void AddStageMusicChange( int argc, const char** argv );
+    static void SetStageMusicAlwaysOn( int argc, const char** argv );
+    static void SetStageStartMusicEvent( int argc, const char** argv );
+    static void SetCompletionDialog( int argc, const char** argv );
+    static void SetMusicState( int argc, const char** argv );
+    static void SetStageCamera( int argc, const char** argv );
+	static void MoveStageVehicle( int argc, const char** argv );
+	static void ActivateVehicle(int argc, const char** argv );
+    static void ResetToThisStage( int argc, const char** argv );
+    static void SetTrafficDensity( int argc, const char** argv );
+    static void AddSafeZone ( int argc, const char** argv ); 
+    static void SetBonusMissionStart( int argc, const char** argv );
+    static void ShowStageComplete( int argc, const char** argv );
+    static void SetHUDIcon( int argc, const char** argv );
+    static void SetIrisWipe( int argc, const char** argv );
+    static void SetFadeOut( int argc, const char** argv );
+    static void CloseStage( int argc, const char** argv );
+    static void SetVehicleAIParams( int argc, const char** argv );
+    static void SetCoinFee(int argc,const char** argv);
+    static void PutMFPlayerInCar(int argc,const char** argv);
+    static void SetStatepropShadow(int argc,const char** argv);
+    static void SwapInDefaultCar(int argc,const char** argv);
+    static void SetSwapPlayerRespawnLocatorName(int argc,const char** argv);
+    static void SetSwapDefaultCarRespawnLocatorName(int argc,const char** argv);
+    static void SetSwapForcedCarRespawnLocatorName(int argc,const char** argv);
+    static void NoTrafficForStage(int argc,const char** argv);
+    static void ClearTrafficForStage(int argc,const char** argv);
+    static void PlacePlayerAtLocatorName(int argc,const char** argv);
+    static void msPlacePlayerCarAtLocatorName(int argc,const char** argv);
+    static void SetCharacterToHide(int argc,const char** argv);
+    static void SetLevelOver(int argc,const char** argv);
+    static void SetGameOver(int argc, const char** argv);
+    static void StayInBlack(int argc,const char** argv);
+    static void AllowMissionAbort(int argc,const char** argv);
 
-    static void SetStageAIRaceCatchupParams( int argc, char** argv );
-    static void SetStageAIEvadeCatchupParams( int argc, char** argv );
-    static void SetStageAITargetCatchupParams( int argc, char** argv );
+    static void SetStageAIRaceCatchupParams( int argc, const char** argv );
+    static void SetStageAIEvadeCatchupParams( int argc, const char** argv );
+    static void SetStageAITargetCatchupParams( int argc, const char** argv );
 
 
 	//Gamble Race Specific Commands
-	static void SetParTime(int argc, char** argv);
-    static void SetRaceEnteryFee(int argc, char** argv);
+	static void SetParTime(int argc, const char** argv);
+    static void SetRaceEnteryFee(int argc, const char** argv);
 
     //
     // Objective methods
     //
-    static void AddObjective( int argc, char** argv );
-    static void AddCollectible( int argc, char** argv );
-    static void AddCollectibleStateProp( int argc, char** argv );
-    static void SetCollectibleEffect( int argc, char** argv );
-    static void SetDestination( int argc, char** argv );
-    static void SetObjTargetVehicle( int argc, char** argv );
-    static void SetObjTargetBoss( int argc, char** argv );
-    static void SetPickupTarget( int argc, char** argv );
-    static void SetObjDistance( int argc, char** argv );
-    static void AddNPC( int argc, char** argv );
-    static void RemoveNPC( int argc, char** argv );
-    static void AddDriver( int argc, char** argv );
-    static void RemoveDriver( int argc, char** argv );
-    static void SetTalkToTarget( int argc, char** argv );
-    static void SetDialogueInfo( int argc, char** argv );
-    static void SetDialoguePositions( int argc, char** argv );
-    static void SetFMVInfo( int argc, char** argv );
-    static void SetRaceLaps( int argc, char** argv );
-    static void BindCollectibleToWaypoint( int argc, char** argv );
-    static void AllowUserDump( int argc, char** argv );
-    static void SetVehicleToLoad( int argc, char** argv );
-    static void AllowRockOut( int argc, char** argv );
-    static void TurnGotoDialogOff( int argc, char** argv );
-    static void SetPauseDuration(int argc,char** argv );
-    static void MustActionTrigger( int argc, char** argv );
-    static void CloseObjective( int argc, char** argv );
+    static void AddObjective( int argc, const char** argv );
+    static void AddCollectible( int argc, const char** argv );
+    static void AddCollectibleStateProp( int argc, const char** argv );
+    static void SetCollectibleEffect( int argc, const char** argv );
+    static void SetDestination( int argc, const char** argv );
+    static void SetObjTargetVehicle( int argc, const char** argv );
+    static void SetObjTargetBoss( int argc, const char** argv );
+    static void SetPickupTarget( int argc, const char** argv );
+    static void SetObjDistance( int argc, const char** argv );
+    static void AddNPC( int argc, const char** argv );
+    static void RemoveNPC( int argc, const char** argv );
+    static void AddDriver( int argc, const char** argv );
+    static void RemoveDriver( int argc, const char** argv );
+    static void SetTalkToTarget( int argc, const char** argv );
+    static void SetDialogueInfo( int argc, const char** argv );
+    static void SetDialoguePositions( int argc, const char** argv );
+    static void SetFMVInfo( int argc, const char** argv );
+    static void SetRaceLaps( int argc, const char** argv );
+    static void BindCollectibleToWaypoint( int argc, const char** argv );
+    static void AllowUserDump( int argc, const char** argv );
+    static void SetVehicleToLoad( int argc, const char** argv );
+    static void AllowRockOut( int argc, const char** argv );
+    static void TurnGotoDialogOff( int argc, const char** argv );
+    static void SetPauseDuration(int argc,const char** argv );
+    static void MustActionTrigger( int argc, const char** argv );
+    static void CloseObjective( int argc, const char** argv );
 
     //
     // Condition methods
     //
-    static void AddCondition( int argc, char** argv );
-    static void SetCondTargetVehicle( int argc, char** argv );
-    static void SetFollowDistances( int argc, char** argv );
-    static void SetCondMinHealth( int argc, char** argv );
-    static void SetConditionPosition( int argc, char** argv );
-    static void SetCondTime( int argc, char** argv );
-    static void SetHitNRun( int argc, char** argv );
-    static void CloseCondition( int argc, char** argv );
+    static void AddCondition( int argc, const char** argv );
+    static void SetCondTargetVehicle( int argc, const char** argv );
+    static void SetFollowDistances( int argc, const char** argv );
+    static void SetCondMinHealth( int argc, const char** argv );
+    static void SetConditionPosition( int argc, const char** argv );
+    static void SetCondTime( int argc, const char** argv );
+    static void SetHitNRun( int argc, const char** argv );
+    static void CloseCondition( int argc, const char** argv );
     
     //
     // Conversation/Presentation methods
     //
-    static void CharacterIsChild          ( int argc, char** argv );
-    static void SetConversationCamName    ( int argc, char** argv );
-    static void SetConversationCamPcName  ( int argc, char** argv );
-    static void SetConversationCamNpcName ( int argc, char** argv );
-    static void SetConversationCam        ( int argc, char** argv );
-    static void SetConversationCamDistance( int argc, char** argv );
-    static void SetConversationCamAngle   ( int argc, char** argv );
-    static void SetPresentationBitmap     ( int argc, char** argv );
-    static void EnableTutorialMode        ( int argc, char** argv );
-    static void AmbientAnimationRandomize ( int argc, char** argv );
-    static void ClearAmbientAnimations    ( int argc, char** argv );
-    static void AddAmbientNpcAnimation    ( int argc, char** argv );
-    static void AddAmbientPcAnimation     ( int argc, char** argv );
-    static void SetAnimatedCameraMulticontrollerName( int argc, char** argv );
-    static void SetAnimatedCameraName     ( int argc, char** argv );
-    static void SetMissionStartMulticontrollerName( int argc, char** argv );
-    static void SetMissionStartCameraName ( int argc, char** argv );
-    static void SetCamBestSide            ( int argc, char** argv );
-    static void StartCountdown            ( int argc, char** argv );
-    static void AddToCountdownSequence    ( int argc, char** argv );
-    static void SetCarStartCamera         ( int argc, char** argv );
-    static void GoToPattyAndSelmaScreenWhenDone( int argc, char** argv );
+    static void CharacterIsChild          ( int argc, const char** argv );
+    static void SetConversationCamName    ( int argc, const char** argv );
+    static void SetConversationCamPcName  ( int argc, const char** argv );
+    static void SetConversationCamNpcName ( int argc, const char** argv );
+    static void SetConversationCam        ( int argc, const char** argv );
+    static void SetConversationCamDistance( int argc, const char** argv );
+    static void SetConversationCamAngle   ( int argc, const char** argv );
+    static void SetPresentationBitmap     ( int argc, const char** argv );
+    static void EnableTutorialMode        ( int argc, const char** argv );
+    static void AmbientAnimationRandomize ( int argc, const char** argv );
+    static void ClearAmbientAnimations    ( int argc, const char** argv );
+    static void AddAmbientNpcAnimation    ( int argc, const char** argv );
+    static void AddAmbientPcAnimation     ( int argc, const char** argv );
+    static void SetAnimatedCameraMulticontrollerName( int argc, const char** argv );
+    static void SetAnimatedCameraName     ( int argc, const char** argv );
+    static void SetMissionStartMulticontrollerName( int argc, const char** argv );
+    static void SetMissionStartCameraName ( int argc, const char** argv );
+    static void SetCamBestSide            ( int argc, const char** argv );
+    static void StartCountdown            ( int argc, const char** argv );
+    static void AddToCountdownSequence    ( int argc, const char** argv );
+    static void SetCarStartCamera         ( int argc, const char** argv );
+    static void GoToPattyAndSelmaScreenWhenDone( int argc, const char** argv );
 
     //SuperSprint methods
-    static void SetPlayerCarName( int argc, char** argv );
+    static void SetPlayerCarName( int argc, const char** argv );
 
     //
     // Loading methods
@@ -281,37 +281,37 @@ private:
 
 public:
     //Use to load cars that can be unloaded from memory easily. like the Default Car and Forced cars, and AI cars.
-    static void LoadDisposableCar(int argc, char** argv );
+    static void LoadDisposableCar(int argc, const char** argv );
 
      //spew text on the screen in for Ps2 
     static void TreeOfWoeErrorMsg(const char* outputbuffer);
 
 
 private:
-    static void LoadP3DFile( int argc, char** argv );
-    static void AddCharacter( int argc, char** argv );
-    static void AddNPCCharacterBonusMission( int argc, char** argv );
-    static void SetBonusMissionDialoguePositions( int argc, char** argv );
-    static void AddAmbientCharacter( int argc, char** argv );
+    static void LoadP3DFile( int argc, const char** argv );
+    static void AddCharacter( int argc, const char** argv );
+    static void AddNPCCharacterBonusMission( int argc, const char** argv );
+    static void SetBonusMissionDialoguePositions( int argc, const char** argv );
+    static void AddAmbientCharacter( int argc, const char** argv );
 
     // adding waypoints for NPCs to walk on
-    static void AddBonusMissionNPCWaypoint( int argc, char** argv );
-    static void AddObjectiveNPCWaypoint( int argc, char** argv ); // syntax: name locatorName 
-    static void AddAmbientNPCWaypoint( int argc, char** argv );
-    static void AddPurchaseCarNPCWaypoint( int argc, char** argv );
+    static void AddBonusMissionNPCWaypoint( int argc, const char** argv );
+    static void AddObjectiveNPCWaypoint( int argc, const char** argv ); // syntax: name locatorName 
+    static void AddAmbientNPCWaypoint( int argc, const char** argv );
+    static void AddPurchaseCarNPCWaypoint( int argc, const char** argv );
 
-    static void ActivateTrigger( int argc, char** argv );
-    static void DeactivateTrigger( int argc, char** argv );
+    static void ActivateTrigger( int argc, const char** argv );
+    static void DeactivateTrigger( int argc, const char** argv );
 
-    static void CreateAnimPhysObject( int argc, char** argv );
-    static void CreateActionEventTrigger( int argc, char** argv );
-    static void LinkActionToObjectJoint( int argc, char** argv );
-    static void LinkActionToObject( int argc, char** argv );
-    static void SetCoinDrawable( int argc, char** argv );
-    static void SetParticleTexture( int argc, char** argv );
+    static void CreateAnimPhysObject( int argc, const char** argv );
+    static void CreateActionEventTrigger( int argc, const char** argv );
+    static void LinkActionToObjectJoint( int argc, const char** argv );
+    static void LinkActionToObject( int argc, const char** argv );
+    static void SetCoinDrawable( int argc, const char** argv );
+    static void SetParticleTexture( int argc, const char** argv );
 
     //used to set respawnrate of wrenches and nitro etc. 
-    static void SetRespawnRate (int argc,char** argv );
+    static void SetRespawnRate (int argc, const char** argv );
     
    
 

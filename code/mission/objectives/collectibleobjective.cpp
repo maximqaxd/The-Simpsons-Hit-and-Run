@@ -136,15 +136,15 @@ void CollectibleObjective::MoveCollectible( unsigned int num, const rmt::Vector&
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( char* locatorname, char* p3dname, float scale )
+// Parameters:  ( const char* locatorname, const char* p3dname, float scale )
 //              dialogName - number crunched from name of dialog event to trigger
 //                           when collectible is collected
 //
 // Return:      void 
 //
 //=============================================================================
-void CollectibleObjective::AddCollectibleLocatorName( char* locatorname, 
-                                                      char* p3dname, 
+void CollectibleObjective::AddCollectibleLocatorName( const char* locatorname, 
+                                                      const char* p3dname, 
                                                       radKey32 dialogName,
                                                       tUID speakerName,
                                                       float scale )
@@ -164,12 +164,12 @@ void CollectibleObjective::AddCollectibleLocatorName( char* locatorname,
 //=============================================================================
 // Description: Comment
 //
-// Parameters:  ( char* name )
+// Parameters:  ( const char* name )
 //
 // Return:      void 
 //
 //=============================================================================
-void CollectibleObjective::SetCollectEffectName( char* name )
+void CollectibleObjective::SetCollectEffectName( const char* name )
 {
     rAssert( name );
     strcpy( mEffectName, name );

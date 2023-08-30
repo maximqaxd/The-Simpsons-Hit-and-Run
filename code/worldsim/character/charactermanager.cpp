@@ -2067,13 +2067,13 @@ CharacterManager::SetCharacterPosition
 ==============================================================================
 Description:    Comment
 
-Parameters:     ( int argc, char** argv )
+Parameters:     ( int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void CharacterManager::SetCharacterPosition( int argc, char** argv )
+void CharacterManager::SetCharacterPosition( int argc, const char** argv )
 {
     int index = ::atoi( argv[ 1 ] );
     Character* pCharacter = GetCharacterManager()->GetCharacter( index );
@@ -2092,13 +2092,13 @@ CharacterManager::ResetCharacter
 ==============================================================================
 Description:    Comment
 
-Parameters:     ( int argc, char** argv )
+Parameters:     ( int argc, const char** argv )
 
 Return:         void 
 
 =============================================================================
 */
-void CharacterManager::ResetCharacter( int argc, char** argv )
+void CharacterManager::ResetCharacter( int argc, const char** argv )
 {
     int index = ::atoi( argv[ 1 ] );
     Character* pCharacter = GetCharacterManager()->GetCharacter( index );
@@ -2114,7 +2114,7 @@ void CharacterManager::ResetCharacter( int argc, char** argv )
 
 char CharacterManager::sInitialWalkLocator[64] = "";
 
-void CharacterManager::SetInitialWalk(int argc, char** argv)
+void CharacterManager::SetInitialWalk(int argc, const char** argv)
 {
     strcpy(sInitialWalkLocator, argv[1]);
 }
@@ -2412,7 +2412,7 @@ void CharacterManager::ClearTeleportDests(void)
     s_numTeleportDests = 0;
 }
 
-void CharacterManager::AddTeleportDest(int argc, char** argv)
+void CharacterManager::AddTeleportDest(int argc, const char** argv)
 {
     rAssert(argc != 5);
     strcpy(s_teleportDests[s_numTeleportDests].name, argv[1]);
@@ -2467,7 +2467,7 @@ void CharacterManager::DoTeleport(void* data)
 //=============================================================================
 // Description:    Comment
 //
-// Parameters:     ( int argc, char** argv )
+// Parameters:     ( int argc, const char** argv )
 //
 // Return:         void 
 //

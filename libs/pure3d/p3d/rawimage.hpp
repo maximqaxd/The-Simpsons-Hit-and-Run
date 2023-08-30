@@ -11,7 +11,7 @@
 class tRawImageHandler : public tImageHandler
 {
 public:
-    char* GetExtension() { return "raw"; }
+    const char* GetExtension() { return "raw"; }
     bool CanLoad()       { return true; }
     bool CanSave()       { return false; }
 

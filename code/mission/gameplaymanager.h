@@ -151,11 +151,11 @@ public:
 	//getting access to the ChaseManagers
 
 	//gets ChaseManager quering by the hostvehicle name
-	ChaseManager* GetChaseManager( char* hostvehicle);
+	ChaseManager* GetChaseManager( const char* hostvehicle);
     ChaseManager* GetChaseManager(int index);
 
 	//creates a chase manager, returns -1 if function fails
-	int CreateChaseManager ( char* hostvehicle,char* confile, int spawnrate);
+	int CreateChaseManager ( const char* hostvehicle, const char* confile, int spawnrate);
     
 	//method to clear all chase cars that are active.
 	void ClearAllChaseCars ( );
@@ -301,7 +301,7 @@ public:
     /////////////////////////////////////////////////
     // Adds a level vehicle (a vehicle that is always present)
     //
-    Vehicle* AddLevelVehicle( char* vehicleName,eCarSlots slot, char* confile);
+    Vehicle* AddLevelVehicle( const char* vehicleName,eCarSlots slot, const char* confile);
 
     //returns a pointer to vehicle, query by name
     //Vehicle* GetVehicle(char* name);
@@ -377,7 +377,7 @@ public:
     
     MissionCarDataStruct mMissionVehicleSlots[MAX_MISSION_VEHICLE_SLOTS];
   
-    Vehicle* AddMissionVehicle(char* vehiclename, char* confile = 0, char* driver = 0);   
+    Vehicle* AddMissionVehicle(const char* vehiclename, const char* confile = 0, const char* driver = 0);   
 
     // called from Mission::Reset
     void MakeSureHusksAreReverted(Vehicle* pvehicle = NULL );
@@ -420,7 +420,7 @@ public:
     int AddToVDU(Vehicle* pvehicle);
 
     //Removes a Car slated for disposal, pass in a car name if the car is present it returns a ptr to that car else a NULL PTR
-    void ReleaseFromVDU(char* carname, Vehicle**);
+    void ReleaseFromVDU(const char* carname, Vehicle**);
 
     //explicity removing cars that we are hangin on too, this should be called only in Finalize
     int MDKVDU();

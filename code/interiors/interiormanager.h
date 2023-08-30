@@ -155,40 +155,40 @@ private:
         void ClearGagBindings();
 
         void AddGagBinding( tUID interiorUID, 
-                            char* gagFileName, 
+                            const char* gagFileName, 
                             p3dCycleMode cycleMode, 
                             int weight,
-                            char* gagSound );
+                            const char* gagSound );
 
-        void GagBegin(char* gagFileName);
+        void GagBegin(const char* gagFileName);
         GagBinding* GetBuildBinding(void);
         void GagEnd(void);
 
         // Expose to Console 
 
-        static void ConsoleClearGagBindings( int argc, char** argv );
-        static void ConsoleAddGagBinding( int argc, char** argv );
-        static void ConsoleGagBegin(int argc, char** argv );
-        static void ConsoleGagSetInterior(int argc, char** argv );
-        static void ConsoleGagSetCycle(int argc, char** argv );
-        static void ConsoleGagSetWeight(int argc, char** argv );
-        static void ConsoleGagSetSound(int argc, char** argv );
-        static void ConsoleGagSetTrigger(int argc, char** argv );
-        static void ConsoleGagSetPosition(int argc, char** argv );
-        static void ConsoleGagSetRandom(int argc, char** argv );
-        static void ConsoleGagEnd(int argc, char** argv );
-        static void ConsoleGagPlayFMV( int argc, char** argv );
-        static void ConsoleGagSetIntro( int argc, char** argv );
-        static void ConsoleGagSetOutro( int argc, char** argv );
-        static void ConsoleGagSetCameraShake( int argc, char** argv );
-        static void ConsoleGagSetCoins( int argc, char** argv );
-        static void ConsoleGagSetSparkle( int argc, char** argv );
-        static void ConsoleGagSetAnimCollision( int argc, char** argv );
-        static void ConsoleGagSetLoadDistances( int argc, char** argv );
-        static void ConsoleGagSetSoundLoadDistances( int argc, char** argv );
-        static void ConsoleGagSetPersist( int argc, char** argv );
-        static void ConsoleGagCheckCollCards(int argc, char** argv);
-        static void ConsoleGagCheckMovie(int argc, char** argv);
+        static void ConsoleClearGagBindings( int argc, const char** argv );
+        static void ConsoleAddGagBinding( int argc, const char** argv );
+        static void ConsoleGagBegin(int argc, const char** argv );
+        static void ConsoleGagSetInterior(int argc, const char** argv );
+        static void ConsoleGagSetCycle(int argc, const char** argv );
+        static void ConsoleGagSetWeight(int argc, const char** argv );
+        static void ConsoleGagSetSound(int argc, const char** argv );
+        static void ConsoleGagSetTrigger(int argc, const char** argv );
+        static void ConsoleGagSetPosition(int argc, const char** argv );
+        static void ConsoleGagSetRandom(int argc, const char** argv );
+        static void ConsoleGagEnd(int argc, const char** argv );
+        static void ConsoleGagPlayFMV( int argc, const char** argv );
+        static void ConsoleGagSetIntro( int argc, const char** argv );
+        static void ConsoleGagSetOutro( int argc, const char** argv );
+        static void ConsoleGagSetCameraShake( int argc, const char** argv );
+        static void ConsoleGagSetCoins( int argc, const char** argv );
+        static void ConsoleGagSetSparkle( int argc, const char** argv );
+        static void ConsoleGagSetAnimCollision( int argc, const char** argv );
+        static void ConsoleGagSetLoadDistances( int argc, const char** argv );
+        static void ConsoleGagSetSoundLoadDistances( int argc, const char** argv );
+        static void ConsoleGagSetPersist( int argc, const char** argv );
+        static void ConsoleGagCheckCollCards(int argc, const char** argv);
+        static void ConsoleGagCheckMovie(int argc, const char** argv);
 
         // Pointer to the one and only instance of this singleton.
         static InteriorManager* spInstance;

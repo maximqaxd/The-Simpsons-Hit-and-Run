@@ -468,7 +468,7 @@ void GoToObjective::HandleEvent( EventEnum id, void* pEventData )
 // Return:      void 
 //
 //=============================================================================
-void GoToObjective::SetDestinationNames( char* locatorname, char* p3dname, float scale )
+void GoToObjective::SetDestinationNames( const char* locatorname, const char* p3dname, float scale )
 {
     strcpy( mDestinationLocatorName, locatorname );
 	strcpy( mDestinationDrawableName, p3dname );
@@ -485,7 +485,7 @@ void GoToObjective::SetDestinationNames( char* locatorname, char* p3dname, float
 // Return:      void 
 //
 //=============================================================================
-void GoToObjective::SetCollectEffectName( char* name )
+void GoToObjective::SetCollectEffectName( const char* name )
 {
     rAssert( name );
     strcpy( mEffectName, name );

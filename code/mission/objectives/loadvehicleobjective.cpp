@@ -103,7 +103,7 @@ void LoadVehicleObjective::LoadDisposableCarAsyncCallback::OnProcessRequestsComp
 // Description: Use this to load any vehicle that may get unloaded during a level gameplay session,
 // ie player car,ai car, forced car into its own iventory section.
 //
-// Parameters:  ( int argc, char** argv )
+// Parameters:  ( int argc, const char** argv )
 //
 // Return:      void 
 //
@@ -112,7 +112,7 @@ void LoadVehicleObjective::LoadDisposableCarAsyncCallback::OnProcessRequestsComp
 /// VERY TEMPORARY CALLBACK for async vehicle loading
 
 
-void MissionScriptLoader::LoadDisposableCarAsync( int argc, char** argv )
+void MissionScriptLoader::LoadDisposableCarAsync( int argc, const char** argv )
 {
     const char* fileName = argv[1];
     const char* vehicleName = argv[2];

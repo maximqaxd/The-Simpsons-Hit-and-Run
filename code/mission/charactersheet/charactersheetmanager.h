@@ -42,7 +42,7 @@ class CharacterSheetManager: GameDataHandler
       
         
         void SetCardCollected(RenderEnums::LevelEnum level,int CardID);
-        void SetCardCollected(RenderEnums::LevelEnum level,char* CardName);
+        void SetCardCollected(RenderEnums::LevelEnum level,const char* CardName);
 
 
 
@@ -61,36 +61,36 @@ class CharacterSheetManager: GameDataHandler
 
         //can add a collectable, using the colllectables name as unique key or by trying to place it in the slot by index 
         //methods return 0 for success and -1 for failure  , -2 if the item is already in the list.
-        int AddCard(RenderEnums::LevelEnum level,char* name);
-        int AddCard(RenderEnums::LevelEnum level,int index);
+        int AddCard(RenderEnums::LevelEnum level, const char* name);
+        int AddCard(RenderEnums::LevelEnum level, int index);
 
 
         
-        int AddMission(RenderEnums::LevelEnum level, char* name);
-        int AddStreetRace(RenderEnums::LevelEnum level, char* name);
-        int AddBonusMission(RenderEnums::LevelEnum level,char* name);
-        int AddGambleRace(RenderEnums::LevelEnum level,char* name);
+        int AddMission(RenderEnums::LevelEnum level, const char* name);
+        int AddStreetRace(RenderEnums::LevelEnum level, const char* name);
+        int AddBonusMission(RenderEnums::LevelEnum level, const char* name);
+        int AddGambleRace(RenderEnums::LevelEnum level, const char* name);
 
-        void SetStreetRaceBestTime(RenderEnums::LevelEnum level,char* name,int seconds);
-        void SetGambleRaceBestTime(RenderEnums::LevelEnum level,int seconds);
+        void SetStreetRaceBestTime(RenderEnums::LevelEnum level, const char* name,int seconds);
+        void SetGambleRaceBestTime(RenderEnums::LevelEnum level, int seconds);
        
         int GetGambleRaceBestTime(RenderEnums::LevelEnum level);
-        int GetStreetRaceBestTime(RenderEnums::LevelEnum level,char* name);
-        int GetStreetRaceBestTime(RenderEnums::LevelEnum level,int index);
+        int GetStreetRaceBestTime(RenderEnums::LevelEnum level, const char* name);
+        int GetStreetRaceBestTime(RenderEnums::LevelEnum level, int index);
 
 
         char* QueryCurrentSkin(RenderEnums::LevelEnum level);
-        int SetCurrentSkin(RenderEnums::LevelEnum level,char* skinName);
+        int SetCurrentSkin(RenderEnums::LevelEnum level, const char* skinName);
 
 
         //Init CharacterSheet with defaults, clear all info. FE should call this for new games.
         void InitCharacterSheet();
 
         //methods for recording mission results, this is called for all missions,streetraces and the bonus mission
-        void SetMissionComplete(RenderEnums::LevelEnum level,char* name, bool completed_secondary_objective,int seconds = -1);
-        void IncrementMissionAttempt(RenderEnums::LevelEnum level,char* name);
-        void SetMissionSkipped (RenderEnums::LevelEnum level,char* name);
-        void SetMissionSkipped (RenderEnums::LevelEnum level,RenderEnums::MissionEnum mission);
+        void SetMissionComplete(RenderEnums::LevelEnum level, const char* name, bool completed_secondary_objective,int seconds = -1);
+        void IncrementMissionAttempt(RenderEnums::LevelEnum level, const char* name);
+        void SetMissionSkipped (RenderEnums::LevelEnum level, const char* name);
+        void SetMissionSkipped (RenderEnums::LevelEnum level, RenderEnums::MissionEnum mission);
         void SetFMVUnlocked (RenderEnums::LevelEnum level);
        
         
@@ -143,16 +143,16 @@ class CharacterSheetManager: GameDataHandler
 
 
         //query methods for races
-        MissionRecord* QueryMissionStatus(RenderEnums::LevelEnum ,char* name);
-        MissionRecord* QueryMissionStatus(RenderEnums::LevelEnum ,int index);
+        MissionRecord* QueryMissionStatus(RenderEnums::LevelEnum, const char* name);
+        MissionRecord* QueryMissionStatus(RenderEnums::LevelEnum, int index);
         
         //get the number of attempts for a mission
         int QueryNumberOfAttempts(RenderEnums::LevelEnum level, int index);
 
-        MissionRecord* QueryStreetRaceStatus(RenderEnums::LevelEnum ,char* name);
-        MissionRecord* QueryStreetRaceStatus(RenderEnums::LevelEnum ,int index);
+        MissionRecord* QueryStreetRaceStatus(RenderEnums::LevelEnum, const char* name);
+        MissionRecord* QueryStreetRaceStatus(RenderEnums::LevelEnum, int index);
 
-        MissionRecord* QueryBonusMissionStatus(RenderEnums::LevelEnum level, char* name);
+        MissionRecord* QueryBonusMissionStatus(RenderEnums::LevelEnum level, const char* name);
         MissionRecord* QueryBonusMissionStatus(RenderEnums::LevelEnum level, int index);
 
 
@@ -160,8 +160,8 @@ class CharacterSheetManager: GameDataHandler
         //query methods for Collectables. the Loaders and Creation processes should query
         //on chunk encounter before creating the instance        
 
-        bool QueryCardCollected(RenderEnums::LevelEnum level,int index);
-        bool QueryCardCollected(RenderEnums::LevelEnum level,char* CardName);      
+        bool QueryCardCollected(RenderEnums::LevelEnum level, int index);
+        bool QueryCardCollected(RenderEnums::LevelEnum level, const char* CardName);      
         
 
 
@@ -201,21 +201,21 @@ class CharacterSheetManager: GameDataHandler
         CharacterSheetManager& operator=( const CharacterSheetManager& );
 //        PlayerOptions* GetPlayerOptions ();
 
-        MissionRecord* GetMissionRecord(RenderEnums::LevelEnum level,char* name);
-        MissionRecord* GetMissionRecord(RenderEnums::LevelEnum level,int index );
+        MissionRecord* GetMissionRecord(RenderEnums::LevelEnum level, const char* name);
+        MissionRecord* GetMissionRecord(RenderEnums::LevelEnum level, int index );
         
-        MissionRecord* GetStreetRaceRecord(RenderEnums::LevelEnum level, char* name);
+        MissionRecord* GetStreetRaceRecord(RenderEnums::LevelEnum level, const char* name);
         MissionRecord* GetStreetRaceRecord(RenderEnums::LevelEnum level, int index );
 
-        MissionRecord* GetBonusMissionRecord(RenderEnums::LevelEnum level,char* name);
+        MissionRecord* GetBonusMissionRecord(RenderEnums::LevelEnum level, const char* name);
 
-        Record* GetCollectableRecord(RenderEnums::LevelEnum level,eCollectableType type, char* name);
+        Record* GetCollectableRecord(RenderEnums::LevelEnum level,eCollectableType type, const char* name);
         Record* GetCollectableRecord(RenderEnums::LevelEnum level,eCollectableType type, int index);
 
-        CarCharacterSheet* GetCarCharacterSheet(char * name);
+        CarCharacterSheet* GetCarCharacterSheet(const char * name);
 
         //implement if dusit doesnt do the above.
-        //CardRecord* GetCardRecord(eLevelID,char* name);
+        //CardRecord* GetCardRecord(eLevelID, const char* name);
 
             
         //member variables 

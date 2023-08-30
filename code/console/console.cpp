@@ -81,33 +81,33 @@ FBMemoryPool Console::AliasTableEntry::sMemoryPool( sizeof(Console::AliasTableEn
 // Return:      
 //
 //=============================================================================
-static bool cConsoleTrue( int argc, char** argv )
+static bool cConsoleTrue( int argc, const char** argv )
 {
     argc;
     argv;
     return( true );
 }
 
-static bool cConsoleFalse( int argc, char** argv )
+static bool cConsoleFalse( int argc, const char** argv )
 {
     argc;
     argv;
     return( false );
 }
 
-static void cConsoleExit(int argc, char **argv)
+static void cConsoleExit(int argc, const char** argv)
 {
     argc;
     argv;
     //does nothing, but the parser will terminate executing a script
 }
 
-static void cConsoleExec(int argc, char **argv)
+static void cConsoleExec(int argc, const char** argv)
 {
     GetConsole()->ExecuteScriptSync(argv[1], true);
 }
 
-static void cConsoleSetLogMode(int argc, char **argv)
+static void cConsoleSetLogMode(int argc, const char** argv)
 {
     argc;
     if (! smStricmp(argv[1], "on"))
@@ -118,12 +118,12 @@ static void cConsoleSetLogMode(int argc, char **argv)
         GetConsole()->SetConsoleLogMode(Console::LOGMODE_OFF);
 }
 
-static void cConsoleFlushLog(int argc, char **argv)
+static void cConsoleFlushLog(int argc, const char** argv)
 {
     GetConsole()->FlushConsoleLogFile();
 }
 
-static void cConsoleEcho(int argc, char **argv)
+static void cConsoleEcho(int argc, const char** argv)
 {
     if (argc == 3)
         GetConsole()->Printf(atoi(argv[1]), argv[2]);
@@ -131,31 +131,31 @@ static void cConsoleEcho(int argc, char **argv)
         GetConsole()->Printf(argv[1]);
 }
 
-static void cConsoleError(int argc, char **argv)
+static void cConsoleError(int argc, const char** argv)
 {
     GetConsole()->Errorf(argv[1]);
 }
 
-static void cConsoleListFunctions(int argc, char **argv)
+static void cConsoleListFunctions(int argc, const char** argv)
 {
     argc;
     argv;
     GetConsole()->ListConsoleFunctions();
 }
 
-static void cConsoleListenChannel(int argc, char **argv)
+static void cConsoleListenChannel(int argc, const char** argv)
 {
     argc;
     GetConsole()->ConsoleListenChannel(atoi(argv[1]));
 }
 
-static void cConsoleBlockChannel(int argc, char **argv)
+static void cConsoleBlockChannel(int argc, const char** argv)
 {
     argc;
     GetConsole()->ConsoleBlockChannel(atoi(argv[1]));
 }
 
-static void cConsoleAlias(int argc, char **argv)
+static void cConsoleAlias(int argc, const char** argv)
 {
     GetConsole()->AddAlias(argv[1], argv[2], argc - 3, &argv[3]);
 }
@@ -576,7 +576,7 @@ bool Console::SetLogMode(int logMode)
 // Return:      
 //
 //==============================================================================
-void Console::Printf(char *fmt, ...)
+void Console::Printf(const char *fmt, ...)
 {
 #ifdef RAD_DEBUG
     //make sure we have a console
@@ -600,7 +600,7 @@ void Console::Printf(char *fmt, ...)
 
 //for now, it does the same as Printf()...  should also echo
 //to an error page in the DebugInfo stuff Chakib is working on!
-void Console::Errorf(char *fmt, ...)
+void Console::Errorf(const char *fmt, ...)
 {
 #ifdef RAD_DEBUG
     //make sure we have a console
@@ -619,7 +619,7 @@ void Console::Errorf(char *fmt, ...)
 #endif
 }
 
-void Console::Printf(int channel, char *fmt, ...)
+void Console::Printf(int channel, const char *fmt, ...)
 {
 #ifdef RAD_DEBUG
     //make sure we have a console
@@ -662,7 +662,7 @@ void Console::Printf(int channel, char *fmt, ...)
 // Return:      
 //
 //==============================================================================
-void Console::AssertFatal(char *fmt, ...)
+void Console::AssertFatal(const char *fmt, ...)
 {
     char msgFmt[512];
     sprintf(msgFmt, "File: %s, line: %d  %s", gErrFileName, gErrLineNum, fmt);
@@ -695,7 +695,7 @@ void Console::AssertFatal(char *fmt, ...)
 // Return:      
 //
 //==============================================================================
-void Console::AssertWarn(char *fmt, ...)
+void Console::AssertWarn(const char *fmt, ...)
 {
     char msgFmt[512];
     sprintf(msgFmt, "File: %s, line: %d  %s", gErrFileName, gErrLineNum, fmt);
@@ -1247,7 +1247,7 @@ bool Console::AddAlias
     const char* name, 
     const char* functionName, 
     int argc, 
-    char** argv
+    const char** argv
 )
 {
     //make sure we've initialized the global console
@@ -1277,7 +1277,7 @@ bool Console::AddFunctionAlias
     const char* name, 
     const char* functionName, 
     int argc, 
-    char** argv 
+    const char** argv 
 )
 {
     //validate the input
@@ -2008,7 +2008,7 @@ bool Console::Evaluate( const char* string, const char* fileName )
 
                         isConditional = true;
                         readEndBracketLevel++;
-                        conditionalResult = (mFunctionTable[i]->functionPointer.boolReturn)(mArgc, (char**)mArgv);
+                        conditionalResult = (mFunctionTable[i]->functionPointer.boolReturn)(mArgc, (const char**)mArgv);
                         if (negateCondition)
                             conditionalResult = (! conditionalResult);
                         negateCondition = false;
@@ -2034,7 +2034,7 @@ bool Console::Evaluate( const char* string, const char* fileName )
                         isConditional = false;
                         negateCondition = false;
 
-                        (mFunctionTable[i]->functionPointer.voidReturn)(mArgc, (char**)mArgv);
+                        (mFunctionTable[i]->functionPointer.voidReturn)(mArgc, (const char**)mArgv);
 
                         //see if the function was "exit"
                         if (! smStricmp(mArgv[0], "exit"))
@@ -2333,7 +2333,7 @@ Console::AliasTableEntry::AliasTableEntry
     const char* srcName, 
     const char* funcName, 
     int srcArgc, 
-    char** srcArgv 
+    const char** srcArgv 
 )
 {
     rTuneAssert( strlen( srcName ) < MAX_ALIAS_NAME );

@@ -360,7 +360,7 @@ int MissionStage::DestroyStageVehicleAI()
 void MissionStage::AddVehicle(  Vehicle* vehicle, 
                                 int vehicleCentralIndex,   
                                 CarStartLocator* spawnlocator,
-                                char* ainame)
+                                const char* ainame)
 {
     MEMTRACK_PUSH_GROUP( "MissionStage" );
     //wrap allocates with the heap manager
@@ -666,7 +666,7 @@ void MissionStage::AddWaypoint( Locator* locator )
 // Return:      void 
 //
 //=============================================================================
-void MissionStage::AddCharacter( char* name, 
+void MissionStage::AddCharacter( const char* name, 
                                  CarStartLocator* spawnlocator, 
                                  CarStartLocator* carlocator, 
                                  const char* dynaloadString,
@@ -726,11 +726,11 @@ MEMTRACK_POP_GROUP( "Mission - Characters" );
 // Return:      void 
 //
 //=============================================================================
-void MissionStage::AddCharacter( char* name, 
+void MissionStage::AddCharacter( const char* name, 
                                  CarStartLocator* spawnlocator, 
                                  CarStartLocator* carlocator, 
                                  const char* dynaloadString,
-                                 char* VehicleName )
+                                 const char* VehicleName )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Characters" );
     rAssert( mNumCharacters < MAX_CHARACTERS_IN_STAGE );
@@ -2390,19 +2390,19 @@ void MissionStage::OnProcessRequestsComplete( void* pUserData)
 
 };
 
-void MissionStage::SetSwapDefaultCarRespawnLocatorName(char* locatorName)
+void MissionStage::SetSwapDefaultCarRespawnLocatorName(const char* locatorName)
 {
     strncpy(mSwapDefaultCarRespawnLocatorName,locatorName,32);
     mSwapDefaultCarRespawnLocatorName[31]='\0';
 }
 
-void MissionStage::SetSwapPlayerRespawnLocatorName(char* locatorName)
+void MissionStage::SetSwapPlayerRespawnLocatorName(const char* locatorName)
 {
     strncpy(mSwapPlayerRespawnLocatorName,locatorName,32);
     mSwapPlayerRespawnLocatorName[31]='\0';
 }
 
-void MissionStage::SetSwapForcedCarRespawnLocatorName(char* locatorName)
+void MissionStage::SetSwapForcedCarRespawnLocatorName(const char* locatorName)
 {
     strncpy(mSwapForcedCarRespawnLocatorName,locatorName,32);
     mSwapForcedCarRespawnLocatorName[31]='\0';
@@ -2424,13 +2424,13 @@ void MissionStage::ClearTrafficForStage()
     mbClearTrafficForStage = true;
 }
 
-void MissionStage::SetPlayerRespawnLocatorName(char* locatorName)
+void MissionStage::SetPlayerRespawnLocatorName(const char* locatorName)
 {
     strncpy(mPlayerRespawnLocatorName,locatorName,32);
     mPlayerRespawnLocatorName[31] = '\0';
 }
 
-void MissionStage::SetmsPlayerCarRespawnLocatorName(char* locatorName)
+void MissionStage::SetmsPlayerCarRespawnLocatorName(const char* locatorName)
 {
     strncpy(mPlayerCarRespawnLocatorName,locatorName,32);
     mPlayerCarRespawnLocatorName[31]='\0';
@@ -2441,7 +2441,7 @@ void MissionStage::OnStageCompleteSuccessful()
     HasPresentationInfo::OnStageCompleteSuccessful();
 }
 
-void MissionStage::SetCharacterToHide(char* charactername)
+void MissionStage::SetCharacterToHide(const char* charactername)
 {
     strncpy(mCharacterToHide,charactername,16);
     mCharacterToHide[15]='\0';

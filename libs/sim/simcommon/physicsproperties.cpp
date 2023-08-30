@@ -85,7 +85,7 @@ void PhysicsProperties::SetDensityCGS(float f)
     a more aproprite implementation could be added later.
 */
 
-PhysicsProperties* PhysicsProperties::GetPhysicsProperties(tEntityStore* store, char* inName, float inRest, float inFrict, float inTangRest, float inDensity)
+PhysicsProperties* PhysicsProperties::GetPhysicsProperties(tEntityStore* store, const char* inName, float inRest, float inFrict, float inTangRest, float inDensity)
 {
     PhysicsProperties* tmpprop = NULL;
 

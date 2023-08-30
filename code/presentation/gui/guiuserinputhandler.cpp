@@ -32,7 +32,7 @@
 
 struct ControlMap
 {
-    char* inputName;
+    const char* inputName;
     GuiInput::eGuiInput inputID;
 };
 

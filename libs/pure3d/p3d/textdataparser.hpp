@@ -25,7 +25,7 @@ class TextDataParser
     bool Advance(void);
 
     // Searches ahead for the string and returns
-    bool AdvanceTo(char *s);
+    bool AdvanceTo(const char *s);
 
 
     bool Eof(void) { return mCurrentTokenStart >= mDataLen; }

@@ -107,8 +107,8 @@ public:
     
     // Scripter hooks
     //
-    static void SetCharacterPosition( int argc, char** argv );
-    static void ResetCharacter( int argc, char** argv );
+    static void SetCharacterPosition( int argc, const char** argv );
+    static void ResetCharacter( int argc, const char** argv );
 
     // ???
     //
@@ -218,7 +218,7 @@ private:
     tPose* mUniversalPose;
 
     static char sInitialWalkLocator[64];
-    static void SetInitialWalk(int argc, char** argv);
+    static void SetInitialWalk(int argc, const char** argv);
 
     static char sCharacterToSpawn[64];
     static Character* sSpawnedCharacter; 
@@ -227,7 +227,7 @@ private:
 
     static void DoTeleport(void*);
     static void ClearTeleportDests(void);
-    static void AddTeleportDest(int argc, char** argv);
+    static void AddTeleportDest(int argc, const char** argv);
 
     unsigned int mNumCharactersAdded;
 };

@@ -47,7 +47,7 @@ public:
 
     void SetContext(pglContext* c) {context = c;}
     bool ExtBGRA(void) { return extBGRA;}
-    bool CheckExtension(char*);
+    bool CheckExtension(const char*);
     bool HasReset(void) { return reset; }
 
     static unsigned FillDisplayModes(int, pddiModeInfo*);

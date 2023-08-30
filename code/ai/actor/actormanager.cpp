@@ -360,7 +360,7 @@ ActorManager::WithinAliveRange( int index )
 }
 
 void
-ActorManager::AddFlyingActor( int argc, char** argv )
+ActorManager::AddFlyingActor( int argc, const char** argv )
 {
     // First param - statepropname
     // 2nd param - instancename
@@ -386,7 +386,7 @@ ActorManager::AddFlyingActor( int argc, char** argv )
 }
 
 void
-ActorManager::AddFlyingActorByLocator( int argc, char** argv )
+ActorManager::AddFlyingActorByLocator( int argc, const char** argv )
 {
     const char* statepropName = argv[1];
     const char* instanceName = argv[2];    
@@ -429,7 +429,7 @@ ActorManager::AddFlyingActorByLocator( int argc, char** argv )
 }
 
 void
-ActorManager::AddSpawnPointScript( int argc, char** argv )
+ActorManager::AddSpawnPointScript( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
 
@@ -453,7 +453,7 @@ ActorManager::AddSpawnPointScript( int argc, char** argv )
 }
 
 void 
-ActorManager::AddSpawnPointByLocatorScript( int argc, char** argv )
+ActorManager::AddSpawnPointByLocatorScript( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
 
@@ -484,7 +484,7 @@ ActorManager::AddSpawnPointByLocatorScript( int argc, char** argv )
 
 
 void 
-ActorManager::SetProjectileStats( int argc, char** argv )
+ActorManager::SetProjectileStats( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
     const char* typeName = argv[1];
@@ -506,7 +506,7 @@ ActorManager::SetProjectileStats( int argc, char** argv )
 }
 
 void 
-ActorManager::PreallocateActors( int argc, char** argv )
+ActorManager::PreallocateActors( int argc, const char** argv )
 {
     HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
 
@@ -533,7 +533,7 @@ ActorManager::PreallocateActors( int argc, char** argv )
 }
 
 void 
-ActorManager::SetActorRotationSpeed( int argc, char** argv )
+ActorManager::SetActorRotationSpeed( int argc, const char** argv )
 {
     const char* typeName = argv[1];
     float rotationSpeed = static_cast< float > ( atof( argv[2] ) );
@@ -545,7 +545,7 @@ ActorManager::SetActorRotationSpeed( int argc, char** argv )
 }
 
 void 
-ActorManager::AddShield( int argc, char** argv )
+ActorManager::AddShield( int argc, const char** argv )
 {
     const char* name = argv[1];
     const char* shieldStatePropName = argv[2];
@@ -623,7 +623,7 @@ ActorManager::CreateActor( tUID typeName, tUID instanceName, const rmt::Matrix& 
 
 
 void
-ActorManager::AddBehaviour( int argc, char** argv )
+ActorManager::AddBehaviour( int argc, const char** argv )
 {
 #ifdef RAD_GAMECUBE
     HeapMgr()->PushHeap( GMA_GC_VMM );
@@ -741,7 +741,7 @@ ActorManager::AddBehaviour( int argc, char** argv )
 }
 
 void 
-ActorManager::AddRespawnBehaviourPosition( int argc, char** argv )
+ActorManager::AddRespawnBehaviourPosition( int argc, const char** argv )
 {
     rmt::Vector position;
     position.x = static_cast< float > ( atof( argv[1] ) );
@@ -752,7 +752,7 @@ ActorManager::AddRespawnBehaviourPosition( int argc, char** argv )
 }
 
 void 
-ActorManager::SetCollisionAttributes( int argc, char** argv )
+ActorManager::SetCollisionAttributes( int argc, const char** argv )
 {
     const char* instanceName = argv[1];
     

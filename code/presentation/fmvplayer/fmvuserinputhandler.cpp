@@ -43,7 +43,7 @@ static const float MIN_MOVIE_TIME = 0.125f;
 
 struct ControlMap
 {
-    char* inputName;
+    const char* inputName;
     FMVInput::FMVInputEnum inputID;
 };
 

@@ -514,7 +514,7 @@ void* TextureBuilder::GetPaletteMemoryImagePtr()
 //-------------------------------------------------------------------
 bool tImageHandler::CheckExtension(char* ext)
 {
-    char* handler = GetExtension();
+    const char* handler = GetExtension();
 
     int len = strlen(ext);
     int handlerLen = strlen(handler);

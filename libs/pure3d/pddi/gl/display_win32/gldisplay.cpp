@@ -21,7 +21,7 @@
 #include<string.h>
 #include<math.h>
 
-bool pglDisplay::CheckExtension( char *extName )
+bool pglDisplay::CheckExtension( const char *extName )
 {
     return SDL_GL_ExtensionSupported(extName) == SDL_TRUE;
 }

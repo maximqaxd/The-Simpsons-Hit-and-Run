@@ -62,20 +62,20 @@ class Console : public LoadingManager::ProcessRequestsCallback
         //
         // Functions must be of format:
         //
-        //   void Foo( int argc, char** argv );
+        //   void Foo( int argc, const char** argv );
         //  
         // or  
         // 
-        //   bool Foo( int argc, char** argv );
+        //   bool Foo( int argc, const char** argv );
         //
-        typedef void (*CONSOLE_FUNCTION)(int argc, char** argv);
+        typedef void (*CONSOLE_FUNCTION)(int argc, const char** argv);
         bool AddFunction( const char* name,
                           CONSOLE_FUNCTION funcPtr,
                           const char* helpString,
                           int minArgs,
                           int maxArgs );
         
-        typedef bool (*CONSOLE_BOOL_FUNCTION)(int argc, char** argv);
+        typedef bool (*CONSOLE_BOOL_FUNCTION)(int argc, const char** argv);
         bool AddFunction( const char* name,
                           CONSOLE_BOOL_FUNCTION funcPtr,
                           const char* helpString,
@@ -85,7 +85,7 @@ class Console : public LoadingManager::ProcessRequestsCallback
         //
         // Register an alias to a function.
         //
-        bool AddAlias( const char* name, const char* functionName, int argc, char** argv );
+        bool AddAlias( const char* name, const char* functionName, int argc, const char** argv );
         
         
         //
@@ -113,12 +113,12 @@ class Console : public LoadingManager::ProcessRequestsCallback
         bool Evaluate( const char* string, const char* inputSourceName );
 
 
-        void Printf( char* fmt, ... );
-        void Printf( int channel, char* fmt, ... );
-        void Errorf( char* fmt, ... );
+        void Printf( const char* fmt, ... );
+        void Printf( int channel, const char* fmt, ... );
+        void Errorf( const char* fmt, ... );
         
-        void AssertFatal( char* fmt, ... );
-        void AssertWarn( char* fmt, ... );
+        void AssertFatal( const char* fmt, ... );
+        void AssertWarn( const char* fmt, ... );
         
         const tNameInsensitive& TabCompleteFunction( const char* tabString, const char* curFunction );
 
@@ -219,7 +219,7 @@ class Console : public LoadingManager::ProcessRequestsCallback
             static FBMemoryPool sMemoryPool;
 
             AliasTableEntry( const char* srcName, const char* funcName, 
-                             int srcArgc, char** srcArgv );
+                             int srcArgc, const char** srcArgv );
 
             static void* operator new( size_t size ) { return( sMemoryPool.Allocate( size ) ); }
             static void  operator delete( void* deadObject, size_t size ) { sMemoryPool.Free( deadObject, size ); }
@@ -267,7 +267,7 @@ class Console : public LoadingManager::ProcessRequestsCallback
                       const char* helpString,
                       int minArgs,
                       int maxArgs );
-        bool AddFunctionAlias(const char* name, const char* functionName, int argc, char** argv);
+        bool AddFunctionAlias(const char* name, const char* functionName, int argc, const char** argv);
         const tNameInsensitive& TabComplete(const char* tabString, const char* curFunction);
         void ListFunctions();
 

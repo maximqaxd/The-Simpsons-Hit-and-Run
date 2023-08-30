@@ -84,20 +84,20 @@ public:
     void AddVehicle(Vehicle* vehicle, 
                     int vehicleCentralIndex,  
                     CarStartLocator* spawnlocator, 
-                    char* ainame);
+                    const char* ainame);
     
     void AddWaypoint( Locator* locator );
-    void AddCharacter( char* name, 
+    void AddCharacter( const char* name, 
                        CarStartLocator* spawnlocator,
                        CarStartLocator* carlocator,
                        const char* dynaloadString,
                        Vehicle* vehicle );
     //chuck overloaded function 
-    void AddCharacter(char* name,                        
+    void AddCharacter(const char* name,                        
                        CarStartLocator* spawnlocator,
                        CarStartLocator* carlocator,
                        const char* dynaloadString,
-                       char* VehicleName);
+                       const char* VehicleName);
 
                         
 
@@ -265,16 +265,16 @@ public:
     void SwapInDefaultCar();
     void SwapInDefaultCarStart();
     void OnProcessRequestsComplete( void* pUserData );
-    void SetSwapPlayerRespawnLocatorName(char* locatorName);
-    void SetSwapDefaultCarRespawnLocatorName(char* locatorName);
-    void SetSwapForcedCarRespawnLocatorName(char* locatorName);
+    void SetSwapPlayerRespawnLocatorName(const char* locatorName);
+    void SetSwapDefaultCarRespawnLocatorName(const char* locatorName);
+    void SetSwapForcedCarRespawnLocatorName(const char* locatorName);
 
     //Call this to reset a player to this spawn pt once per stage.
-    void SetPlayerRespawnLocatorName(char* locatorName);
-    void SetmsPlayerCarRespawnLocatorName(char* locatorName);
+    void SetPlayerRespawnLocatorName(const char* locatorName);
+    void SetmsPlayerCarRespawnLocatorName(const char* locatorName);
 
     //used to hide one character per stage, used for the bart abuduction on l1m7.
-    void SetCharacterToHide(char* charactername);
+    void SetCharacterToHide(const char* charactername);
     //script to trigger leaving the level
     void SetLevelOver();
     void SetGameOver(bool IsGameOver = true) { mbGameOver = IsGameOver; }

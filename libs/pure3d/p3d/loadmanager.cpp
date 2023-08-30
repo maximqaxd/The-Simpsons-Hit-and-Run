@@ -264,7 +264,7 @@ void tP3DFileHandler::RemoveAllHandlers(void)
     // No way to do this right now.
 }
 
-void tP3DFileHandler::AddAlternateExtension(char* ext)
+void tP3DFileHandler::AddAlternateExtension(const char* ext)
 {
     P3DASSERT(nExtensions < 8);
     P3DASSERT(strlen(ext) < 8);
@@ -599,18 +599,18 @@ void tLoadManager::TriggerCallbacks(void)
 {
 }
 
-tFileHandler* tLoadManager::AddHandler(tFileHandler* l, char* ext)
+tFileHandler* tLoadManager::AddHandler(tFileHandler* l, const char* ext)
 {
     radLoad->AddFileLoader(l, ext);
     return l;
 }
 
-tFileHandler* tLoadManager::GetHandler(char* ext)
+tFileHandler* tLoadManager::GetHandler(const char* ext)
 {
     return dynamic_cast<tFileHandler*>(radLoad->GetFileLoader(ext));
 }
 
-void tLoadManager::RemoveHandler(char* ext)
+void tLoadManager::RemoveHandler(const char* ext)
 {
     radLoad->RemoveFileLoader(ext);
 }

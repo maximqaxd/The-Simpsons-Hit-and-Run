@@ -62,7 +62,7 @@ bool FeTextBibleLoader::s_useLastLoadedTextBible = false;
 //=============================================================================
 FeProjectFileHandler::FeProjectFileHandler()
 {
-    m_extensions = new char*[FT_NO_TYPE];
+    m_extensions = new const char*[FT_NO_TYPE];
     m_extensions[FT_XML] = ".xml"; // generic XML tree
     m_extensions[FT_PRJ] = ".prj"; // Scrooby Project File
     m_extensions[FT_SCR] = ".scr"; // Scrooby Screen File

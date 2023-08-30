@@ -110,7 +110,7 @@ public:
     void Render();
 
     /** Push a section */
-    bool Push(char* szSection);
+    bool Push(const char* szSection);
 
     /** Pop a section */
     void Pop();
@@ -132,7 +132,7 @@ public:
     /** reset the current section 
      *  @param sectionName the new name of the section
      */
-    void Reset(char* sectionName);
+    void Reset(const char* sectionName);
 
     void AddLine(const rmt::Vector &a, const rmt::Vector &b, tColour colour = tColour(255,255,255));
     void AddHVector(rmt::Vector o, rmt::Vector v, float h, tColour colour = tColour(255,255,255));

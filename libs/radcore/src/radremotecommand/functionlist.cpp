@@ -78,7 +78,7 @@ FunctionList::~FunctionList( void )
 //
 // Notes:
 //------------------------------------------------------------------------------
-void FunctionList::Add( char* functionName, RemoteFunction rfptr, void* userData )
+void FunctionList::Add( const char* functionName, RemoteFunction rfptr, void* userData )
 {
 	rAssert( (functionName != "") && (functionName[0] != '\0') );
 	rAssert( rfptr != NULL );
@@ -118,7 +118,7 @@ void FunctionList::Add( char* functionName, RemoteFunction rfptr, void* userData
 //
 // Notes:
 //------------------------------------------------------------------------------
-bool FunctionList::Remove( char* functionName )
+bool FunctionList::Remove( const char* functionName )
 {
 	//
 	// helping pointers
@@ -178,7 +178,7 @@ bool FunctionList::Remove( char* functionName )
 //
 // Notes:
 //------------------------------------------------------------------------------
-void FunctionList::Get( char* functionName, RemoteFunction* prfptr, void** userData )
+void FunctionList::Get( const char* functionName, RemoteFunction* prfptr, void** userData )
 {
 	//
 	// Helping pointer
@@ -216,7 +216,7 @@ void FunctionList::Get( char* functionName, RemoteFunction* prfptr, void** userD
 //
 // Notes:       
 //------------------------------------------------------------------------------
-char* FunctionList::GetNextName( void )
+const char* FunctionList::GetNextName( void )
 {
 	//
 	// If m_Current is pointing at something return a pointer to the name and return it

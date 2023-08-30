@@ -200,7 +200,7 @@ void RemoteCommandServer::Terminate( void )
 //
 // Notes:		The registered function must match type definition, RemoteFunction
 //------------------------------------------------------------------------------
-void RemoteCommandServer::RegisterRemoteFunction( char* functionName, RemoteFunction rfptr, void* userData )
+void RemoteCommandServer::RegisterRemoteFunction( const char* functionName, RemoteFunction rfptr, void* userData )
 {
 	//
 	// Some preventative medicine
@@ -226,7 +226,7 @@ void RemoteCommandServer::RegisterRemoteFunction( char* functionName, RemoteFunc
 //
 // Notes:		
 //------------------------------------------------------------------------------
-void RemoteCommandServer::UnRegisterRemoteFunction( char* functionName )
+void RemoteCommandServer::UnRegisterRemoteFunction( const char* functionName )
 {
 	rAssert( functionName != NULL );
 	rAssert( functionName[0] != '\0' );

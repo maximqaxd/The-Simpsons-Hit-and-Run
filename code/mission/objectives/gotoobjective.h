@@ -42,8 +42,8 @@ public:
     Locator* GetDestinationLocator() { return( mDestinationLocator ); }
     void SetDestinationLocator( Locator* pLocator ) { mDestinationLocator = pLocator; }
 
-    void SetDestinationNames( char* locatorname, char* p3dname, float scale );
-    void SetCollectEffectName( char* name );
+    void SetDestinationNames( const char* locatorname, const char* p3dname, float scale );
+    void SetCollectEffectName( const char* name );
     void SetGotoDialogOff() { mGotoDialogOn = false; }
 
     virtual void HandleEvent( EventEnum id, void* pEventData );

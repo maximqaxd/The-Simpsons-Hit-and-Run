@@ -167,7 +167,7 @@ bool TextDataParser::Advance(void)
 // Advance To
 // 
 //
-bool TextDataParser::AdvanceTo(char *s)
+bool TextDataParser::AdvanceTo(const char *s)
 {
     char token[128];
 

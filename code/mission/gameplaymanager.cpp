@@ -823,7 +823,7 @@ Vehicle* GameplayManager::InitVehicle( char* vehicleName )
 // Return:      Vehicle
 //
 //=============================================================================
-Vehicle* GameplayManager::AddLevelVehicle( char* vehicleName,eCarSlots slot, char* confile )
+Vehicle* GameplayManager::AddLevelVehicle( const char* vehicleName,eCarSlots slot, const char* confile )
 {
   
     Vehicle* v = NULL;
@@ -982,7 +982,7 @@ void GameplayManager::PauseForFadeFromBlack( float speedMod )
 // Return:      Vehicle
 //
 //=============================================================================
-Vehicle* GameplayManager::AddMissionVehicle(char* vehiclename, char* confile, char* driver)
+Vehicle* GameplayManager::AddMissionVehicle(const char* vehiclename, const char* confile, const char* driver)
 {
     // check if the vehicle is already in our list
     
@@ -2453,7 +2453,7 @@ void GameplayManager::SetCurrentMission( int index )
                 //Create the filename
                 char filename[128];
                 sprintf( filename, "art\\cars\\%s.p3d", mDefaultLevelVehicleName );
-                char* argv[] = { "", filename, mDefaultLevelVehicleName, "DEFAULT" };
+                const char* argv[] = { "", filename, mDefaultLevelVehicleName, "DEFAULT" };
                 MissionScriptLoader::LoadDisposableCar( 4, argv );
             }
         }
@@ -2837,7 +2837,7 @@ bool GameplayManager::QueryPhoneBoothsEnabled()
 
 //creates a chasemanager for the hostvehicle, returns 0 if good -1 if it cant
 //create a chasemanager
-int GameplayManager::CreateChaseManager(char* hostvehiclename,char* confile,int spawnrate)
+int GameplayManager::CreateChaseManager(const char* hostvehiclename, const char* confile, int spawnrate)
 {	
 	for (int i=0;i<MAX_CHASEMANAGERS;i++)
 	{
@@ -2864,7 +2864,7 @@ int GameplayManager::CreateChaseManager(char* hostvehiclename,char* confile,int 
 
 
 //returns a ptr to the correct chasemanager for a host vehicle or NULL if failure
-ChaseManager* GameplayManager::GetChaseManager(char* hostvehiclename)
+ChaseManager* GameplayManager::GetChaseManager(const char* hostvehiclename)
 {
 	for(int i =0; i<MAX_CHASEMANAGERS;i++)
 	{
@@ -3185,7 +3185,7 @@ int GameplayManager::MDKVDU()
     return 0;
 }
 
-void GameplayManager::ReleaseFromVDU(char* carname, Vehicle** outVehicle)
+void GameplayManager::ReleaseFromVDU(const char* carname, Vehicle** outVehicle)
 {
      bool found = false;     
     

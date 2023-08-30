@@ -11,7 +11,7 @@
 class tBMPHandler : public tImageHandler
 {
 public:
-    char* GetExtension() { return "bmp"; }
+    const char* GetExtension() { return "bmp"; }
     bool CanLoad()       { return true; }
     bool CanSave()       { return false; }
 

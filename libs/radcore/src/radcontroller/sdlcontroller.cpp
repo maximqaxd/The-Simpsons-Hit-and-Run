@@ -64,12 +64,12 @@ struct IRadControllerSDL
 
 struct SDLInputPoint
 {
-    char * m_pType;
-    char * m_pName;
+    const char * m_pType;
+    const char * m_pName;
     unsigned int m_Mask;
 };
 
-static char * g_Sdlipt[] =
+static const char * g_Sdlipt[] =
 {
     "Button",
     "AnalogButton",
