@@ -474,7 +474,7 @@ void HumanVehicleController::Update( float timeins )
             {
                 GetInputManager()->GetController( mControllerId )->ApplyEffect( RumbleEffect::GROUND2, 250 );
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
                 if ( mWheelRumble )
                 {
 //                    mWheelRumble->SetMagDir( 200, 90 );
@@ -490,7 +490,7 @@ void HumanVehicleController::Update( float timeins )
             {
                 GetInputManager()->GetController( mControllerId )->ApplyEffect( RumbleEffect::GROUND4, 250 );
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
                 if ( mWheelRumble )
                 {
 //                    mWheelRumble->SetMagDir( 200, 90 );
@@ -511,7 +511,7 @@ void HumanVehicleController::Update( float timeins )
             if ( speed > 40.0f ) //Hmmmm...  TODO: allow this to be modified
             {
                 GetInputManager()->GetController( mControllerId )->ApplyEffect( RumbleEffect::GROUND2, 250 );
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
                 if ( mWheelRumble )
                 {
 //                    mWheelRumble->SetMagDir( 255, 90 );
@@ -524,7 +524,7 @@ void HumanVehicleController::Update( float timeins )
     case TT_Wood:
     default:
         {
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) //|| defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) //|| defined(RAD_PC)
             if ( mWheelRumble )
             {
                 mWheelRumble->SetMagDir( 0, 0 );
@@ -605,7 +605,7 @@ void HumanVehicleController::Init()
 //=============================================================================
 void HumanVehicleController::Shutdown()
 {
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
     //Stop the vehicle output point settings
 
     if ( mSpring )
