@@ -2,15 +2,18 @@ cmake_minimum_required(VERSION 3.25)
 
 project(SRR2)
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif()
+
 find_package(SDL2 REQUIRED)
-find_package(SDL2_net REQUIRED)
+#find_package(SDL2_net REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
 add_compile_options(
 	-ggdb
-	-Wno-endif-labels # TODO
-	-Wno-write-strings # TODO
 )
 add_compile_definitions(
 	RAD_DEBUG
@@ -955,7 +958,7 @@ set(BINK_SOURCES
 	"libs/sdks/linux/bink/binkfile.c"
 	"libs/sdks/linux/bink/binklnx.c"
 	"libs/sdks/linux/bink/binkmarkers.c"
-	"libs/sdks/linux/bink/binkpa.c"
+	#"libs/sdks/linux/bink/binkpa.c"
 	#"libs/sdks/linux/bink/binkplugin.c"
 	#"libs/sdks/linux/bink/binkpluginlnx.c"
 	"libs/sdks/linux/bink/binkread.c"
@@ -1134,7 +1137,7 @@ target_include_directories(bink
 add_executable(srr2 ${SRR2_SOURCES})
 target_link_libraries(srr2
 	SDL2::SDL2
-	SDL2_net::SDL2_net # TODO: port debug socket stuff to SDL2_net
+	#SDL2_net::SDL2_net # TODO: port debug socket stuff to SDL2_net
 	bink
 	choreo
 	p3d
