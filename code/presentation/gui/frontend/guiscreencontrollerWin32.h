@@ -131,8 +131,8 @@ private:
     void SetGroups( Scrooby::Text** pLabels,
                     int numMenuItems,
                     const char* strPage,
-                    char* strGroup = "Menu",
-                    char* szLabel = "Label",
+                    const char* strGroup = "Menu",
+                    const char* szLabel = "Label",
                     int attributes = SELECTION_ENABLED | SELECTABLE | VALUES_WRAPPED );
 
     void SetPageVisiblility( const char* strPage, bool bVisible );

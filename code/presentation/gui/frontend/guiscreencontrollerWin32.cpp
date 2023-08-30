@@ -914,8 +914,8 @@ void CGuiScreenController::InitPageLabels( eMenuPages page )
 void CGuiScreenController::SetGroups( Scrooby::Text** pLabels,
                                       int numMenuItems,
                                       const char* strPage,
-                                      char* strGroup,
-                                      char* szLabel,
+                                      const char* strGroup,
+                                      const char* szLabel,
                                       int attributes )
 {
     Scrooby::Page* pPage = m_pScroobyScreen->GetPage( strPage );
