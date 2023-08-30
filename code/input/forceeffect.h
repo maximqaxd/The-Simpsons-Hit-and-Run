@@ -15,17 +15,10 @@
 //========================================
 // Nested Includes
 //========================================
+#include <SDL.h>
 #include <radcontroller.hpp>
 
-#ifdef RAD_GAMECUBE
-#include <dolphin/lg.h>
-#endif
-
-#ifdef RAD_PS2
-#include <liblgdev.h>
-#endif
-
-#ifdef RAD_WIN32
+#ifdef WIN32
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #endif
@@ -54,10 +47,9 @@ public:
     ForceEffect();
     virtual ~ForceEffect();
 
-#ifdef RAD_WIN32
+#ifdef WIN32
     void SetForceID( u8 forceID ) { m_index = forceID; }
     u8   GetForceID() const { return m_index; }
-    
 #endif
 
     void Init( IRadControllerOutputPoint* outputPoint );
@@ -66,7 +58,7 @@ public:
     void Start();
     void Stop();
 
-#ifdef RAD_WIN32
+#ifdef WIN32
     virtual void Update(unsigned timeins = 0);
     void ShutDownEffects();
     void SetResetTime( DWORD dwMilliSeconds );
@@ -76,7 +68,7 @@ public:
 
 protected:
     IRadControllerOutputPoint* mOutputPoint;
-#ifdef RAD_WIN32
+#ifdef WIN32
     DIEFFECT      mForceEffect;
     DWORD         m_rgdwAxes[2];
     LONG          m_rglDirection[2];
@@ -84,7 +76,7 @@ protected:
     DWORD         m_currentTime;
     DWORD         m_effectTime;
 #else
-    LGForceEffect mForceEffect;
+    SDL_HapticEffect mForceEffect;
 #endif
     bool mEffectDirty;
 

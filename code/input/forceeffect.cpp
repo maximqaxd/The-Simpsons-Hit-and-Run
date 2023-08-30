@@ -45,13 +45,13 @@
 //=============================================================================
 ForceEffect::ForceEffect() :
 mOutputPoint( NULL ),
-#ifdef RAD_WIN32
+#ifdef WIN32
 m_effectTime(0),
 m_currentTime(0),
 #endif
 mEffectDirty( true )
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     ZeroMemory( &mForceEffect, sizeof(mForceEffect) );
     ZeroMemory( &m_rglDirection, sizeof(m_rglDirection) );
 
@@ -94,7 +94,7 @@ ForceEffect::~ForceEffect()
 //=============================================================================
 void ForceEffect::Init( IRadControllerOutputPoint* outputPoint )
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     rAssertMsg( outputPoint != NULL, "Attempt to set the outputPoint with a NULL pointer." );
     // mOutputPoint is dirty.
     if ( mOutputPoint )
@@ -160,7 +160,7 @@ void ForceEffect::Stop()
 // Return:      void 
 //
 //=============================================================================
-#ifdef RAD_WIN32
+#ifdef WIN32
 void ForceEffect::Update(unsigned timeins)
 #else
 void ForceEffect::Update()
@@ -172,7 +172,7 @@ void ForceEffect::Update()
         mEffectDirty = false;
     }
 }
-#ifdef RAD_WIN32
+#ifdef WIN32
 void ForceEffect::ShutDownEffects()
 {
     if ( mOutputPoint )

@@ -47,7 +47,7 @@
 SteeringSpring::SteeringSpring()
 {
     //Setup the respective force effect structures.
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_conditon.lOffset              = 0;
     m_conditon.lDeadBand            = 0;
     m_conditon.lPositiveCoefficient = 127;
@@ -67,15 +67,15 @@ SteeringSpring::SteeringSpring()
     mForceEffect.lpvTypeSpecificParams   = &m_conditon;
     mForceEffect.dwStartDelay            = 0;
 #else
-    mForceEffect.type                           = LG_TYPE_SPRING;
-    mForceEffect.duration                       = LG_DURATION_INFINITE;
-    mForceEffect.startDelay                     = 0;
-    mForceEffect.p.condition[0].offset            = 0;
-    mForceEffect.p.condition[0].deadband          = 0;
-    mForceEffect.p.condition[0].saturationNeg     = 127;
-    mForceEffect.p.condition[0].saturationPos     = 127;
-    mForceEffect.p.condition[0].coefficientNeg    = 127;
-    mForceEffect.p.condition[0].coefficientPos    = 127;
+    mForceEffect.type                = SDL_HAPTIC_SPRING;
+    mForceEffect.condition.direction = SDL_HapticDirection{};
+    mForceEffect.condition.length    = SDL_HAPTIC_INFINITY;
+    mForceEffect.condition.delay     = 0;
+    mForceEffect.condition.button    = 0;
+    mForceEffect.condition.interval  = 0;
+    SetCenterPoint(0, 0);
+    SetSpringStrength(127);
+    SetSpringCoefficient(127);
 #endif
 }
 
@@ -119,12 +119,16 @@ void SteeringSpring::OnInit()
 //=============================================================================
 void SteeringSpring::SetCenterPoint( s8 point, u8 deadband  )
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_conditon.lOffset                            = point;
     m_conditon.lDeadBand                          = deadband;
 #else
-    mForceEffect.p.condition[0].offset            = point;
-    mForceEffect.p.condition[0].deadband          = deadband;
+    mForceEffect.condition.center[0]   = point;
+    mForceEffect.condition.center[1]   = point;
+    mForceEffect.condition.center[2]   = point;
+    mForceEffect.condition.deadband[0] = deadband;
+    mForceEffect.condition.deadband[1] = deadband;
+    mForceEffect.condition.deadband[2] = deadband;
 #endif
     mEffectDirty = true;
 }
@@ -139,18 +143,18 @@ void SteeringSpring::SetCenterPoint( s8 point, u8 deadband  )
 // Return:      void 
 //
 //=============================================================================
-#ifdef RAD_WIN32
 void SteeringSpring::SetSpringStrength( u16 strength )
-#else
-void SteeringSpring::SetSpringStrength( u8 strength )
-#endif
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_conditon.dwPositiveSaturation               = strength;
     m_conditon.dwNegativeSaturation               = strength;
 #else
-    mForceEffect.p.condition[0].saturationNeg     = strength;
-    mForceEffect.p.condition[0].saturationPos     = strength;
+    mForceEffect.condition.right_sat[0] = strength;
+    mForceEffect.condition.right_sat[1] = strength;
+    mForceEffect.condition.right_sat[2] = strength;
+    mForceEffect.condition.left_sat[0] = strength;
+    mForceEffect.condition.left_sat[1] = strength;
+    mForceEffect.condition.left_sat[2] = strength;
 #endif
 
     mEffectDirty = true;
@@ -168,12 +172,16 @@ void SteeringSpring::SetSpringStrength( u8 strength )
 //=============================================================================
 void SteeringSpring::SetSpringCoefficient( s16 coeff )
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_conditon.lPositiveCoefficient               = coeff;
     m_conditon.lNegativeCoefficient               = coeff; 
 #else
-    mForceEffect.p.condition[0].coefficientNeg    = coeff;
-    mForceEffect.p.condition[0].coefficientPos    = coeff;
+    mForceEffect.condition.right_coeff[0] = coeff;
+    mForceEffect.condition.right_coeff[1] = coeff;
+    mForceEffect.condition.right_coeff[2] = coeff;
+    mForceEffect.condition.left_coeff[0] = coeff;
+    mForceEffect.condition.left_coeff[1] = coeff;
+    mForceEffect.condition.left_coeff[2] = coeff;
 #endif
 
     mEffectDirty = true;

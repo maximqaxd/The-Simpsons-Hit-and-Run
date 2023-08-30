@@ -72,7 +72,7 @@ HumanVehicleController::HumanVehicleController( void )
 :
 mpMappable( 0 ),
 mControllerId( -1 ),
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
 mSpring( NULL ),
 mDamper( NULL ),
 mConstantEffect( NULL ),

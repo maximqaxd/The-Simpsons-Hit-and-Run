@@ -63,7 +63,7 @@ private:
 
     int mControllerId;
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
     SteeringSpring* mSpring;
     BaseDamper* mDamper;
     ConstantEffect* mConstantEffect;

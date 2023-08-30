@@ -142,7 +142,7 @@ mbIsRumbleOn( false )
     }
 
 #if defined(RAD_PS2) || defined(RAD_GAMECUBE)
-    mHeavyWheelRumble.SetRumbleType( LG_TYPE_SQUARE );
+    mHeavyWheelRumble.SetRumbleType( SDL_HAPTIC_LEFTRIGHT );
 #endif
 }
 

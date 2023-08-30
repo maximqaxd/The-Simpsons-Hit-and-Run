@@ -38,15 +38,12 @@ public:
     void OnInit();
 
     void SetCenterPoint( s8 degrees, u8 deadband ); //Where 0 is straight up.
-#ifdef RAD_WIN32
     void SetDamperStrength( u16 strength );
-#else
-    void SetDamperStrength( u8 strength );
-#endif
     void SetDamperCoefficient( s16 coeff );
+
 private:
 
-#ifdef RAD_WIN32
+#ifdef WIN32
     DICONDITION m_conditon;
 #endif
 

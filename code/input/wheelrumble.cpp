@@ -47,7 +47,7 @@
 //=============================================================================
 WheelRumble::WheelRumble()
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_diPeriodic.dwMagnitude             = 0;
     m_diPeriodic.lOffset                 = 0;
     m_diPeriodic.dwPhase                 = 0;
@@ -73,18 +73,23 @@ WheelRumble::WheelRumble()
     mForceEffect.lpvTypeSpecificParams   = &m_diPeriodic;
     mForceEffect.dwStartDelay            = 0;
 #else
-    mForceEffect.type                           = LG_TYPE_TRIANGLE;
-    mForceEffect.duration                       = 500;
-    mForceEffect.startDelay                     = 0;
-    mForceEffect.p.periodic.magnitude           = 0;
-    mForceEffect.p.periodic.direction           = 90;
-    mForceEffect.p.periodic.period              = 80;
-    mForceEffect.p.periodic.phase               = 0;
-    mForceEffect.p.periodic.offset              = 0;
-    mForceEffect.p.periodic.envelope.attackTime  = 0;
-    mForceEffect.p.periodic.envelope.fadeTime    = 0;
-    mForceEffect.p.periodic.envelope.attackLevel = 0;
-    mForceEffect.p.periodic.envelope.fadeLevel   = 0;
+    mForceEffect.type                          = SDL_HAPTIC_TRIANGLE;
+    mForceEffect.periodic.direction            = SDL_HapticDirection{SDL_HAPTIC_POLAR, {90}};
+    mForceEffect.periodic.length               = 500;
+    mForceEffect.periodic.delay                = 0;
+
+    mForceEffect.periodic.button               = 0;
+    mForceEffect.periodic.interval             = 0;
+
+    mForceEffect.periodic.period               = 80;
+    mForceEffect.periodic.magnitude            = 0;
+    mForceEffect.periodic.offset               = 0;
+    mForceEffect.periodic.phase                = 0;
+
+    mForceEffect.periodic.attack_length = 0;
+    mForceEffect.periodic.attack_level  = 0;
+    mForceEffect.periodic.fade_length   = 0;
+    mForceEffect.periodic.fade_level    = 0;
 #endif
 }
 
@@ -114,10 +119,10 @@ WheelRumble::~WheelRumble()
 //=============================================================================
 void WheelRumble::OnInit()
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_diPeriodic.dwMagnitude = 0;
 #else
-    mForceEffect.p.periodic.magnitude = 0;
+    mForceEffect.periodic.magnitude = 0;
 #endif
 }
 
@@ -131,19 +136,15 @@ void WheelRumble::OnInit()
 // Return:      void 
 //
 //=============================================================================
-#ifdef RAD_WIN32
 void WheelRumble::SetMagDir( u16 mag, u16 dir )
-#else
-void WheelRumble::SetMagDir( u8 mag, u16 dir )
-#endif
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     LONG rglDirection[2]      = { dir, 0 };
     m_diPeriodic.dwMagnitude = mag;
     mForceEffect.rglDirection = rglDirection;
 #else
-    mForceEffect.p.periodic.magnitude = mag;
-    mForceEffect.p.periodic.direction = dir;
+    mForceEffect.periodic.magnitude = mag;
+    mForceEffect.periodic.direction = SDL_HapticDirection{SDL_HAPTIC_POLAR, {dir}};
 #endif
 
     mEffectDirty = true;
@@ -161,14 +162,14 @@ void WheelRumble::SetMagDir( u8 mag, u16 dir )
 //=============================================================================
 void WheelRumble::SetPPO( u16 per, u16 phas, s16 offset )
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     m_diPeriodic.dwPeriod                = per;
     m_diPeriodic.dwPhase                 = phas;
     m_diPeriodic.lOffset                 = offset;
 #else
-    mForceEffect.p.periodic.period = per;
-    mForceEffect.p.periodic.phase = phas;
-    mForceEffect.p.periodic.offset = offset;
+    mForceEffect.periodic.period = per;
+    mForceEffect.periodic.phase = phas;
+    mForceEffect.periodic.offset = offset;
 #endif
 
     mEffectDirty = true;
@@ -186,7 +187,7 @@ void WheelRumble::SetPPO( u16 per, u16 phas, s16 offset )
 //=============================================================================
 void WheelRumble::SetRumbleType( u8 type ) 
 {
-#ifdef RAD_WIN32
+#ifdef WIN32
     
 #else
     mForceEffect.type = type;
@@ -194,7 +195,7 @@ void WheelRumble::SetRumbleType( u8 type )
      
 };
 
-#ifdef RAD_WIN32
+#ifdef WIN32
 void WheelRumble::Update(unsigned timeins)
 {
     m_currentTime += timeins;
