@@ -385,12 +385,14 @@ MEMTRACK_PUSH_GROUP( "CGUIManagerInGame" );
     }
 #endif
 
+#ifdef RAD_PC
     pScroobyScreen = m_pScroobyProject->GetScreen( "PauseController" );
     if( pScroobyScreen != NULL )
     {
         pScreen = new CGuiScreenPauseController( pScroobyScreen, this );
         this->AddWindow( CGuiWindow::GUI_SCREEN_ID_CONTROLLER, pScreen );
     }
+#endif
 
     pScroobyScreen = m_pScroobyProject->GetScreen( "PauseSound" );
     if( pScroobyScreen != NULL )
