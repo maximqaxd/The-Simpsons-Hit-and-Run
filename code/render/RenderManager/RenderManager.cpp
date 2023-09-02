@@ -1082,7 +1082,7 @@ void RenderManager::OnProcessRequestsComplete( void* pUserData )
 
             if(i<mpZEL->GetNumLoadZones())
             {
-                sprintf(spSomeDamnFile,"ART\\%s",mpZEL->GetLoadZone(i));
+                sprintf(spSomeDamnFile,"art\\%s",mpZEL->GetLoadZone(i));
 
                 (*(int*)pUserData) &= ~RenderEnums::CompletionOnlyMask;
                 (*(int*)pUserData) |= RenderEnums::DynamicLoadComplete;
@@ -1150,7 +1150,7 @@ END_PROFILE( "Find Load Zone" );
                 //////////////////////////////////////////////////////////////////////////
                 if(i<mpZEL->GetNumLoadZones())
                 {
-                    sprintf(spSomeDamnFile,"ART\\%s",mpZEL->GetLoadZone(i));
+                    sprintf(spSomeDamnFile,"art\\%s",mpZEL->GetLoadZone(i));
 
                     msLayer &= ~RenderEnums::CompletionOnlyMask;
                     msLayer |= RenderEnums::DynamicLoadComplete;
@@ -1581,7 +1581,7 @@ END_PROFILE( "Find Load Zone" );
             //////////////////////////////////////////////////////////////////////////
             if(i<mpZEL->GetNumLoadZones())
             {
-               sprintf(spSomeDamnFile,"ART\\%s",mpZEL->GetLoadZone(i));
+               sprintf(spSomeDamnFile,"art\\%s",mpZEL->GetLoadZone(i));
 
                msLayer &= ~RenderEnums::CompletionOnlyMask;
                msLayer |= RenderEnums::DynamicLoadComplete;
