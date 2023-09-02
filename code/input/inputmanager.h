@@ -22,11 +22,9 @@
 //========================================
 #include <data/gamedata.h>
 #include <input/controller.h>
-#ifdef RAD_PC
-#include <input/usercontrollerWin32.h>
-#include <input/FEMouse.h>
-#else
 #include <input/usercontroller.h>
+#ifdef RAD_PC
+#include <input/FEMouse.h>
 #endif
 #include <constants/maxplayers.h>
 

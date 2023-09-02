@@ -22,11 +22,7 @@
 // Project Includes
 //========================================
 #include <input/inputmanager.h>
-#ifdef RAD_PC
-#include <input/usercontrollerWin32.h>
-#else
 #include <input/usercontroller.h>
-#endif
 #include <input/button.h>
 
 #include <main/game.h>

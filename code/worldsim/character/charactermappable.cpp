@@ -4,7 +4,7 @@
 #include <p3d/camera.hpp>
 
 #include <input/inputmanager.h>
-#include <input/usercontrollerWin32.h>
+#include <input/usercontroller.h>
 
 //
 // Temp
