@@ -761,6 +761,12 @@ GLenum compTable[8] = {
     GL_NOTEQUAL,
 };
 
+void pglContext::SetColourWrite( bool red, bool green, bool blue, bool alpha )
+{
+    pddiBaseContext::SetColourWrite(red, green, blue, alpha);
+    glColorMask(red, green, blue, alpha);
+}
+
 void pglContext::EnableZBuffer(bool enable)
 {
     pddiBaseContext::EnableZBuffer(enable);
