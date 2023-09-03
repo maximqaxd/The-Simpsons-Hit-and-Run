@@ -264,6 +264,11 @@ class radControllerInputPointSDL
                 }
 
                 newValue += 0.5f;
+
+                if ( m_Identifier == SDL_CONTROLLER_AXIS_LEFTY || m_Identifier == SDL_CONTROLLER_AXIS_RIGHTY )
+                {
+                    newValue = 1.0f - newValue;
+                }
             }
             else
             {
