@@ -211,13 +211,14 @@ void radSoundStreamPlayer::SetState( IRadSoundStreamPlayer::State state )
 
 void radSoundStreamPlayer::Stop( void )
 {
-    StopVoice( false );
     if ( m_State == IRadSoundStreamPlayer::QueuedPlay )
     {
-        SetState( IRadSoundStreamPlayer::Queueing );
+       SetState( IRadSoundStreamPlayer::Queueing );
     }
     else if( m_State == IRadSoundStreamPlayer::Playing )
     {
+        StopVoice( false );
+
         SetState( IRadSoundStreamPlayer::Paused );
     }
 }
