@@ -100,7 +100,7 @@ int   radSoundHalEffectEAX2Reverb::GetRoom( void )
 {
     float value;
     alGetEffectf(m_Effect, AL_REVERB_GAIN, &value);
-    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
+    return static_cast<int>(::radSoundVolumeHardwareToDbWin(value) * 100.0f);
 }
 void  radSoundHalEffectEAX2Reverb::SetRoomHF( int mBValue )
 {
@@ -113,7 +113,7 @@ int radSoundHalEffectEAX2Reverb::GetRoomHF( void )
 {
     float value;
     alGetEffectf(m_Effect, AL_REVERB_GAINHF, &value);
-    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
+    return static_cast<int>(::radSoundVolumeHardwareToDbWin(value) * 100.0f);
 }
 void  radSoundHalEffectEAX2Reverb::SetRoomRolloffFactor( float value )
 {
@@ -162,7 +162,7 @@ int   radSoundHalEffectEAX2Reverb::GetReflections( void )
 {
     float value;
     alGetEffectf(m_Effect, AL_REVERB_REFLECTIONS_GAIN, &value);
-    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
+    return static_cast<int>(::radSoundVolumeHardwareToDbWin(value) * 100.0f);
 }
 void  radSoundHalEffectEAX2Reverb::SetReflectionsDelay( float value )
 {
@@ -187,7 +187,7 @@ int   radSoundHalEffectEAX2Reverb::GetReverb( void )
 {
     float value;
     alGetEffectf(m_Effect, AL_REVERB_LATE_REVERB_GAIN, &value);
-    return ::radSoundVolumeHardwareToDbWin(value) * 100.0f;
+    return static_cast<int>(::radSoundVolumeHardwareToDbWin(value) * 100.0f);
 }
 void  radSoundHalEffectEAX2Reverb::SetReverbDelay( float value )
 {
