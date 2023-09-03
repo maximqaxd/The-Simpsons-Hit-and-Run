@@ -542,7 +542,7 @@ void SuperCam::SetCameraValues( unsigned int milliseconds,
                     //moving quickly.
                     timeEffect *= GetTargetSpeedModifier();
 
-                    rDebugPrintf( "timeEffect: %.4f\n", timeEffect );
+                    //rDebugPrintf( "timeEffect: %.4f\n", timeEffect );
 
                     mTransitionTime += rmt::FtoL((rmt::LtoF(milliseconds) * timeEffect));
                 }
