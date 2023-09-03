@@ -106,7 +106,20 @@ void CharacterMappable::OnButtonDown( int controllerId, int buttonId, const IBut
 //
 void CharacterMappable::LoadControllerMappings( unsigned int controllerId )
 {
-#if defined( RAD_PS2 )
+#ifdef RAD_CONSOLE // RAD_XBOX
+	ClearMap( 0 );
+	Map( "LeftStickX", CharacterController::LeftStickX, 0, controllerId );
+    Map( "LeftStickY", CharacterController::LeftStickY, 0, controllerId );
+    Map( "DPadUp", CharacterController::DPadUp, 0, controllerId );
+    Map( "DPadDown", CharacterController::DPadDown, 0, controllerId );
+    Map( "DPadLeft", CharacterController::DPadLeft, 0, controllerId );
+    Map( "DPadRight", CharacterController::DPadRight, 0, controllerId );
+    Map( "Y", CharacterController::DoAction, 0, controllerId );
+    Map( "A", CharacterController::Jump, 0, controllerId );
+    Map( "B", CharacterController::Dash, 0, controllerId );
+    Map( "X", CharacterController::Attack, 0, controllerId );
+#endif
+#ifdef RAD_PS2
 	ClearMap( 0 );
 	Map( "LeftStickX", CharacterController::LeftStickX, 0, controllerId );
     Map( "LeftStickY", CharacterController::LeftStickY, 0, controllerId );
@@ -118,7 +131,8 @@ void CharacterMappable::LoadControllerMappings( unsigned int controllerId )
     Map( "X", CharacterController::Jump, 0, controllerId );
     Map( "Circle", CharacterController::Dash, 0, controllerId );
     Map( "Square", CharacterController::Attack, 0, controllerId );
-#elif defined( RAD_GAMECUBE )
+#endif
+#ifdef RAD_GAMECUBE
 	ClearMap( 0 );
 	Map( "LeftStickX", CharacterController::LeftStickX, 0, controllerId );
     Map( "LeftStickY", CharacterController::LeftStickY, 0, controllerId );
@@ -130,7 +144,8 @@ void CharacterMappable::LoadControllerMappings( unsigned int controllerId )
     Map( "A", CharacterController::Jump, 0, controllerId );
     Map( "X", CharacterController::Dash, 0, controllerId );
     Map( "B", CharacterController::Attack, 0, controllerId );
-#elif defined( RAD_PC )
+#endif
+#ifdef RAD_PC
     ClearMap( 0 );
     Map( "MoveUp", CharacterController::DPadUp, 0, controllerId );
     Map( "MoveDown", CharacterController::DPadDown, 0, controllerId );
@@ -143,18 +158,6 @@ void CharacterMappable::LoadControllerMappings( unsigned int controllerId )
     Map( "Attack", CharacterController::Attack, 0, controllerId );
     Map( "feMouseRight", CharacterController::MouseLookRight, 0, controllerId );
     Map( "feMouseLeft", CharacterController::MouseLookLeft, 0, controllerId );
-#else // RAD_XBOX
-	ClearMap( 0 );
-	Map( "LeftStickX", CharacterController::LeftStickX, 0, controllerId );
-    Map( "LeftStickY", CharacterController::LeftStickY, 0, controllerId );
-    Map( "DPadUp", CharacterController::DPadUp, 0, controllerId );
-    Map( "DPadDown", CharacterController::DPadDown, 0, controllerId );
-    Map( "DPadLeft", CharacterController::DPadLeft, 0, controllerId );
-    Map( "DPadRight", CharacterController::DPadRight, 0, controllerId );
-    Map( "Y", CharacterController::DoAction, 0, controllerId );
-    Map( "A", CharacterController::Jump, 0, controllerId );
-    Map( "B", CharacterController::Dash, 0, controllerId );
-    Map( "X", CharacterController::Attack, 0, controllerId );
 #endif
 }
 
@@ -205,7 +208,7 @@ void BipedCharacterMappable::OnButtonDown( int controllerId, int buttonId, const
 }
 void BipedCharacterMappable::GetDirection( rmt::Vector& outDirection ) const
 {
-#ifdef RAD_PC
+#ifdef RAD_WIN32
     if ( GetSuperCamManager()->GetSCC( 0 )->GetActiveSuperCam()->GetType() == SuperCam::PC_CAM ) //Mouse look enabled
     {
         float right = GetValue( CharacterController::MouseLookRight );
@@ -232,7 +235,7 @@ void BipedCharacterMappable::GetDirection( rmt::Vector& outDirection ) const
 
     //The DPad overrides the analog stick.
     outDirection = tempDir2.MagnitudeSqr() != 0.0f ? tempDir2 : tempDir;
-#ifdef RAD_PC
+#ifdef RAD_WIN32
     }
 #endif
 }
@@ -258,7 +261,7 @@ void InCarCharacterMappable::OnButtonDown( int controllerId, int buttonId, const
             GetCharacterController()->SetIntention( CharacterController::DoAction );
             break;
         }
-#ifdef RAD_PC
+#ifdef RAD_WIN32
     case CharacterController::GetOutCar:
         {
             GetCharacterController()->SetIntention( CharacterController::GetOutCar );
