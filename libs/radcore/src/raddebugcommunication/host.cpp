@@ -388,7 +388,7 @@ bool rDbgComHost::AddTargetDefinition
     {   
         if( m_TargetTable[ i ].m_RecordIsValid )
         {
-            if( 0 == stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
+            if( 0 == _stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
             {
                 //
                 // Here we have the same name already defined. Return
@@ -496,7 +496,7 @@ bool rDbgComHost::DeleteTargetDefinition
     {   
         if( m_TargetTable[ i ].m_RecordIsValid )
         {
-            if( 0 == stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
+            if( 0 == _stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
             {
                 //
                 // Here we have the record. Check that all protocols are
@@ -694,7 +694,7 @@ bool rDbgComHost::SetDefaultTarget
     {   
         if( m_TargetTable[ i ].m_RecordIsValid )
         {
-            if( 0 == stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
+            if( 0 == _stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
             {
                 //
                 // Here have a match. Save index and we are done.
@@ -824,7 +824,7 @@ void rDbgComHost::CreateChannel
     {   
         if( m_TargetTable[ i ].m_RecordIsValid )
         {
-            if( 0 == stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
+            if( 0 == _stricmp( pName, m_TargetTable[ i ].m_TargetName ) )
             {
                 //
                 // Here have a match. Save index and we are done.

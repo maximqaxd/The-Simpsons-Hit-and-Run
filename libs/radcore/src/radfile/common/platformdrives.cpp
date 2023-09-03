@@ -65,7 +65,7 @@ void PlatformDrivesGetDefaultDrive( char* driveSpec )
     ::GetCurrentDirectory( radFileFilenameMax, bigDir );
     strncpy( driveSpec, bigDir, 2 );
     driveSpec[ 2 ] = '\0';
-    strupr( driveSpec );
+    _strupr( driveSpec );
 #else
     strcpy(driveSpec, "/");
 #endif // RAD_WIN32

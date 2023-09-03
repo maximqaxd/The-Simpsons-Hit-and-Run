@@ -136,7 +136,7 @@ rDbgComHostChannel::rDbgComHostChannel
         //
         // For now, it the name is GameCubeUSB, then we use the HIO socket implementation.
         //
-        if( 0 == stricmp( m_ParentHost->GetIpAddress( m_TargetIndex ), "GameCubeUsb" ) )
+        if( 0 == _stricmp( m_ParentHost->GetIpAddress( m_TargetIndex ), "GameCubeUsb" ) )
         {
             char* p = new char[ sizeof( CHostHioSocket ) ];
             m_SocketImp = new( p ) CHostHioSocket( );
@@ -149,7 +149,7 @@ rDbgComHostChannel::rDbgComHostChannel
         //
         // For now, it the name is FireWire, then we use the 1394 socket implementation.
         //
-        if( 0 == stricmp( m_ParentHost->GetIpAddress( m_TargetIndex ), "FireWire" ) )
+        if( 0 == _stricmp( m_ParentHost->GetIpAddress( m_TargetIndex ), "FireWire" ) )
         {
             char* p = new char[ sizeof( CHost1394Socket ) ];
             m_SocketImp = new( p ) CHost1394Socket( );
