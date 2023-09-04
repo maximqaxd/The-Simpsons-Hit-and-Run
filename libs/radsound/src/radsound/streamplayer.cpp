@@ -248,11 +248,6 @@ void radSoundStreamPlayer::SetDataSource( IRadSoundHalDataSource * pIRadSoundHal
 {
     // rDebugPrintf( "SetDataSource: Gl:[%d] Ptr: [0x%x]\n", g_GameLoops, pIRadSoundHalDataSource );
 
-    // Stop and reset the voice.
-
-	StopVoice( false );
-    m_xIRadSoundHalVoice->SetPlaybackPositionInSamples( 0 );
-
     //
     // Stop and reset the buffers.
     //
@@ -264,6 +259,11 @@ void radSoundStreamPlayer::SetDataSource( IRadSoundHalDataSource * pIRadSoundHal
             m_xIRadSoundHalBuffers[i]->CancelAsyncOperations();
         }
     }
+
+    // Stop and reset the voice.
+
+    StopVoice( false );
+    m_xIRadSoundHalVoice->SetPlaybackPositionInSamples( 0 );
 
 	m_xIRadSoundHalDataSource = pIRadSoundHalDataSource;
 
