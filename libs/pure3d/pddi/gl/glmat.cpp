@@ -97,16 +97,16 @@ GLenum alphaCompareTable[8] =
     GL_NOTEQUAL
 };
 
-GLenum alphaBlendTable[8][2] =
+GLenum alphaBlendTable[8][3] =
 {
-    { GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
-    { GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA },  //PDDI_BLEND_ALPHA
-    { GL_ONE, GL_ONE },                        //PDDI_BLEND_ADD
-    { GL_ONE, GL_ZERO },                       //PDDI_BLEND_SUBTRACT
-    { GL_DST_COLOR, GL_ZERO },                 //PDDI_BLEND_MODULATE,
-    { GL_DST_COLOR, GL_SRC_COLOR},             //PDDI_BLEND_MODULATE2,
-    { GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
-    { GL_SRC_ALPHA, GL_SRC_ALPHA}              //PDDI_BLEND_SUBMODULATEALPHA - won't work! no sub blending
+    { GL_FUNC_ADD, GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
+    { GL_FUNC_ADD, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA },  //PDDI_BLEND_ALPHA
+    { GL_FUNC_ADD, GL_ONE, GL_ONE },                        //PDDI_BLEND_ADD
+    { GL_FUNC_REVERSE_SUBTRACT, GL_ONE, GL_ONE },           //PDDI_BLEND_SUBTRACT
+    { GL_FUNC_ADD, GL_DST_COLOR, GL_ZERO },                 //PDDI_BLEND_MODULATE,
+    { GL_FUNC_ADD, GL_DST_COLOR, GL_SRC_COLOR},             //PDDI_BLEND_MODULATE2,
+    { GL_FUNC_ADD, GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
+    { GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
 };
 
 static inline void FillGLColour(pddiColour c, float* f)
@@ -296,7 +296,8 @@ void pglMat::SetDevPass(unsigned pass)
     else
     {
         glEnable(GL_BLEND);
-        glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][0],alphaBlendTable[texEnv[i].alphaBlendMode][1]);
+        glBlendEquation(alphaBlendTable[texEnv[i].alphaBlendMode][0]);
+        glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][1],alphaBlendTable[texEnv[i].alphaBlendMode][2]);
     }
  
     if(texEnv[i].lit)
