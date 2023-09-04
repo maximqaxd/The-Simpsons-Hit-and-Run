@@ -213,20 +213,6 @@ void radSoundHalVoiceWin::Stop( void )
 
         rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::Stop failed");
     }
-
-    m_SourceSamplesPlayed = 0;
-
-    if( m_xRadSoundHalBufferWin && m_xRadSoundHalBufferWin->IsStreaming() )
-    {
-        int buffersProcessed;
-        alGetSourcei( m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed );
-        for( int i = 0; i < buffersProcessed; i++ )
-        {
-            ALuint buffer;
-            alSourceUnqueueBuffers( m_Source, 1, &buffer );
-            alDeleteBuffers( 1, &buffer );
-        }
-    }
 }
 
 bool radSoundHalVoiceWin::IsPlaying( void )
@@ -245,7 +231,21 @@ unsigned int radSoundHalVoiceWin::GetPlaybackPositionInSamples( void )
 
 void radSoundHalVoiceWin::SetPlaybackPositionInSamples( unsigned int positionInSamples )
 {
-    alSourcei( m_Source, AL_SAMPLE_OFFSET, positionInSamples - m_SourceSamplesPlayed );
+    m_SourceSamplesPlayed = 0;
+
+    if( m_xRadSoundHalBufferWin && m_xRadSoundHalBufferWin->IsStreaming() )
+    {
+        int buffersProcessed;
+        alGetSourcei( m_Source, AL_BUFFERS_PROCESSED, &buffersProcessed );
+        for( int i = 0; i < buffersProcessed; i++ )
+        {
+            ALuint buffer;
+            alSourceUnqueueBuffers( m_Source, 1, &buffer );
+            alDeleteBuffers( 1, &buffer );
+        }
+    }
+
+    alSourcei( m_Source, AL_SAMPLE_OFFSET, positionInSamples );
     rWarningMsg(alGetError() == AL_NO_ERROR, "radSoundHalVoiceWin::SetPlaybackPositionInSamples failed");
 }
 
