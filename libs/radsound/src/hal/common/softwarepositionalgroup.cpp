@@ -24,8 +24,8 @@
 // Static member definitions
 //========================================================================
 
-radSoundHalPositionalGroup * radLinkedClass< radSoundHalPositionalGroup >::s_pLinkedClassHead = NULL;
-radSoundHalPositionalGroup * radLinkedClass< radSoundHalPositionalGroup >::s_pLinkedClassTail = NULL;
+template<> radSoundHalPositionalGroup * radLinkedClass< radSoundHalPositionalGroup >::s_pLinkedClassHead = NULL;
+template<> radSoundHalPositionalGroup * radLinkedClass< radSoundHalPositionalGroup >::s_pLinkedClassTail = NULL;
 //========================================================================
 // ::radSoundhalPositionalGroupCreate
 //========================================================================
