@@ -1178,7 +1178,7 @@ int VsnPrintf( char *buffer, size_t count, const char *format, va_list argptr )
     
 bool stream_printf( stream_info * p_si, const char * fmt, ... )
 {
-    va_list va_alist = {0}; 
+    va_list va_alist; 
     char    printfstr[ RAD_DEBUG_PRINT_MAX_LENGTH ];
 
     va_start( va_alist, fmt ); 
