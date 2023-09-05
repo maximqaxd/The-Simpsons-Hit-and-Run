@@ -55,7 +55,7 @@ void Reward::SetQuestType(Reward::eQuestType type)
 void Reward::SetFilename(char* file)
     {
         strncpy(mFile,file,64);
-        mName[63] = '\0';
+        mFile[63] = '\0';
     }
 
 
