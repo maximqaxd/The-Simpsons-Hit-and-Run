@@ -13,6 +13,10 @@
 #include <efx.h>
 #include "radinprogext.h"
 
+LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
+LPALMAPBUFFERSOFT alMapBufferSOFT;
+LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
+
 //================================================================================
 // Static Members
 //================================================================================
