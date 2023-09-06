@@ -12,8 +12,13 @@
 #include "buffer.hpp"
 #include "bufferloader.hpp"
 #include "system.hpp"
+#include <inprogext.h>
 
 const unsigned int RADSOUNDHAL_BUFFER_CHANNEL_ALIGNMENT = 1;
+
+extern LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
+extern LPALMAPBUFFERSOFT alMapBufferSOFT;
+extern LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
 
 //============================================================================
 // Static Initialization
@@ -78,8 +83,24 @@ void radSoundHalBufferWin::Initialize
     m_Streaming = streaming;
     m_SizeInFrames = sizeInFrames;
 
-    alGenBuffers(1, &m_Buffer);
-    rAssert(alGetError() == AL_NO_ERROR);
+    alGenBuffers( 1, &m_Buffer );
+    rAssert( alGetError() == AL_NO_ERROR );
+    if( streaming )
+    {
+        ALenum format = AL_FORMAT_MONO8;
+        if( m_refIRadSoundHalAudioFormat->GetNumberOfChannels() > 1 )
+            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
+        else
+            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
+
+        alBufferStorageSOFT( m_Buffer, format,
+            pIRadMemoryObject->GetMemoryAddress(),
+            pIRadMemoryObject->GetMemorySize(),
+            m_refIRadSoundHalAudioFormat->GetSampleRate(),
+            AL_MAP_READ_BIT_SOFT | AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT
+        );
+        rAssert( alGetError() == AL_NO_ERROR );
+    }
 }
 
 //========================================================================
@@ -112,21 +133,40 @@ void radSoundHalBufferWin::ClearAsync
 
         unsigned char fillChar = ( m_refIRadSoundHalAudioFormat->GetBitResolution( ) == 8 ) ? 128 : 0;
 
-        ::memset(static_cast<char*>(m_refIRadMemoryObject->GetMemoryAddress()) + offsetInBytes, fillChar, sizeInBytes);
+        if( m_Streaming == true )
+        {
+            void* dataPtr = alMapBufferSOFT( m_Buffer, offsetInBytes, sizeInBytes, AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
 
-        ALenum format = AL_FORMAT_MONO8;
-        if (m_refIRadSoundHalAudioFormat->GetNumberOfChannels() > 1)
-            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
+            rAssertMsg( alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear - Lock Failed.\n" );
+
+            if( dataPtr )
+            {
+                ::memset( dataPtr, fillChar, sizeInBytes );
+
+                alUnmapBufferSOFT( m_Buffer );
+
+                rAssertMsg( alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear - UnLock Failed.\n" );
+            }
+        }
         else
-            format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
+        {
 
-        alBufferData(m_Buffer, format,
-            m_refIRadMemoryObject->GetMemoryAddress(),
-            m_refIRadMemoryObject->GetMemorySize(),
-            m_refIRadSoundHalAudioFormat->GetSampleRate()
-        );
+            ::memset( static_cast<char*>(m_refIRadMemoryObject->GetMemoryAddress()) + offsetInBytes, fillChar, sizeInBytes );
 
-        rAssertMsg(alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear Failed.\n");
+            ALenum format = AL_FORMAT_MONO8;
+            if( m_refIRadSoundHalAudioFormat->GetNumberOfChannels() > 1 )
+                format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
+            else
+                format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
+
+            alBufferData( m_Buffer, format,
+                m_refIRadMemoryObject->GetMemoryAddress(),
+                m_refIRadMemoryObject->GetMemorySize(),
+                m_refIRadSoundHalAudioFormat->GetSampleRate()
+            );
+
+            rAssertMsg( alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear Failed.\n" );
+        }
     }
 
 	if ( pIRadSoundHalBufferClearCallback != NULL )
@@ -201,8 +241,21 @@ void radSoundHalBufferWin::LoadAsync
     m_LoadStartInBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( bufferStartInFrames );
     m_refIRadSoundHalBufferLoadCallback = pIRadSoundHalBufferLoadCallback;
 
-    m_pLockedLoadBuffer = static_cast< char* >(m_refIRadMemoryObject->GetMemoryAddress()) + m_LoadStartInBytes;
-    m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
+    if( m_Streaming == true )
+    {
+        rAssert( m_pLockedLoadBuffer == NULL );
+
+        m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
+        m_pLockedLoadBuffer = alMapBufferSOFT( m_Buffer, m_LoadStartInBytes, m_LockedLoadBytes,
+            AL_MAP_READ_BIT_SOFT | AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
+        ALenum error = alGetError();
+        rAssert( error == AL_NO_ERROR );
+    }
+    else
+    {
+        m_pLockedLoadBuffer = static_cast<char*>(m_refIRadMemoryObject->GetMemoryAddress()) + m_LoadStartInBytes;
+        m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
+    }
 
     new( "radSoundBufferLoaderWin", RADMEMORY_ALLOC_TEMP ) radSoundBufferLoaderWin(
         static_cast< IRadSoundHalBuffer * >( this ),
@@ -246,12 +299,25 @@ void radSoundHalBufferWin::OnBufferLoadComplete( unsigned int dataSourceFrames )
 
     ::memset(static_cast<char*>(m_pLockedLoadBuffer) + offsetInBytes, fillChar, sizeInBytes);
 
-    alBufferData(m_Buffer, format,
-        m_pLockedLoadBuffer,
-        m_LockedLoadBytes,
-        m_refIRadSoundHalAudioFormat->GetSampleRate()
-    );
-    rAssert(alGetError() == AL_NO_ERROR);
+    if( m_Streaming == false )
+    {
+        alBufferData( m_Buffer, format,
+            m_pLockedLoadBuffer,
+            m_LockedLoadBytes,
+            m_refIRadSoundHalAudioFormat->GetSampleRate()
+        );
+        rAssert( alGetError() == AL_NO_ERROR );
+    }
+    else
+    {
+        // For streaming sounds we'll have to unlock the direct sound buffer before calling back
+
+        alUnmapBufferSOFT( m_Buffer );
+        rAssert( alGetError() == AL_NO_ERROR );
+
+        m_pLockedLoadBuffer = NULL;
+        m_LockedLoadBytes = 0;
+    }
 
     m_pLockedLoadBuffer = NULL;
     m_LockedLoadBytes = 0;

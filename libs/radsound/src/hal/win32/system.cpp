@@ -11,6 +11,11 @@
 #include "../common/memoryregion.hpp"
 #include <radplatform.hpp>
 #include <efx.h>
+#include <inprogext.h>
+
+LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
+LPALMAPBUFFERSOFT alMapBufferSOFT;
+LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
 
 //================================================================================
 // Static Members
@@ -104,9 +109,15 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
         {
             alcMakeContextCurrent(m_pContext);
 
+            rAssert( alIsExtensionPresent( "AL_SOFTX_map_buffer" ) );
+
+            alBufferStorageSOFT = (LPALBUFFERSTORAGESOFT)alGetProcAddress( "alBufferStorageSOFT" );
+            alMapBufferSOFT = (LPALMAPBUFFERSOFT)alGetProcAddress( "alMapBufferSOFT" );
+            alUnmapBufferSOFT = (LPALUNMAPBUFFERSOFT)alGetProcAddress( "alUnmapBufferSOFT" );
+
             if (m_NumAuxSends > 0 && alcIsExtensionPresent(m_pDevice, "ALC_EXT_EFX"))
             {
-                alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");;
+                alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
                 alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
                 alAuxiliaryEffectSlotf = (LPALAUXILIARYEFFECTSLOTF)alGetProcAddress("alAuxiliaryEffectSlotf");
                 alGetAuxiliaryEffectSlotf = (LPALGETAUXILIARYEFFECTSLOTF)alGetProcAddress("alGetAuxiliaryEffectSlotf");
