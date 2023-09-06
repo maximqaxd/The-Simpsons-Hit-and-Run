@@ -94,4 +94,4 @@ class radSoundClip
         ref< IRadString >               m_xIRadString_Name;
 };
 
-#endif CLIP_HPP
+#endif // CLIP_HPP

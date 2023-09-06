@@ -43,8 +43,8 @@
 // Class Static Init
 //========================================================================
 
-radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassHead = NULL;
-radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassTail = NULL;
+template<> radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassHead = NULL;
+template<> radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassTail = NULL;
 
 //======================================================================
 // Component: radSoundClip
