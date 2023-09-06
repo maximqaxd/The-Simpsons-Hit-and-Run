@@ -8,12 +8,12 @@ if(CCACHE_FOUND)
 endif()
 
 find_package(SDL2 REQUIRED)
-#find_package(SDL2_net REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
 add_compile_options(
 	-ggdb
+	-Wno-narrowing
 )
 add_compile_definitions(
 	RAD_DEBUG
@@ -705,7 +705,7 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/memheap.cpp"
 	"libs/pure3d/p3d/memory.cpp"
 	"libs/pure3d/p3d/memorysection.cpp"
-	"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
+	#"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
 	"libs/pure3d/p3d/platform/win32/platform.cpp"
 	"libs/pure3d/p3d/png.cpp"
 	"libs/pure3d/p3d/pointcamera.cpp"
@@ -973,8 +973,12 @@ set(BINK_SOURCES
 	"libs/sdks/linux/bink/posix_rrCpu.c"
 	"libs/sdks/linux/bink/posix_rrThreads2.c"
 	"libs/sdks/linux/bink/radfft.cpp"
-	"libs/sdks/linux/bink/x86_cpu.c"
 )
+
+# HACK: I assume you cross-compile for x86 on an x86_64 machine
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+	list(APPEND BINK_SOURCES "libs/sdks/linux/bink/x86_cpu.c")
+endif()
 
 set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/basecontext.cpp"
@@ -986,8 +990,14 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/gl/gldev.cpp"
 	"libs/pure3d/pddi/gl/glmat.cpp"
 	"libs/pure3d/pddi/gl/gltex.cpp"
-	"libs/pure3d/pddi/gl/glad/src/glad.c"
 )
+if(CMAKE_SYSTEM_NAME STREQUAL Nintendo3DS)
+	# TODO: the 3DS GPU is technically capable of OpenGL ES 1.1 (+ some 2.0),
+	# but I'm not sure how complete https://github.com/cpp3ds/gl3ds is
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/glad/src/glad.c")
+else()
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/glad/src/glad.c")
+endif()
 
 add_library(radcore OBJECT ${RADCORE_SOURCES})
 target_include_directories(radcore
@@ -1136,8 +1146,7 @@ target_include_directories(bink
 
 add_executable(srr2 ${SRR2_SOURCES})
 target_link_libraries(srr2
-	SDL2::SDL2
-	#SDL2_net::SDL2_net # TODO: port debug socket stuff to SDL2_net
+	SDL2::SDL2main
 	bink
 	choreo
 	p3d
