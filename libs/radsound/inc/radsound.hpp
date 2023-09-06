@@ -197,6 +197,9 @@ struct IRadSoundStreamPlayer : public IRadSoundPlayer
         IRadSoundHalMemoryRegion * pIRadSoundHalMemoryRegion,
         const char * pIdentifier ) = 0;
 
+    virtual void SetLowWaterMark( float lowWaterMark ) = 0;
+    virtual float GetLowWaterMark( void ) = 0;
+
     virtual IRadSoundHalAudioFormat * GetFormat( void ) = 0;
    
     // The data source to stream from, you can changes this at any

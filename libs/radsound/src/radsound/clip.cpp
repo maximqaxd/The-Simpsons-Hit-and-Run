@@ -43,8 +43,8 @@
 // Class Static Init
 //========================================================================
 
-template<> radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassHead = NULL;
-template<> radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassTail = NULL;
+radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassHead = NULL;
+radSoundClip * radLinkedClass< radSoundClip >::s_pLinkedClassTail = NULL;
 
 //======================================================================
 // Component: radSoundClip
@@ -328,9 +328,7 @@ void radSoundClip::SetState( IRadSoundClip::State state )
 // radSoundClip::OnBufferLoadComplete
 //======================================================================
 
-/* virtual */ void radSoundClip::OnBufferLoadComplete(
-	IRadSoundHalBuffer* pBuffer,
-	unsigned framesLoaded )
+/* virtual */ void radSoundClip::OnBufferLoadComplete( unsigned framesLoaded )
 {
 	rAssert( framesLoaded == m_xIRadSoundHalBuffer->GetSizeInFrames( ) );
 
@@ -341,7 +339,7 @@ void radSoundClip::SetState( IRadSoundClip::State state )
 // radSoundClip::OnBufferLoadComplete
 //======================================================================
 
-/* virtual */ void radSoundClip::OnBufferClearComplete( IRadSoundHalBuffer* pBuffer )
+/* virtual */ void radSoundClip::OnBufferClearComplete( void )
 {
 	SetState( IRadSoundClip::Initialized );
 }

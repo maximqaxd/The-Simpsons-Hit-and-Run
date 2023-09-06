@@ -8,12 +8,11 @@
 #include <radobjectlist.hpp>
 #include <radsoundupdatableobject.hpp>
 
-#define RSD_STREAM_NUM_BUFFERS 3
-
 struct radSoundStreamPlayer 
 	:
 	public IRadSoundStreamPlayer,
 	public IRadSoundHalBufferLoadCallback,
+    public IRadSoundHalBufferClearCallback,
 	public radSoundUpdatableObject
 {
 	IMPLEMENT_REFCOUNTED( "radSoundStreamPlayer" )
@@ -66,6 +65,9 @@ struct radSoundStreamPlayer
 		IRadSoundHalMemoryRegion * pIRadSoundHalMemoryRegion,
         const char * pIdentifier );
 
+    void SetLowWaterMark( float lowWaterMark );
+    float GetLowWaterMark( void );
+
     IRadSoundHalAudioFormat * GetFormat( void );
 
 	virtual void SetDataSource( IRadSoundHalDataSource * pIRadSoundHalDataSource );
@@ -79,9 +81,8 @@ struct radSoundStreamPlayer
 
 	// IRadSoundHalBufferLoadCallback
 
-	virtual void OnBufferLoadComplete(
-		IRadSoundHalBuffer * pIRadSoundHalBuffer,
-		unsigned int dataSourceFrames );
+	virtual void OnBufferLoadComplete( unsigned int dataSourceFrames );
+    virtual void OnBufferClearComplete( void );
 
 	private:
 
@@ -98,22 +99,25 @@ struct radSoundStreamPlayer
                Queueing_WaitingForDataSourceToInitialize,
                Queueing_LoadingFirstBlock } m_QueueingSubState;
 
-		unsigned int m_LastPlaybackPositionInSamples;
+        unsigned int m_LastPlaybackPositionInSamples;
+		unsigned int m_WritePositionInFrames;
+		bool		 m_Full;
 		unsigned int m_OutstandingLoadSize;
+        unsigned int m_OutstandingClearSize;
 		unsigned int m_SourceFramesRead;
+        unsigned int m_SourceSamplesPlayed;
 		unsigned int m_EndFrameCounter;
-		unsigned int m_CurrentLoadBuffer;
         bool m_LoadSkipLastFrame;
         bool m_PollSkipLastFrame;
+
+        float m_float_LowWaterMark;
         	
 		unsigned int m_InitializeInfo_Size;
 		IRadSoundHalAudioFormat::SizeType m_InitializeInfo_SizeType;
 
 		ref< IRadSoundHalMemoryRegion > m_xInitializeInfo_MemRegion;
 
-		ref< IRadSoundHalDataSource >  m_xIRadSoundHalDataSource;
-		ref< IRadSoundHalAudioFormat > m_xIRadSoundHalAudioFormat;
-		ref< IRadSoundHalBuffer >      m_xIRadSoundHalBuffers[RSD_STREAM_NUM_BUFFERS];
-		ref< IRadSoundHalVoice >       m_xIRadSoundHalVoice;
-        ref< IRadString >              m_xIRadString_Name;
+		ref< IRadSoundHalDataSource > m_xIRadSoundHalDataSource;
+		ref< IRadSoundHalVoice >      m_xIRadSoundHalVoice;
+        ref< IRadString >             m_xIRadString_Name;
 };

@@ -27,7 +27,7 @@ class radSoundBufferLoaderWin
         IMPLEMENT_REFCOUNTED( "radSoundBufferLoaderWin" )
 
         radSoundBufferLoaderWin(
-            IRadSoundHalBuffer * pIRadSoundHalBuffer_Owner,
+            IRefCount * pIRefCount_Owner,
             void * pBuffer,
 		    IRadSoundHalDataSource * pIRadSoundHalDataSource,
             IRadSoundHalAudioFormat * pIRadSoundHalAudioFormat,
@@ -36,7 +36,7 @@ class radSoundBufferLoaderWin
 
         virtual void OnDataSourceFramesLoaded( unsigned int framesActuallyRead );
 
-    static void CancelOperations( IRadSoundHalBuffer * pIRadSoundHalBuffer_Owner );
+    static void CancelOperations( IRefCount * pIRefCount_Owner );
 
     void Cancel( void );
 
@@ -47,7 +47,7 @@ class radSoundBufferLoaderWin
 
         ref< IRadSoundHalBufferLoadCallback >	m_xIRadSoundHalBufferLoadCallback;
         ref< IRadSoundHalDataSource >			m_xIRadSoundHalDataSource;
-        ref< IRadSoundHalBuffer >               m_xIRadSoundHalBuffer_Owner;
+        ref< IRefCount >                        m_xIRefCount_Owner;
 
         unsigned int m_NumberOfFrames;
         void * m_pBuffer;
