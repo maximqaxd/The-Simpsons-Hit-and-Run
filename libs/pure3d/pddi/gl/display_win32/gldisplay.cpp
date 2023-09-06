@@ -65,8 +65,7 @@ long pglDisplay ::ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* e
     switch (event->event)
     {
         case SDL_WINDOWEVENT_SIZE_CHANGED:
-            winWidth = event->data1;
-            winHeight = event->data2;
+            SDL_GetWindowSizeInPixels( win, &winWidth, &winHeight );
             break;
 
         case SDL_WINDOWEVENT_CLOSE:
@@ -157,6 +156,8 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         SDL_SetWindowDisplayMode(win, pDisplayMode);
 
     SDL_SetWindowFullscreen(win, mode == PDDI_DISPLAY_FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
+    SDL_GetWindowSizeInPixels( win, &winWidth, &winHeight );
+    winBitDepth = bpp;
 
     if (hRC)
         return true;
