@@ -11,11 +11,7 @@
 #include "../common/memoryregion.hpp"
 #include <radplatform.hpp>
 #include <efx.h>
-#include <inprogext.h>
-
-LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
-LPALMAPBUFFERSOFT alMapBufferSOFT;
-LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
+#include "radinprogext.h"
 
 //================================================================================
 // Static Members
