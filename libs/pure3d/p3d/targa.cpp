@@ -148,7 +148,7 @@ static void LoadTargaTRUECOLOUR(TargaHeader& header, tFile* file, tImageHandler:
         for(int i=0; i < header.height; i++)
         {
             file->GetData(scanline, header.width, tFile::DWORD);
-            builder->ProcessScanline32(scanline);
+            builder->ProcessScanline32((unsigned int*)scanline);
         }
     }
     else
@@ -174,7 +174,7 @@ static void LoadTargaTRUECOLOUR(TargaHeader& header, tFile* file, tImageHandler:
 
                 scan += 4;
             } while(--count);
-            builder->ProcessScanline32(scanline);
+            builder->ProcessScanline32((unsigned int*)scanline);
         }
     }
 

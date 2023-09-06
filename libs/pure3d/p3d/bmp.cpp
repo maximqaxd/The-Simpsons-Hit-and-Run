@@ -256,7 +256,7 @@ void LoadBMP24(tFile* file, BMPHeader& header, tImageHandler::Builder* builder)
             c += 4;
         }
         file->Advance(pad);
-        builder->ProcessScanline32(scanline);
+        builder->ProcessScanline32((unsigned int*)scanline);
     }
 
     p3d::FreeTemp(scanline);

@@ -91,7 +91,7 @@ bool ImageBuilder::BeginImage(int width, int height, int bpp, tImageHandler::Bui
 #endif
     {
         image = new tImage8;
-        ((tImage8*)image)->SetPalette((P3D_U32*)p, 1 << bpp);
+        ((tImage8*)image)->SetPalette((unsigned int*)p, 1 << bpp);
         ((tImage8*)image)->SetUsedColours(1 << bpp);
     }
 
