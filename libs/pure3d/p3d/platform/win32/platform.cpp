@@ -173,14 +173,10 @@ void tPlatform::SetActiveContext(tContext* context)
     p3d::display = context->GetDisplay();
 }
 
+#ifdef WIN32
 tFile* tPlatform::OpenFile(const char* filename)
 {
-#ifdef WIN32
     tWin32FileMap* file = new tWin32FileMap(filename);
-#else
-    tLinuxFileMap* file = new tLinuxFileMap(filename);
-#endif
-
     if(!file->IsOpen())
     {
         file->Release();
@@ -188,6 +184,7 @@ tFile* tPlatform::OpenFile(const char* filename)
     }
     return file;
 }
+#endif
 
 #if 0
 P3D_U64 tPlatform::GetTimeFreq(void)
