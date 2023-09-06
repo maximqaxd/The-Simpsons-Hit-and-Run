@@ -98,7 +98,7 @@ bool g_Quit = false;
     #if defined RAD_PS2
 	    ::radPlatformInitialize( "irx/", IOPMediaHost, GameMediaCD, NULL, RADMEMORY_ALLOC_DEFAULT );
     #elif defined RAD_WIN32
-        ::radPlatformInitialize( NULL, hInstance );
+        ::radPlatformInitialize( NULL );
     #elif defined RAD_XBOX || defined RAD_GAMECUBE
         ::radPlatformInitialize( );
     #endif
