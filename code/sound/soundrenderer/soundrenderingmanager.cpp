@@ -963,19 +963,19 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     // Character sound scripts
     SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_APU ) );
     loader->SetCurrentCluster( SC_CHAR_APU );
-    #include "scripts/Apu.inl"
+    #include "scripts/apu.inl"
     SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_BART ) );
     loader->SetCurrentCluster( SC_CHAR_BART );
-    #include "scripts/Bart.inl"
+    #include "scripts/bart.inl"
     SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_HOMER ) );
     loader->SetCurrentCluster( SC_CHAR_HOMER );
-    #include "scripts/Homer.inl"
+    #include "scripts/homer.inl"
     SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_LISA ) );
     loader->SetCurrentCluster( SC_CHAR_LISA );
-    #include "scripts/Lisa.inl"
+    #include "scripts/lisa.inl"
     SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_MARGE ) );
     loader->SetCurrentCluster( SC_CHAR_MARGE );
-    #include "scripts/Marge.inl"
+    #include "scripts/marge.inl"
 
     // Level scripts
     SetCurrentNameSpace( GetSoundNamespace() );
@@ -1007,9 +1007,9 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     #include "scripts/frontend.inl"
     #include "scripts/collide.inl"
     #include "scripts/carsound.inl"
-    #include "scripts/World.inl"
+    #include "scripts/world.inl"
     loader->SetCurrentCluster( SC_INGAME );
-    #include "scripts/positionalSounds.inl"
+    #include "scripts/positionalsounds.inl"
     switch( m_currentLanguage )
     {
     case DIALOGUE_LANGUAGE_ENGLISH:
@@ -1084,41 +1084,41 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     loader->SetCurrentCluster( SC_ZOMBI_V );
     #include "scripts/zombi_v.inl"
     loader->SetCurrentCluster( SC_CVAN );
-    #include "scripts/cVan.inl"
+    #include "scripts/cvan.inl"
     loader->SetCurrentCluster( SC_COMPACTA );
-    #include "scripts/compactA.inl"
+    #include "scripts/compacta.inl"
     loader->SetCurrentCluster( SC_COMIC_V );
     #include "scripts/comic_v.inl"
     loader->SetCurrentCluster( SC_SKINN_V );
     #include "scripts/skinn_v.inl"
     loader->SetCurrentCluster( SC_CCOLA );
-    #include "scripts/cCola.inl"
+    #include "scripts/ccola.inl"
     loader->SetCurrentCluster( SC_CSEDAN );
-    #include "scripts/cSedan.inl"
+    #include "scripts/csedan.inl"
     loader->SetCurrentCluster( SC_CPOLICE );
-    #include "scripts/cPolice.inl"
+    #include "scripts/cpolice.inl"
     loader->SetCurrentCluster( SC_CCELLA );
-    #include "scripts/cCellA.inl"
+    #include "scripts/ccella.inl"
     loader->SetCurrentCluster( SC_CCELLB );
-    #include "scripts/cCellB.inl"
+    #include "scripts/ccellb.inl"
     loader->SetCurrentCluster( SC_CCELLC );
-    #include "scripts/cCellC.inl"
+    #include "scripts/ccellc.inl"
     loader->SetCurrentCluster( SC_CCELLD );
-    #include "scripts/cCellD.inl"
+    #include "scripts/ccelld.inl"
     loader->SetCurrentCluster( SC_MINIVANA );
-    #include "scripts/minivanA_v.inl"
+    #include "scripts/minivana_v.inl"
     loader->SetCurrentCluster( SC_PICKUPA );
-    #include "scripts/pickupA.inl"
+    #include "scripts/pickupa.inl"
     loader->SetCurrentCluster( SC_TAXIA );
-    #include "scripts/taxiA_v.inl"
+    #include "scripts/taxia_v.inl"
     loader->SetCurrentCluster( SC_SPORTSA );
-    #include "scripts/sportsA.inl"
+    #include "scripts/sportsa.inl"
     loader->SetCurrentCluster( SC_SPORTSB );
-    #include "scripts/sportsB.inl"
+    #include "scripts/sportsb.inl"
     loader->SetCurrentCluster( SC_SUVA );
-    #include "scripts/SUVA.inl"
+    #include "scripts/suva.inl"
     loader->SetCurrentCluster( SC_WAGONA );
-    #include "scripts/wagonA.inl"
+    #include "scripts/wagona.inl"
     loader->SetCurrentCluster( SC_HBIKE_V );
     #include "scripts/hbike_v.inl"
     loader->SetCurrentCluster( SC_BURNS_V );
@@ -1126,23 +1126,23 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     loader->SetCurrentCluster( SC_HONOR_V );
     #include "scripts/honor_v.inl"
     loader->SetCurrentCluster( SC_CARMOR );
-    #include "scripts/cArmor.inl"
+    #include "scripts/carmor.inl"
     loader->SetCurrentCluster( SC_CCURATOR );
-    #include "scripts/cCurator.inl"
+    #include "scripts/ccurator.inl"
     loader->SetCurrentCluster( SC_CHEARS );
-    #include "scripts/cHears.inl"
+    #include "scripts/chears.inl"
     loader->SetCurrentCluster( SC_CKLIMO );
-    #include "scripts/cKlimo.inl"
+    #include "scripts/cklimo.inl"
     loader->SetCurrentCluster( SC_CLIMO );
-    #include "scripts/cLimo.inl"
+    #include "scripts/climo.inl"
     loader->SetCurrentCluster( SC_CNERD );
-    #include "scripts/cNerd.inl"
+    #include "scripts/cnerd.inl"
     loader->SetCurrentCluster( SC_FRINK_V );
     #include "scripts/frink_v.inl"
     loader->SetCurrentCluster( SC_CMILK );
-    #include "scripts/cMilk.inl"
+    #include "scripts/cmilk.inl"
     loader->SetCurrentCluster( SC_CDONUT );
-    #include "scripts/cDonut.inl"
+    #include "scripts/cdonut.inl"
     loader->SetCurrentCluster( SC_BBMAN_V );
     #include "scripts/bbman_v.inl"
     loader->SetCurrentCluster( SC_BOOKB_V );
@@ -1154,7 +1154,7 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     loader->SetCurrentCluster( SC_FONE_V );
     #include "scripts/fone_v.inl"
     loader->SetCurrentCluster( SC_GRAMR_V );
-    #include "scripts/gramR_v.inl"
+    #include "scripts/gramr_v.inl"
     loader->SetCurrentCluster( SC_MOE_V );
     #include "scripts/moe_v.inl"
     loader->SetCurrentCluster( SC_MRPLO_V );
@@ -1168,17 +1168,17 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     loader->SetCurrentCluster( SC_WILLI_V );
     #include "scripts/willi_v.inl"
     loader->SetCurrentCluster( SC_SEDANA );
-    #include "scripts/sedanA.inl"
+    #include "scripts/sedana.inl"
     loader->SetCurrentCluster( SC_SEDANB );
-    #include "scripts/sedanB.inl"
+    #include "scripts/sedanb.inl"
     loader->SetCurrentCluster( SC_CBLBART );
-    #include "scripts/cBlbart.inl"
+    #include "scripts/cblbart.inl"
     loader->SetCurrentCluster( SC_CCUBE );
-    #include "scripts/cCube.inl"
+    #include "scripts/ccube.inl"
     loader->SetCurrentCluster( SC_CDUFF );
-    #include "scripts/cDuff.inl"
+    #include "scripts/cduff.inl"
     loader->SetCurrentCluster( SC_CNONUP );
-    #include "scripts/cNonup.inl"
+    #include "scripts/cnonup.inl"
     loader->SetCurrentCluster( SC_LISA_V );
     #include "scripts/lisa_v.inl"
     loader->SetCurrentCluster( SC_KRUST_V );
@@ -1232,7 +1232,7 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     loader->SetCurrentCluster( SC_CFIRE_V );
     #include "scripts/cfire_v.inl"
     loader->SetCurrentCluster( SC_CBONE );
-    #include "scripts/cBone.inl"
+    #include "scripts/cbone.inl"
     loader->SetCurrentCluster( SC_REDBRICK );
     #include "scripts/redbrick.inl"
 
@@ -1240,7 +1240,7 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     SetCurrentNameSpace( GetTuningNamespace() );
     loader->SetCurrentCluster( SC_NEVER_LOADED );
     #include "scripts/car_tune.inl"
-    #include "scripts/positionalSettings.inl"
+    #include "scripts/positionalsettings.inl"
     #include "scripts/global.inl"
 #endif
 
