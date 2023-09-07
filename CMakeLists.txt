@@ -11,7 +11,7 @@ find_package(SDL2 REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(
 	  -ggdb
 	  -Wno-narrowing
@@ -23,6 +23,10 @@ add_compile_definitions(
 	RAD_CONSOLE
 	RAD_WIN32
 )
+
+if(WIN32)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
 
 set(SRR2_SOURCES
 	"code/ai/actionbuttonhandler.cpp"
