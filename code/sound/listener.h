@@ -17,7 +17,6 @@
 // Nested Includes
 //========================================
 #include <contexts/contextenum.h>
-#include <sound/soundrenderer/soundrenderingmanager.h>
 
 //========================================
 // Forward References
@@ -25,6 +24,7 @@
 
 struct IRadSoundHalListener;
 class tVectorCamera;
+namespace Sound { class daSoundRenderingManager; }
 
 //=============================================================================
 //

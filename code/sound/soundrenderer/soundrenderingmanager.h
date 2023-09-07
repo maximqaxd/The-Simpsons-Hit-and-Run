@@ -25,6 +25,7 @@
 #include <radsound.hpp>
 #include <radscript.hpp>
 
+#include <sound/soundmanager.h>
 #include <sound/soundrenderer/idasoundtuner.h>
 #include <sound/soundrenderer/soundresourcemanager.h>
 #include <sound/soundrenderer/playermanager.h>
