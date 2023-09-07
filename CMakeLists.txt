@@ -957,47 +957,47 @@ set(SIM_SOURCES
 )
 
 set(BINK_SOURCES
-	"libs/sdks/win32/bink/binkacd.cpp"
-	"libs/sdks/win32/bink/binkasyncRR.c"
-	"libs/sdks/win32/bink/binkasyncthread.c"
-	"libs/sdks/win32/bink/binkcomm.c"
-	"libs/sdks/win32/bink/binkfile.c"
-	"libs/sdks/win32/bink/binkmarkers.c"
-	"libs/sdks/win32/bink/binkread.c"
-	"libs/sdks/win32/bink/binkutil.c"
-	"libs/sdks/win32/bink/blitter.c" # custom
-	"libs/sdks/win32/bink/expand2.c"
-	"libs/sdks/win32/bink/popmal.c"
-	"libs/sdks/win32/bink/radfft.cpp"
-	"libs/sdks/win32/bink/x86_cpu.c"
+	"libs/sdks/bink/binkacd.cpp"
+	"libs/sdks/bink/binkasyncRR.c"
+	"libs/sdks/bink/binkasyncthread.c"
+	"libs/sdks/bink/binkcomm.c"
+	"libs/sdks/bink/binkfile.c"
+	"libs/sdks/bink/binkmarkers.c"
+	"libs/sdks/bink/binkread.c"
+	"libs/sdks/bink/binkutil.c"
+	"libs/sdks/bink/blitter.c" # custom
+	"libs/sdks/bink/expand2.c"
+	"libs/sdks/bink/popmal.c"
+	"libs/sdks/bink/radfft.cpp"
+	"libs/sdks/bink/x86_cpu.c"
 )
 
 if (WIN32)
 	list(APPEND BINK_SOURCES
-		"libs/sdks/win32/bink/binkplugin.c"
-		"libs/sdks/win32/bink/binkpluginw32.c"
-		"libs/sdks/win32/bink/binkxa2.cpp"
-	  "libs/sdks/win32/bink/win32_radmem.c"
-	  "libs/sdks/win32/bink/win32_rrAtomics.cpp"
-	  "libs/sdks/win32/bink/win32_rrCpu.c"
-	  "libs/sdks/win32/bink/win32_rrThreads2.c"
-	  "libs/sdks/win32/bink/wintimer.c"
+		"libs/sdks/bink/binkplugin.c"
+		"libs/sdks/bink/binkpluginw32.c"
+		"libs/sdks/bink/binkxa2.cpp"
+		"libs/sdks/bink/win32_radmem.c"
+		"libs/sdks/bink/win32_rrAtomics.cpp"
+		"libs/sdks/bink/win32_rrCpu.c"
+		"libs/sdks/bink/win32_rrThreads2.c"
+		"libs/sdks/bink/wintimer.c"
 	)
 	#if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
-	#	list(APPEND BINK_SOURCES "libs/sdks/win32/bink/win64_rrAtomics_x64.asm")
+	#	list(APPEND BINK_SOURCES "libs/sdks/bink/win64_rrAtomics_x64.asm")
 	#endif()
 else()
 	list(APPEND BINK_SOURCES
-		"libs/sdks/linux/bink/binklnx.c"
-		#"libs/sdks/linux/bink/binkpa.c"
-		#"libs/sdks/linux/bink/binkplugin.c"
-		#"libs/sdks/linux/bink/binkpluginlnx.c"
-	  "libs/sdks/linux/bink/binkssmix.c"
-	  "libs/sdks/linux/bink/posix_defread.c"
-	  "libs/sdks/linux/bink/posix_radmem.c"
-	  "libs/sdks/linux/bink/posix_rrCpu.c"
-	  "libs/sdks/linux/bink/posix_rrThreads2.c"
-	  "libs/sdks/linux/bink/cpp_rratomics.cpp"
+		"libs/sdks/bink/binklnx.c"
+		#"libs/sdks/bink/binkpa.c"
+		#"libs/sdks/bink/binkplugin.c"
+		#"libs/sdks/bink/binkpluginlnx.c"
+		"libs/sdks/bink/binkssmix.c"
+		"libs/sdks/bink/posix_defread.c"
+		"libs/sdks/bink/posix_radmem.c"
+		"libs/sdks/bink/posix_rrCpu.c"
+		"libs/sdks/bink/posix_rrThreads2.c"
+		"libs/sdks/bink/cpp_rratomics.cpp"
 	)
 endif()
 
@@ -1169,7 +1169,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	)
 endif()
 target_include_directories(bink
-	PUBLIC "libs/sdks/win32/bink/"
+	PUBLIC "libs/sdks/bink/"
 )
 
 add_executable(SRR2 ${SRR2_SOURCES})
