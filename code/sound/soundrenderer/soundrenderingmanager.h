@@ -34,7 +34,7 @@
 // Global namespace forward declarations
 //=============================================================================
 
-#define AUDIO_ENABLE_SCRIPTING
+//#define AUDIO_ENABLE_SCRIPTING
 
 class SoundFileHandler;
 
