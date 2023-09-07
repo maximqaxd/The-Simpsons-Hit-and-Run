@@ -11,10 +11,13 @@ find_package(SDL2 REQUIRED)
 find_package(PNG REQUIRED)
 find_package(OpenAL REQUIRED)
 
-add_compile_options(
-	-ggdb
-	-Wno-narrowing
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(
+	  -ggdb
+	  -Wno-narrowing
+  )
+endif()
+
 add_compile_definitions(
 	RAD_DEBUG
 	RAD_CONSOLE
@@ -734,6 +737,9 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/vertexlist.cpp"
 	"libs/pure3d/p3d/view.cpp"
 )
+if (WIN32)
+	list(APPEND P3D_SOURCES "libs/pure3d/p3d/platform/win32/plat_filemap.cpp")
+endif()
 
 set(CHOREO_SOURCES
 	"libs/choreo/src/animation.cpp"
@@ -951,33 +957,48 @@ set(SIM_SOURCES
 )
 
 set(BINK_SOURCES
-	"libs/sdks/linux/bink/binkacd.cpp"
-	"libs/sdks/linux/bink/binkasyncRR.c"
-	"libs/sdks/linux/bink/binkasyncthread.c"
-	"libs/sdks/linux/bink/binkcomm.c"
-	"libs/sdks/linux/bink/binkfile.c"
-	"libs/sdks/linux/bink/binklnx.c"
-	"libs/sdks/linux/bink/binkmarkers.c"
-	#"libs/sdks/linux/bink/binkpa.c"
-	#"libs/sdks/linux/bink/binkplugin.c"
-	#"libs/sdks/linux/bink/binkpluginlnx.c"
-	"libs/sdks/linux/bink/binkread.c"
-	"libs/sdks/linux/bink/binkssmix.c"
-	"libs/sdks/linux/bink/binkutil.c"
-	"libs/sdks/linux/bink/blitter.c" # custom
-	"libs/sdks/linux/bink/cpp_rratomics.cpp"
-	"libs/sdks/linux/bink/expand2.c"
-	"libs/sdks/linux/bink/popmal.c"
-	"libs/sdks/linux/bink/posix_defread.c"
-	"libs/sdks/linux/bink/posix_radmem.c"
-	"libs/sdks/linux/bink/posix_rrCpu.c"
-	"libs/sdks/linux/bink/posix_rrThreads2.c"
-	"libs/sdks/linux/bink/radfft.cpp"
+	"libs/sdks/win32/bink/binkacd.cpp"
+	"libs/sdks/win32/bink/binkasyncRR.c"
+	"libs/sdks/win32/bink/binkasyncthread.c"
+	"libs/sdks/win32/bink/binkcomm.c"
+	"libs/sdks/win32/bink/binkfile.c"
+	"libs/sdks/win32/bink/binkmarkers.c"
+	"libs/sdks/win32/bink/binkread.c"
+	"libs/sdks/win32/bink/binkutil.c"
+	"libs/sdks/win32/bink/blitter.c" # custom
+	"libs/sdks/win32/bink/expand2.c"
+	"libs/sdks/win32/bink/popmal.c"
+	"libs/sdks/win32/bink/radfft.cpp"
+	"libs/sdks/win32/bink/x86_cpu.c"
 )
 
-# HACK: I assume you cross-compile for x86 on an x86_64 machine
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
-	list(APPEND BINK_SOURCES "libs/sdks/linux/bink/x86_cpu.c")
+if (WIN32)
+	list(APPEND BINK_SOURCES
+		"libs/sdks/win32/bink/binkplugin.c"
+		"libs/sdks/win32/bink/binkpluginw32.c"
+		"libs/sdks/win32/bink/binkxa2.cpp"
+	  "libs/sdks/win32/bink/win32_radmem.c"
+	  "libs/sdks/win32/bink/win32_rrAtomics.cpp"
+	  "libs/sdks/win32/bink/win32_rrCpu.c"
+	  "libs/sdks/win32/bink/win32_rrThreads2.c"
+	  "libs/sdks/win32/bink/wintimer.c"
+	)
+	#if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+	#	list(APPEND BINK_SOURCES "libs/sdks/win32/bink/win64_rrAtomics_x64.asm")
+	#endif()
+else()
+	list(APPEND BINK_SOURCES
+		"libs/sdks/linux/bink/binklnx.c"
+		#"libs/sdks/linux/bink/binkpa.c"
+		#"libs/sdks/linux/bink/binkplugin.c"
+		#"libs/sdks/linux/bink/binkpluginlnx.c"
+	  "libs/sdks/linux/bink/binkssmix.c"
+	  "libs/sdks/linux/bink/posix_defread.c"
+	  "libs/sdks/linux/bink/posix_radmem.c"
+	  "libs/sdks/linux/bink/posix_rrCpu.c"
+	  "libs/sdks/linux/bink/posix_rrThreads2.c"
+	  "libs/sdks/linux/bink/cpp_rratomics.cpp"
+	)
 endif()
 
 set(PDDI_SOURCES
@@ -1136,16 +1157,23 @@ target_compile_definitions(bink
 	PRIVATE
 		USING_EGT
 		NO_BINK10_SUPPORT
+	PUBLIC
+		__RADINSTATICLIB__
 )
-target_compile_options(bink
-	PRIVATE -Wno-multichar
-)
+if (WIN32)
+	target_link_libraries(bink PUBLIC Winmm)
+endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(bink
+		PRIVATE -Wno-multichar
+	)
+endif()
 target_include_directories(bink
-	PUBLIC "libs/sdks/linux/bink/"
+	PUBLIC "libs/sdks/win32/bink/"
 )
 
-add_executable(srr2 ${SRR2_SOURCES})
-target_link_libraries(srr2
+add_executable(SRR2 ${SRR2_SOURCES})
+target_link_libraries(SRR2
 	SDL2::SDL2main
 	bink
 	choreo
@@ -1162,9 +1190,9 @@ target_link_libraries(srr2
 	scrooby
 	sim
 )
-target_compile_features(srr2 PRIVATE cxx_std_17)
-target_precompile_headers(srr2 PRIVATE "code/main/pchsrr2.h")
-target_include_directories(srr2 PRIVATE
+target_compile_features(SRR2 PRIVATE cxx_std_17)
+target_precompile_headers(SRR2 PRIVATE "code/main/pchsrr2.h")
+target_include_directories(SRR2 PRIVATE
 	"code/"
 	#"libs/choreo/inc/"
 	#"libs/poser/inc/"
