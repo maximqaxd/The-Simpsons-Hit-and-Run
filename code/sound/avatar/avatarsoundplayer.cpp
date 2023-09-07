@@ -100,7 +100,7 @@ void AvatarSoundPlayer::Initialize()
     // Must register the carSoundParameters factory method with RadScript before
     // the script creating these objects gets run
     //
-    ::radFactoryRegister( "carSoundParameters", (radFactoryOutParamProc*) ::CarSoundParameterObjCreate );
+    ::radFactoryRegister( "carSoundParameters", (radFactoryProc*) carSoundParameters::ObjCreate );
 }
 
 //=============================================================================

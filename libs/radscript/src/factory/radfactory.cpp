@@ -29,21 +29,18 @@ struct radFactoryNode
     (
         radKey32 key,
         radFactoryProc * pFactoryProc,
-        radFactoryOutParamProc * pFactoryProcOutParamProc,
         radFactoryNode * pNext
     )
         :
         m_RadKey( key ),
         m_pFactoryProc( pFactoryProc ),
-        m_pFactoryOutParamProc( pFactoryProcOutParamProc ),
         m_pNext( pNext )
     {
-        rAssert( pFactoryProc != NULL || pFactoryProcOutParamProc != NULL );
+        rAssert( pFactoryProc != NULL );
     }
 
     radKey32                 m_RadKey;
     radFactoryProc *         m_pFactoryProc;
-    radFactoryOutParamProc * m_pFactoryOutParamProc;
     
     radFactoryNode * m_pNext;
 };
@@ -112,31 +109,8 @@ void radFactoryRegister( radKey32 key, radFactoryProc * pFactory )
 {
     rAssert( g_RadFactoryInitializeCount > 0 );
 
-    radFactoryNode * pNew = new ( g_RadFactoryAllocator ) radFactoryNode( key, pFactory, NULL, g_pScriptableHead );
+    radFactoryNode * pNew = new ( g_RadFactoryAllocator ) radFactoryNode( key, pFactory, g_pScriptableHead );
     g_pScriptableHead = pNew;    
-}
-
-//============================================================================
-// Function: ::radFactoryRegister
-//============================================================================
-
-void radFactoryRegister( const char * pClassName, radFactoryOutParamProc * pFactoryOutParamProc )
-{
-    rAssert( g_RadFactoryInitializeCount > 0 );
-    
-    radFactoryRegister( radMakeKey32( pClassName ), pFactoryOutParamProc );
-}
-
-//============================================================================
-// Function: ::radFactoryRegister
-//============================================================================
-
-void radFactoryRegister( radKey32 key, radFactoryOutParamProc * pFactoryOutParamProc )
-{
-    rAssert( g_RadFactoryInitializeCount > 0 );
-
-    radFactoryNode * pNew = new ( g_RadFactoryAllocator ) radFactoryNode( key, NULL, pFactoryOutParamProc, g_pScriptableHead );
-    g_pScriptableHead = pNew;  
 }
 
 //============================================================================
@@ -183,12 +157,6 @@ void radFactoryCreateInstance( radKey32 key,IRefCount ** ppIRefCount, radMemoryA
                 
                 return;              
                                 
-            }
-            else if ( pSearch->m_pFactoryOutParamProc != NULL )
-            {
-                pSearch->m_pFactoryOutParamProc( ppIRefCount, allocator );
-                
-                return;
             }
         }
 

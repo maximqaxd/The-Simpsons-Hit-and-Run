@@ -84,12 +84,13 @@ positionalSoundSettings::~positionalSoundSettings()
 // Return:      void 
 //
 //=============================================================================
-void positionalSoundSettings::SetClipName( const char* clipName )
+IPositionalSoundSettings& positionalSoundSettings::SetClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
     m_clipName = new(GMA_PERSISTENT) char[strlen(clipName)+1];
     strcpy( m_clipName, clipName );
+    return *this;
 }
 
 //=============================================================================
@@ -103,11 +104,12 @@ void positionalSoundSettings::SetClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void positionalSoundSettings::SetMinDistance( float min )
+IPositionalSoundSettings& positionalSoundSettings::SetMinDistance( float min )
 {
     rAssert( min >= 0.0f );
 
     m_minDist = min;
+    return *this;
 }
 
 //=============================================================================
@@ -120,11 +122,12 @@ void positionalSoundSettings::SetMinDistance( float min )
 // Return:      void 
 //
 //=============================================================================
-void positionalSoundSettings::SetMaxDistance( float max )
+IPositionalSoundSettings& positionalSoundSettings::SetMaxDistance( float max )
 {
     rAssert( max >= 0.0f );
 
     m_maxDist = max;
+    return *this;
 }
 
 //=============================================================================
@@ -138,12 +141,13 @@ void positionalSoundSettings::SetMaxDistance( float max )
 // Return:      void 
 //
 //=============================================================================
-void positionalSoundSettings::SetPlaybackProbability( float prob )
+IPositionalSoundSettings& positionalSoundSettings::SetPlaybackProbability( float prob )
 {
     rAssert( prob >= 0.0f );
     rAssert( prob <= 1.0f );
 
     m_playProbability = prob;
+    return *this;
 }
 
 //*****************************************************************************
@@ -157,24 +161,19 @@ void positionalSoundSettings::SetPlaybackProbability( float prob )
 //******************************************************************************
 
 //==============================================================================
-// PositionalSettingsObjCreate
+// positionalSoundSettings::ObjCreate
 //==============================================================================
 // Description: Factory function for creating positionalSoundSettings objects.
 //              Called by RadScript.
 //
-// Parameters:	ppParametersObj - Address of ptr to new object
-//              allocator - FTT pool to allocate object within
+// Parameters:	allocator - FTT pool to allocate object within
 //
 // Return:      N/A.
 //
 //==============================================================================
-void PositionalSettingsObjCreate
-(
-    IPositionalSoundSettings** ppParametersObj,
-    radMemoryAllocator allocator
-)
+positionalSoundSettings* positionalSoundSettings::ObjCreate( radMemoryAllocator allocator )
 {
-    rAssert( ppParametersObj != NULL );
-    (*ppParametersObj) = new ( allocator ) positionalSoundSettings( );
-    (*ppParametersObj)->AddRef( );
+    positionalSoundSettings* pParametersObj = new ( allocator ) positionalSoundSettings( );
+    pParametersObj->AddRef( );
+    return pParametersObj;
 }

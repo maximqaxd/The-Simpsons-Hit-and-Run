@@ -31,41 +31,41 @@
 
 struct IReverbSettings : public IRefCount
 {
-    virtual void SetGain( float gain ) = 0;
-    virtual void SetFadeInTime( float milliseconds ) = 0;
-    virtual void SetFadeOutTime( float milliseconds ) = 0;
+    virtual IReverbSettings& SetGain( float gain ) = 0;
+    virtual IReverbSettings& SetFadeInTime( float milliseconds ) = 0;
+    virtual IReverbSettings& SetFadeOutTime( float milliseconds ) = 0;
 
     //
     // See radsound_<platform name>.hpp for details on this stuff
     //
-    virtual void SetXboxRoom( int mBvalue ) = 0;
-    virtual void SetXboxRoomHF( int mBvalue ) = 0;
-    virtual void SetXboxRoomRolloffFactor( float value ) = 0;
-    virtual void SetXboxDecayTime( float value ) = 0;
-    virtual void SetXboxDecayHFRatio( float value ) = 0;
-    virtual void SetXboxReflections( int mBvalue ) = 0;
-    virtual void SetXboxReflectionsDelay( float value ) = 0;
-    virtual void SetXboxReverb( int mBvalue ) = 0;
-    virtual void SetXboxReverbDelay( float value ) = 0;
-    virtual void SetXboxDiffusion( float value ) = 0;
-    virtual void SetXboxDensity( float value ) = 0;
-    virtual void SetXboxHFReference( float value ) = 0;
+    virtual IReverbSettings& SetXboxRoom( int mBvalue ) = 0;
+    virtual IReverbSettings& SetXboxRoomHF( int mBvalue ) = 0;
+    virtual IReverbSettings& SetXboxRoomRolloffFactor( float value ) = 0;
+    virtual IReverbSettings& SetXboxDecayTime( float value ) = 0;
+    virtual IReverbSettings& SetXboxDecayHFRatio( float value ) = 0;
+    virtual IReverbSettings& SetXboxReflections( int mBvalue ) = 0;
+    virtual IReverbSettings& SetXboxReflectionsDelay( float value ) = 0;
+    virtual IReverbSettings& SetXboxReverb( int mBvalue ) = 0;
+    virtual IReverbSettings& SetXboxReverbDelay( float value ) = 0;
+    virtual IReverbSettings& SetXboxDiffusion( float value ) = 0;
+    virtual IReverbSettings& SetXboxDensity( float value ) = 0;
+    virtual IReverbSettings& SetXboxHFReference( float value ) = 0;
 
     // No RadTuner interface for enumerations as far as I know, so
     // we'll have to cast whatever integer we get here
-    virtual void SetPS2ReverbMode( int mode ) = 0;
+    virtual IReverbSettings& SetPS2ReverbMode( int mode ) = 0;
 
-    virtual void SetPS2Delay( float delayTime ) = 0;
-    virtual void SetPS2Feedback( float feedback ) = 0;
+    virtual IReverbSettings& SetPS2Delay( float delayTime ) = 0;
+    virtual IReverbSettings& SetPS2Feedback( float feedback ) = 0;
 
-    virtual void SetGCPreDelay( float milliseconds ) = 0;
-    virtual void SetGCReverbTime( float milliseconds ) = 0;
-    virtual void SetGCColoration( float coloration ) = 0;
-    virtual void SetGCDamping( float damping ) = 0;
+    virtual IReverbSettings& SetGCPreDelay( float milliseconds ) = 0;
+    virtual IReverbSettings& SetGCReverbTime( float milliseconds ) = 0;
+    virtual IReverbSettings& SetGCColoration( float coloration ) = 0;
+    virtual IReverbSettings& SetGCDamping( float damping ) = 0;
 
     // Must be defined for all platforms cause of the script.
-    virtual void SetWinEnvironmentDiffusion( float diffusion ) = 0;
-    virtual void SetWinAirAbsorptionHF( float value ) = 0;
+    virtual IReverbSettings& SetWinEnvironmentDiffusion( float diffusion ) = 0;
+    virtual IReverbSettings& SetWinAirAbsorptionHF( float value ) = 0;
 };
 
 

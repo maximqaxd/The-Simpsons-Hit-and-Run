@@ -234,7 +234,7 @@ SoundLoader::SoundLoader() :
     {
         m_clusterList[clusterIndex] = 
             new(GMA_PERSISTENT) SoundCluster( clusterIndex,
-                                              renderingMgr->GetCharacterNamespace( clusterIndex - SC_CHAR_APU ) );
+                                              renderingMgr->GetCharacterNamespace( clusterIndex ) );
     }
 
     for( clusterIndex = SC_CAR_BASE;

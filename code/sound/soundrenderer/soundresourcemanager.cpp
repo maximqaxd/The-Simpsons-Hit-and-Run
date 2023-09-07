@@ -510,15 +510,13 @@ daSoundResourceData * daSoundResourceManager::GetResourceDataAt( unsigned int i 
 
 daSoundResourceData * daSoundResourceManager::CreateResourceData( void )
 {
-    daSoundResourceManager * pThis = daSoundResourceManager::GetInstance( );
+    rAssert( false == m_ResourceLockdown );
     
-    rAssert( false == pThis->m_ResourceLockdown );
-    
-    rAssert( pThis->m_NumResourceDatas < MAX_SOUND_DATA_RESOURCES );
+    rAssert( m_NumResourceDatas < MAX_SOUND_DATA_RESOURCES );
      
-    daSoundResourceData * pRd = pThis->m_ResourceData + pThis->m_NumResourceDatas;
+    daSoundResourceData * pRd = m_ResourceData + m_NumResourceDatas;
         
-    pThis->m_NumResourceDatas++;
+    m_NumResourceDatas++;
     
     return pRd;
 }

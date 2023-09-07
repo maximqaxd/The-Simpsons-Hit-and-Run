@@ -131,9 +131,10 @@ globalSettings::~globalSettings()
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetMasterVolume( float volume )
+IGlobalSettings& globalSettings::SetMasterVolume( float volume )
 {
     GetSoundManager()->SetMasterVolume( volume );
+    return *this;
 }
 
 //=============================================================================
@@ -146,9 +147,10 @@ void globalSettings::SetMasterVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetSfxVolume( float volume )
+IGlobalSettings& globalSettings::SetSfxVolume( float volume )
 {
     m_sfxVolume = volume;
+    return *this;
 }
 
 //=============================================================================
@@ -161,9 +163,10 @@ void globalSettings::SetSfxVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetCarVolume( float volume )
+IGlobalSettings& globalSettings::SetCarVolume( float volume )
 {
     m_carVolume = volume;
+    return *this;
 }
 
 //=============================================================================
@@ -176,9 +179,10 @@ void globalSettings::SetCarVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetMusicVolume( float volume )
+IGlobalSettings& globalSettings::SetMusicVolume( float volume )
 {
     m_musicVolume = volume;
+    return *this;
 }
 
 //=============================================================================
@@ -191,9 +195,10 @@ void globalSettings::SetMusicVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetDialogueVolume( float volume )
+IGlobalSettings& globalSettings::SetDialogueVolume( float volume )
 {
     m_dialogueVolume = volume;
+    return *this;
 }
 
 //=============================================================================
@@ -206,9 +211,10 @@ void globalSettings::SetDialogueVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetAmbienceVolume( float volume )
+IGlobalSettings& globalSettings::SetAmbienceVolume( float volume )
 {
     m_ambienceVolume = volume;
+    return *this;
 }
 
 //=============================================================================
@@ -221,12 +227,13 @@ void globalSettings::SetAmbienceVolume( float volume )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetPeeloutMin( float min )
+IGlobalSettings& globalSettings::SetPeeloutMin( float min )
 {
     rAssert( min >= 0.0f );
     rAssert( min <= 1.0f );
 
     m_peeloutMin = min;
+    return *this;
 }
 
 //=============================================================================
@@ -239,12 +246,13 @@ void globalSettings::SetPeeloutMin( float min )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetPeeloutMax( float max )
+IGlobalSettings& globalSettings::SetPeeloutMax( float max )
 {
     rAssert( max >= 0.0f );
     rAssert( max <= 1.0f );
 
     m_peeloutMax = max;
+    return *this;
 }
 
 //=============================================================================
@@ -257,11 +265,12 @@ void globalSettings::SetPeeloutMax( float max )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetPeeloutMaxTrim( float trim )
+IGlobalSettings& globalSettings::SetPeeloutMaxTrim( float trim )
 {
     rAssert( trim >= 0.0f );
 
     m_peeloutMaxTrim = trim;
+    return *this;
 }
 
 //=============================================================================
@@ -274,7 +283,7 @@ void globalSettings::SetPeeloutMaxTrim( float trim )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetSkidRoadClipName( const char* clipName )
+IGlobalSettings& globalSettings::SetSkidRoadClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -284,6 +293,7 @@ void globalSettings::SetSkidRoadClipName( const char* clipName )
     strcpy( m_roadSkidClip, clipName );
 
     HeapMgr()->PopHeap(GMA_AUDIO_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -296,7 +306,7 @@ void globalSettings::SetSkidRoadClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetSkidDirtClipName( const char* clipName )
+IGlobalSettings& globalSettings::SetSkidDirtClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -306,6 +316,7 @@ void globalSettings::SetSkidDirtClipName( const char* clipName )
     strcpy( m_dirtSkidClip, clipName );
 
     HeapMgr()->PopHeap(GMA_AUDIO_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -318,7 +329,7 @@ void globalSettings::SetSkidDirtClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetFootstepRoadClipName( const char* clipName )
+IGlobalSettings& globalSettings::SetFootstepRoadClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -328,6 +339,7 @@ void globalSettings::SetFootstepRoadClipName( const char* clipName )
     strcpy( m_roadFootstepClip, clipName );
 
     HeapMgr()->PopHeap(GMA_AUDIO_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -340,7 +352,7 @@ void globalSettings::SetFootstepRoadClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetFootstepMetalClipName( const char* clipName )
+IGlobalSettings& globalSettings::SetFootstepMetalClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -350,6 +362,7 @@ void globalSettings::SetFootstepMetalClipName( const char* clipName )
     strcpy( m_metalFootstepClip, clipName );
 
     HeapMgr()->PopHeap(GMA_AUDIO_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -362,7 +375,7 @@ void globalSettings::SetFootstepMetalClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetFootstepWoodClipName( const char* clipName )
+IGlobalSettings& globalSettings::SetFootstepWoodClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -372,6 +385,7 @@ void globalSettings::SetFootstepWoodClipName( const char* clipName )
     strcpy( m_woodFootstepClip, clipName );
 
     HeapMgr()->PopHeap(GMA_AUDIO_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -385,7 +399,7 @@ void globalSettings::SetFootstepWoodClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void globalSettings::SetCoinPitch( float pitch )
+IGlobalSettings& globalSettings::SetCoinPitch( float pitch )
 {
     if( m_coinPitchCount < s_maxCoinPitches )
     {
@@ -395,6 +409,7 @@ void globalSettings::SetCoinPitch( float pitch )
     {
         rDebugString( "Too many coin pitches specified in script\n" );
     }
+    return *this;
 }
 
 //=============================================================================
@@ -443,25 +458,20 @@ void globalSettings::setDuckVolume( DuckSituations situation, DuckVolumes volume
 //******************************************************************************
 
 //==============================================================================
-// GlobalSettingsObjCreate
+// globalSettings::ObjCreate
 //==============================================================================
 // Description: Factory function for creating globalSettings objects.
 //              Called by RadScript.
 //
-// Parameters:	ppParametersObj - Address of ptr to new object
-//              allocator - FTT pool to allocate object within
+// Parameters:	allocator - FTT pool to allocate object within
 //
 // Return:      N/A.
 //
 //==============================================================================
-void GlobalSettingsObjCreate
-(
-    IGlobalSettings** ppParametersObj,
-    radMemoryAllocator allocator
-)
+globalSettings* globalSettings::ObjCreate( radMemoryAllocator allocator )
 {
-    rAssert( ppParametersObj != NULL );
-    (*ppParametersObj) = new ( allocator ) globalSettings( );
-    (*ppParametersObj)->AddRef( );
+    globalSettings* pParametersObj = new ( allocator ) globalSettings( );
+    pParametersObj->AddRef( );
+    return pParametersObj;
 }
 

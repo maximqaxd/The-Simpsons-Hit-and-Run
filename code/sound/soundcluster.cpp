@@ -114,7 +114,8 @@ void SoundCluster::LoadSounds( SoundFileHandler* callbackObj /* = NULL  */ )
 
             if( resource != NULL )
             {
-                resource->CaptureResource();
+                if( !resource->GetStreaming() )
+                    resource->CaptureResource();
             }
 #ifdef RAD_DEBUG
             else

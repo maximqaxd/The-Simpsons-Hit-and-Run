@@ -113,7 +113,7 @@ public:
     
     unsigned int GetNumResourceDatas( void );
     daSoundResourceData* GetResourceDataAt( unsigned int );
-    static daSoundResourceData* CreateResourceData( void );
+    daSoundResourceData* CreateResourceData( void );
     
 protected:
     //

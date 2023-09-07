@@ -65,7 +65,7 @@ struct IDaSoundResourceData :  public IRefCount
     //
     // Add files to the resource
     //
-    virtual void AddFilename
+    virtual IDaSoundResourceData& AddFilename
     (
         const char* newFileName,
         float trim
@@ -74,7 +74,7 @@ struct IDaSoundResourceData :  public IRefCount
     //
     // Set the pitch variation
     //
-    virtual void SetPitchRange
+    virtual IDaSoundResourceData& SetPitchRange
     (
         float minPitch,
         float maxPitch
@@ -83,7 +83,7 @@ struct IDaSoundResourceData :  public IRefCount
     //
     // Set the trim variation
     //
-    virtual void SetTrimRange
+    virtual IDaSoundResourceData& SetTrimRange
     (
         float minTrim,
         float maxTrim
@@ -92,15 +92,15 @@ struct IDaSoundResourceData :  public IRefCount
     //
     // Set the trim to one value
     //
-    virtual void SetTrim( float trim ) = 0;
+    virtual IDaSoundResourceData& SetTrim( float trim ) = 0;
     
     // SCRIPTED FEATURES THAT CAN NOT BE TUNED IN REAL TIME
 
     // Is this a streaming sound resource?
-    virtual void SetStreaming( bool streaming ) = 0;
+    virtual IDaSoundResourceData& SetStreaming( bool streaming ) = 0;
 
     // Is this a looping sound resource?
-    virtual void SetLooping( bool looping ) = 0;
+    virtual IDaSoundResourceData& SetLooping( bool looping ) = 0;
 
     // SCRIPTED FEATURES AVAILABLE ONLY FOR TUNERS
 
@@ -143,6 +143,7 @@ struct IDaSoundResource : public IDaSoundResourceData
         float* pMaxTrim
     ) = 0;
     virtual bool GetLooping( void ) = 0;
+    virtual bool GetStreaming( void ) = 0;
 
     //
     // Find out what kind of resource this is

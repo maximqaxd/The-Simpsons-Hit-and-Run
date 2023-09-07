@@ -56,7 +56,7 @@ public:
     //
     // IDaSoundResourceData and IDaSoundResource
     //    
-    virtual void AddFilename
+    virtual IDaSoundResourceData& AddFilename
     (
         const char* newFileName,
         float trim
@@ -67,7 +67,7 @@ public:
     virtual void GetFileNameAt( unsigned int index, char* buffer, unsigned int max );
     virtual void GetFileKeyAt( unsigned int index, char * buffer, unsigned int max );
     
-    virtual void SetPitchRange
+    virtual IDaSoundResourceData& SetPitchRange
     (
         float minPitch,
         float maxPitch
@@ -78,7 +78,7 @@ public:
         float* pMaxPitch
     );
     
-    virtual void SetTrimRange
+    virtual IDaSoundResourceData& SetTrimRange
     (
         float minTrim,
         float maxTrim
@@ -89,25 +89,33 @@ public:
         float* pMaxTrim
     );
     
-    virtual void SetTrim( float trim );
+    virtual IDaSoundResourceData& SetTrim( float trim );
     
-    virtual void SetStreaming( bool streaming );
+    virtual IDaSoundResourceData& SetStreaming( bool streaming );
     virtual bool GetStreaming( void );
 
-    virtual void SetLooping( bool looping );
+    virtual IDaSoundResourceData& SetLooping( bool looping );
     virtual bool GetLooping( void );
 
     virtual Type GetType( void );
     virtual void SetSoundGroup( Sound::daSoundGroup soundGroup );
     virtual Sound::daSoundGroup GetSoundGroup( void );
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name=""></param>
     virtual void CaptureResource( void );
     virtual bool IsCaptured( void );
     virtual void ReleaseResource( void );
 
     // COMPOSERS ONLY!!
     virtual void Play( void );
-       
+
+    //
+    // Create a daSoundResourceData object
+    //
+    static daSoundResourceData* ObjCreate( radMemoryAllocator allocator );
+
     //
     // The pitch variation
     //
@@ -140,7 +148,7 @@ public:
     // Hold a capture counter
     //
     unsigned char                       m_CaptureCount;
-    unsigned char                       m_SoundGroup;    
+    unsigned char                       m_SoundGroup;
 };
 
 inline unsigned int daSoundResourceData::GetNumFiles( void )

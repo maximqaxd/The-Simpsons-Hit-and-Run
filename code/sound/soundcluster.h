@@ -71,7 +71,7 @@ class SoundCluster : public Sound::IDaSoundDynaLoadCompletionCallback,
         SoundCluster( const SoundCluster& original );
         SoundCluster& operator=( const SoundCluster& rhs );
 
-        static const int MAX_RESOURCES = 80;
+        static const int MAX_RESOURCES = 90;
 
         //
         // True if the sounds for this cluster are allocated in sound memory

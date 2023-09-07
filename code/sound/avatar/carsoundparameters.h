@@ -46,130 +46,130 @@ class carSoundParameters: public ICarSoundParameters,
 
         void SetWatcherName( const char* name );
 
-        void SetClipRPM( float rpm ) { m_clipRPM = rpm; }
+        ICarSoundParameters& SetClipRPM( float rpm ) { m_clipRPM = rpm; return *this; }
         float GetClipRPM() { return( m_clipRPM ); }
 
-        void SetEngineClipName( const char* clipName );
+        ICarSoundParameters& SetEngineClipName( const char* clipName );
         const char* GetEngineClipName() { return( m_engineClipName ); }
 
-        void SetEngineIdleClipName( const char* clipName );
+        ICarSoundParameters& SetEngineIdleClipName( const char* clipName );
         const char* GetEngineIdleClipName() { return( m_idleClipName ); }
 
-        void SetDamagedEngineClipName( const char* clipName );
+        ICarSoundParameters& SetDamagedEngineClipName( const char* clipName );
         const char* GetDamagedEngineClipName() { return( m_damagedClipName ); }
 
-        void SetHornClipName( const char* clipName );
+        ICarSoundParameters& SetHornClipName( const char* clipName );
         const char* GetHornClipName() { return( m_hornClipName ); }
 
-        void SetCarDoorOpenClipName( const char* clipName );
+        ICarSoundParameters& SetCarDoorOpenClipName( const char* clipName );
         const char* GetCarDoorOpenClipName() { return( m_carOpenClipName ); }
 
-        void SetCarDoorCloseClipName( const char* clipName );
+        ICarSoundParameters& SetCarDoorCloseClipName( const char* clipName );
         const char* GetCarDoorCloseClipName() { return( m_carCloseClipName ); }
 
-        void SetOverlayClipName( const char* clipName );
+        ICarSoundParameters& SetOverlayClipName( const char* clipName );
         const char* GetOverlayClipName() { return( m_overlayClipName ); }
 
-        void SetRoadSkidClipName( const char* clipName );
+        ICarSoundParameters& SetRoadSkidClipName( const char* clipName );
         const char* GetRoadSkidClipName() { return( m_roadSkidClipName ); }
 
-        void SetDirtSkidClipName( const char* clipName );
+        ICarSoundParameters& SetDirtSkidClipName( const char* clipName );
         const char* GetDirtSkidClipName() { return( m_dirtSkidClipName ); }
 
-        void SetBackupClipName( const char* clipName );
+        ICarSoundParameters& SetBackupClipName( const char* clipName );
         const char* GetBackupClipName() { return( m_backupClipName ); }
 
-        void SetShiftPoint( unsigned int gear, float percent );
+        ICarSoundParameters& SetShiftPoint( unsigned int gear, float percent );
         float GetShiftPoint( int gear );
 
-        void SetDownshiftDamperSize( float percent );
+        ICarSoundParameters& SetDownshiftDamperSize( float percent );
         float GetDownshiftDamperSize() { return( m_downshiftDamper ); }
 
-        void SetGearPitchRange( unsigned int gear, float min, float max );
+        ICarSoundParameters& SetGearPitchRange( unsigned int gear, float min, float max );
 
-        void SetNumberOfGears( unsigned int gear );
+        ICarSoundParameters& SetNumberOfGears( unsigned int gear );
 
         float GetMsecsPerOctaveCap() { return( m_msecsPerOctave ); }
 
         //
         // Attack/delay/decay
         //
-        void SetAttackTimeMsecs( float msecs );
+        ICarSoundParameters& SetAttackTimeMsecs( float msecs );
         float GetAttackTimeMsecs() { return( m_attackTime ); }
 
-        void SetDelayTimeMsecs( unsigned int msecs );
+        ICarSoundParameters& SetDelayTimeMsecs( unsigned int msecs );
         unsigned int GetDelayTimeMsecs() { return( m_delayTime ); }
 
-        void SetDecayTimeMsecs( float msecs );
+        ICarSoundParameters& SetDecayTimeMsecs( float msecs );
         float GetDecayTimeMsecs() { return( m_decayTime ); }
 
-        void SetDecayFinishTrim( float trim );
+        ICarSoundParameters& SetDecayFinishTrim( float trim );
         float GetDecayFinishTrim() { return( m_decayFinishTrim ); }
 
         //
         // Reverse
         //
-        void SetReversePitchCapKmh( float speed );
+        ICarSoundParameters& SetReversePitchCapKmh( float speed );
         float GetReversePitchCapKmh() { return( m_maxReverseKmh ); }
 
-        void SetReversePitchRange( float min, float max );
+        ICarSoundParameters& SetReversePitchRange( float min, float max );
         void GetReversePitchRange( float& min, float& max ) 
             { min = m_minReversePitch; max = m_maxReversePitch; }
 
         //
         // Gear shifts
         //
-        void SetGearShiftPitchDrop( unsigned int gear, float drop );
+        ICarSoundParameters& SetGearShiftPitchDrop( unsigned int gear, float drop );
         float GetGearShiftPitchDrop( unsigned int gear );
 
         //
         // Damage
         //
-        void SetDamageStartPcnt( float damagePercent );
+        ICarSoundParameters& SetDamageStartPcnt( float damagePercent );
         float GetDamageStartPcnt() { return( m_damageStartPcnt ); }
 
-        void SetDamageMaxVolPcnt( float percent );
+        ICarSoundParameters& SetDamageMaxVolPcnt( float percent );
         float GetDamageVolumeRange() { return( m_damageVolumeRange ); }
 
-        void SetDamageStartTrim( float trim );
+        ICarSoundParameters& SetDamageStartTrim( float trim );
         float GetDamageStartTrim() { return( m_damageStartTrim ); }
-        void SetDamageMaxTrim( float trim );
+        ICarSoundParameters& SetDamageMaxTrim( float trim );
         float GetDamageMaxTrim() { return( m_damageMaxTrim ); }
 
         //
         // Idle
         //
-        void SetIdleEnginePitch( float pitch );
+        ICarSoundParameters& SetIdleEnginePitch( float pitch );
         float GetIdleEnginePitch() { return( m_idleEnginePitch ); }
 
         //
         // In-air sound characteristics
         //
-        void SetInAirThrottlePitch( float pitch );
+        ICarSoundParameters& SetInAirThrottlePitch( float pitch );
         float GetInAirThrottlePitch();
 
-        void SetInAirIdlePitch( float pitch );
+        ICarSoundParameters& SetInAirIdlePitch( float pitch );
         float GetInAirIdlePitch();
 
-        void SetInAirThrottleResponseTimeMsecs( unsigned int msecs );
+        ICarSoundParameters& SetInAirThrottleResponseTimeMsecs( unsigned int msecs );
         unsigned int GetInAirThrottleResponseTimeMsecs() { return( m_inAirResponseMsecs ); }
 
         //
         // Burnout sound characteristics
         //
-        void SetBurnoutMinPitch( float pitch );
+        ICarSoundParameters& SetBurnoutMinPitch( float pitch );
         float GetBurnoutMinPitch() { return( m_burnoutMinPitch ); }
 
-        void SetBurnoutMaxPitch( float pitch );
+        ICarSoundParameters& SetBurnoutMaxPitch( float pitch );
         float GetBurnoutMaxPitch() { return( m_burnoutMaxPitch ); }
 
         //
         // Powerslide sound characteristics
         //
-        void SetPowerslideMinPitch( float pitch );
+        ICarSoundParameters& SetPowerslideMinPitch( float pitch );
         float GetPowerslideMinPitch();
 
-        void SetPowerslideMaxPitch( float pitch );
+        ICarSoundParameters& SetPowerslideMaxPitch( float pitch );
         float GetPowerslideMaxPitch();
 
         //
@@ -186,6 +186,11 @@ class carSoundParameters: public ICarSoundParameters,
         float CalculateEnginePitch( int gear, float currentSpeed, float topSpeed );
 
         float GetRevLimit();
+
+        //
+        // Create a CarSoundParameters object
+        //
+        static carSoundParameters* ObjCreate( radMemoryAllocator allocator );
 
     private:
         //Prevent wasteful constructor creation.
@@ -281,22 +286,6 @@ class carSoundParameters: public ICarSoundParameters,
         //
         float m_msecsPerOctave;
 };
-
-//=============================================================================
-// Factory Functions
-//=============================================================================
-
-//
-// Create a CarSoundParameters object
-//
-void CarSoundParameterObjCreate
-(
-    ICarSoundParameters** ppSoundResource,
-    radMemoryAllocator allocator
-);
-
-
-
 
 #endif // CARSOUNDPARAMETERS_H
 

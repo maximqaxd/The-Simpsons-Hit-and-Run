@@ -43,65 +43,70 @@ class reverbSettings : public IReverbSettings,
         reverbSettings();
         virtual ~reverbSettings();
 
-        void SetGain( float gain ) { m_gain = gain; }
+        IReverbSettings& SetGain( float gain ) { m_gain = gain; return *this; }
         float GetGain() { return( m_gain ); }
-        void SetFadeInTime( float milliseconds ) { m_fadeInTime = milliseconds; }
+        IReverbSettings& SetFadeInTime( float milliseconds ) { m_fadeInTime = milliseconds; return *this; }
         float GetFadeInTime() { return( m_fadeInTime ); }
-        void SetFadeOutTime( float milliseconds ) { m_fadeOutTime = milliseconds; }
+        IReverbSettings& SetFadeOutTime( float milliseconds ) { m_fadeOutTime = milliseconds; return *this; }
         float GetFadeOutTime() { return( m_fadeOutTime ); }
 
         //
         // See radsound_<platform name>.hpp for details on this stuff
         //
-        void SetXboxRoom( int mBvalue ) { m_xboxRoom = mBvalue; }
+        IReverbSettings& SetXboxRoom( int mBvalue ) { m_xboxRoom = mBvalue; return *this; }
         int GetXboxRoom() { return( m_xboxRoom ); }
-        void SetXboxRoomHF( int mBvalue ) { m_xboxRoomHF = mBvalue; }
+        IReverbSettings& SetXboxRoomHF( int mBvalue ) { m_xboxRoomHF = mBvalue; return *this; }
         int GetXboxRoomHF() { return( m_xboxRoomHF ); }
-        void SetXboxRoomRolloffFactor( float value ) { m_xboxRoomRolloff = value; }
+        IReverbSettings& SetXboxRoomRolloffFactor( float value ) { m_xboxRoomRolloff = value; return *this; }
         float GetXboxRoomRolloffFactor() { return( m_xboxRoomRolloff ); }
-        void SetXboxDecayTime( float value ) { m_xboxDecay = value; }
+        IReverbSettings& SetXboxDecayTime( float value ) { m_xboxDecay = value; return *this; }
         float GetXboxDecayTime() { return( m_xboxDecay ); }
-        void SetXboxDecayHFRatio( float value ) { m_xboxDecayHFRatio = value; }
+        IReverbSettings& SetXboxDecayHFRatio( float value ) { m_xboxDecayHFRatio = value; return *this; }
         float GetXboxDecayHFRatio() { return( m_xboxDecayHFRatio ); }
-        void SetXboxReflections( int mBvalue ) { m_xboxReflections = mBvalue; }
+        IReverbSettings& SetXboxReflections( int mBvalue ) { m_xboxReflections = mBvalue; return *this; }
         int GetXboxReflections() { return( m_xboxReflections ); }
-        void SetXboxReflectionsDelay( float value ) { m_xboxReflectionsDelay = value; }
+        IReverbSettings& SetXboxReflectionsDelay( float value ) { m_xboxReflectionsDelay = value; return *this; }
         float GetXboxReflectionsDelay() { return( m_xboxReflectionsDelay ); }
-        void SetXboxReverb( int mBvalue ) { m_xboxReverb = mBvalue; }
+        IReverbSettings& SetXboxReverb( int mBvalue ) { m_xboxReverb = mBvalue; return *this; }
         int GetXboxReverb() { return( m_xboxReverb ); }
-        void SetXboxReverbDelay( float value ) { m_xboxReverbDelay = value; }
+        IReverbSettings& SetXboxReverbDelay( float value ) { m_xboxReverbDelay = value; return *this; }
         float GetXboxReverbDelay() { return( m_xboxReverbDelay ); }
-        void SetXboxDiffusion( float value ) { m_xboxDiffusion = value; }
+        IReverbSettings& SetXboxDiffusion( float value ) { m_xboxDiffusion = value; return *this; }
         float GetXboxDiffusion() { return( m_xboxDiffusion ); }
-        void SetXboxDensity( float value ) { m_xboxDensity = value; }
+        IReverbSettings& SetXboxDensity( float value ) { m_xboxDensity = value; return *this; }
         float GetXboxDensity() { return( m_xboxDensity ); }
-        void SetXboxHFReference( float value ) { m_xboxHFReference = value; }
+        IReverbSettings& SetXboxHFReference( float value ) { m_xboxHFReference = value; return *this; }
         float GetXboxHFReference() { return( m_xboxHFReference ); }
 
         // No RadTuner interface for enumerations as far as I know, so
         // we'll have to cast whatever integer we get here
-        void SetPS2ReverbMode( int mode ) { m_ps2ReverbMode = mode; }
+        IReverbSettings& SetPS2ReverbMode( int mode ) { m_ps2ReverbMode = mode; return *this; }
         int GetPS2ReverbMode() { return( m_ps2ReverbMode ); }
 
-        void SetPS2Delay( float delayTime ) { m_ps2Delay = delayTime; }
+        IReverbSettings& SetPS2Delay( float delayTime ) { m_ps2Delay = delayTime; return *this; }
         float GetPS2Delay() { return( m_ps2Delay ); }
-        void SetPS2Feedback( float feedback ) { m_ps2Feedback = feedback; }
+        IReverbSettings& SetPS2Feedback( float feedback ) { m_ps2Feedback = feedback; return *this; }
         float GetPS2Feedback() { return( m_ps2Feedback ); }
 
-        void SetGCPreDelay( float milliseconds ) { m_gcPreDelay = milliseconds; }
+        IReverbSettings& SetGCPreDelay( float milliseconds ) { m_gcPreDelay = milliseconds; return *this; }
         float GetGCPreDelay() { return( m_gcPreDelay ); }
-        void SetGCReverbTime( float milliseconds ) { m_gcReverbTime = milliseconds; }
+        IReverbSettings& SetGCReverbTime( float milliseconds ) { m_gcReverbTime = milliseconds; return *this; }
         float GetGCReverbTime() { return( m_gcReverbTime ); }
-        void SetGCColoration( float coloration ) { m_gcColoration = coloration; }
+        IReverbSettings& SetGCColoration( float coloration ) { m_gcColoration = coloration; return *this; }
         float GetGCColoration() { return( m_gcColoration ); }
-        void SetGCDamping( float damping ) { m_gcDamping = damping; }
+        IReverbSettings& SetGCDamping( float damping ) { m_gcDamping = damping; return *this; }
         float GetGCDamping() { return( m_gcDamping ); }
 
         // Must be defined for all platforms cause of the script.
-        void SetWinEnvironmentDiffusion( float diffusion ) { m_winEnvironmentDiffusion = diffusion; }
+        IReverbSettings& SetWinEnvironmentDiffusion( float diffusion ) { m_winEnvironmentDiffusion = diffusion; return *this; }
         float GetWinEnvironmentDiffusion() const { return m_winEnvironmentDiffusion; }
-        void SetWinAirAbsorptionHF( float value ) { m_winAirAbsorptionHF = value; }
+        IReverbSettings& SetWinAirAbsorptionHF( float value ) { m_winAirAbsorptionHF = value; return *this; }
         float GetWinAirAbsorptionHF() const { return m_winAirAbsorptionHF; }
+
+        //
+        // Create a reverbSettings object
+        //
+        static reverbSettings* ObjCreate( radMemoryAllocator allocator );
 
     private:
         //Prevent wasteful constructor creation.
@@ -140,19 +145,6 @@ class reverbSettings : public IReverbSettings,
         float m_winEnvironmentDiffusion;
         float m_winAirAbsorptionHF;
 };
-
-//=============================================================================
-// Factory Functions
-//=============================================================================
-
-//
-// Create a reverbSettings object
-//
-void ReverbSettingsObjCreate
-(
-    IReverbSettings** ppSettings,
-    radMemoryAllocator allocator
-);
 
 #endif // REVERBSETTINGS_H
 

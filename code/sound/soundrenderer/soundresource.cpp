@@ -112,7 +112,7 @@ daSoundResourceData::~daSoundResourceData( )
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::AddFilename
+IDaSoundResourceData& daSoundResourceData::AddFilename
 (
     const char* newFileName,
     float trim
@@ -133,6 +133,8 @@ void daSoundResourceData::AddFilename
     m_pFileIds[ m_NumFiles ].m_pName = (char*) radMemoryAlloc( GMA_DEFAULT, strlen( newFileName ) + 1 );
     strcpy( m_pFileIds[ m_NumFiles ].m_pName, newFileName );
     m_NumFiles++;
+
+    return *this;
 }
 
 
@@ -169,7 +171,7 @@ void daSoundResourceData::GetFileKeyAt( unsigned int index, char* buffer, unsign
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::SetPitchRange
+IDaSoundResourceData& daSoundResourceData::SetPitchRange
 (
     Sound::daPitchValue minPitch,
     Sound::daPitchValue maxPitch
@@ -177,6 +179,7 @@ void daSoundResourceData::SetPitchRange
 {
     m_MinPitch = pitch_f_to_s( minPitch );
     m_MaxPitch = pitch_f_to_s( maxPitch );
+    return *this;
 }
 
 //=============================================================================
@@ -219,7 +222,7 @@ void daSoundResourceData::GetPitchRange
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::SetTrimRange
+IDaSoundResourceData& daSoundResourceData::SetTrimRange
 (
     float minTrim,
     float maxTrim
@@ -227,6 +230,7 @@ void daSoundResourceData::SetTrimRange
 {
     m_MinTrim = vol_f_to_c( minTrim );
     m_MaxTrim = vol_f_to_c( maxTrim );
+    return *this;
 }
 
 //=============================================================================
@@ -240,13 +244,14 @@ void daSoundResourceData::SetTrimRange
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::SetTrim
+IDaSoundResourceData& daSoundResourceData::SetTrim
 (
     float trim
 )
 {
     m_MinTrim = vol_f_to_c( trim );
     m_MaxTrim = vol_f_to_c( trim );
+    return *this;
 }
 
 //=============================================================================
@@ -288,7 +293,7 @@ void daSoundResourceData::GetTrimRange
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::SetStreaming( bool streaming )
+IDaSoundResourceData& daSoundResourceData::SetStreaming( bool streaming )
 {
     if( streaming )
     {
@@ -307,6 +312,8 @@ void daSoundResourceData::SetStreaming( bool streaming )
             "affect a captured resource\n"
         );
     }
+
+    return *this;
 }
 
 //=============================================================================
@@ -336,7 +343,7 @@ bool daSoundResourceData::GetStreaming( void )
 //
 //-----------------------------------------------------------------------------
 
-void daSoundResourceData::SetLooping( bool looping )
+IDaSoundResourceData& daSoundResourceData::SetLooping( bool looping )
 {
     if( looping )
     {
@@ -355,6 +362,8 @@ void daSoundResourceData::SetLooping( bool looping )
             "affect a captured resource\n"
         );
     }
+
+    return *this;
 }
 
 //=============================================================================
@@ -551,5 +560,19 @@ void daSoundResourceData::Release( void )
     //Sound::daSoundResourceManager::GetInstance( )->Release( );
 }
 
-
+//==============================================================================
+// daSoundResourceData::ObjCreate
+//==============================================================================
+// Description: Factory function for creating daSoundResourceData objects.
+//              Called by RadScript.
+//
+// Parameters:	allocator - FTT pool to allocate object within
+//
+// Return:      N/A.
+//
+//==============================================================================
+daSoundResourceData* daSoundResourceData::ObjCreate( radMemoryAllocator allocator )
+{
+    return Sound::daSoundResourceManager::GetInstance()->CreateResourceData();
+}
 

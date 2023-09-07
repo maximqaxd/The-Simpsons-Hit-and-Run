@@ -38,17 +38,22 @@ class positionalSoundSettings: public IPositionalSoundSettings,
         positionalSoundSettings();
         virtual ~positionalSoundSettings();
 
-        void SetClipName( const char* clipName );
+        IPositionalSoundSettings& SetClipName( const char* clipName );
         const char* GetClipName() { return( m_clipName ); }
 
-        void SetMinDistance( float min );
+        IPositionalSoundSettings& SetMinDistance( float min );
         float GetMinDistance() { return( m_minDist ); }
 
-        void SetMaxDistance( float max );
+        IPositionalSoundSettings& SetMaxDistance( float max );
         float GetMaxDistance() { return( m_maxDist ); }
 
-        void SetPlaybackProbability( float prob );
+        IPositionalSoundSettings& SetPlaybackProbability( float prob );
         float GetPlaybackProbability() { return( m_playProbability ); }
+
+        //
+        // Create a positionalSoundSettings object
+        //
+        static positionalSoundSettings* ObjCreate( radMemoryAllocator allocator );
 
     private:
         //Prevent wasteful constructor creation.
@@ -63,18 +68,5 @@ class positionalSoundSettings: public IPositionalSoundSettings,
         float m_maxDist;
         float m_playProbability;
 };
-
-//=============================================================================
-// Factory Functions
-//=============================================================================
-
-//
-// Create a positionalSoundSettings object
-//
-void PositionalSettingsObjCreate
-(
-    IPositionalSoundSettings** ppSettings,
-    radMemoryAllocator allocator
-);
 
 #endif //POSITIONALSOUNDSETTINGS_H

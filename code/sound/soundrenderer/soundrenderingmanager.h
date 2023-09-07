@@ -28,11 +28,13 @@
 #include <sound/soundrenderer/idasoundtuner.h>
 #include <sound/soundrenderer/soundresourcemanager.h>
 #include <sound/soundrenderer/playermanager.h>
+#include <loading/loadingmanager.h>
 
 //=============================================================================
 // Global namespace forward declarations
 //=============================================================================
 
+#define AUDIO_ENABLE_SCRIPTING
 
 class SoundFileHandler;
 
@@ -69,7 +71,7 @@ enum DialogueLanguage
 //
 // The sound manger
 //
-class daSoundRenderingManager : public radRefCount
+class daSoundRenderingManager : public radRefCount, public LoadingManager::ProcessRequestsCallback
 {
 public:
     IMPLEMENT_REFCOUNTED( "daSoundManager" );
@@ -92,13 +94,18 @@ public:
     
     void QueueCementFileRegistration();
     void QueueRadscriptFileLoads();
+#ifdef AUDIO_ENABLE_SCRIPTING
     void LoadTypeInfoFile( const char* filename, SoundFileHandler* fileHandler );
     void LoadScriptFile( const char* filename, SoundFileHandler* fileHandler );
+#endif
 
     void SetLanguage( Scrooby::XLLanguage language );
 
+#ifdef AUDIO_ENABLE_SCRIPTING
     void ProcessTypeInfo( void* pUserData );
     void ProcessScript( void* pUserData );
+#endif
+    virtual void OnProcessRequestsComplete( void* pUserData );
 
     //
     // IDaSoundManager
@@ -121,15 +128,32 @@ public:
 
 protected:
 
+#ifdef AUDIO_ENABLE_SCRIPTING
     static void TypeInfoComplete( void* pUserData );
     static void ScriptComplete( void* pUserData );
     static void SoundObjectCreated( const char* objName, IRefCount* obj );
+#endif
 
 private:
 
     static void FilePerformanceEvent( bool start, const char * pFile, unsigned int bytes );
 
     void registerDialogueCementFiles( const char* cementFilename );
+
+#ifndef AUDIO_ENABLE_SCRIPTING
+    template<class T>
+    T& Create( const char* objName )
+    {
+        T* obj = T::ObjCreate( GMA_AUDIO_PERSISTENT );
+        if( false == m_pCurrentNameSpace->AddInstance( objName, obj ) )
+            rTunePrintf( "AUDIO: WARNING: Inventory Collision!: %s\n", objName );
+        rReleaseAssert( GetSoundManager()->GetSoundLoader()->AddResourceToCurrentCluster( objName ) );
+        obj->Release();
+        return *obj;
+    }
+
+    void SetCurrentNameSpace( IRadNameSpace* pNameSpace ) { m_pCurrentNameSpace = pNameSpace; }
+#endif
     
     // The singleton instance
     static daSoundRenderingManager*              s_Singleton;
@@ -142,7 +166,7 @@ private:
     //
     IRadNameSpace*                      m_pResourceNameSpace;
     IRadNameSpace*                      m_pTuningNameSpace;
-
+    IRadNameSpace*                      m_pCurrentNameSpace;
     IRadNameSpace*                      m_pCharacterNameSpace[NUM_CHARACTER_NAMESPACES];
 
     //

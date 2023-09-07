@@ -55,6 +55,11 @@
 #include <p3d/utility.hpp>
 #include <p3d/p3dtypes.hpp>
 
+#include <sound/avatar/carsoundparameters.h>
+#include <sound/soundfx/reverbsettings.h>
+#include <sound/soundfx/positionalsoundsettings.h>
+#include <sound/tuning/globalsettings.h>
+
 //=============================================================================
 // Namespace
 //=============================================================================
@@ -216,6 +221,8 @@ struct DaSoundScriptData
 {
     const char*     m_Filename;
 };
+
+#ifdef AUDIO_ENABLE_SCRIPTING
 
 //
 // IMPORTANT CHANGE: The last script files listed will have its contents go
@@ -408,6 +415,8 @@ static SoundClusterName s_ScriptClusters[] =
 const unsigned int NumClusterNames = sizeof( s_ScriptClusters ) /
                                      sizeof( SoundClusterName );
 
+#endif
+
 
 //=============================================================================
 // Class Implementations
@@ -431,6 +440,7 @@ daSoundRenderingManager::daSoundRenderingManager( )
     m_IsInitialized( false ),
     m_pResourceNameSpace( NULL ),
     m_pTuningNameSpace( NULL ),
+    m_pCurrentNameSpace( NULL ),
     m_pDynaLoadManager( NULL ),
     m_pTuner( NULL ),
     m_pResourceManager( NULL ),
@@ -560,7 +570,7 @@ void daSoundRenderingManager::Initialize
     //
     ::radFactoryRegister(
         "daSoundResourceData",
-        (radFactoryProc*) daSoundResourceManager::CreateResourceData );
+        (radFactoryProc*) daSoundResourceData::ObjCreate );
     rAssert( GetSoundNamespace( ) != NULL );
     rAssert( GetTuningNamespace() != NULL );
 }
@@ -840,7 +850,8 @@ void daSoundRenderingManager::SetLanguage( Scrooby::XLLanguage language )
 //=============================================================================
 void daSoundRenderingManager::QueueRadscriptFileLoads()
 {
-    HeapMgr()->PushHeap (GMA_AUDIO_PERSISTENT);
+#ifdef AUDIO_ENABLE_SCRIPTING
+    HeapMgr()->PushHeap( GMA_AUDIO_PERSISTENT );
 
     unsigned int i;
     char filename[100];
@@ -945,9 +956,298 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
         GetLoadingManager()->AddRequest( FILEHANDLER_SOUND, filename, GMA_AUDIO_PERSISTENT );
     }
 
-    HeapMgr()->PopHeap (GMA_AUDIO_PERSISTENT);
+    HeapMgr()->PopHeap( GMA_AUDIO_PERSISTENT );
+#else
+    SoundLoader* loader = GetSoundManager()->GetSoundLoader();
+
+    // Character sound scripts
+    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_APU ) );
+    loader->SetCurrentCluster( SC_CHAR_APU );
+    #include "scripts/Apu.inl"
+    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_BART ) );
+    loader->SetCurrentCluster( SC_CHAR_BART );
+    #include "scripts/Bart.inl"
+    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_HOMER ) );
+    loader->SetCurrentCluster( SC_CHAR_HOMER );
+    #include "scripts/Homer.inl"
+    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_LISA ) );
+    loader->SetCurrentCluster( SC_CHAR_LISA );
+    #include "scripts/Lisa.inl"
+    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_MARGE ) );
+    loader->SetCurrentCluster( SC_CHAR_MARGE );
+    #include "scripts/Marge.inl"
+
+    // Level scripts
+    SetCurrentNameSpace( GetSoundNamespace() );
+    loader->SetCurrentCluster( SC_LEVEL_SUBURBS );
+    #include "scripts/suburbs.inl"
+    loader->SetCurrentCluster( SC_LEVEL_DOWNTOWN );
+    #include "scripts/downtown.inl"
+    loader->SetCurrentCluster( SC_LEVEL_SEASIDE );
+    #include "scripts/seaside.inl"
+    loader->SetCurrentCluster( SC_LEVEL1 );
+    #include "scripts/level1.inl"
+    loader->SetCurrentCluster( SC_LEVEL2 );
+    #include "scripts/level2.inl"
+    loader->SetCurrentCluster( SC_LEVEL3 );
+    #include "scripts/level3.inl"
+    loader->SetCurrentCluster( SC_LEVEL4 );
+    #include "scripts/level4.inl"
+    loader->SetCurrentCluster( SC_LEVEL5 );
+    #include "scripts/level5.inl"
+    loader->SetCurrentCluster( SC_LEVEL6 );
+    #include "scripts/level6.inl"
+    loader->SetCurrentCluster( SC_LEVEL7 );
+    #include "scripts/level7.inl"
+    loader->SetCurrentCluster( SC_MINIGAME );
+    #include "scripts/minigame.inl"
+
+    // Sound effect resources
+    loader->SetCurrentCluster( SC_ALWAYS_LOADED );
+    #include "scripts/frontend.inl"
+    #include "scripts/collide.inl"
+    #include "scripts/carsound.inl"
+    #include "scripts/World.inl"
+    loader->SetCurrentCluster( SC_INGAME );
+    #include "scripts/positionalSounds.inl"
+    switch( m_currentLanguage )
+    {
+    case DIALOGUE_LANGUAGE_ENGLISH:
+        #include "scripts/interactive_props.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_FRENCH:
+        #include "scripts/interactive_propsfr.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_GERMAN:
+        #include "scripts/interactive_propsge.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_SPANISH:
+        #include "scripts/interactive_propssp.inl"
+        break;
+
+    default:
+        rAssert( false );
+        break;
+    }
+
+    // Dialog
+    loader->SetCurrentCluster( SC_NEVER_LOADED );
+    switch( m_currentLanguage )
+    {
+    case DIALOGUE_LANGUAGE_ENGLISH:
+        #include "scripts/dialog.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_FRENCH:
+        #include "scripts/dialogfr.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_GERMAN:
+        #include "scripts/dialogge.inl"
+        break;
+
+    case DIALOGUE_LANGUAGE_SPANISH:
+        #include "scripts/dialogsp.inl"
+        break;
+
+    default:
+        rAssert( false );
+        break;
+    }
+    #include "scripts/nis.inl"
+
+    // Cars
+    loader->SetCurrentCluster( SC_BART_V );
+    #include "scripts/bart_v.inl"
+    loader->SetCurrentCluster( SC_APU_V );
+    #include "scripts/apu_v.inl"
+    loader->SetCurrentCluster( SC_SNAKE_V );
+    #include "scripts/snake_v.inl"
+    loader->SetCurrentCluster( SC_HOMER_V );
+    #include "scripts/homer_v.inl"
+    loader->SetCurrentCluster( SC_FAMIL_V );
+    #include "scripts/famil_v.inl"
+    loader->SetCurrentCluster( SC_GRAMP_V );
+    #include "scripts/gramp_v.inl"
+    loader->SetCurrentCluster( SC_CLETU_V );
+    #include "scripts/cletu_v.inl"
+    loader->SetCurrentCluster( SC_WIGGU_V );
+    #include "scripts/wiggu_v.inl"
+    #include "scripts/empty.inl"
+    loader->SetCurrentCluster( SC_MARGE_V );
+    #include "scripts/marge_v.inl"
+    loader->SetCurrentCluster( SC_SMITH_V );
+    #include "scripts/smith_v.inl"
+    loader->SetCurrentCluster( SC_ZOMBI_V );
+    #include "scripts/zombi_v.inl"
+    loader->SetCurrentCluster( SC_CVAN );
+    #include "scripts/cVan.inl"
+    loader->SetCurrentCluster( SC_COMPACTA );
+    #include "scripts/compactA.inl"
+    loader->SetCurrentCluster( SC_COMIC_V );
+    #include "scripts/comic_v.inl"
+    loader->SetCurrentCluster( SC_SKINN_V );
+    #include "scripts/skinn_v.inl"
+    loader->SetCurrentCluster( SC_CCOLA );
+    #include "scripts/cCola.inl"
+    loader->SetCurrentCluster( SC_CSEDAN );
+    #include "scripts/cSedan.inl"
+    loader->SetCurrentCluster( SC_CPOLICE );
+    #include "scripts/cPolice.inl"
+    loader->SetCurrentCluster( SC_CCELLA );
+    #include "scripts/cCellA.inl"
+    loader->SetCurrentCluster( SC_CCELLB );
+    #include "scripts/cCellB.inl"
+    loader->SetCurrentCluster( SC_CCELLC );
+    #include "scripts/cCellC.inl"
+    loader->SetCurrentCluster( SC_CCELLD );
+    #include "scripts/cCellD.inl"
+    loader->SetCurrentCluster( SC_MINIVANA );
+    #include "scripts/minivanA_v.inl"
+    loader->SetCurrentCluster( SC_PICKUPA );
+    #include "scripts/pickupA.inl"
+    loader->SetCurrentCluster( SC_TAXIA );
+    #include "scripts/taxiA_v.inl"
+    loader->SetCurrentCluster( SC_SPORTSA );
+    #include "scripts/sportsA.inl"
+    loader->SetCurrentCluster( SC_SPORTSB );
+    #include "scripts/sportsB.inl"
+    loader->SetCurrentCluster( SC_SUVA );
+    #include "scripts/SUVA.inl"
+    loader->SetCurrentCluster( SC_WAGONA );
+    #include "scripts/wagonA.inl"
+    loader->SetCurrentCluster( SC_HBIKE_V );
+    #include "scripts/hbike_v.inl"
+    loader->SetCurrentCluster( SC_BURNS_V );
+    #include "scripts/burns_v.inl"
+    loader->SetCurrentCluster( SC_HONOR_V );
+    #include "scripts/honor_v.inl"
+    loader->SetCurrentCluster( SC_CARMOR );
+    #include "scripts/cArmor.inl"
+    loader->SetCurrentCluster( SC_CCURATOR );
+    #include "scripts/cCurator.inl"
+    loader->SetCurrentCluster( SC_CHEARS );
+    #include "scripts/cHears.inl"
+    loader->SetCurrentCluster( SC_CKLIMO );
+    #include "scripts/cKlimo.inl"
+    loader->SetCurrentCluster( SC_CLIMO );
+    #include "scripts/cLimo.inl"
+    loader->SetCurrentCluster( SC_CNERD );
+    #include "scripts/cNerd.inl"
+    loader->SetCurrentCluster( SC_FRINK_V );
+    #include "scripts/frink_v.inl"
+    loader->SetCurrentCluster( SC_CMILK );
+    #include "scripts/cMilk.inl"
+    loader->SetCurrentCluster( SC_CDONUT );
+    #include "scripts/cDonut.inl"
+    loader->SetCurrentCluster( SC_BBMAN_V );
+    #include "scripts/bbman_v.inl"
+    loader->SetCurrentCluster( SC_BOOKB_V );
+    #include "scripts/bookb_v.inl"
+    loader->SetCurrentCluster( SC_CARHOM_V );
+    #include "scripts/carhom_v.inl"
+    loader->SetCurrentCluster( SC_ELECT_V );
+    #include "scripts/elect_v.inl"
+    loader->SetCurrentCluster( SC_FONE_V );
+    #include "scripts/fone_v.inl"
+    loader->SetCurrentCluster( SC_GRAMR_V );
+    #include "scripts/gramR_v.inl"
+    loader->SetCurrentCluster( SC_MOE_V );
+    #include "scripts/moe_v.inl"
+    loader->SetCurrentCluster( SC_MRPLO_V );
+    #include "scripts/mrplo_v.inl"
+    loader->SetCurrentCluster( SC_OTTO_V );
+    #include "scripts/otto_v.inl"
+    loader->SetCurrentCluster( SC_PLOWK_V );
+    #include "scripts/plowk_v.inl"
+    loader->SetCurrentCluster( SC_SCORP_V );
+    #include "scripts/scorp_v.inl"
+    loader->SetCurrentCluster( SC_WILLI_V );
+    #include "scripts/willi_v.inl"
+    loader->SetCurrentCluster( SC_SEDANA );
+    #include "scripts/sedanA.inl"
+    loader->SetCurrentCluster( SC_SEDANB );
+    #include "scripts/sedanB.inl"
+    loader->SetCurrentCluster( SC_CBLBART );
+    #include "scripts/cBlbart.inl"
+    loader->SetCurrentCluster( SC_CCUBE );
+    #include "scripts/cCube.inl"
+    loader->SetCurrentCluster( SC_CDUFF );
+    #include "scripts/cDuff.inl"
+    loader->SetCurrentCluster( SC_CNONUP );
+    #include "scripts/cNonup.inl"
+    loader->SetCurrentCluster( SC_LISA_V );
+    #include "scripts/lisa_v.inl"
+    loader->SetCurrentCluster( SC_KRUST_V );
+    #include "scripts/krust_v.inl"
+    loader->SetCurrentCluster( SC_COFFIN );
+    #include "scripts/coffin.inl"
+    loader->SetCurrentCluster( SC_HALLO );
+    #include "scripts/hallo.inl"
+    loader->SetCurrentCluster( SC_SHIP );
+    #include "scripts/ship.inl"
+    loader->SetCurrentCluster( SC_WITCHCAR );
+    #include "scripts/witchcar.inl"
+    loader->SetCurrentCluster( SC_HUSKA );
+    #include "scripts/huska.inl"
+    loader->SetCurrentCluster( SC_ATV_V );
+    #include "scripts/atv_v.inl"
+    loader->SetCurrentCluster( SC_DUNE_V );
+    #include "scripts/dune_v.inl"
+    loader->SetCurrentCluster( SC_HYPE_V );
+    #include "scripts/hype_v.inl"
+    loader->SetCurrentCluster( SC_KNIGH_V );
+    #include "scripts/knigh_v.inl"
+    loader->SetCurrentCluster( SC_MONO_V );
+    #include "scripts/mono_v.inl"
+    loader->SetCurrentCluster( SC_OBLIT_V );
+    #include "scripts/oblit_v.inl"
+    loader->SetCurrentCluster( SC_ROCKE_V );
+    #include "scripts/rocke_v.inl"
+    loader->SetCurrentCluster( SC_AMBUL );
+    #include "scripts/ambul.inl"
+    loader->SetCurrentCluster( SC_BURNSARM );
+    #include "scripts/burnsarm.inl"
+    loader->SetCurrentCluster( SC_FISHTRUC );
+    #include "scripts/fishtruc.inl"
+    loader->SetCurrentCluster( SC_GARBAGE );
+    #include "scripts/garbage.inl"
+    loader->SetCurrentCluster( SC_ICECREAM );
+    #include "scripts/icecream.inl"
+    loader->SetCurrentCluster( SC_ISTRUCK );
+    #include "scripts/istruck.inl"
+    loader->SetCurrentCluster( SC_NUCTRUCK );
+    #include "scripts/nuctruck.inl"
+    loader->SetCurrentCluster( SC_PIZZA );
+    #include "scripts/pizza.inl"
+    loader->SetCurrentCluster( SC_SCHOOLBU );
+    #include "scripts/schoolbu.inl"
+    loader->SetCurrentCluster( SC_VOTETRUC );
+    #include "scripts/votetruc.inl"
+    loader->SetCurrentCluster( SC_GLASTRUC );
+    #include "scripts/glastruc.inl"
+    loader->SetCurrentCluster( SC_CFIRE_V );
+    #include "scripts/cfire_v.inl"
+    loader->SetCurrentCluster( SC_CBONE );
+    #include "scripts/cBone.inl"
+    loader->SetCurrentCluster( SC_REDBRICK );
+    #include "scripts/redbrick.inl"
+
+    // Tuning
+    SetCurrentNameSpace( GetTuningNamespace() );
+    loader->SetCurrentCluster( SC_NEVER_LOADED );
+    #include "scripts/car_tune.inl"
+    #include "scripts/positionalSettings.inl"
+    #include "scripts/global.inl"
+#endif
+
+    GetLoadingManager()->AddCallback( this );
 }
 
+#ifdef AUDIO_ENABLE_SCRIPTING
 //=============================================================================
 // daSoundRenderingManager::LoadTypeInfoFile
 //=============================================================================
@@ -1011,7 +1311,7 @@ void daSoundRenderingManager::LoadScriptFile( const char* filename, SoundFileHan
     //
     if( m_scriptLoadCount < NUM_CHARACTER_SCRIPTS )
     {
-        m_pScript->SetContext( GetCharacterNamespace( m_scriptLoadCount ) );
+        m_pScript->SetContext( GetCharacterNamespace( SC_CHAR_APU + m_scriptLoadCount ) );
     }
     else if( m_scriptLoadCount >= NumSoundScripts - NUM_TUNING_SCRIPTS )
     {
@@ -1040,6 +1340,7 @@ void daSoundRenderingManager::LoadScriptFile( const char* filename, SoundFileHan
         RADMEMORY_ALLOC_TEMP
     );
  }
+#endif
 
 //=============================================================================
 // Function:    daSoundRenderingManager::GetSoundNamespace
@@ -1078,16 +1379,16 @@ IRadNameSpace* daSoundRenderingManager::GetTuningNamespace( void )
 //=============================================================================
 // Description: Get the specified character namespace
 //
-// Parameters:  index - index into list of namespaces
+// Parameters:  index - cluster index into list of namespaces
 //
 // Return:      Pointer to the desired namespace
 //
 //=============================================================================
-IRadNameSpace* daSoundRenderingManager::GetCharacterNamespace( unsigned int index )
+IRadNameSpace* daSoundRenderingManager::GetCharacterNamespace( unsigned int clusterIndex )
 {
-    rAssert( index < NUM_CHARACTER_NAMESPACES );
+    rAssert( SC_CHAR_APU <= clusterIndex && clusterIndex <= SC_CHAR_MARGE );
 
-    return( m_pCharacterNameSpace[index] );
+    return( m_pCharacterNameSpace[clusterIndex - SC_CHAR_APU] );
 }
 
 //=============================================================================
@@ -1202,6 +1503,7 @@ daSoundPlayerManager* daSoundRenderingManager::GetPlayerManager( void )
     return m_pPlayerManager;
 }
 
+#ifdef AUDIO_ENABLE_SCRIPTING
 //=============================================================================
 // Function:    daSoundRenderingManager::TypeInfoComplete
 //=============================================================================
@@ -1249,22 +1551,7 @@ void daSoundRenderingManager::ScriptComplete( void* pUserData )
 //=============================================================================
 void daSoundRenderingManager::SoundObjectCreated( const char* objName, IRefCount* obj )
 {
-    bool added;
-    rAssert( NULL != dynamic_cast< daSoundResourceData*>( obj ) );
-    daSoundResourceData* resourceObj = static_cast<daSoundResourceData*>( obj );
-
-    //
-    // We only need to preload clips
-    //
-    if( resourceObj->GetStreaming() == false )
-    {
-        added = GetSoundManager()->GetSoundLoader()->AddResourceToCurrentCluster( objName );
-        rAssert( added );
-    }
-    else
-    {
-        volatile int x = 4;
-    }
+    rReleaseAssert( GetSoundManager()->GetSoundLoader()->AddResourceToCurrentCluster( objName ) );
 }
 
 //=============================================================================
@@ -1294,7 +1581,6 @@ void daSoundRenderingManager::ProcessTypeInfo( void* pUserData )
 //=============================================================================
 void daSoundRenderingManager::ProcessScript( void* pUserData )
 {
-    ScriptObjCreateCallback* callbackPtr = NULL;
     const bool* lastScript = reinterpret_cast<const bool*>( pUserData );
 
     rAssert( m_pScript != NULL );
@@ -1305,8 +1591,6 @@ void daSoundRenderingManager::ProcessScript( void* pUserData )
     //
     if( m_scriptLoadCount < NumSoundScripts - NUM_TUNING_SCRIPTS )
     {
-        callbackPtr = SoundObjectCreated;
-
         if( m_scriptLoadCount < NumClusterNames )
         {
             GetSoundManager()->GetSoundLoader()->SetCurrentCluster( s_ScriptClusters[m_scriptLoadCount] );
@@ -1316,11 +1600,15 @@ void daSoundRenderingManager::ProcessScript( void* pUserData )
             GetSoundManager()->GetSoundLoader()->SetCurrentCluster( static_cast<SoundClusterName>(SC_CAR_BASE + m_scriptLoadCount - NumClusterNames) );
         }
     }
+    else
+    {
+        GetSoundManager()->GetSoundLoader()->SetCurrentCluster( SC_NEVER_LOADED );
+    }
 
     // Execute script file
     
     unsigned int start = radTimeGetMicroseconds( );
-    m_pScript->Run( callbackPtr );
+    m_pScript->Run( SoundObjectCreated );
     unsigned int finished = radTimeGetMicroseconds( );
     unsigned int dif = finished - start;
     
@@ -1341,36 +1629,49 @@ void daSoundRenderingManager::ProcessScript( void* pUserData )
         rAssert( m_pScript != NULL );
         m_pScript->Release( );
         m_pScript = NULL;
-
-        //
-        // At this point the sound resources should be finalized, lets lock them down
-        // and then intialize some systems.
-        //
-
-        GetTuner( )->Initialize( );
-        
-        // Initialize the dialog system
-        
-        SoundManager::GetInstance( )->m_dialogCoordinator->Initialize( );
-            
-        Sound::daSoundResourceManager::GetInstance( )->SetResourceLockdown( true );
-        
-        m_pPlayerManager->Initialize( );
-
-        // We are now fully initialized
-        m_IsInitialized = true;
-        
-        if ( ! gTuneSound )
-        {
-            radScriptUnLoadAllTypeInfo( );        
-        }
     }
 
     ++m_scriptLoadCount;
 
     m_soundFileHandler->LoadCompleted();
 }
+#endif
 
+//=============================================================================
+// daSoundRenderingManager::OnProcessRequestsComplete
+//=============================================================================
+// Description: Asynchronous requests complete callback
+//
+// Parameters:  pUserData - some user data to pass on
+//
+// Return:      void 
+//
+//=============================================================================
+void daSoundRenderingManager::OnProcessRequestsComplete( void* pUserData )
+{
+    //
+    // At this point the sound resources should be finalized, lets lock them down
+    // and then intialize some systems.
+    //
+
+    GetTuner()->Initialize();
+
+    // Initialize the dialog system
+
+    SoundManager::GetInstance()->m_dialogCoordinator->Initialize();
+
+    Sound::daSoundResourceManager::GetInstance()->SetResourceLockdown( true );
+
+    m_pPlayerManager->Initialize();
+
+    // We are now fully initialized
+    m_IsInitialized = true;
+
+    if( !gTuneSound )
+    {
+        radScriptUnLoadAllTypeInfo();
+    }
+}
 
 //=============================================================================
 // Public Functions

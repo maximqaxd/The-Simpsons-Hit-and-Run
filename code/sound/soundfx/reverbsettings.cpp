@@ -109,25 +109,20 @@ reverbSettings::~reverbSettings()
 //******************************************************************************
 
 //==============================================================================
-// ReverbSettingsObjCreate
+// reverbSettings::ObjCreate
 //==============================================================================
 // Description: Factory function for creating reverbSettings objects.
 //              Called by RadScript.
 //
-// Parameters:	ppSettings - Address of ptr to new object
-//              allocator - FTT pool to allocate object within
+// Parameters:	allocator - FTT pool to allocate object within
 //
 // Return:      N/A.
 //
 //==============================================================================
-void ReverbSettingsObjCreate
-(
-    IReverbSettings** ppSettings,
-    radMemoryAllocator allocator
-)
+reverbSettings* reverbSettings::ObjCreate( radMemoryAllocator allocator )
 {
-    rAssert( ppSettings != NULL );
-    (*ppSettings) = new ( allocator ) reverbSettings( );
-    (*ppSettings)->AddRef( );
+    reverbSettings* pSettings = new ( allocator ) reverbSettings( );
+    pSettings->AddRef( );
+    return pSettings;
 }
 

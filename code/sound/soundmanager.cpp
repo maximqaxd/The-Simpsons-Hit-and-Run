@@ -819,8 +819,13 @@ void SoundManager::LoadSoundFile( const char* filename, SoundFileHandler* callba
     if( filename[length - 4] == '.' )
     {
         strcpy( fileExtension, &(filename[strlen(filename) - 3]) );
-
-        if( strcmp( fileExtension, RADSCRIPT_TYPE_INFO_FILE ) == 0 )
+        
+        if( strcmp( fileExtension, RADMUSIC_SCRIPT_FILE ) == 0 )
+        {
+            m_musicPlayer->LoadRadmusicScript( filename, callbackObj );
+        }
+#ifdef AUDIO_ENABLE_SCRIPTING
+        else if( strcmp( fileExtension, RADSCRIPT_TYPE_INFO_FILE ) == 0 )
         {
             m_pSoundRenderMgr->LoadTypeInfoFile( filename, callbackObj );
         }
@@ -828,10 +833,7 @@ void SoundManager::LoadSoundFile( const char* filename, SoundFileHandler* callba
         {
             m_pSoundRenderMgr->LoadScriptFile( filename, callbackObj );
         }
-        else if( strcmp( fileExtension, RADMUSIC_SCRIPT_FILE ) == 0 )
-        {
-            m_musicPlayer->LoadRadmusicScript( filename, callbackObj );
-        }
+#endif
         else
         {
             //
@@ -2086,9 +2088,9 @@ void SoundManager::Initialize()
     //
     // Register a factory for creating the global settings object
     //
-    ::radFactoryRegister( "globalSettings", (radFactoryOutParamProc*) ::GlobalSettingsObjCreate );
-    ::radFactoryRegister( "reverbSettings", (radFactoryOutParamProc*) ::ReverbSettingsObjCreate );
-    ::radFactoryRegister( "positionalSoundSettings", (radFactoryOutParamProc*) ::PositionalSettingsObjCreate );
+    ::radFactoryRegister( "globalSettings", (radFactoryProc*) globalSettings::ObjCreate );
+    ::radFactoryRegister( "reverbSettings", (radFactoryProc*) reverbSettings::ObjCreate );
+    ::radFactoryRegister( "positionalSoundSettings", (radFactoryProc*) positionalSoundSettings::ObjCreate );
 
 #ifdef RAD_WIN32
     //

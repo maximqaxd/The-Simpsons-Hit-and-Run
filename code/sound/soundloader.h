@@ -62,7 +62,7 @@ class SoundLoader : public EventListener
         void SetCurrentCluster( SoundClusterName cluster ) 
             { rAssert( cluster != SC_MAX_CLUSTERS ); m_currentCluster = cluster; }
         bool AddResourceToCurrentCluster( const char* resourceName )
-            { return( m_clusterList[m_currentCluster]->AddResource( resourceName ) ); }
+            { if( m_currentCluster == SC_NEVER_LOADED ) return( true ); return( m_clusterList[m_currentCluster]->AddResource( resourceName ) ); }
 
         //
         // EventListener functions

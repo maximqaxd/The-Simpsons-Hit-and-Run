@@ -246,7 +246,7 @@ void carSoundParameters::SetWatcherName( const char* name )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetShiftPoint( unsigned int gear, float percent )
+ICarSoundParameters& carSoundParameters::SetShiftPoint( unsigned int gear, float percent )
 {
     rAssert( gear > 0 );
     rAssert( gear <= MAX_GEARS );
@@ -254,6 +254,7 @@ void carSoundParameters::SetShiftPoint( unsigned int gear, float percent )
     rAssert( percent <= 1.0f );
 
     m_shiftPoints[gear-1] = percent;
+    return *this;
 }
 
 //=============================================================================
@@ -289,9 +290,10 @@ float carSoundParameters::GetShiftPoint( int gear )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetAttackTimeMsecs( float msecs )
+ICarSoundParameters& carSoundParameters::SetAttackTimeMsecs( float msecs )
 {
     m_attackTime = msecs;
+    return *this;
 }
 
 //=============================================================================
@@ -304,9 +306,10 @@ void carSoundParameters::SetAttackTimeMsecs( float msecs )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDelayTimeMsecs( unsigned int msecs )
+ICarSoundParameters& carSoundParameters::SetDelayTimeMsecs( unsigned int msecs )
 {
     m_delayTime = msecs;
+    return *this;
 }
 
 //=============================================================================
@@ -319,9 +322,10 @@ void carSoundParameters::SetDelayTimeMsecs( unsigned int msecs )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDecayTimeMsecs( float msecs )
+ICarSoundParameters& carSoundParameters::SetDecayTimeMsecs( float msecs )
 {
     m_decayTime = msecs;
+    return *this;
 }
 
 //=============================================================================
@@ -334,9 +338,10 @@ void carSoundParameters::SetDecayTimeMsecs( float msecs )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDecayFinishTrim( float trim )
+ICarSoundParameters& carSoundParameters::SetDecayFinishTrim( float trim )
 {
     m_decayFinishTrim = trim;
+    return *this;
 }
 
 //=============================================================================
@@ -350,12 +355,13 @@ void carSoundParameters::SetDecayFinishTrim( float trim )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDownshiftDamperSize( float percent )
+ICarSoundParameters& carSoundParameters::SetDownshiftDamperSize( float percent )
 {
     rAssert( percent >= 0.0f );
     rAssert( percent <= 1.0f );
 
     m_downshiftDamper = percent;
+    return *this;
 }
 
 //=============================================================================
@@ -369,7 +375,7 @@ void carSoundParameters::SetDownshiftDamperSize( float percent )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetEngineClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetEngineClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -379,6 +385,7 @@ void carSoundParameters::SetEngineClipName( const char* clipName )
     strcpy( m_engineClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -392,7 +399,7 @@ void carSoundParameters::SetEngineClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetEngineIdleClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetEngineIdleClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -402,6 +409,7 @@ void carSoundParameters::SetEngineIdleClipName( const char* clipName )
     strcpy( m_idleClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -415,7 +423,7 @@ void carSoundParameters::SetEngineIdleClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDamagedEngineClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetDamagedEngineClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -425,6 +433,7 @@ void carSoundParameters::SetDamagedEngineClipName( const char* clipName )
     strcpy( m_damagedClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -438,7 +447,7 @@ void carSoundParameters::SetDamagedEngineClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetHornClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetHornClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -448,6 +457,7 @@ void carSoundParameters::SetHornClipName( const char* clipName )
     strcpy( m_hornClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -461,7 +471,7 @@ void carSoundParameters::SetHornClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetCarDoorOpenClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetCarDoorOpenClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -471,6 +481,7 @@ void carSoundParameters::SetCarDoorOpenClipName( const char* clipName )
     strcpy( m_carOpenClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -484,7 +495,7 @@ void carSoundParameters::SetCarDoorOpenClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetCarDoorCloseClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetCarDoorCloseClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -494,6 +505,7 @@ void carSoundParameters::SetCarDoorCloseClipName( const char* clipName )
     strcpy( m_carCloseClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -507,7 +519,7 @@ void carSoundParameters::SetCarDoorCloseClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetOverlayClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetOverlayClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -517,6 +529,7 @@ void carSoundParameters::SetOverlayClipName( const char* clipName )
     strcpy( m_overlayClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -530,7 +543,7 @@ void carSoundParameters::SetOverlayClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetRoadSkidClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetRoadSkidClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -540,6 +553,7 @@ void carSoundParameters::SetRoadSkidClipName( const char* clipName )
     strcpy( m_roadSkidClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -553,7 +567,7 @@ void carSoundParameters::SetRoadSkidClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDirtSkidClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetDirtSkidClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -563,6 +577,7 @@ void carSoundParameters::SetDirtSkidClipName( const char* clipName )
     strcpy( m_dirtSkidClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -576,7 +591,7 @@ void carSoundParameters::SetDirtSkidClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetBackupClipName( const char* clipName )
+ICarSoundParameters& carSoundParameters::SetBackupClipName( const char* clipName )
 {
     rAssert( clipName != NULL );
 
@@ -586,6 +601,7 @@ void carSoundParameters::SetBackupClipName( const char* clipName )
     strcpy( m_backupClipName, clipName );
 
     HeapMgr()->PopHeap(GMA_PERSISTENT);
+    return *this;
 }
 
 //=============================================================================
@@ -600,7 +616,7 @@ void carSoundParameters::SetBackupClipName( const char* clipName )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetGearPitchRange( unsigned int gear, float min, float max )
+ICarSoundParameters& carSoundParameters::SetGearPitchRange( unsigned int gear, float min, float max )
 {
     rAssert( gear > 0 );
     rAssert( gear <= MAX_GEARS );
@@ -608,6 +624,7 @@ void carSoundParameters::SetGearPitchRange( unsigned int gear, float min, float 
 
     m_minPitch[gear-1] = min;
     m_maxPitch[gear-1] = max;
+    return *this;
 }
 
 //=============================================================================
@@ -620,7 +637,7 @@ void carSoundParameters::SetGearPitchRange( unsigned int gear, float min, float 
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetNumberOfGears( unsigned int gear )
+ICarSoundParameters& carSoundParameters::SetNumberOfGears( unsigned int gear )
 {
     rAssert( gear <= MAX_GEARS );
 
@@ -629,6 +646,7 @@ void carSoundParameters::SetNumberOfGears( unsigned int gear )
     // effectively cutting the number of gears
     //
     m_shiftPoints[gear] = 1.0f;
+    return *this;
 }
 
 //=============================================================================
@@ -642,11 +660,12 @@ void carSoundParameters::SetNumberOfGears( unsigned int gear )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetReversePitchCapKmh( float speed )
+ICarSoundParameters& carSoundParameters::SetReversePitchCapKmh( float speed )
 {
     rAssert( speed > 0.0f );
 
     m_maxReverseKmh = speed;
+    return *this;
 }
 
 //=============================================================================
@@ -660,12 +679,13 @@ void carSoundParameters::SetReversePitchCapKmh( float speed )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetReversePitchRange( float min, float max )
+ICarSoundParameters& carSoundParameters::SetReversePitchRange( float min, float max )
 {
     rAssert( min < max );
 
     m_minReversePitch = min;
     m_maxReversePitch = max;
+    return *this;
 }
 
 //=============================================================================
@@ -679,13 +699,14 @@ void carSoundParameters::SetReversePitchRange( float min, float max )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetGearShiftPitchDrop( unsigned int gear, float drop )
+ICarSoundParameters& carSoundParameters::SetGearShiftPitchDrop( unsigned int gear, float drop )
 {
     rAssert( gear > 0 );
     rAssert( gear <= MAX_GEARS );
     rAssert( drop >= 0.0f );
 
     m_gearShiftPitchDrop[gear-1] = drop;
+    return *this;
 }
 
 //=============================================================================
@@ -717,7 +738,7 @@ float carSoundParameters::GetGearShiftPitchDrop( unsigned int gear )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDamageStartPcnt( float damagePercent )
+ICarSoundParameters& carSoundParameters::SetDamageStartPcnt( float damagePercent )
 {
     rAssert( damagePercent >= 0.0f );
     rAssert( damagePercent <= 1.0f );
@@ -726,6 +747,7 @@ void carSoundParameters::SetDamageStartPcnt( float damagePercent )
     m_damageVolumeRange += damagePercent - m_damageStartPcnt;
 
     m_damageStartPcnt = damagePercent;
+    return *this;
 }
 
 //=============================================================================
@@ -740,7 +762,7 @@ void carSoundParameters::SetDamageStartPcnt( float damagePercent )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDamageMaxVolPcnt( float percent )
+ICarSoundParameters& carSoundParameters::SetDamageMaxVolPcnt( float percent )
 {
     rAssert( percent >= 0.0f );
     rAssert( percent <= 1.0f );
@@ -749,6 +771,7 @@ void carSoundParameters::SetDamageMaxVolPcnt( float percent )
     // We don't actually store the percentage, since the trim setting code
     // only cares about the min/max range; might as well precalculate it
     m_damageVolumeRange = m_damageStartPcnt - percent;
+    return *this;
 }
 
 //=============================================================================
@@ -762,12 +785,13 @@ void carSoundParameters::SetDamageMaxVolPcnt( float percent )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDamageStartTrim( float trim )
+ICarSoundParameters& carSoundParameters::SetDamageStartTrim( float trim )
 {
     rAssert( trim >= 0.0f );
     rAssert( trim <= 1.0f );
 
     m_damageStartTrim = trim;
+    return *this;
 }
 
 //=============================================================================
@@ -781,12 +805,13 @@ void carSoundParameters::SetDamageStartTrim( float trim )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetDamageMaxTrim( float trim )
+ICarSoundParameters& carSoundParameters::SetDamageMaxTrim( float trim )
 {
     rAssert( trim >= 0.0f );
     rAssert( trim <= 1.0f );
 
     m_damageMaxTrim = trim;
+    return *this;
 }
 
 //=============================================================================
@@ -799,9 +824,10 @@ void carSoundParameters::SetDamageMaxTrim( float trim )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetIdleEnginePitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetIdleEnginePitch( float pitch )
 {
     m_idleEnginePitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -814,9 +840,10 @@ void carSoundParameters::SetIdleEnginePitch( float pitch )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetInAirThrottlePitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetInAirThrottlePitch( float pitch )
 {
     m_inAirThrottlePitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -855,9 +882,10 @@ float carSoundParameters::GetInAirThrottlePitch()
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetInAirIdlePitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetInAirIdlePitch( float pitch )
 {
     m_inAirIdlePitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -897,9 +925,10 @@ float carSoundParameters::GetInAirIdlePitch()
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetInAirThrottleResponseTimeMsecs( unsigned int msecs )
+ICarSoundParameters& carSoundParameters::SetInAirThrottleResponseTimeMsecs( unsigned int msecs )
 {
     m_inAirResponseMsecs = msecs;
+    return *this;
 }
 
 //=============================================================================
@@ -913,9 +942,10 @@ void carSoundParameters::SetInAirThrottleResponseTimeMsecs( unsigned int msecs )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetBurnoutMinPitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetBurnoutMinPitch( float pitch )
 {
     m_burnoutMinPitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -929,9 +959,10 @@ void carSoundParameters::SetBurnoutMinPitch( float pitch )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetBurnoutMaxPitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetBurnoutMaxPitch( float pitch )
 {
     m_burnoutMaxPitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -945,9 +976,10 @@ void carSoundParameters::SetBurnoutMaxPitch( float pitch )
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetPowerslideMinPitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetPowerslideMinPitch( float pitch )
 {
     m_powerslideMinPitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -982,9 +1014,10 @@ float carSoundParameters::GetPowerslideMinPitch()
 // Return:      void 
 //
 //=============================================================================
-void carSoundParameters::SetPowerslideMaxPitch( float pitch )
+ICarSoundParameters& carSoundParameters::SetPowerslideMaxPitch( float pitch )
 {
     m_powerslideMaxPitch = pitch;
+    return *this;
 }
 
 //=============================================================================
@@ -1160,25 +1193,20 @@ float carSoundParameters::GetRevLimit()
 //******************************************************************************
 
 //==============================================================================
-// CarSoundParameterObjCreate
+// carSoundParameters::ObjCreate
 //==============================================================================
 // Description: Factory function for creating carSoundParameters objects.
 //              Called by RadScript.
 //
-// Parameters:	ppParametersObj - Address of ptr to new object
-//              allocator - FTT pool to allocate object within
+// Parameters:	allocator - FTT pool to allocate object within
 //
 // Return:      N/A.
 //
 //==============================================================================
-void CarSoundParameterObjCreate
-(
-    ICarSoundParameters** ppParametersObj,
-    radMemoryAllocator allocator
-)
+carSoundParameters* carSoundParameters::ObjCreate( radMemoryAllocator allocator )
 {
-    rAssert( ppParametersObj != NULL );
-    (*ppParametersObj) = new ( allocator ) carSoundParameters( );
-    (*ppParametersObj)->AddRef( );
+    carSoundParameters* pParametersObj = new ( allocator ) carSoundParameters( );
+    pParametersObj->AddRef( );
+    return pParametersObj;
 }
 
