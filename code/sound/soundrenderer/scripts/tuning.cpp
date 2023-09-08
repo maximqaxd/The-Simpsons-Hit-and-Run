@@ -6,6 +6,8 @@
 
 namespace Sound {
 
+#pragma GCC push_options
+#pragma GCC optimize("O1")
 void daSoundRenderingManager::RunTuningSoundScripts( void )
 {
     SetCurrentNameSpace( GetTuningNamespace() );
@@ -14,5 +16,6 @@ void daSoundRenderingManager::RunTuningSoundScripts( void )
     #include "positionalsettings.inl"
     #include "global.inl"
 }
+#pragma GCC pop_options
 
 }

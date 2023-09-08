@@ -2,6 +2,8 @@
 
 namespace Sound {
 
+#pragma GCC push_options
+#pragma GCC optimize("O1")
 void daSoundRenderingManager::RunSoundEffectScripts( void )
 {
     SetCurrentNameSpace( GetSoundNamespace() );
@@ -13,5 +15,6 @@ void daSoundRenderingManager::RunSoundEffectScripts( void )
     GetSoundManager()->GetSoundLoader()->SetCurrentCluster( SC_INGAME );
     #include "positionalsounds.inl"
 }
+#pragma GCC pop_options
 
 }

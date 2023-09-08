@@ -3,6 +3,8 @@
 
 namespace Sound {
 
+#pragma GCC push_options
+#pragma GCC optimize("01")
 void daSoundRenderingManager::RunCarSoundScripts( void )
 {
     SoundLoader* loader = GetSoundManager()->GetSoundLoader();
@@ -182,5 +184,6 @@ void daSoundRenderingManager::RunCarSoundScripts( void )
     loader->SetCurrentCluster( SC_REDBRICK );
     #include "redbrick.inl"
 }
+#pragma GCC pop_options
 
 }
