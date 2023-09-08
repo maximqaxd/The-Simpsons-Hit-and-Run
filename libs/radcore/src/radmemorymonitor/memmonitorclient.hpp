@@ -299,7 +299,7 @@ protected:
     //
     // internal client information declaration
     //
-	void DeclareMemSpaceInfo( radMemorySpace memSpace, unsigned int startAddr, unsigned int size );
+	void DeclareMemSpaceInfo( radMemorySpace memSpace, uintptr_t startAddr, unsigned int size );
 
     void DeclareMemSpaceInfo( );
 
@@ -311,7 +311,7 @@ protected:
 
     void SendSuspendState( );
     
-    void SendStackUsageData( radMemorySpace memSpace, unsigned int uAddress );
+    void SendStackUsageData( radMemorySpace memSpace, uintptr_t uAddress );
 
     // used for DeclareSection()
     void DecalareAllocationFromTraverse( radMemorySpace memorySpace, IRadMemoryTraverse* traverse );
@@ -322,9 +322,9 @@ protected:
 
     void NameSection( void* address, radMemorySpace memorySpace, const char * name );
 
-    void SendMemoryBlock128Byte( radMemorySpace memorySpace, unsigned int memStartPos, unsigned int memLength );
+    void SendMemoryBlock128Byte( radMemorySpace memorySpace, uintptr_t memStartPos, unsigned int memLength );
 
-    void SendMemoryBlock( radMemorySpace memorySpace, unsigned int memStartPos, unsigned int memLength );
+    void SendMemoryBlock( radMemorySpace memorySpace, uintptr_t memStartPos, unsigned int memLength );
 
     void SendObjectRefount( radMemorySpace memorySpace, void * pObjectPtr, unsigned int * pRefCount );
 
@@ -340,7 +340,7 @@ protected:
     // resume the console operation, in pair with Suspend( )
     void Resume( );
 
-    bool IsMemoryBlockValid( radMemorySpace memorySpace, unsigned int memStartPos, unsigned int memLength );
+    bool IsMemoryBlockValid( radMemorySpace memorySpace, uintptr_t memStartPos, unsigned int memLength );
 
     bool RemoveCorrespondingAddRefInBuffer( void* pObject, void* pReference, radMemorySpace memorySpaceObject );
 

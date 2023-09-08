@@ -423,7 +423,7 @@ void CoinManager::SpawnCoins( int Count, const rmt::Vector& Position, float Grou
     #else
         HeapMgr()->PushHeap( GMA_LEVEL_ZONE );
     #endif
-    GetEventManager()->TriggerEvent( EVENT_SPAWNED_COINS, reinterpret_cast<void*>( Count ) );
+    GetEventManager()->TriggerEvent( EVENT_SPAWNED_COINS, reinterpret_cast<void*>( (uintptr_t)Count ) );
     #ifdef RAD_GAMECUBE
         HeapMgr()->PopHeap( GMA_GC_VMM );
     #else
@@ -463,7 +463,7 @@ void CoinManager::SpawnInstantCoins(int Count, const rmt::Vector& Position)
     #else
         HeapMgr()->PushHeap( GMA_LEVEL_ZONE );
     #endif
-    GetEventManager()->TriggerEvent( EVENT_SPAWNED_COINS, reinterpret_cast<void*>( Count ) );
+    GetEventManager()->TriggerEvent( EVENT_SPAWNED_COINS, reinterpret_cast<void*>( (uintptr_t)Count ) );
     #ifdef RAD_GAMECUBE
         HeapMgr()->PopHeap( GMA_GC_VMM );
     #else
@@ -658,7 +658,7 @@ void CoinManager::CollectCoins( int Count )
     #else
         HeapMgr()->PushHeap( GMA_LEVEL_ZONE );
     #endif
-    GetEventManager()->TriggerEvent( EVENT_COLLECTED_COINS, reinterpret_cast<void*>( Count ) );
+    GetEventManager()->TriggerEvent( EVENT_COLLECTED_COINS, reinterpret_cast<void*>( (uintptr_t)Count ) );
     #ifdef RAD_GAMECUBE
         HeapMgr()->PopHeap( GMA_GC_VMM );
     #else
@@ -687,7 +687,7 @@ void CoinManager::LoseCoins( int Count, const rmt::Vector* Position )
     #else
         HeapMgr()->PushHeap( GMA_LEVEL_ZONE );
     #endif
-    GetEventManager()->TriggerEvent( EVENT_LOST_COINS, reinterpret_cast<void*>( count ) );
+    GetEventManager()->TriggerEvent( EVENT_LOST_COINS, reinterpret_cast<void*>( (uintptr_t)count ) );
     #ifdef RAD_GAMECUBE
         HeapMgr()->PopHeap( GMA_GC_VMM );
     #else

@@ -289,10 +289,9 @@ void LoadingManager::AddRequest
 //==============================================================================
 void LoadingManager::OnLoadFileComplete( void* pUserData )
 {
-    rAssert( (int)pUserData == mRequestHead );
-
     // Display some debug info.
     LoadingRequest& request = mRequests[mRequestHead ];
+    rAssert( pUserData == &request );
     
     extern bool gLoadingSpew;
     
@@ -628,7 +627,7 @@ void LoadingManager::ProcessNextRequest()
 
                 request.pFileHandler->LoadFile( request.filename, 
                     this, 
-                    (void*)mRequestHead,
+                    &request,
                     heap );
             }
             else

@@ -136,7 +136,7 @@ ActionEventLocator::~ActionEventLocator()
 
     mActionNameSize = 0;
 
-    int actionId = (int)this->GetData( );   
+    int actionId = this->GetData( );
     if ( actionId != -1 )
     {
         actionId = -1;
@@ -264,7 +264,7 @@ void ActionEventLocator::Reset( void )
 {
     // Get the index for the action ptr.
     //
-    int actionId = (int)this->GetData( );   
+    int actionId = this->GetData( );
     ActionButton::ButtonHandler* pActionButtonHandler = GetActionButtonManager()->GetActionByIndex( actionId );
     rAssert( pActionButtonHandler );
     pActionButtonHandler->Reset( );

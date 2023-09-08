@@ -85,18 +85,35 @@ IRadPlatform* radPlatformGet( void );
 
 #define RAD_BIG_ENDIAN
 
-inline unsigned short radPlatformEndian16( unsigned short value ) { return( __lhbrx( &value, 0 ) ); }
-inline unsigned int radPlatformEndian32( unsigned int value ) { return( __lwbrx( &value, 0 ) ); }
-inline float radPlatformEndianFloat( float value ) { float x; int* p = (int*) &x; *p = __lwbrx( &value, 0 ); return( x ); }
+template<typename T>
+inline T radPlatformEndian( T value ) { rAssert( false ); return( value ); }
+
+template<>
+inline unsigned short radPlatformEndian<unsigned short>( unsigned short value ) { return( __lhbrx( &value, 0 ) ); }
+template<>
+inline unsigned int radPlatformEndian<unsigned int>( unsigned int value ) { return( __lwbrx( &value, 0 ) ); }
+template<>
+inline float radPlatformEndian<float>( float value ) { float x; int* p = (int*) &x; *p = __lwbrx( &value, 0 ); return( x ); }
 
 #else 
 
 #define RAD_LITTLE_ENDIAN
 
-inline unsigned short radPlatformEndian16( unsigned short value ) { return( value ); }
-inline unsigned int radPlatformEndian32( unsigned int value ) { return( value ); }
-inline float radPlatformEndianFloat( float value ) { return( value ); }
+template<typename T>
+inline T radPlatformEndian( T value ) { return( value ); }
+
+template<>
+inline unsigned short radPlatformEndian<unsigned short>( unsigned short value ) { return(value); }
+template<>
+inline unsigned int radPlatformEndian<unsigned int>( unsigned int value ) { return( value ); }
+template<>
+inline float radPlatformEndian<float>( float value ) { return( value ); }
+
 #endif
+
+#define radPlatformEndian16     radPlatformEndian<unsigned short>
+#define radPlatformEndian32     radPlatformEndian<unsigned int>
+#define radPlatformEndianFloat  radPlatformEndian<float>
 
 
 //=============================================================================

@@ -1,6 +1,7 @@
 #include <worldsim/redbrick/vehiclecontroller/humanvehiclecontroller.h>
 #include <worldsim/redbrick/vehiclecontroller/vehiclemappable.h>
-#include <worldsim/redbrick/vehiclecontroller/../vehicle.h>
+#include <worldsim/redbrick/vehicle.h>
+#include <worldsim/vehiclecentral.h>
 #include <presentation/gui/guisystem.h>
 #include <raddebugwatch.hpp>
 
@@ -328,8 +329,7 @@ void HumanVehicleController::Reset( void )
 {
     if( !mDisableReset )
     {
-    Vehicle* vehicle = GetVehicle();
-	GetGuiSystem()->HandleMessage( GUI_MSG_MANUAL_RESET, reinterpret_cast< unsigned int >( vehicle ) );
+	    GetGuiSystem()->HandleMessage( GUI_MSG_MANUAL_RESET, GetVehicleCentral()->GetVehicleId( GetVehicle() ) );
     }
 }
 

@@ -16,7 +16,7 @@
 
 int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numParams )
 {
-#ifdef __GNUC__
+#if defined(__GNUC__)
     auto vtable = *(size_t**)pThat;
     auto method = vtable[vtbloffset];
     int* param = (int*)pParams;
@@ -38,7 +38,7 @@ int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numPara
     else
         rAssert(false);
     return 0;
-#else
+#elif !defined(_WIN64)
     __asm
     {
 
@@ -69,5 +69,7 @@ int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numPara
 
             call dword ptr [edx]               ; ok, do it, return ( if any ) will be in eax.
     }
+#else
+    return 0;
 #endif
 }

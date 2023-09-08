@@ -19,7 +19,7 @@
 // Included Files
 //=============================================================================
 
-#include <radobject.hpp>
+#include <map>
 
 #include <sound/soundrenderer/idasoundresource.h>
 #include <sound/soundrenderer/soundresource.h>
@@ -27,8 +27,6 @@
 //=============================================================================
 // Global namespace forward declarations
 //=============================================================================
-
-class radObjectBTree;
 
 //=============================================================================
 // Namespace
@@ -133,9 +131,9 @@ private:
 
     //
     // Store all allocated resources (referenced by the resource's
-    // address cast to a radkey)
+    // address)
     //
-    ref< radObjectBTree >                  m_xIOL_AllocatedResources;
+    std::map< IDaSoundResource*, ref< daSoundAllocatedResource > > m_AllocatedResources;
 
     //
     // Are the resources locked down?

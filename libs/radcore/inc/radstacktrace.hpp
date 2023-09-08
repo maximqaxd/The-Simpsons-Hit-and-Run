@@ -15,7 +15,7 @@
 // current function call stack.
 //
 
-extern "C" void radStackTraceGet( unsigned int * results, int numResults );
+extern "C" void radStackTraceGet( uintptr_t * results, int numResults );
 
 
 //=============================================================================
@@ -29,7 +29,7 @@ extern "C" void radStackTraceGet( unsigned int * results, int numResults );
 
 #ifdef RAD_PS2
 
-extern "C" void radStackTracePs2Get( unsigned int * results, 
+extern "C" void radStackTracePs2Get( uintptr_t * results,
     int numResults, const void * stackPointer, const void * returnAddress );
 
 #endif  // RAD_PS2
@@ -45,7 +45,7 @@ extern "C" void radStackTracePs2Get( unsigned int * results,
 
 #if defined RAD_WIN32 || RAD_XBOX
 
-extern "C" void radStackTraceWin32Get( unsigned int * results, 
+extern "C" void radStackTraceWin32Get( uintptr_t * results,
     int numResults, const void * basePointer );
 
 #endif // RAD_WIN32 || RAD_XBOX

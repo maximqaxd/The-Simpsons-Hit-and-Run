@@ -10,7 +10,7 @@
 // ::radMemoryRoundUp
 //============================================================================
 
-unsigned int radMemoryRoundUp( unsigned int size, unsigned int alignment )
+size_t radMemoryRoundUp( size_t size, size_t alignment )
 {
 	if ( alignment != 0 )
 	{
@@ -27,7 +27,7 @@ unsigned int radMemoryRoundUp( unsigned int size, unsigned int alignment )
 // ::radMemoryRoundDown
 //============================================================================
 
-unsigned int radMemoryRoundDown( unsigned int size, unsigned alignment )
+size_t radMemoryRoundDown( size_t size, size_t alignment )
 {
     if ( alignment != 0 )
     {
@@ -41,7 +41,7 @@ unsigned int radMemoryRoundDown( unsigned int size, unsigned alignment )
 // ::radMemoryIsAligned
 //============================================================================
 
-bool radMemoryIsAligned( unsigned int value, unsigned int alignment )
+bool radMemoryIsAligned( size_t value, size_t alignment )
 {
     return( value == radMemoryRoundUp( value, alignment ) );
 }

@@ -1688,7 +1688,7 @@ BEGIN_PROFILE("MissionStage Update");
                         GetCharacterSheetManager()->SetGambleRaceBestTime( currentLevel, elapsedtime );
 
                         const int NEW_BEST_TIME = 1;
-                        GetEventManager()->TriggerEvent( EVENT_GAMBLERACE_SUCCESS, (void*)NEW_BEST_TIME );
+                        GetEventManager()->TriggerEvent( EVENT_GAMBLERACE_SUCCESS, (void*)(intptr_t)NEW_BEST_TIME );
                     }
                     else
                     {
@@ -2139,7 +2139,7 @@ void MissionStage::DisplayMissionStageIndexMessage()
     if( mbShowMessage && !GetMissionLocked() && miStartMessageIndex >= 0 )
     {
         GetEventManager()->TriggerEvent( EVENT_SHOW_MISSION_OBJECTIVE,
-                                         reinterpret_cast<void*>( miStartMessageIndex ) );
+                                         reinterpret_cast<void*>( (intptr_t)miStartMessageIndex ) );
     }
     else
     {

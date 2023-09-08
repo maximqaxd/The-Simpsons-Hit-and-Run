@@ -51,6 +51,7 @@
 Locator::Locator() :
     mID( ~0 ),
     mData( 0 ),
+    mUserData( nullptr ),
     mFlags( 0 ),
     mLocation( rmt::Vector( 0.0f, 0.0f, 0.0f ) )
 {

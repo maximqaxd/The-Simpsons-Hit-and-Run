@@ -120,10 +120,10 @@ void ScroobyFileHandler::OnProjectLoadComplete( Scrooby::Project* pProject )
 {
     rAssert( mpCallback );
 
-    // notify GUI system that the project is loaded, and pass reference to
-    // project using the first message parameter
+    // notify GUI system that the project is loaded
     //
-    GetGuiSystem()->HandleMessage( GUI_MSG_PROJECT_LOAD_COMPLETE, (unsigned int)pProject );
+    GetGuiSystem()->OnProjectLoadComplete( pProject );
+    GetGuiSystem()->HandleMessage( GUI_MSG_PROJECT_LOAD_COMPLETE );
 
     // notify client that async loading is completed
     mpCallback->OnLoadFileComplete( mpUserData );

@@ -11,7 +11,7 @@
 
 // PDDI Debugging support
 #if defined (WIN32) || defined (RAD_XBOX)
-    #define pddiBreak() { __asm { int 3 } }
+    #define pddiBreak() { __debugbreak(); }
 #else
     #define pddiBreak() { __builtin_trap(); }
 #endif

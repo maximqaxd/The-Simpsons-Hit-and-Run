@@ -595,9 +595,9 @@ void CGuiSystem::Update( unsigned int elapsedTime )
 //===========================================================================
 void CGuiSystem::HandleMessage
 (
-	eGuiMessage message, 
-	unsigned int param1,
-	unsigned int param2
+    eGuiMessage message,
+    unsigned int param1,
+    unsigned int param2
 )
 {
 	switch( message )
@@ -749,7 +749,7 @@ void CGuiSystem::HandleMessage
         }
         case GUI_MSG_PROJECT_LOAD_COMPLETE:
         {
-            this->OnProjectLoadComplete( (Scrooby::Project*)param1 );
+            //this->OnProjectLoadComplete( (Scrooby::Project*)param1 );
 
             break;
         }

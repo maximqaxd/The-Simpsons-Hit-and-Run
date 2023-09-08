@@ -696,7 +696,7 @@ bool ScriptReader::HandleError()
 static void choreoBreakToDebugger()
 {
 #if defined(WIN32) || defined(RAD_XBOX)
-    __asm { int 3 }
+    __debugbreak();
 #elif defined(RAD_GAMECUBE) 
    asm(trap);
 #elif defined(RAD_PS2)

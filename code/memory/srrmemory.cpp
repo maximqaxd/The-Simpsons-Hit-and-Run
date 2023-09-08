@@ -1215,17 +1215,17 @@ void HeapManager::DumpHeapStats ( bool text )
         size_t allocatable  = 0;
         size_t largestBlock = Memory::GetLargestFreeBlock();
         char buffer[ 256 ];
-        sprintf( buffer, "Used: %d\n", used );
+        sprintf( buffer, "Used: %zu\n", used );
         rReleaseString( buffer );
-        sprintf( buffer, "Free: %d Free in Malloc: %d\n", freeInAllHeaps, available );
+        sprintf( buffer, "Free: %zu Free in Malloc: %zu\n", freeInAllHeaps, available );
         rReleaseString( buffer );
-        sprintf( buffer, "Unavailable: %d\n", unavailable );
+        sprintf( buffer, "Unavailable: %zu\n", unavailable );
         rReleaseString( buffer );
-        sprintf( buffer, "LargestFragment: %d\n", largestBlock );
+        sprintf( buffer, "LargestFragment: %zu\n", largestBlock );
         rReleaseString( buffer );
-        sprintf( buffer, "Allocatable: %d\n", allocatable );
+        sprintf( buffer, "Allocatable: %zu\n", allocatable );
         rReleaseString( buffer );
-        sprintf( buffer, "LowWater: %d\n", lowWater );
+        sprintf( buffer, "LowWater: %zu\n", lowWater );
         rReleaseString( buffer );
 
 
@@ -1311,17 +1311,17 @@ void HeapManager::DumpHeapStats ( bool text )
         size_t largestBlock = Memory::GetLargestFreeBlock();
         char buffer[ 256 ];
         int printLine = TOP - 10;
-        sprintf( buffer, "Used: %d", used );
+        sprintf( buffer, "Used: %zu", used );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
-        sprintf( buffer, "Free: %d Free in Malloc: %d", freeInAllHeaps, available );
+        sprintf( buffer, "Free: %zu Free in Malloc: %zu", freeInAllHeaps, available );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
-        sprintf( buffer, "Unavailable: %d", unavailable );
+        sprintf( buffer, "Unavailable: %zu", unavailable );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
-        sprintf( buffer, "LargestFragment: %d", largestBlock );
+        sprintf( buffer, "LargestFragment: %zu", largestBlock );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
-        sprintf( buffer, "Allocatable: %d", allocatable );
+        sprintf( buffer, "Allocatable: %zu", allocatable );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
-        sprintf( buffer, "LowWater: %d", lowWater );
+        sprintf( buffer, "LowWater: %zu", lowWater );
         p3d::pddi->DrawString( buffer, LEFT, printLine += 15 , BLACK );
         
 

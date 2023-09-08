@@ -65,7 +65,7 @@ struct ExceptionGenerator
         }
         else
         {
-            unsigned int result[ 5 ];
+            uintptr_t result[ 5 ];
             unsigned int numResults = 5;
             ::radStackTraceGet( result, numResults );
 

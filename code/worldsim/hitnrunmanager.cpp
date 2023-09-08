@@ -41,6 +41,7 @@
 #include <interiors/interiormanager.h>
 #include <constants/breakablesenum.h>
 #include <constants/vehicleenum.h>
+#include <worldsim/vehiclecentral.h>
 #include <worldsim/harass/chasemanager.h>
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
@@ -977,7 +978,7 @@ void HitnRunManager::Update( int elapsedMS )
             {
                 Vehicle* playerVehicle = player->GetVehicle();
                 playerVehicle->SetDisableGasAndBrake(false);
-                GetGuiSystem()->HandleMessage( GUI_MSG_MANUAL_RESET, reinterpret_cast< unsigned int >(playerVehicle) );
+                GetGuiSystem()->HandleMessage( GUI_MSG_MANUAL_RESET, GetVehicleCentral()->GetVehicleId( playerVehicle ) );
                 GameplayManager* gameplayManager = GetGameplayManager();
                 if ( gameplayManager != NULL )
                 {

@@ -970,7 +970,7 @@ BEGIN_PROFILE( "Mission Update" );
                 mCompleteDelay = COMPLETE_DELAY;
 
                 GetEventManager()->TriggerEvent( EVENT_STAGE_COMPLETE,
-                    reinterpret_cast<void*>( showStageComplete ) );
+                    reinterpret_cast<void*>( (uintptr_t)showStageComplete ) );
 
                 if( stage->GetObjective()->GetObjectiveType() == MissionObjective::OBJ_LOSETAIL )
                 {
