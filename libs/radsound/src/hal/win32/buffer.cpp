@@ -89,7 +89,7 @@ void radSoundHalBufferWin::Initialize
         else
             format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
 
-        alBufferStorageSOFT( m_Buffer, format,
+        radBufferStorageSOFT( m_Buffer, format,
             pIRadMemoryObject->GetMemoryAddress(),
             pIRadMemoryObject->GetMemorySize(),
             m_refIRadSoundHalAudioFormat->GetSampleRate(),
@@ -131,7 +131,7 @@ void radSoundHalBufferWin::ClearAsync
 
         if( m_Streaming == true )
         {
-            void* dataPtr = alMapBufferSOFT( m_Buffer, offsetInBytes, sizeInBytes, AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
+            void* dataPtr = radMapBufferSOFT( m_Buffer, offsetInBytes, sizeInBytes, AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
 
             rAssertMsg( alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear - Lock Failed.\n" );
 
@@ -139,7 +139,7 @@ void radSoundHalBufferWin::ClearAsync
             {
                 ::memset( dataPtr, fillChar, sizeInBytes );
 
-                alUnmapBufferSOFT( m_Buffer );
+                radUnmapBufferSOFT( m_Buffer );
 
                 rAssertMsg( alGetError() == AL_NO_ERROR, "radSoundHalBufferWin::Clear - UnLock Failed.\n" );
             }
@@ -242,7 +242,7 @@ void radSoundHalBufferWin::LoadAsync
         rAssert( m_pLockedLoadBuffer == NULL );
 
         m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
-        m_pLockedLoadBuffer = alMapBufferSOFT( m_Buffer, m_LoadStartInBytes, m_LockedLoadBytes,
+        m_pLockedLoadBuffer = radMapBufferSOFT( m_Buffer, m_LoadStartInBytes, m_LockedLoadBytes,
             AL_MAP_READ_BIT_SOFT | AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
         ALenum error = alGetError();
         rAssert( error == AL_NO_ERROR );
@@ -308,7 +308,7 @@ void radSoundHalBufferWin::OnBufferLoadComplete( unsigned int dataSourceFrames )
     {
         // For streaming sounds we'll have to unlock the direct sound buffer before calling back
 
-        alUnmapBufferSOFT( m_Buffer );
+        radUnmapBufferSOFT( m_Buffer );
         rAssert( alGetError() == AL_NO_ERROR );
 
         m_pLockedLoadBuffer = NULL;

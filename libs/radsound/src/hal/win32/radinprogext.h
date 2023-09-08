@@ -9,6 +9,6 @@ typedef void (AL_APIENTRY*LPALBUFFERSTORAGESOFT)(ALuint buffer, ALenum format, c
 typedef void* (AL_APIENTRY*LPALMAPBUFFERSOFT)(ALuint buffer, ALsizei offset, ALsizei length, ALbitfieldSOFT access);
 typedef void (AL_APIENTRY*LPALUNMAPBUFFERSOFT)(ALuint buffer);
 
-extern LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
-extern LPALMAPBUFFERSOFT alMapBufferSOFT;
-extern LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
+extern LPALBUFFERSTORAGESOFT radBufferStorageSOFT;
+extern LPALMAPBUFFERSOFT radMapBufferSOFT;
+extern LPALUNMAPBUFFERSOFT radUnmapBufferSOFT;

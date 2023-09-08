@@ -13,9 +13,9 @@
 #include <efx.h>
 #include "radinprogext.h"
 
-LPALBUFFERSTORAGESOFT alBufferStorageSOFT;
-LPALMAPBUFFERSOFT alMapBufferSOFT;
-LPALUNMAPBUFFERSOFT alUnmapBufferSOFT;
+LPALBUFFERSTORAGESOFT radBufferStorageSOFT;
+LPALMAPBUFFERSOFT radMapBufferSOFT;
+LPALUNMAPBUFFERSOFT radUnmapBufferSOFT;
 
 //================================================================================
 // Static Members
@@ -111,9 +111,9 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
 
             rAssert( alIsExtensionPresent( "AL_SOFTX_map_buffer" ) );
 
-            alBufferStorageSOFT = (LPALBUFFERSTORAGESOFT)alGetProcAddress( "alBufferStorageSOFT" );
-            alMapBufferSOFT = (LPALMAPBUFFERSOFT)alGetProcAddress( "alMapBufferSOFT" );
-            alUnmapBufferSOFT = (LPALUNMAPBUFFERSOFT)alGetProcAddress( "alUnmapBufferSOFT" );
+            radBufferStorageSOFT = (LPALBUFFERSTORAGESOFT)alGetProcAddress( "alBufferStorageSOFT" );
+            radMapBufferSOFT = (LPALMAPBUFFERSOFT)alGetProcAddress( "alMapBufferSOFT" );
+            radUnmapBufferSOFT = (LPALUNMAPBUFFERSOFT)alGetProcAddress( "alUnmapBufferSOFT" );
 
             if (m_NumAuxSends > 0 && alcIsExtensionPresent(m_pDevice, "ALC_EXT_EFX"))
             {
