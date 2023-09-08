@@ -24,6 +24,7 @@
 #ifndef	RADOBJECT_HPP
 #define RADOBJECT_HPP
 
+#include <cstdint>
 #include <memory/classsizetracker.h>
 
 //=============================================================================
