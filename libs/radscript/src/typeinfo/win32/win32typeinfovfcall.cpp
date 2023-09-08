@@ -16,29 +16,7 @@
 
 int InvokeVf( void * pThat, unsigned int vtbloffset, void * pParams, int numParams )
 {
-#if defined(__GNUC__)
-    auto vtable = *(size_t**)pThat;
-    auto method = vtable[vtbloffset];
-    int* param = (int*)pParams;
-    if (numParams == 1)
-    {
-        using F = void(void*, int);
-        ((F*)method)(pThat, *(int*)pParams);
-    }
-    else if (numParams == 2)
-    {
-        using F = void(void *, int, int);
-        ((F*)method)(pThat, param[0], param[1]);
-    }
-    else if (numParams == 3)
-    {
-        using F = void(void *, int, int, int);
-        ((F*)method)(pThat, param[0], param[1], param[2]);
-    }
-    else
-        rAssert(false);
-    return 0;
-#elif !defined(_WIN64)
+#if defined(WIN32) && !defined(_WIN64)
     __asm
     {
 

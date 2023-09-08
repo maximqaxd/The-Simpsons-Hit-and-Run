@@ -638,7 +638,7 @@ inline bool IRadScript::OnBeginMethod(
         {
             *((int*)&(nInvokeParams[ nParamIndex ])) = strcmp( pParamString, "true" ) == 0 ? 1 : 0;
         }
-#ifndef _WIN64
+#if defined(WIN32) && !defined(_WIN64)
         else if ( strncmp( pParamString, "ref:", 4 ) == 0 )
         {
             IRefCount * pIRefCount = m_xIRadNameSpace_Context->GetInstance( pParamString + 4 );
