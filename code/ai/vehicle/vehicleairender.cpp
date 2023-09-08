@@ -27,6 +27,7 @@
 #include <ai/vehicle/vehicleai.h>
 
 #include <p3d/debugdraw.hpp>
+#include <p3d/shader.hpp>
 
 #include <memory/srrmemory.h>
 
