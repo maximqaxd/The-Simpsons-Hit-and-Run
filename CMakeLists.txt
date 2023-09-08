@@ -585,7 +585,7 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radkey/radkey.cpp"
 	"libs/radcore/src/radmemory/align.cpp"
 	"libs/radcore/src/radmemory/binallocator.cpp"
-	"libs/radcore/src/radmemory/dlheap.cpp"
+	#"libs/radcore/src/radmemory/dlheap.cpp"
 	"libs/radcore/src/radmemory/externalmemoryheap.cpp"
 	"libs/radcore/src/radmemory/externalmemoryobject.cpp"
 	"libs/radcore/src/radmemory/memorymanager.cpp"

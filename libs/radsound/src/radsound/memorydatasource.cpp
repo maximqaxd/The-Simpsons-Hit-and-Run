@@ -112,9 +112,9 @@ void radSoundMemoryDataSource::GetFramesAsync(
             m_FramesToRead = numberOfFrames;
         }
    
-        unsigned int startAddress = (unsigned int) m_xIRadSoundMemorySpaceObject->GetAddress( );
+        uintptr_t startAddress = (uintptr_t) m_xIRadSoundMemorySpaceObject->GetAddress( );
 
-        unsigned int memoryCopyStart = startAddress + m_StartOffsetInBytes
+        uintptr_t memoryCopyStart = startAddress + m_StartOffsetInBytes
             + m_xIRadSoundHalAudioFormat->FramesToBytes( m_NumberOfFramesRead );
     
         unsigned bytesToCopy = m_xIRadSoundHalAudioFormat->FramesToBytes( m_FramesToRead );

@@ -237,7 +237,7 @@ static U64 RADLINK BinkFileReadHeader( BINKIO* bio, S64 offset, void* dest, U64 
     if ( alignment > 1024 ) alignment = 1024;
 
     char buffer[ 1024 + radFileOptimalMemoryAlignment ];
-    char* pBuffer = (char*) ::radMemoryRoundUp( (unsigned int) buffer, radFileOptimalMemoryAlignment );
+    char* pBuffer = (char*) ::radMemoryRoundUp( (uintptr_t) buffer, radFileOptimalMemoryAlignment );
     unsigned int bufferSize = buffer + sizeof( buffer ) - pBuffer;
     bufferSize = ::radMemoryRoundDown( bufferSize, alignment );
 
@@ -571,7 +571,7 @@ static void RADLINK BinkFileSetInfo( BINKIO* bio, void* buf, U64 size, U64 files
 {
     radBinkFilePtr binkFile = (radBinkFilePtr) bio->iodata;
 
-    rAssert( (unsigned int) buf % radFileOptimalMemoryAlignment == 0 );
+    rAssert( (uintptr_t) buf % radFileOptimalMemoryAlignment == 0 );
 
     unsigned int realSize = ::radMemoryRoundDown( size, BASEREADSIZE );
 

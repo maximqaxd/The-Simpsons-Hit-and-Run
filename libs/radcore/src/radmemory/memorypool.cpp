@@ -240,7 +240,7 @@ void MemoryPool::Initialize
 		pPlacement = m_pPlacement;
 	}
 
-	pPlacement = (void*)RoundUpAlignment( (unsigned int)pPlacement, STANDARD_ALIGNMENT );
+	pPlacement = (void*)RoundUpAlignment( (uintptr_t)pPlacement, STANDARD_ALIGNMENT );
 	rAssert( pPlacement != NULL );
 
     radMemoryMonitorDeclareSection( pPlacement, m_Size,  IRadMemoryMonitor::MemorySectionType_DynamicData );
@@ -1071,10 +1071,10 @@ void MemorySet
 // Notes:       
 //------------------------------------------------------------------------------
 
-unsigned int RoundUpAlignment
+uintptr_t RoundUpAlignment
 ( 
-	unsigned int value,
-	unsigned int alignment
+    uintptr_t value,
+    uintptr_t alignment
 )
 {
 	return( value + (alignment - 1) & (~(alignment - 1)) );

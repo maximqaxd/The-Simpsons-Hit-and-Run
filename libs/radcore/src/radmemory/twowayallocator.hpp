@@ -93,7 +93,7 @@ void * radMemoryTwoWayAllocator::InternalAllocate( unsigned int size, unsigned i
 
     if( m_Direction == TopDown )
     {
-        pMemory = ( char * ) ::radMemoryRoundUp( ( unsigned int )  m_pCurrentTop, alignment );
+        pMemory = ( char * ) ::radMemoryRoundUp( ( uintptr_t )  m_pCurrentTop, alignment );
 
         if( pMemory + size < m_pCurrentBottom )
         {
@@ -109,7 +109,7 @@ void * radMemoryTwoWayAllocator::InternalAllocate( unsigned int size, unsigned i
     }
     else
     {
-        pMemory = ( char * ) ::radMemoryRoundDown( ( unsigned int ) m_pCurrentBottom - size, alignment );
+        pMemory = ( char * ) ::radMemoryRoundDown( ( uintptr_t ) m_pCurrentBottom - size, alignment );
 
         if( pMemory > m_pCurrentTop )
         {

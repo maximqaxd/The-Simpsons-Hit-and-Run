@@ -1487,7 +1487,9 @@ tEntity* tAnimationLoader::LoadObject(tChunkFile* f, tEntityStore* store)
 #endif
                     if ((anim->numGroups==0)&&(animSize>0))
                     {
-                        anim->memoryBlock = new tAnimationMemoryBlock(animSize);
+                        // HACK: Ensure there's enough space for pointers larger than 4 bytes
+                        unsigned int factor = sizeof(void*) / 4;
+                        anim->memoryBlock = new tAnimationMemoryBlock(animSize * factor);
                         anim->memoryBlock->AddRef();
                     }
                 }

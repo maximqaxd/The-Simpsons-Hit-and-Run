@@ -19,7 +19,7 @@ static bool initialized = false;
 
 unsigned int HashPointer( const void* ptr )
 {
-    unsigned int hash = (unsigned)ptr;
+    unsigned int hash = (uintptr_t)ptr;
     hash = (hash & 0x0000FFFF) ^ ((hash >> 16) & 0x0000FFFF);
     hash = (hash & 0x000000FF) ^ ((hash >> 8) & 0x000000FF);
     return hash;

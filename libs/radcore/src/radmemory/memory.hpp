@@ -242,6 +242,6 @@ void MemorySet( void* block, unsigned int value, unsigned int size );
 // Takes any given value and rounds it up to the next multiple of 4
 // in order to cause values to be aligned to 32-bits.
 
-unsigned int RoundUpAlignment( unsigned int value, unsigned int alignment );
+uintptr_t RoundUpAlignment( uintptr_t value, uintptr_t alignment );
 
 #endif

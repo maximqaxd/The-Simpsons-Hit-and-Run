@@ -80,7 +80,7 @@ class ExternalMemoryObject
 
         inline void Initialize( ExternalMemoryHeap * pExternalMemoryHeap,
                               unsigned int referenceCount,
-                              unsigned int address,
+                              uintptr_t address,
                               unsigned int size,
                               ExternalMemoryObject * pNext,
                               ExternalMemoryObject * pPrevious );
@@ -92,11 +92,11 @@ class ExternalMemoryObject
         const char * GetName( void );
 
         unsigned int m_ReferenceCount;    
-        unsigned int m_Address;
+        uintptr_t m_Address;
         unsigned int m_Size;
 
 		unsigned int m_ClientSize;
-		unsigned int m_ClientAddress;
+        uintptr_t m_ClientAddress;
 
         ExternalMemoryHeap   * m_pExternalMemoryHeap;
         ExternalMemoryObject * m_pEmo_Next;
@@ -151,7 +151,7 @@ void ExternalMemoryObject::Initialize
 (
     ExternalMemoryHeap * pExternalMemoryHeap,
     unsigned int referenceCount,
-    unsigned int address,
+    uintptr_t address,
     unsigned int size,
     ExternalMemoryObject * pEmo_Next,
     ExternalMemoryObject * pEmo_Previous

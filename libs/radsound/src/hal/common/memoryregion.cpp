@@ -137,7 +137,7 @@ IRadSoundHalMemoryRegion * radSoundHalMemoryRegion::CreateChildRegion
                 NULL,
                 s_MemorySpace );
 
-		    rAssert( ((unsigned int)xIRadMemoryObject->GetMemoryAddress( ) % s_Alignment ) == 0 );
+		    rAssert( ((uintptr_t)xIRadMemoryObject->GetMemoryAddress( ) % s_Alignment ) == 0 );
 		    rAssert( xIRadMemoryObject->GetMemorySize( ) == size );
 
 		    pRadSoundMemoryRegion = new ( "radSoundHalMemoryRegion", GetThisAllocator( ) ) radSoundHalMemoryRegion( );
@@ -240,7 +240,7 @@ void radSoundHalMemoryRegion::CreateRoot
             NULL,
             s_MemorySpace );
 
-		rAssert( ((unsigned int)(*ppIRadMemoryObject)->GetMemoryAddress( ) % s_Alignment ) == 0 );
+		rAssert( ((uintptr_t)(*ppIRadMemoryObject)->GetMemoryAddress( ) % s_Alignment ) == 0 );
 		rAssert( (*ppIRadMemoryObject)->GetMemorySize( ) == size );
 	}
 }

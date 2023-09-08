@@ -194,7 +194,7 @@ void radMemoryBinAllocator::Initialize(
         }
         #endif // RADMEMORYMONITOR
 
-        rAssert( (((unsigned int)pBin->m_pMemoryStart) % STANDARD_ALIGNMENT ) == 0 );
+        rAssert( (((uintptr_t)pBin->m_pMemoryStart) % STANDARD_ALIGNMENT ) == 0 );
                 
         pBin->SetUpFreeList( );
     }
@@ -296,7 +296,7 @@ void* radMemoryBinAllocator::GetMemoryAligned( unsigned int size, unsigned int a
         //
 
         pMemory = GetMemoryUnAligned( size + alignment );
-        pMemory = (void*) ::radMemoryRoundUp( (unsigned int) pMemory, alignment );
+        pMemory = (void*) ::radMemoryRoundUp( (uintptr_t) pMemory, alignment );
     }
 
     #ifdef RADMEMORYMONITOR
@@ -310,7 +310,7 @@ void* radMemoryBinAllocator::GetMemoryAligned( unsigned int size, unsigned int a
 
     // Check to make sure we really did satisfy the request.
 
-    rAssert( ( alignment == 0 ) || ( ((unsigned int)pMemory) % alignment == 0 ) );
+    rAssert( ( alignment == 0 ) || ( ((uintptr_t)pMemory) % alignment == 0 ) );
 
     return pMemory;
 }

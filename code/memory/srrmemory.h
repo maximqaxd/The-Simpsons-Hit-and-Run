@@ -95,6 +95,7 @@ throw()
     #define CORRAL_SMALL_ALLOCS   
 #endif
 
+// #define USE_DOUG_LEA_HEAP
 // #define USE_CHAR_GAG_HEAP
 
 //
