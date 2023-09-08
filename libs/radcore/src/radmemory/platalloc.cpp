@@ -139,7 +139,7 @@ void * radMemoryPlatAllocAligned( unsigned int numberOfBytes, unsigned int align
 {
 	#ifndef WIN32
 
-		return ::memalign( alignment, numberOfBytes );
+		return ::aligned_alloc( alignment, numberOfBytes );
 
 	#else
 
