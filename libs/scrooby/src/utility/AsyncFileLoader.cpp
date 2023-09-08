@@ -74,7 +74,7 @@ AsyncFileLoader::AsyncFileLoader()
     //
 #ifdef _WINDOWS
     char path[ 256 ];
-    ::getcwd( path, 256 );
+    ::_getcwd( path, 256 );
     MyDrive[ 0 ] = path[ 0 ];
 #endif
 
