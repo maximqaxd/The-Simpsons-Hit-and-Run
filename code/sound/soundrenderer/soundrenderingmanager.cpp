@@ -1076,7 +1076,6 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     #include "scripts/cletu_v.inl"
     loader->SetCurrentCluster( SC_WIGGU_V );
     #include "scripts/wiggu_v.inl"
-    #include "scripts/empty.inl"
     loader->SetCurrentCluster( SC_MARGE_V );
     #include "scripts/marge_v.inl"
     loader->SetCurrentCluster( SC_SMITH_V );
