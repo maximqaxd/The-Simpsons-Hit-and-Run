@@ -19,6 +19,7 @@
 #include <p3d/debugdraw.hpp>
 #include <p3d/drawable.hpp>
 #include <p3d/shader.hpp>
+#include <p3d/utility.hpp>
 
 #include <camera/supercam.h>
 

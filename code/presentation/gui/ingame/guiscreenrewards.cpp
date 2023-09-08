@@ -36,6 +36,7 @@
 #include <Polygon.h>
 
 #include <p3d/unicode.hpp>
+#include <p3d/utility.hpp>
 #include <raddebug.hpp> // Foundation
 
 #include <string.h>

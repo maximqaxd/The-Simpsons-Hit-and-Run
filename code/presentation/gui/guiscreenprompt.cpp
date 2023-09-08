@@ -27,6 +27,7 @@
 #include <gameflow/gameflow.h>
 
 #include <p3d/unicode.hpp>
+#include <p3d/anim/multicontroller.hpp>
 #include <raddebug.hpp> // Foundation
 #include <Layer.h>
 #include <Page.h>

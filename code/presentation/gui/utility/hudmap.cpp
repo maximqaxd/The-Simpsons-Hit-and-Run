@@ -35,6 +35,8 @@
 #include <worldsim/hitnrunmanager.h>
 #include <worldsim/redbrick/vehicle.h>
 
+#include <p3d/camera.hpp>
+#include <p3d/pointcamera.hpp>
 #include <p3d/utility.hpp>
 
 #include <raddebug.hpp> // Foundation

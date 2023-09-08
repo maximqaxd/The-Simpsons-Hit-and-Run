@@ -18,6 +18,7 @@
 #include <events/eventlistener.h>
 #include <constants/breakablesenum.h>
 #include <constants/vehicleenum.h>
+#include <p3d/p3dtypes.hpp>
 
 //========================================
 // Forward References

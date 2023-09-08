@@ -19,6 +19,7 @@
 #include <radobject.hpp>
 // file reading before radtech
 #include <stdio.h>
+#include <SDL_main.h>
 
 //========================================
 // Project Includes
@@ -29,7 +30,7 @@
 #include <main/commandlineoptions.h>
 #include <memory/memoryutilities.h>
 #include <memory/srrmemory.h>
-#include <SDL_main.h>
+#include <p3d/entity.hpp>
 
 //========================================
 // Forward Declarations

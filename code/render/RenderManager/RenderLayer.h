@@ -49,6 +49,7 @@ class tGeometry;
 class tMultiController;
 class tName;
 class tView;
+class tRefCounted;
 
 namespace Scrooby
 {

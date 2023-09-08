@@ -13,6 +13,10 @@
 // System Includes
 //========================================
 
+#include <malloc.h>
+#include <math.h>
+#include <stdlib.h>
+
 #ifdef _WIN32
     #include <crtdbg.h>
     #ifndef _XBOX
@@ -20,14 +24,12 @@
     #endif
 #endif
 
-
 #ifdef _XBOX
     #include <typeinfo.h>
     #include <xtl.h>
 #endif // XBOX
 
 #ifdef RAD_PS2
-    #include <malloc.h>
     #include <typeinfo>
 #endif // RAD_PS2
 
@@ -35,6 +37,7 @@
     #include <dolphin.h>
     extern OSHeapHandle gGCHeap;
 #endif
+
 //========================================
 // Project Includes
 //========================================

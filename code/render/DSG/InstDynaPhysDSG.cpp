@@ -36,6 +36,7 @@
 #include <worldsim/worldphysicsmanager.h>
 
 #include <p3d/billboardobject.hpp>
+#include <p3d/anim/compositedrawable.hpp>
 
 //************************************************************************
 //

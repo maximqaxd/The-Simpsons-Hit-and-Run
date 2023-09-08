@@ -26,7 +26,12 @@
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/missionmanager.h>
 #include <p3d/imagefactory.hpp>
+#include <p3d/entity.hpp>
+#include <p3d/inventory.hpp>
+#include <p3d/refcounted.hpp>
 #include <p3d/sprite.hpp>
+#include <p3d/anim/multicontroller.hpp>
+#include <p3d/utility.hpp>
 #include <presentation/gui/ingame/guiscreenmissionbase.h>
 #include <presentation/gui/ingame/guiscreenmissionselect.h>
 #include <presentation/gui/utility/transitions.h>

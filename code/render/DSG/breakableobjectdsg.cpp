@@ -17,6 +17,8 @@
 #include <p3d/anim/animatedobject.hpp>
 #include <p3d/matrixstack.hpp>
 #include <p3d/utility.hpp>
+#include <p3d/anim/compositedrawable.hpp>
+
 //===========================================================================
 // Local Constants, Typedefs, and Macros
 //===========================================================================

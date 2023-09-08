@@ -14,6 +14,7 @@
 #include <p3d/geometry.hpp>
 #include <p3d/primgroup.hpp>
 #include <p3d/vertexlist.hpp>
+#include <p3d/utility.hpp>
 #include <raddebug.hpp>
 #include <pddi/pddiext.hpp>
 

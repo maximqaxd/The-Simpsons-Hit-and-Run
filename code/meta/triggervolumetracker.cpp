@@ -19,6 +19,7 @@
 #include <radtime.hpp>
 
 #include <p3d/debugdraw.hpp>
+#include <p3d/utility.hpp>
 
 //========================================
 // Project Includes

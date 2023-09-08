@@ -26,6 +26,7 @@
 #endif
 
 #include <p3d/pointcamera.hpp>
+#include <p3d/utility.hpp>
 
 //========================================
 // Project Includes

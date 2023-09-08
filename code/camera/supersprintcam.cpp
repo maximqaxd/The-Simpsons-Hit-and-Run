@@ -26,6 +26,7 @@
 #include <camera/supercamcontroller.h>
 
 #include <mission/gameplaymanager.h>
+#include <p3d/utility.hpp>
 
 //*****************************************************************************
 //

@@ -37,6 +37,8 @@
 #include <p3d/anim/animate.hpp>
 #include <p3d/anim/poseanimation.hpp>
 #include <p3d/anim/skeleton.hpp>
+#include <p3d/camera.hpp>
+#include <p3d/unicode.hpp>
 #include <raddebug.hpp> // Foundation
 
 // Scrooby Header Files

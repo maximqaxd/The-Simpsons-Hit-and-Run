@@ -29,6 +29,8 @@
 #include <mission/charactersheet/charactersheetmanager.h>
 
 #include <p3d/inventory.hpp>
+#include <p3d/sprite.hpp>
+#include <p3d/utility.hpp>
 #include <raddebug.hpp> // Foundation
 
 #include <Screen.h>

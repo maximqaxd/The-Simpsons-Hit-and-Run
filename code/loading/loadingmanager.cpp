@@ -28,6 +28,7 @@
 #include <debug/profiler.h>
 #include <radtextdisplay.hpp>
 #include <main/game.h>
+#include <p3d/utility.hpp>
 
 #include <cheats/cheatinputsystem.h>
 

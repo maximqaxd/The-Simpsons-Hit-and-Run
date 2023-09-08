@@ -18,6 +18,7 @@
 #include <radtime.hpp>
 #include <stdlib.h>
 #include <p3d/anim/skeleton.hpp>
+#include <raddebugwatch.hpp>
 
 //========================================
 // Project Includes

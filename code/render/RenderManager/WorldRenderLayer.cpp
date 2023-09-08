@@ -47,6 +47,7 @@
 #include <render/Particles/particlemanager.h>
 #include <render/animentitydsgmanager/animentitydsgmanager.h>
 
+#include <p3d/camera.hpp>
 #include <p3d/shadow.hpp>
 #include <p3d/view.hpp>
 

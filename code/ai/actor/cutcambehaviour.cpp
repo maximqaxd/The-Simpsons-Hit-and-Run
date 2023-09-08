@@ -22,7 +22,7 @@
 #include <camera/supercam.h>
 #include <camera/surveillancecam.h>
 #include <memory/srrmemory.h>
-
+#include <limits.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

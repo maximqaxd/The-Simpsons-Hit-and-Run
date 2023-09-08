@@ -23,6 +23,8 @@
 //=================================================
 #include <render/Loaders/IWrappedLoader.h>
 
+class tCompositeDrawableLoader;
+
 //========================================================================
 //
 // Synopsis:   The DynaPhysLoader; Synopsis by Inspection.

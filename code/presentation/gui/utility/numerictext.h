@@ -20,6 +20,7 @@
 // Nested Includes
 //===========================================================================
 
+#include <string.h>
 #include <raddebug.hpp>     // Foundation
 #include <Group.h>
 #include <Text.h>

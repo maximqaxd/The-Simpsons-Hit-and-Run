@@ -17,6 +17,9 @@
 #include <render/DSG/LensFlareDSG.h>
 #include <p3d/anim/compositedrawable.hpp>
 #include <p3d/billboardobject.hpp>
+#include <p3d/camera.hpp>
+#include <p3d/matrixstack.hpp>
+#include <p3d/view.hpp>
 #include <p3d/utility.hpp>
 #include <pddi/pddiext.hpp>
 

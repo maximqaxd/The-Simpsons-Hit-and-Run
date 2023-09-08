@@ -1,4 +1,7 @@
 #include <input/MouseCursor.h>
+#include <p3d/drawable.hpp>
+#include <p3d/matrixstack.hpp>
+#include <p3d/utility.hpp>
 
 // THIS CURSOR STUFF IS JUST FOR TESTING!.
 static void StreamLine(pddiPrimStream* pstream, rmt::Vector a, rmt::Vector b, tColour colora, tColour colorb)

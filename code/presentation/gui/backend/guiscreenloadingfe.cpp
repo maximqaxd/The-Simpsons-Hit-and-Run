@@ -28,7 +28,9 @@
 
 #include <p3d/drawable.hpp>
 #include <p3d/camera.hpp>
+#include <p3d/inventory.hpp>
 #include <p3d/anim/multicontroller.hpp>
+#include <p3d/utility.hpp>
 
 #include <raddebug.hpp> // Foundation
 #include <Screen.h>

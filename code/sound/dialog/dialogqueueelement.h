@@ -19,6 +19,7 @@
 // Nested Includes
 //========================================
 #include <radtime.hpp>
+#include <radmath/vector.hpp>
 
 #include <sound/simpsonssoundplayer.h>
 #include <sound/dialog/dialogqueuetype.h>

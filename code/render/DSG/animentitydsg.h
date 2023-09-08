@@ -20,6 +20,7 @@
 //===========================================================================
 
 #include <render/DSG/IEntityDSG.h>
+#include <render/Culling/SwapArray.h>
 #include <radmath/radmath.hpp>
 #include <render/Enums/RenderEnums.h>
 #include <p3d/refcounted.hpp>

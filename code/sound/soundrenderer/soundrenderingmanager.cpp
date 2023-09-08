@@ -19,7 +19,7 @@
 #include <radobject.hpp>
 #include <raddebug.hpp>
 #include <radfile.hpp>
-
+#include <raddebugwatch.hpp>
 
 #include <radmusic/radmusic.hpp>
 #include <radsound.hpp>

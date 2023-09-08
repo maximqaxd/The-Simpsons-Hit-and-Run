@@ -12,8 +12,10 @@
 // System Includes
 //========================================
 #include <simcollision/collisionobject.hpp>
+#include <constants/chunks.h>
 #include <p3d/chunkfile.hpp>
 #include <p3d/utility.hpp>
+#include <p3d/anim/compositedrawable.hpp>
 
 //========================================
 // Project Includes

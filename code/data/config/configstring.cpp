@@ -17,6 +17,8 @@
 //===========================================================================
 
 #include <data/config/configstring.h>
+#include <raddebug.hpp>
+#include <string.h>
 
 //==============================================================================
 // ConfigString constructor

@@ -19,6 +19,7 @@
 #include <mission/gameplaymanager.h>
 #include <worldsim/vehiclecentral.h>
 #include <meta/carstartlocator.h>
+#include <p3d/utility.hpp>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

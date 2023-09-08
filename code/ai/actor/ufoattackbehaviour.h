@@ -20,6 +20,7 @@
 
 #include <ai/actor/ufobehaviour.h>
 #include <radmath/random.hpp>
+#include <radmath/vector.hpp>
 #include <render/Culling/SwapArray.h>
 #include <stateprop/stateprop.hpp>
 #include <render/DSG/DynaPhysDSG.h>
@@ -69,10 +70,10 @@ class UFOAttackBehaviour : public UFOBehaviour
     protected:
 
         bool FindPositionInAttackRange( const rmt::Vector& actorPos, const rmt::Vector& targetPos, rmt::Vector* out_destination );
-        bool WithinFiringRange( const rmt::Vector& actorPos, const rmt::Vector& target )const;
+        //bool WithinFiringRange( const rmt::Vector& actorPos, const rmt::Vector& target )const;
         void MoveIntoAttackRange( const Actor& actor, const rmt::Vector& target );
         // Searches the DSG for available targets
-        int ScanForTargets( const rmt::Vector& actorPosition, float maxRangeSqr, SwapArray< DynaPhysDSG* >* pTargetList );
+        //int ScanForTargets( const rmt::Vector& actorPosition, float maxRangeSqr, SwapArray< DynaPhysDSG* >* pTargetList );
       
         // Finds a new target (currently just peds) thats closet to the
         // given actor position

@@ -15,6 +15,7 @@
 // Foundation Tech
 #include <raddebug.hpp>
 #include <radmath/radmath.hpp>
+#include <p3d/utility.hpp>
 
 //========================================
 // Project Includes

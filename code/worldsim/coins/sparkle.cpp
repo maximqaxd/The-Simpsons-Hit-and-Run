@@ -19,7 +19,7 @@
 #include <p3d/camera.hpp>
 #include <p3d/matrixstack.hpp>
 #include <p3d/texture.hpp>
-#include <pddi/pddi.hpp>
+#include <p3d/utility.hpp>
 #ifndef RAD_RELEASE
 #include <raddebug.hpp>
 #include <raddebugwatch.hpp>

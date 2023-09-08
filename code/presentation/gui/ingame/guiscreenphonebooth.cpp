@@ -49,6 +49,7 @@
 #include <Text.h>
 #include <Pure3dObject.h>
 
+#include <p3d/sprite.hpp>
 #include <p3d/anim/cameraanimation.hpp>
 
 #include <raddebug.hpp> // Foundation

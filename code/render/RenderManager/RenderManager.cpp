@@ -82,6 +82,7 @@
 
 #include <pddi/pddiext.hpp>
 #include <p3d/light.hpp>
+#include <p3d/view.hpp>
 
 #ifdef DEBUGWATCH
 #include <radmemorymonitor.hpp>

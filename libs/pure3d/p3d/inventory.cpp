@@ -7,6 +7,7 @@
     All rights reserved.
 ===========================================================================*/
 
+#include <p3d/entity.hpp>
 #include <p3d/inventory.hpp>
 #include <p3d/utility.hpp>
 #include <p3d/error.hpp>

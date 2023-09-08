@@ -20,6 +20,7 @@
 #include <data/memcard/memorycardmanager.h>
 
 #include <memory/srrmemory.h>
+#include <string.h>
 
 //===========================================================================
 // Static Member Initializations

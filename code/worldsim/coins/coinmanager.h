@@ -20,6 +20,7 @@
 #include <events/eventlistener.h>
 #include <constants/breakablesenum.h>
 #include <cheats/cheatinputsystem.h>
+#include <p3d/p3dtypes.hpp>
 
 //========================================
 // Forward References

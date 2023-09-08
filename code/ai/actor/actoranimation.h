@@ -13,6 +13,7 @@
 #ifndef ACTORANIMATION_H
 #define ACTORANIMATION_H
 
+#include <radmath/matrix.hpp>
 
 //===========================================================================
 // Nested Includes
@@ -21,6 +22,8 @@
 //===========================================================================
 // Forward References
 //===========================================================================
+
+class tCompositeDrawable;
 
 //===========================================================================
 // Constants, Typedefs, and Macro Definitions (needed by external clients)

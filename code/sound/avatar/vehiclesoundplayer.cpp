@@ -15,6 +15,7 @@
 #include <float.h>
 
 #include <radnamespace.hpp>
+#include <raddebugwatch.hpp>
 
 //========================================
 // Project Includes

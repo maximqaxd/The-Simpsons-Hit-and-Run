@@ -19,6 +19,7 @@
 //===========================================================================
 
 #include <ai/actor/behaviour.h>
+#include <render/Culling/SwapArray.h>
 #include <render/DSG/DynaPhysDSG.h>
 #include <memory/map.h>
 

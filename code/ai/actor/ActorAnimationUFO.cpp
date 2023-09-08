@@ -14,6 +14,7 @@
 //===========================================================================
 
 #include <ai/actor/ActorAnimationUFO.h>
+#include <radmath/trig.hpp>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

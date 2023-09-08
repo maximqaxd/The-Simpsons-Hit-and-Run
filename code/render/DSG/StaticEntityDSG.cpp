@@ -17,6 +17,7 @@
 //========================================
 #include <render/DSG/StaticEntityDSG.h>
 #include <memory/srrmemory.h>
+#include <p3d/utility.hpp>
 
 //************************************************************************
 //

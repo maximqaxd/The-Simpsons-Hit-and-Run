@@ -15,8 +15,11 @@
 // Foundation Tech
 #include <radtime.hpp>
 #include <raddebug.hpp>
+#include <p3d/anim/compositedrawable.hpp>
 #include <p3d/anim/multicontroller.hpp>
 #include <p3d/effects/particlesystem.hpp>
+#include <p3d/billboardobject.hpp>
+#include <p3d/camera.hpp>
 #include <p3d/view.hpp>
 
 //========================================

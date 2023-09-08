@@ -41,6 +41,11 @@
 #include <worldsim/avatar.h>
 #include <mission/gameplaymanager.h>
 #include <worldsim/redbrick/rootmatrixdriver.h>
+#include <p3d/billboardobject.hpp>
+#include <p3d/camera.hpp>
+#include <p3d/matrixstack.hpp>
+#include <p3d/view.hpp>
+#include <p3d/utility.hpp>
 
 
 //===========================================================================

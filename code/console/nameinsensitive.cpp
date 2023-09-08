@@ -17,6 +17,7 @@
 //===========================================================================
 #include "console/nameinsensitive.h"
 #include "console/upcase.h"
+#include <string.h>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

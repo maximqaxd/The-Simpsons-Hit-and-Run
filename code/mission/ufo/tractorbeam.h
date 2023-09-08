@@ -21,6 +21,7 @@
 #include <mission/ufo/weapon.h>
 #include <vector>
 #include <render/Culling/SwapArray.h>
+#include <p3d/entity.hpp>
 
 //===========================================================================
 // Forward References

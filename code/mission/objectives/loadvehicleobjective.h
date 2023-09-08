@@ -21,6 +21,7 @@
 
 #include <mission/objectives/missionobjective.h>
 #include <loading/loadingmanager.h>
+#include <string.h>
 
 //===========================================================================
 // Forward References

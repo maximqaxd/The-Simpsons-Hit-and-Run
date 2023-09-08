@@ -13,6 +13,7 @@
 // System Includes
 //========================================
 #include <radtime.hpp>
+#include <raddebugwatch.hpp>
 
 //========================================
 // Project Includes

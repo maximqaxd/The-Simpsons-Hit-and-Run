@@ -19,7 +19,7 @@
 //===========================================================================
 #include <render/Loaders/IWrappedLoader.h>
 
-
+class tCompositeDrawable;
 class tCompositeDrawableLoader;
 class tMultiControllerLoader;
 class tFrameControllerLoader;

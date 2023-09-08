@@ -23,6 +23,7 @@
 #include <memory/srrmemory.h>
 
 #include <raddebugwatch.hpp>
+#include <string.h>
 
 // Static pointer to instance of singleton.
 CardGallery* CardGallery::spInstance = NULL;

@@ -9,6 +9,10 @@
 #ifndef  MOUSECURSOR_H
 #define  MOUSECURSOR_H
 
+#include <radmath/vector.hpp>
+
+class tDrawable;
+
 class MouseCursor
 {
 public:

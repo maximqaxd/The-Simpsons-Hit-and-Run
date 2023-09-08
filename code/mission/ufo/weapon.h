@@ -18,11 +18,14 @@
 // Nested Includes
 //===========================================================================
 
-class DynaPhysDSG;
+#include <p3d/entity.hpp>
+#include <radmath/vector.hpp>
 
 //===========================================================================
 // Forward References
 //===========================================================================
+
+class DynaPhysDSG;
 
 //===========================================================================
 // Constants, Typedefs, and Macro Definitions (needed by external clients)

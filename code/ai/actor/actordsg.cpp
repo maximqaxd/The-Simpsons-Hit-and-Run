@@ -28,8 +28,9 @@
 #include <constants/actorenum.h>
 #include <p3d/view.hpp>
 #include <p3d/light.hpp>
+#include <p3d/utility.hpp>
 #include <raddebug.hpp>
-
+#include <raddebugwatch.hpp>
 
 //===========================================================================
 // Local Constants, Typedefs, and Macros

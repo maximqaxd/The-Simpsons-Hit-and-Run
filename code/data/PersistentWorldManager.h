@@ -16,6 +16,8 @@
 #ifndef PERSISTENT_WORLD_MANAGER_H
 #define PERSISTENT_WORLD_MANAGER_H
 
+#include <p3d/p3dtypes.hpp>
+
 class PersistentWorldManager
 {
 public:

@@ -22,6 +22,7 @@
 #include <worldsim/redbrick/vehicle.h>
 #include <events/eventmanager.h>
 #include <p3d/context.hpp>
+#include <p3d/inventory.hpp>
 #include <p3d/matrixstack.hpp>
 
 //===========================================================================

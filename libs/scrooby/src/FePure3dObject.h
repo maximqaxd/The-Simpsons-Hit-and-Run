@@ -29,6 +29,7 @@ class tView;
 class tMultiController;
 class tLight;
 class PascalCString;
+class tCamera;
 
 const unsigned int MAX_NUM_LIGHTS = 8;
 

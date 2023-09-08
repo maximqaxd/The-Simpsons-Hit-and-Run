@@ -20,6 +20,7 @@
 
 #include <ai/actor/behaviour.h>
 #include <radmath/random.hpp>
+#include <radmath/vector.hpp>
 #include <events/eventlistener.h>
 
 //===========================================================================

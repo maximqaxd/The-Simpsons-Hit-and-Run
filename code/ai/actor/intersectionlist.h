@@ -21,6 +21,7 @@
 #include <vector>
 #include <memory/srrmemory.h> // Needed for my STL allocations to go on the right heap
 #include <memory/map.h>
+#include <radmath/vector.hpp>
 
 //===========================================================================
 // Forward References

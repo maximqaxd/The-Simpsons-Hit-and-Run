@@ -34,6 +34,7 @@
 #include <worldsim/vehiclecentral.h>
 
 #include <mission/animatedicon.h>
+#include <p3d/utility.hpp>
 
 //******************************************************************************
 //
