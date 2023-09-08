@@ -15,6 +15,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(
 	  -ggdb
 	  -Wno-narrowing
+	  -fno-exceptions
   )
 endif()
 
