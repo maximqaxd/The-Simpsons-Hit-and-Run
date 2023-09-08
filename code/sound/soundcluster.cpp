@@ -170,7 +170,8 @@ void SoundCluster::UnloadSounds()
 
             if( resource != NULL )
             {
-                resource->ReleaseResource();
+                if( !resource->GetStreaming() )
+                    resource->ReleaseResource();
             }
 #ifdef RAD_DEBUG
             else
