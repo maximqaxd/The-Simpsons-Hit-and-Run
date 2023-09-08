@@ -973,8 +973,11 @@ set(BINK_SOURCES
 	"libs/sdks/bink/expand2.c"
 	"libs/sdks/bink/popmal.c"
 	"libs/sdks/bink/radfft.cpp"
-	"libs/sdks/bink/x86_cpu.c"
 )
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+	list(APPEND BINK_SOURCES "libs/sdks/bink/x86_cpu.c")
+endif ()
 
 if (WIN32)
 	list(APPEND BINK_SOURCES
