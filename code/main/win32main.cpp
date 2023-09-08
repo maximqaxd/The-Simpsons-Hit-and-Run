@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <SDL_main.h>
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 //========================================
 // Project Includes
 //========================================
@@ -53,6 +57,11 @@ static void ProcessCommandLineArgumentsFromFile();
 //=============================================================================
 extern "C" int main( int argc, char *argv[] )
 {
+#ifdef __SWITCH__
+    socketInitializeDefault();
+    nxlinkStdio();
+#endif
+
     //
     // Pick out and store command line settings.
     //
