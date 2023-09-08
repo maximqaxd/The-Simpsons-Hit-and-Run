@@ -41,7 +41,6 @@
 
 #include <sound/soundrenderer/soundsystem.h>
 #include <sound/soundrenderer/soundrenderingmanager.h>
-#include <sound/soundrenderer/soundrenderingmanager.h>
 #include <sound/soundrenderer/soundallocatedresource.h>
 #include <sound/soundrenderer/soundconstants.h>
 #include <sound/soundclusternameenum.h>
@@ -54,11 +53,6 @@
 #include <pddi/pddi.hpp>
 #include <p3d/utility.hpp>
 #include <p3d/p3dtypes.hpp>
-
-#include <sound/avatar/carsoundparameters.h>
-#include <sound/soundfx/reverbsettings.h>
-#include <sound/soundfx/positionalsoundsettings.h>
-#include <sound/tuning/globalsettings.h>
 
 //=============================================================================
 // Namespace
@@ -958,289 +952,49 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
 
     HeapMgr()->PopHeap( GMA_AUDIO_PERSISTENT );
 #else
-    SoundLoader* loader = GetSoundManager()->GetSoundLoader();
-
     // Character sound scripts
-    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_APU ) );
-    loader->SetCurrentCluster( SC_CHAR_APU );
-    #include "scripts/apu.inl"
-    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_BART ) );
-    loader->SetCurrentCluster( SC_CHAR_BART );
-    #include "scripts/bart.inl"
-    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_HOMER ) );
-    loader->SetCurrentCluster( SC_CHAR_HOMER );
-    #include "scripts/homer.inl"
-    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_LISA ) );
-    loader->SetCurrentCluster( SC_CHAR_LISA );
-    #include "scripts/lisa.inl"
-    SetCurrentNameSpace( GetCharacterNamespace( SC_CHAR_MARGE ) );
-    loader->SetCurrentCluster( SC_CHAR_MARGE );
-    #include "scripts/marge.inl"
+    RunApuSoundScripts();
+    RunBartSoundScripts();
+    RunHomerSoundScripts();
+    RunLisaSoundScripts();
+    RunMargeSoundScripts();
 
     // Level scripts
-    SetCurrentNameSpace( GetSoundNamespace() );
-    loader->SetCurrentCluster( SC_LEVEL_SUBURBS );
-    #include "scripts/suburbs.inl"
-    loader->SetCurrentCluster( SC_LEVEL_DOWNTOWN );
-    #include "scripts/downtown.inl"
-    loader->SetCurrentCluster( SC_LEVEL_SEASIDE );
-    #include "scripts/seaside.inl"
-    loader->SetCurrentCluster( SC_LEVEL1 );
-    #include "scripts/level1.inl"
-    loader->SetCurrentCluster( SC_LEVEL2 );
-    #include "scripts/level2.inl"
-    loader->SetCurrentCluster( SC_LEVEL3 );
-    #include "scripts/level3.inl"
-    loader->SetCurrentCluster( SC_LEVEL4 );
-    #include "scripts/level4.inl"
-    loader->SetCurrentCluster( SC_LEVEL5 );
-    #include "scripts/level5.inl"
-    loader->SetCurrentCluster( SC_LEVEL6 );
-    #include "scripts/level6.inl"
-    loader->SetCurrentCluster( SC_LEVEL7 );
-    #include "scripts/level7.inl"
-    loader->SetCurrentCluster( SC_MINIGAME );
-    #include "scripts/minigame.inl"
+    RunLevelSoundScripts();
 
     // Sound effect resources
-    loader->SetCurrentCluster( SC_ALWAYS_LOADED );
-    #include "scripts/frontend.inl"
-    #include "scripts/collide.inl"
-    #include "scripts/carsound.inl"
-    #include "scripts/world.inl"
-    loader->SetCurrentCluster( SC_INGAME );
-    #include "scripts/positionalsounds.inl"
-    switch( m_currentLanguage )
-    {
-    case DIALOGUE_LANGUAGE_ENGLISH:
-        #include "scripts/interactive_props.inl"
-        break;
-
-    case DIALOGUE_LANGUAGE_FRENCH:
-        #include "scripts/interactive_propsfr.inl"
-        break;
-
-    case DIALOGUE_LANGUAGE_GERMAN:
-        #include "scripts/interactive_propsge.inl"
-        break;
-
-    case DIALOGUE_LANGUAGE_SPANISH:
-        #include "scripts/interactive_propssp.inl"
-        break;
-
-    default:
-        rAssert( false );
-        break;
-    }
+    RunSoundEffectScripts();
 
     // Dialog
-    loader->SetCurrentCluster( SC_NEVER_LOADED );
     switch( m_currentLanguage )
     {
     case DIALOGUE_LANGUAGE_ENGLISH:
-        #include "scripts/dialog.inl"
+        RunEnglishSoundScripts();
         break;
 
     case DIALOGUE_LANGUAGE_FRENCH:
-        #include "scripts/dialogfr.inl"
+        RunFrenchSoundScripts();
         break;
 
     case DIALOGUE_LANGUAGE_GERMAN:
-        #include "scripts/dialogge.inl"
+        RunGermanSoundScripts();
         break;
 
     case DIALOGUE_LANGUAGE_SPANISH:
-        #include "scripts/dialogsp.inl"
+        RunSpanishSoundScripts();
         break;
 
     default:
         rAssert( false );
+        RunEnglishSoundScripts();
         break;
     }
-    #include "scripts/nis.inl"
 
     // Cars
-    loader->SetCurrentCluster( SC_BART_V );
-    #include "scripts/bart_v.inl"
-    loader->SetCurrentCluster( SC_APU_V );
-    #include "scripts/apu_v.inl"
-    loader->SetCurrentCluster( SC_SNAKE_V );
-    #include "scripts/snake_v.inl"
-    loader->SetCurrentCluster( SC_HOMER_V );
-    #include "scripts/homer_v.inl"
-    loader->SetCurrentCluster( SC_FAMIL_V );
-    #include "scripts/famil_v.inl"
-    loader->SetCurrentCluster( SC_GRAMP_V );
-    #include "scripts/gramp_v.inl"
-    loader->SetCurrentCluster( SC_CLETU_V );
-    #include "scripts/cletu_v.inl"
-    loader->SetCurrentCluster( SC_WIGGU_V );
-    #include "scripts/wiggu_v.inl"
-    loader->SetCurrentCluster( SC_MARGE_V );
-    #include "scripts/marge_v.inl"
-    loader->SetCurrentCluster( SC_SMITH_V );
-    #include "scripts/smith_v.inl"
-    loader->SetCurrentCluster( SC_ZOMBI_V );
-    #include "scripts/zombi_v.inl"
-    loader->SetCurrentCluster( SC_CVAN );
-    #include "scripts/cvan.inl"
-    loader->SetCurrentCluster( SC_COMPACTA );
-    #include "scripts/compacta.inl"
-    loader->SetCurrentCluster( SC_COMIC_V );
-    #include "scripts/comic_v.inl"
-    loader->SetCurrentCluster( SC_SKINN_V );
-    #include "scripts/skinn_v.inl"
-    loader->SetCurrentCluster( SC_CCOLA );
-    #include "scripts/ccola.inl"
-    loader->SetCurrentCluster( SC_CSEDAN );
-    #include "scripts/csedan.inl"
-    loader->SetCurrentCluster( SC_CPOLICE );
-    #include "scripts/cpolice.inl"
-    loader->SetCurrentCluster( SC_CCELLA );
-    #include "scripts/ccella.inl"
-    loader->SetCurrentCluster( SC_CCELLB );
-    #include "scripts/ccellb.inl"
-    loader->SetCurrentCluster( SC_CCELLC );
-    #include "scripts/ccellc.inl"
-    loader->SetCurrentCluster( SC_CCELLD );
-    #include "scripts/ccelld.inl"
-    loader->SetCurrentCluster( SC_MINIVANA );
-    #include "scripts/minivana_v.inl"
-    loader->SetCurrentCluster( SC_PICKUPA );
-    #include "scripts/pickupa.inl"
-    loader->SetCurrentCluster( SC_TAXIA );
-    #include "scripts/taxia_v.inl"
-    loader->SetCurrentCluster( SC_SPORTSA );
-    #include "scripts/sportsa.inl"
-    loader->SetCurrentCluster( SC_SPORTSB );
-    #include "scripts/sportsb.inl"
-    loader->SetCurrentCluster( SC_SUVA );
-    #include "scripts/suva.inl"
-    loader->SetCurrentCluster( SC_WAGONA );
-    #include "scripts/wagona.inl"
-    loader->SetCurrentCluster( SC_HBIKE_V );
-    #include "scripts/hbike_v.inl"
-    loader->SetCurrentCluster( SC_BURNS_V );
-    #include "scripts/burns_v.inl"
-    loader->SetCurrentCluster( SC_HONOR_V );
-    #include "scripts/honor_v.inl"
-    loader->SetCurrentCluster( SC_CARMOR );
-    #include "scripts/carmor.inl"
-    loader->SetCurrentCluster( SC_CCURATOR );
-    #include "scripts/ccurator.inl"
-    loader->SetCurrentCluster( SC_CHEARS );
-    #include "scripts/chears.inl"
-    loader->SetCurrentCluster( SC_CKLIMO );
-    #include "scripts/cklimo.inl"
-    loader->SetCurrentCluster( SC_CLIMO );
-    #include "scripts/climo.inl"
-    loader->SetCurrentCluster( SC_CNERD );
-    #include "scripts/cnerd.inl"
-    loader->SetCurrentCluster( SC_FRINK_V );
-    #include "scripts/frink_v.inl"
-    loader->SetCurrentCluster( SC_CMILK );
-    #include "scripts/cmilk.inl"
-    loader->SetCurrentCluster( SC_CDONUT );
-    #include "scripts/cdonut.inl"
-    loader->SetCurrentCluster( SC_BBMAN_V );
-    #include "scripts/bbman_v.inl"
-    loader->SetCurrentCluster( SC_BOOKB_V );
-    #include "scripts/bookb_v.inl"
-    loader->SetCurrentCluster( SC_CARHOM_V );
-    #include "scripts/carhom_v.inl"
-    loader->SetCurrentCluster( SC_ELECT_V );
-    #include "scripts/elect_v.inl"
-    loader->SetCurrentCluster( SC_FONE_V );
-    #include "scripts/fone_v.inl"
-    loader->SetCurrentCluster( SC_GRAMR_V );
-    #include "scripts/gramr_v.inl"
-    loader->SetCurrentCluster( SC_MOE_V );
-    #include "scripts/moe_v.inl"
-    loader->SetCurrentCluster( SC_MRPLO_V );
-    #include "scripts/mrplo_v.inl"
-    loader->SetCurrentCluster( SC_OTTO_V );
-    #include "scripts/otto_v.inl"
-    loader->SetCurrentCluster( SC_PLOWK_V );
-    #include "scripts/plowk_v.inl"
-    loader->SetCurrentCluster( SC_SCORP_V );
-    #include "scripts/scorp_v.inl"
-    loader->SetCurrentCluster( SC_WILLI_V );
-    #include "scripts/willi_v.inl"
-    loader->SetCurrentCluster( SC_SEDANA );
-    #include "scripts/sedana.inl"
-    loader->SetCurrentCluster( SC_SEDANB );
-    #include "scripts/sedanb.inl"
-    loader->SetCurrentCluster( SC_CBLBART );
-    #include "scripts/cblbart.inl"
-    loader->SetCurrentCluster( SC_CCUBE );
-    #include "scripts/ccube.inl"
-    loader->SetCurrentCluster( SC_CDUFF );
-    #include "scripts/cduff.inl"
-    loader->SetCurrentCluster( SC_CNONUP );
-    #include "scripts/cnonup.inl"
-    loader->SetCurrentCluster( SC_LISA_V );
-    #include "scripts/lisa_v.inl"
-    loader->SetCurrentCluster( SC_KRUST_V );
-    #include "scripts/krust_v.inl"
-    loader->SetCurrentCluster( SC_COFFIN );
-    #include "scripts/coffin.inl"
-    loader->SetCurrentCluster( SC_HALLO );
-    #include "scripts/hallo.inl"
-    loader->SetCurrentCluster( SC_SHIP );
-    #include "scripts/ship.inl"
-    loader->SetCurrentCluster( SC_WITCHCAR );
-    #include "scripts/witchcar.inl"
-    loader->SetCurrentCluster( SC_HUSKA );
-    #include "scripts/huska.inl"
-    loader->SetCurrentCluster( SC_ATV_V );
-    #include "scripts/atv_v.inl"
-    loader->SetCurrentCluster( SC_DUNE_V );
-    #include "scripts/dune_v.inl"
-    loader->SetCurrentCluster( SC_HYPE_V );
-    #include "scripts/hype_v.inl"
-    loader->SetCurrentCluster( SC_KNIGH_V );
-    #include "scripts/knigh_v.inl"
-    loader->SetCurrentCluster( SC_MONO_V );
-    #include "scripts/mono_v.inl"
-    loader->SetCurrentCluster( SC_OBLIT_V );
-    #include "scripts/oblit_v.inl"
-    loader->SetCurrentCluster( SC_ROCKE_V );
-    #include "scripts/rocke_v.inl"
-    loader->SetCurrentCluster( SC_AMBUL );
-    #include "scripts/ambul.inl"
-    loader->SetCurrentCluster( SC_BURNSARM );
-    #include "scripts/burnsarm.inl"
-    loader->SetCurrentCluster( SC_FISHTRUC );
-    #include "scripts/fishtruc.inl"
-    loader->SetCurrentCluster( SC_GARBAGE );
-    #include "scripts/garbage.inl"
-    loader->SetCurrentCluster( SC_ICECREAM );
-    #include "scripts/icecream.inl"
-    loader->SetCurrentCluster( SC_ISTRUCK );
-    #include "scripts/istruck.inl"
-    loader->SetCurrentCluster( SC_NUCTRUCK );
-    #include "scripts/nuctruck.inl"
-    loader->SetCurrentCluster( SC_PIZZA );
-    #include "scripts/pizza.inl"
-    loader->SetCurrentCluster( SC_SCHOOLBU );
-    #include "scripts/schoolbu.inl"
-    loader->SetCurrentCluster( SC_VOTETRUC );
-    #include "scripts/votetruc.inl"
-    loader->SetCurrentCluster( SC_GLASTRUC );
-    #include "scripts/glastruc.inl"
-    loader->SetCurrentCluster( SC_CFIRE_V );
-    #include "scripts/cfire_v.inl"
-    loader->SetCurrentCluster( SC_CBONE );
-    #include "scripts/cbone.inl"
-    loader->SetCurrentCluster( SC_REDBRICK );
-    #include "scripts/redbrick.inl"
+    RunCarSoundScripts();
 
     // Tuning
-    SetCurrentNameSpace( GetTuningNamespace() );
-    loader->SetCurrentCluster( SC_NEVER_LOADED );
-    #include "scripts/car_tune.inl"
-    #include "scripts/positionalsettings.inl"
-    #include "scripts/global.inl"
+    RunTuningSoundScripts();
 #endif
 
     GetLoadingManager()->AddCallback( this );

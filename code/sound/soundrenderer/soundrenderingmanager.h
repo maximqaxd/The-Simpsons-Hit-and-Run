@@ -133,6 +133,20 @@ protected:
     static void TypeInfoComplete( void* pUserData );
     static void ScriptComplete( void* pUserData );
     static void SoundObjectCreated( const char* objName, IRefCount* obj );
+#else
+    void RunApuSoundScripts( void );
+    void RunBartSoundScripts( void );
+    void RunHomerSoundScripts( void );
+    void RunLisaSoundScripts( void );
+    void RunMargeSoundScripts( void );
+    void RunLevelSoundScripts( void );
+    void RunSoundEffectScripts( void );
+    void RunEnglishSoundScripts( void );
+    void RunFrenchSoundScripts( void );
+    void RunGermanSoundScripts( void );
+    void RunSpanishSoundScripts( void );
+    void RunCarSoundScripts( void );
+    void RunTuningSoundScripts( void );
 #endif
 
 private:
