@@ -1040,7 +1040,7 @@ else()
 	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/glad/src/glad.c")
 endif()
 
-add_library(radcore OBJECT ${RADCORE_SOURCES})
+add_library(radcore STATIC ${RADCORE_SOURCES})
 target_include_directories(radcore
 	PUBLIC "libs/radcore/inc/"
 	PRIVATE "libs/radcore/src/pch/" # TODO
@@ -1049,7 +1049,7 @@ target_include_directories(radcore
 target_compile_features(radcore PUBLIC cxx_std_17)
 target_link_libraries(radcore SDL2::SDL2)
 
-add_library(radcontent OBJECT ${RADCONTENT_SOURCES})
+add_library(radcontent STATIC ${RADCONTENT_SOURCES})
 target_include_directories(radcontent
 	PUBLIC "libs/radcontent/inc/"
 	#PRIVATE "code/" # wtf
@@ -1060,7 +1060,7 @@ target_link_libraries(radcontent
 	radmath
 )
 
-add_library(pddi OBJECT ${PDDI_SOURCES})
+add_library(pddi STATIC ${PDDI_SOURCES})
 target_include_directories(pddi
 	PUBLIC "libs/pure3d/"
 	PRIVATE "libs/pure3d/pddi/gl/glad/include/"
@@ -1070,7 +1070,7 @@ target_link_libraries(pddi
 	radmath
 )
 
-add_library(p3d OBJECT ${P3D_SOURCES})
+add_library(p3d STATIC ${P3D_SOURCES})
 target_include_directories(p3d
 	PUBLIC "libs/pure3d/"
 	#PRIVATE "code/" # wtf
@@ -1084,7 +1084,7 @@ target_link_libraries(p3d
 	radmath
 )
 
-add_library(choreo OBJECT ${CHOREO_SOURCES})
+add_library(choreo STATIC ${CHOREO_SOURCES})
 target_include_directories(choreo
 	PUBLIC "libs/choreo/inc/"
 )
@@ -1095,7 +1095,7 @@ target_link_libraries(choreo
 	sim
 )
 
-add_library(poser OBJECT ${POSER_SOURCES})
+add_library(poser STATIC ${POSER_SOURCES})
 target_include_directories(poser
 	PUBLIC "libs/poser/inc/"
 )
@@ -1105,12 +1105,12 @@ target_link_libraries(poser
 	radmath
 )
 
-add_library(radmath OBJECT ${RADMATH_SOURCES})
+add_library(radmath STATIC ${RADMATH_SOURCES})
 target_include_directories(radmath
 	PUBLIC "libs/radmath/"
 )
 
-add_library(radmovie OBJECT ${RADMOVIE_SOURCES})
+add_library(radmovie STATIC ${RADMOVIE_SOURCES})
 target_include_directories(radmovie
 	PUBLIC "libs/radmovie/inc/"
 	PRIVATE "libs/radmovie/src/pch/"
@@ -1122,7 +1122,7 @@ target_link_libraries(radmovie
 	radsound
 )
 
-add_library(radmusic OBJECT ${RADMUSIC_SOURCES})
+add_library(radmusic STATIC ${RADMUSIC_SOURCES})
 target_include_directories(radmusic
 	PUBLIC "libs/radmusic/inc/"
 	PRIVATE "libs/radmusic/src/pch/"
@@ -1134,7 +1134,7 @@ target_link_libraries(radmusic
 	radsound
 )
 
-add_library(radsound OBJECT ${RADSOUND_SOURCES})
+add_library(radsound STATIC ${RADSOUND_SOURCES})
 target_include_directories(radsound
 	PUBLIC "libs/radsound/inc/"
 	PRIVATE "libs/radsound/src/pch/"
@@ -1145,7 +1145,7 @@ target_link_libraries(radsound
 	radcore
 )
 
-add_library(radscript OBJECT ${RADSCRIPT_SOURCES})
+add_library(radscript STATIC ${RADSCRIPT_SOURCES})
 target_include_directories(radscript
 	PUBLIC "libs/radscript/inc/"
 	PRIVATE "libs/radscript/src/pch/"
@@ -1154,7 +1154,7 @@ target_link_libraries(radscript
 	radcore
 )
 
-add_library(scrooby OBJECT ${SCROOBY_SOURCES})
+add_library(scrooby STATIC ${SCROOBY_SOURCES})
 target_include_directories(scrooby
 	PUBLIC "libs/scrooby/inc/"
 	PUBLIC "libs/scrooby/src/"
@@ -1163,7 +1163,7 @@ target_link_libraries(scrooby
 	p3d
 )
 
-add_library(sim OBJECT ${SIM_SOURCES})
+add_library(sim STATIC ${SIM_SOURCES})
 target_include_directories(sim
 	PUBLIC "libs/sim/"
 )
@@ -1172,7 +1172,7 @@ target_link_libraries(sim
 	poser
 )
 
-add_library(bink OBJECT ${BINK_SOURCES})
+add_library(bink STATIC ${BINK_SOURCES})
 target_compile_definitions(bink
 	PRIVATE
 		USING_EGT
