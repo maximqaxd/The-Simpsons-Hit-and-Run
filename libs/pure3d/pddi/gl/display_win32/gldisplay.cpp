@@ -177,7 +177,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         fprintf(stderr, "SDL_GL_CreateContext() error: %s\n", SDL_GetError());
     PDDIASSERT(hRC);
 
-    if (!gladLoadGL())
+    if (!gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ))
         return false;
 
     char* glVendor   = (char*)glGetString(GL_VENDOR);
