@@ -16,6 +16,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	  -ggdb
 	  -Wno-narrowing
 	  -fno-exceptions
+	  -fvisibility=hidden
   )
 endif()
 
