@@ -19,8 +19,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   )
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_definitions(RAD_DEBUG)
+else()
+	add_compile_definitions(RAD_RELEASE)
+endif()
+
 add_compile_definitions(
-	RAD_DEBUG
 	RAD_CONSOLE
 	RAD_WIN32
 )
