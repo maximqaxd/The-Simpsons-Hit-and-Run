@@ -265,9 +265,9 @@ void radVMMGetStats( gcnVMMStats *stats );
 // Helper functions for aligning sizes
 //
 
-unsigned int radMemoryRoundUp( unsigned int value, unsigned int alignment );
-unsigned int radMemoryRoundDown( unsigned int value, unsigned int alignemnt );
-bool radMemoryIsAligned( unsigned int value, unsigned int alignment );
+size_t radMemoryRoundUp( size_t value, size_t alignment );
+size_t radMemoryRoundDown( size_t value, size_t alignemnt );
+bool radMemoryIsAligned( size_t value, size_t alignment );
 
 //=============================================================================
 // R E M O T E  M E M O R Y  F U N C T I O N S
