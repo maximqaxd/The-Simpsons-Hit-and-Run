@@ -4,12 +4,11 @@
 
 
 // This is Doug Lea's malloc (http://g.oswego.edu/dl/html/malloc.html)
-// There are some defines and an implementation of fake_sbrk(), 
-// but otherwise it is unmodified.
+// There are some defines but otherwise it is unmodified.
 
-#include <cstddef>
 #include "pch.hpp"
 #include "platalloc.hpp"
+#include <stddef.h>
 #include <radobject.hpp>
 #include <radmemory.hpp>
 #include <raddebug.hpp>
@@ -30,8 +29,6 @@
 #ifdef _WIN32
 #undef _WIN32
 #endif
-
-#define HAVE_MREMAP 0
 
 //
 // Set the doug alignment to our standard alignment.
@@ -56,6 +53,7 @@
 // in which case we want to fail rather than resize the heap.
 //
 #define HAVE_MMAP 0 
+#define HAVE_MREMAP 0
 #define ONLY_MSPACES 1
 
 //----------------------------------------------------------------------------
