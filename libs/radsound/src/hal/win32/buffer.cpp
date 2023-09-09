@@ -93,7 +93,7 @@ void radSoundHalBufferWin::Initialize
             pIRadMemoryObject->GetMemoryAddress(),
             pIRadMemoryObject->GetMemorySize(),
             m_refIRadSoundHalAudioFormat->GetSampleRate(),
-            AL_MAP_READ_BIT_SOFT | AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT
+            AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT
         );
         rAssert( alGetError() == AL_NO_ERROR );
     }
@@ -243,7 +243,7 @@ void radSoundHalBufferWin::LoadAsync
 
         m_LockedLoadBytes = m_refIRadSoundHalAudioFormat->FramesToBytes( numberOfFrames );
         m_pLockedLoadBuffer = radMapBufferSOFT( m_Buffer, m_LoadStartInBytes, m_LockedLoadBytes,
-            AL_MAP_READ_BIT_SOFT | AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
+            AL_MAP_WRITE_BIT_SOFT | AL_MAP_PERSISTENT_BIT_SOFT );
         ALenum error = alGetError();
         rAssert( error == AL_NO_ERROR );
     }
