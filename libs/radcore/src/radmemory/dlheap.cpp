@@ -6492,7 +6492,7 @@ public radRefCount
 
         rReleasePrintf("DLHeap %s StartMem:0x%x, EndMem:0x%x\n", pName, m_StartOfMemory, m_EndOfMemory );
 
-        m_MallocState = create_mspace_with_base( (void*)m_StartOfMemory, size, 0 );
+        m_MallocState = create_mspace_with_base( (void*)m_StartOfMemory, m_SizeOfMemory, 0 );
 
 #ifdef RADMEMORYMONITOR
         {
@@ -6517,7 +6517,7 @@ public radRefCount
 		m_StartOfMemory = (uintptr_t)pMem;
 		m_EndOfMemory = m_StartOfMemory + m_SizeOfMemory;
 
-        m_MallocState = create_mspace_with_base( pMem, size, 0 );
+        m_MallocState = create_mspace_with_base( (void*)m_StartOfMemory, m_SizeOfMemory, 0 );
 
 #ifdef RADMEMORYMONITOR
         radMemoryMonitorIdentifyAllocation( (void*)m_StartOfMemory, g_nameFTech, "radMemoryDlAllocator::m_StartOfMemory" );
@@ -6533,6 +6533,7 @@ public radRefCount
     virtual ~radMemoryDlAllocator( void )
     {
         radMemoryMonitorRescindSection( (void*)m_StartOfMemory );
+        destroy_mspace( m_MallocState );
 #ifdef RAD_GAMECUBE
         // Don't try to free Virtual memory
         if ((m_StartOfMemory & 0x7E000000) != 0x7E000000)
