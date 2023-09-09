@@ -7,6 +7,7 @@
 // There are some defines and an implementation of fake_sbrk(), 
 // but otherwise it is unmodified.
 
+#include <cstddef>
 #include "pch.hpp"
 #include "platalloc.hpp"
 #include <radobject.hpp>
@@ -29,6 +30,8 @@
 #ifdef _WIN32
 #undef _WIN32
 #endif
+
+#define HAVE_MREMAP 0
 
 //
 // Set the doug alignment to our standard alignment.
