@@ -265,9 +265,9 @@ void radVMMGetStats( gcnVMMStats *stats );
 // Helper functions for aligning sizes
 //
 
-size_t radMemoryRoundUp( size_t value, size_t alignment );
-size_t radMemoryRoundDown( size_t value, size_t alignemnt );
-bool radMemoryIsAligned( size_t value, size_t alignment );
+unsigned int radMemoryRoundUp( unsigned int value, unsigned int alignment );
+unsigned int radMemoryRoundDown( unsigned int value, unsigned int alignemnt );
+bool radMemoryIsAligned( unsigned int value, unsigned int alignment );
 
 //=============================================================================
 // R E M O T E  M E M O R Y  F U N C T I O N S
@@ -589,7 +589,6 @@ void radMemoryBinAllocatorCreate(
     radMemoryAllocator allocator,                       // Allocator to get memory to manage 
     const char * pName = NULL );
 
-#ifdef USE_DOUG_LEA_HEAP
 
 //
 // Company standard proven "best algorithm", writen by Doug Lea himself (gcc).
@@ -603,8 +602,6 @@ IRadMemoryHeap * radMemoryCreateDougLeaHeap( void *pMem, unsigned int size,
 	radMemoryAllocator allocator,
     const char * pName = NULL );
 
-#endif
-
 IRadMemoryHeap * radMemoryCreateStaticHeap( unsigned int size,
 	radMemoryAllocator allocator,
     const char * pName = NULL );
@@ -612,6 +609,7 @@ IRadMemoryHeap * radMemoryCreateStaticHeap( unsigned int size,
 IRadMemoryHeap * radMemoryCreateTrackingHeap( unsigned int size,
 	radMemoryAllocator allocator,
     const char * pName = NULL );
+
 
 //
 // This interface is used to construct a pool object. A pool object is a memory

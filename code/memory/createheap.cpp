@@ -35,13 +35,8 @@ struct HeapCreationData
 
 HeapCreationData g_HeapCreationData[] = 
 {
-#ifdef USE_DOUG_LEA_HEAP
-    { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Default"              },
-    { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Temp"                 },
-#else
-    { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Default"              },
-    { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Temp"                 },
-#endif    
+    { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Default"              },      
+    { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Temp"                 },      
     { HEAP_TYPE_NONE,     GMA_DEFAULT, "Gamecube VMM"         },      
 #ifdef RAD_WIN32
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Persistent"           },  // no static heap for pc
@@ -53,23 +48,14 @@ HeapCreationData g_HeapCreationData[] =
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level FE"             },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Zone"           },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Other"          },
-#ifdef USE_DOUG_LEA_HEAP
     { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Level Hud"            },
-#else
-    { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Hud"            },
-#endif
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Mission"        },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Audio"          },
     { HEAP_TYPE_NONE,     GMA_DEFAULT, "Debug"                },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Special"              },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Music"                },
-#ifdef USE_DOUG_LEA_HEAP
     { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Audio Persistent"     },
     { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Small Alloc"          },
-#else
-    { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Audio Persistent"     },
-    { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Small Alloc"          },
-#endif
 #ifdef RAD_XBOX
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "XBOX Sound"           },
 #endif
@@ -152,7 +138,6 @@ void CreateHeap ( GameMemoryAllocator allocator, const unsigned int size )
             HeapMgr()->PopHeap( GMA_DEBUG );
             break;
         }
-#ifdef USE_DOUG_LEA_HEAP
         case HEAP_TYPE_DOUG_LEA :
         {
             HeapMgr()->PushHeap( GMA_DEBUG );
@@ -161,7 +146,6 @@ void CreateHeap ( GameMemoryAllocator allocator, const unsigned int size )
             HeapMgr()->PopHeap( GMA_DEBUG );
             break;
         }
-#endif
         case HEAP_TYPE_NONE :
         {
             //rAssert( false );
