@@ -70,6 +70,17 @@ radSoundHalSystem::~radSoundHalSystem( void )
     s_pRsdSystem = NULL;
 }
 
+typedef void (AL_APIENTRY*ALDEBUGPROCEXT)(ALenum source, ALenum type, ALuint id, ALenum severity, ALsizei length, const ALchar *message, void *userParam) AL_API_NOEXCEPT17;
+
+typedef void (AL_APIENTRY*LPALDEBUGMESSAGECALLBACKEXT)(ALDEBUGPROCEXT callback, void *userParam) AL_API_NOEXCEPT17;
+
+void AL_APIENTRY PrintOpenALErrors(ALenum source, ALenum type, ALuint id, ALenum severity, ALsizei length, const ALchar *message, void *userParam) AL_API_NOEXCEPT17
+{
+    (void)length;
+    (void)userParam;
+    fprintf(stderr, "OpenAL says: source=%u type=%u id=%u severity=%u '%s'\n", source, type, id, severity, message);
+}
+
 //============================================================================
 // radSoundHalSystem::Initialize
 //============================================================================
@@ -114,6 +125,15 @@ void radSoundHalSystem::Initialize( const SystemDescription & systemDescription 
             radBufferStorageSOFT = (LPALBUFFERSTORAGESOFT)alGetProcAddress( "alBufferStorageSOFT" );
             radMapBufferSOFT = (LPALMAPBUFFERSOFT)alGetProcAddress( "alMapBufferSOFT" );
             radUnmapBufferSOFT = (LPALUNMAPBUFFERSOFT)alGetProcAddress( "alUnmapBufferSOFT" );
+
+            // enable debug messages, as of OpenAL-Soft v1.23.1 this extension has not been released yet
+            if (alIsExtensionPresent("AL_EXT_debug"))
+            {
+                auto const AL_DEBUG_OUTPUT_EXT = alGetEnumValue("AL_DEBUG_OUTPUT_EXT");
+                auto const alDebugMessageCallbackEXT = (LPALDEBUGMESSAGECALLBACKEXT)alGetProcAddress("alDebugMessageCallbackEXT");
+                alEnable(AL_DEBUG_OUTPUT_EXT);
+                alDebugMessageCallbackEXT(PrintOpenALErrors, /*userParam*/nullptr);
+            }
 
             if (m_NumAuxSends > 0 && alcIsExtensionPresent(m_pDevice, "ALC_EXT_EFX"))
             {
