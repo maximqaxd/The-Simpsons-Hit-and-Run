@@ -288,13 +288,6 @@ void radSoundHalBufferWin::OnBufferLoadComplete( unsigned int dataSourceFrames )
     else
         format = m_refIRadSoundHalAudioFormat->GetBitResolution() == 8 ? AL_FORMAT_MONO8 : AL_FORMAT_MONO16;
 
-    // Clear bytes that were not loaded
-    unsigned int offsetInBytes = m_refIRadSoundHalAudioFormat->FramesToBytes(dataSourceFrames);
-    unsigned int sizeInBytes = m_LockedLoadBytes - offsetInBytes;
-    unsigned char fillChar = (m_refIRadSoundHalAudioFormat->GetBitResolution() == 8) ? 128 : 0;
-
-    ::memset(static_cast<char*>(m_pLockedLoadBuffer) + offsetInBytes, fillChar, sizeInBytes);
-
     if( m_Streaming == false )
     {
         alBufferData( m_Buffer, format,
