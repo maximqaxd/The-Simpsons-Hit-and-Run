@@ -328,6 +328,12 @@ void radSoundHalBufferWin::CancelAsyncOperations( void )
 
     if( m_refIRadSoundHalBufferLoadCallback != NULL )
     {
+        if( m_Streaming == true )
+        {
+            radUnmapBufferSOFT( m_Buffer );
+            rAssert( alGetError() == AL_NO_ERROR );
+        }
+
         m_pLockedLoadBuffer = NULL;
         m_LockedLoadBytes = 0;
         m_refIRadSoundHalBufferLoadCallback = NULL;
