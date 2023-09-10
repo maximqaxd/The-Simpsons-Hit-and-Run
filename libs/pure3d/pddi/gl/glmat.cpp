@@ -41,6 +41,7 @@ pddiShadeIntTable pglMat::intTable[] =
     {PDDI_SP_ALPHATEST , SHADE_INT(&pglMat::EnableAlphaTest)},
     {PDDI_SP_ALPHACOMPARE , SHADE_INT(&pglMat::SetAlphaCompare)},
     {PDDI_SP_TWOSIDED , SHADE_INT(&pglMat::SetTwoSided)},
+    {PDDI_SP_EMISSIVEALPHA , SHADE_INT(&pglMat::SetEmissiveAlpha)},
     {PDDI_SP_NULL , NULL}
 };
 
@@ -234,6 +235,24 @@ void pglMat::SetSpecular(pddiColour c)
 void pglMat::SetEmissive(pddiColour c) 
 {
     texEnv[pass].emissive = c;
+    SetEmissiveAlpha(c.Alpha());
+}
+
+void pglMat::SetEmissiveAlpha(int alpha)
+{
+    texEnv[pass].diffuse.SetAlpha(alpha);
+    if(alpha < 255)
+    {
+        texEnv[pass].specular.SetAlpha(0);
+        texEnv[pass].ambient.SetAlpha(0);
+        texEnv[pass].emissive.SetAlpha(0);
+    }
+    else
+    {
+        texEnv[pass].specular.SetAlpha(255);
+        texEnv[pass].ambient.SetAlpha(255);
+        texEnv[pass].emissive.SetAlpha(255);
+    }
 }
 
 void pglMat::SetShininess(float power) 

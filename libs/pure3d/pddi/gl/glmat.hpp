@@ -73,6 +73,7 @@ public:
     void SetDiffuse(pddiColour colour);
     void SetAmbient(pddiColour colour);
     void SetEmissive(pddiColour);
+    void SetEmissiveAlpha(int);
     void SetSpecular(pddiColour);
     void SetShininess(float power);
 
