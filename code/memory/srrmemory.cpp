@@ -160,7 +160,7 @@ inline void* AllocateThis( GameMemoryAllocator allocator, size_t size )
 }
 
 
-#ifdef SRR_OVERLOAD_BUILTIN_NEW
+#ifdef OVERLOAD_BUILTIN_NEW
 //==============================================================================
 // new
 //==============================================================================

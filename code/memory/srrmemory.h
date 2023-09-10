@@ -46,7 +46,7 @@ extern bool gMemorySystemInitialized;
 #endif // TOOLS
 
 
-#ifdef SRR_OVERLOAD_BUILTIN_NEW
+#ifdef OVERLOAD_BUILTIN_NEW
 
 //
 // Override built-in new.
