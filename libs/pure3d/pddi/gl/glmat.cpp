@@ -268,8 +268,6 @@ int pglMat::CountDevPasses(void)
 
 void pglMat::SetDevPass(unsigned pass)
 {
-    glColor3ub(255,255,255);//PDDI_GETR(diffuse),PDDI_GETG(diffuse),PDDI_GETB(diffuse));
-
     int i = 0;
 
     if(texEnv[i].texture)
