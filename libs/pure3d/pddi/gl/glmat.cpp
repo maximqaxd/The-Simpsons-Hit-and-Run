@@ -142,8 +142,9 @@ pglMat::pglMat(pglContext* c)
     //   destBlend = PDDI_BF_ZERO;
 
         texEnv[i].alphaTest = false;
-        texEnv[i].alphaCompareMode = PDDI_COMPARE_GREATER;
+        texEnv[i].alphaCompareMode = PDDI_COMPARE_GREATEREQUAL;
         texEnv[i].alphaBlendMode = PDDI_BLEND_NONE;
+        texEnv[i].alphaRef = 0.5f;
     }
     texEnv[0].enabled = true;
     pass = 0;
