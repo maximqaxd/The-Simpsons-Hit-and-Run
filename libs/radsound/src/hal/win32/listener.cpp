@@ -308,6 +308,7 @@ void radSoundHalListener::UpdatePositionalSettings
 
 	if (!m_IsEfxListenerClean)
 	{
+		m_IsEfxListenerClean = true;
 		ref<radSoundHalSystem> refSystem = radSoundHalSystem::GetInstance();
 		for (unsigned int i = 0; i < refSystem->GetNumAuxSends(); i++)
 		{
