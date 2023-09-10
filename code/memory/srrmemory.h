@@ -46,7 +46,7 @@ extern bool gMemorySystemInitialized;
 #endif // TOOLS
 
 
-
+#ifdef SRR_OVERLOAD_BUILTIN_NEW
 
 //
 // Override built-in new.
@@ -60,23 +60,25 @@ throw( std::bad_alloc )
 ;
 
 //
-// Override built-in delete.
-//
-void  operator delete( void* pMemory )
-#ifdef RAD_PS2
-#ifndef RAD_MW
-throw()
-#endif
-#endif
-;
-
-//
 // Override built-in array new.
 //
 void* operator new[]( size_t size )
 #ifdef RAD_PS2
 #ifndef RAD_MW
 throw( std::bad_alloc )
+#endif
+#endif
+;
+
+#endif
+
+//
+// Override built-in delete.
+//
+void  operator delete( void* pMemory )
+#ifdef RAD_PS2
+#ifndef RAD_MW
+throw()
 #endif
 #endif
 ;

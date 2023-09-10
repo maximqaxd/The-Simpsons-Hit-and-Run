@@ -68,6 +68,7 @@ void MemoryHackCallback() { INIT_MEM() };
 #include <main/win32platform.h>
 #define INIT_MEM()  Memory::InitializeMemoryUtilities();Win32Platform::InitializeMemory();
 #define SHUTDOWN_MEM()  Win32Platform::ShutdownMemory();
+void MemoryHackCallback() { INIT_MEM() };
 #endif // RAD_WIN32
 
 //******************************************************************************
@@ -158,6 +159,8 @@ inline void* AllocateThis( GameMemoryAllocator allocator, size_t size )
     return pMemory;
 }
 
+
+#ifdef SRR_OVERLOAD_BUILTIN_NEW
 //==============================================================================
 // new
 //==============================================================================
@@ -205,28 +208,6 @@ throw( std::bad_alloc )
 
 
 //==============================================================================
-// delete
-//==============================================================================
-//
-// Description: regular delete
-//
-// Parameters:  pMemory - pointer to the memory we're deleting
-//
-// Return:      
-//
-//==============================================================================
-void operator delete( void* pMemory )
-#ifdef RAD_PS2
-#ifndef RAD_MW
-throw()
-#endif
-#endif
-{
-    radMemoryFree( pMemory );
-}
-
-
-//==============================================================================
 // 
 //==============================================================================
 //
@@ -268,6 +249,29 @@ throw( std::bad_alloc )
     //MEMTRACK_ALLOC( pMemory, size, ALLOC_ARRAY );
 
     return( pMemory );
+}
+#endif
+
+
+//==============================================================================
+// delete
+//==============================================================================
+//
+// Description: regular delete
+//
+// Parameters:  pMemory - pointer to the memory we're deleting
+//
+// Return:      
+//
+//==============================================================================
+void operator delete(void* pMemory)
+#ifdef RAD_PS2
+#ifndef RAD_MW
+throw()
+#endif
+#endif
+{
+    radMemoryFree( pMemory );
 }
 
 
