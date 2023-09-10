@@ -40,12 +40,14 @@ pddiShadeIntTable pglMat::intTable[] =
     {PDDI_SP_BLENDMODE , SHADE_INT(&pglMat::SetBlendMode)},
     {PDDI_SP_ALPHATEST , SHADE_INT(&pglMat::EnableAlphaTest)},
     {PDDI_SP_ALPHACOMPARE , SHADE_INT(&pglMat::SetAlphaCompare)},
+    {PDDI_SP_TWOSIDED , SHADE_INT(&pglMat::SetTwoSided)},
     {PDDI_SP_NULL , NULL}
 };
 
 pddiShadeFloatTable pglMat::floatTable[] = 
 {
     {PDDI_SP_SHININESS , SHADE_FLOAT(&pglMat::SetShininess)},
+    {PDDI_SP_ALPHACOMPARE_THRESHOLD , SHADE_FLOAT(&pglMat::SetAlphaRef)},
     {PDDI_SP_NULL , NULL}
 };
 
@@ -131,6 +133,7 @@ pglMat::pglMat(pglContext* c)
         texEnv[i].filterMode = PDDI_FILTER_BILINEAR;
 
         texEnv[i].lit = false;
+        texEnv[i].twoSided = false;
         texEnv[i].shadeMode = PDDI_SHADE_GOURAUD;
         texEnv[i].ambient.Set(255,255,255);
         texEnv[i].diffuse.Set(255,255,255);
@@ -201,6 +204,11 @@ void pglMat::SetFilterMode(int mode)
 void pglMat::SetShadeMode(int shade) 
 {
     texEnv[pass].shadeMode = (pddiShadeMode)shade;
+}
+
+void pglMat::SetTwoSided(int b)
+{
+    texEnv[pass].twoSided = b != 0;
 }
 
 void pglMat::EnableLighting(int b)
@@ -326,6 +334,15 @@ void pglMat::SetDevPass(unsigned pass)
     {
         glDisable(GL_LIGHTING);
         glDisableClientState(GL_NORMAL_ARRAY);
+    }
+
+    if( texEnv[i].twoSided || context->GetCullMode() == PDDI_CULL_NONE )
+    {
+        glDisable(GL_CULL_FACE);
+    }
+    else
+    {
+        glEnable(GL_CULL_FACE);
     }
 }
 

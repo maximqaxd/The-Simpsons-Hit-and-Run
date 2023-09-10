@@ -29,6 +29,7 @@ struct pglTextureEnv
     float alphaRef;
 
     bool lit;
+    bool twoSided;
     pddiShadeMode shadeMode;
     pddiColour diffuse;
     pddiColour specular;
@@ -64,6 +65,7 @@ public:
 
     // shading
     void SetShadeMode(int shade);
+    void SetTwoSided(int);
 
     // lighting
     void EnableLighting(int);
