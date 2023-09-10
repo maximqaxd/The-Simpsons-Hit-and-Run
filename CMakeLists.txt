@@ -1228,7 +1228,12 @@ target_link_libraries(SRR2
 	sim
 )
 target_compile_features(SRR2 PRIVATE cxx_std_17)
-target_precompile_headers(SRR2 PRIVATE "code/main/pchsrr2.h")
+
+option(SRR2_USE_PCH ON)
+if (SRR2_USE_PCH)
+	target_precompile_headers(SRR2 PRIVATE "code/main/pchsrr2.h")
+endif()
+
 target_include_directories(SRR2 PRIVATE
 	"code/"
 	#"libs/choreo/inc/"
