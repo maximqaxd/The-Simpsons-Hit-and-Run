@@ -223,6 +223,7 @@ float radSoundHalEffectEAX2Reverb::GetEnvironmentDiffusion( void )
 }
 void  radSoundHalEffectEAX2Reverb::SetAirAbsorptionHF( float value )
 {
+    value = powf(10.f, value / 2000.f);
     rAssert(value >= AL_REVERB_MIN_AIR_ABSORPTION_GAINHF && value <= AL_REVERB_MAX_AIR_ABSORPTION_GAINHF);
     alEffectf(m_Effect, AL_REVERB_AIR_ABSORPTION_GAINHF, value);
     OnParameterUpdated();
