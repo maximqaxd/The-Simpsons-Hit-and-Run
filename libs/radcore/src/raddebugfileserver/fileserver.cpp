@@ -1266,7 +1266,7 @@ void rDebugFileServer::ProcessFileRequest( char* request, int requestSize, char*
                     // and most memory alloc routines return a word boundary 
                     // aligned address, this value should present no problems.
                     //
-                    pRpy->m_Handle = 0xDEADBEEF;  
+                    pRpy->m_Handle = (void*)0xDEADBEEF;  
                     pRpy->m_Size = m_BootDataSize;
 
                     //
@@ -1313,13 +1313,13 @@ void rDebugFileServer::ProcessFileRequest( char* request, int requestSize, char*
                     // Success - log the event.
                     //
 	                LogMessage( "File opened OK." );
-                    wsprintf( buf, "File handle is %X.", (unsigned int)pFile );
+                    wsprintf( buf, "File handle is %p.", pFile );
                     LogMessage( buf );
 
                     //
                     // Return file object pointer and add file to open list.
                     //
-                    pRpy->m_Handle = (unsigned int) pFile;
+                    pRpy->m_Handle = pFile;
                     pRpy->m_Size = _filelength( _fileno( pFile ) );                    
 
                     TargetFileList *fileInfo = new TargetFileList;
@@ -1364,13 +1364,13 @@ void rDebugFileServer::ProcessFileRequest( char* request, int requestSize, char*
                             // Override succeeded - log it.
                             //
 	                        LogMessage( "Override succeeded." );
-                            wsprintf( buf, "File handle is %X.", (unsigned int) pFile );
+                            wsprintf( buf, "File handle is %p.", pFile );
                             LogMessage( buf );
 
                             //
                             // Return file object pointer and add file to open list.
                             //
-                            pRpy->m_Handle = (unsigned int) pFile;
+                            pRpy->m_Handle = pFile;
                             pRpy->m_Size = _filelength( _fileno( pFile ) );
                         
                             TargetFileList *fileInfo = new TargetFileList;
@@ -1395,13 +1395,13 @@ void rDebugFileServer::ProcessFileRequest( char* request, int requestSize, char*
                         {
 	                        LogMessage( "Override failed." );
                             LogMessage( "ERROR: Failed to open file on host." );
-                            pRpy->m_Handle = 0xffffffff;
+                            pRpy->m_Handle = (void*)-1;
                         }
                     }
                     else // Override disabled.
                     {
 	                    LogMessage( "ERROR: Failed to open file on host." );
-                        pRpy->m_Handle = 0xffffffff;
+                        pRpy->m_Handle = (void*)-1;
                     }
 
                 }    
