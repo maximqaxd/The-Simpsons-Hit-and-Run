@@ -272,7 +272,7 @@ radDrive::CompletionStatus radWin32Drive::ReadFile
             //
             // Change this during buffered read!!
             //
-            *bytesRead = handle->gcount();
+            *bytesRead = bytesToRead;
             m_LastError = Success;
             return Complete;
         }
@@ -511,7 +511,7 @@ void radWin32Drive::SetMediaInfo( void )
     //strcat(m_MediaInfo.m_VolumeName, "\\");
     
     std::error_code error;
-    std::filesystem::space_info space = std::filesystem::space(realDriveName);
+    std::filesystem::space_info space = std::filesystem::space(realDriveName, error);
     if (!error)
     {
         m_MediaInfo.m_MediaState = IRadDrive::MediaInfo::MediaPresent;
