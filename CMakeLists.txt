@@ -36,9 +36,9 @@ if(SRR2_USE_DLMALLOC)
 	add_compile_definitions(USE_DOUG_LEA_HEAP)
 endif()
 
-option(SRR2_OVERLOAD_BUILTIN_NEW OFF)
-if(SRR2_OVERLOAD_BUILTIN_NEW)
-	add_compile_definitions(OVERLOAD_BUILTIN_NEW)
+option(SRR2_OVERRIDE_BUILTIN_NEW OFF)
+if(SRR2_OVERRIDE_BUILTIN_NEW)
+	add_compile_definitions(OVERRIDE_BUILTIN_NEW)
 endif()
 
 if(WIN32)
