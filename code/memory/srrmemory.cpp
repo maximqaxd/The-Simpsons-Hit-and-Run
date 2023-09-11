@@ -89,7 +89,7 @@ bool gMemorySystemInitialized = false;
 #ifdef OVERRIDE_BUILTIN_NEW
 bool g_NoHeapRoute = false;
 #else
-bool g_NoHeapRoute = true;
+const bool g_NoHeapRoute = true;
 #endif
 
 const char* HeapNames[] =
