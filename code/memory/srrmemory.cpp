@@ -87,9 +87,9 @@ bool gMemorySystemInitialized = false;
 // Temporarily disable allocation routing (to avoid infinite loops)
 //
 #ifdef OVERRIDE_BUILTIN_NEW
-bool g_NoHeapRoute = true;
-#else
 bool g_NoHeapRoute = false;
+#else
+bool g_NoHeapRoute = true;
 #endif
 
 const char* HeapNames[] =
