@@ -83,7 +83,7 @@ bool g_HeapManagerCreated   = false;
 //
 bool gMemorySystemInitialized = false;
 
-#ifdef OVERRIDE_BUILTIN_NEW
+#ifdef REROUTE_ALL_HEAP_ALLOCATIONS
 // 
 // Temporarily disable allocation routing (to avoid infinite loops)
 //
@@ -765,7 +765,7 @@ int HeapManager::s_NumInstances = 0;
 
 HeapManager* HeapManager::GetInstance ()
 {
-#ifdef OVERRIDE_BUILTIN_NEW
+#ifdef REROUTE_ALL_HEAP_ALLOCATIONS
     g_NoHeapRoute = true;
 #endif
 
@@ -795,7 +795,7 @@ HeapManager* HeapManager::GetInstance ()
 #endif
     }
 
-#ifdef OVERRIDE_BUILTIN_NEW
+#ifdef REROUTE_ALL_HEAP_ALLOCATIONS
     g_NoHeapRoute = false;
 #endif
     g_HeapManagerCreated = true;
