@@ -83,12 +83,15 @@ bool g_HeapManagerCreated   = false;
 //
 bool gMemorySystemInitialized = false;
 
+#ifdef OVERRIDE_BUILTIN_NEW
 // 
 // Temporarily disable allocation routing (to avoid infinite loops)
 //
-#ifdef OVERRIDE_BUILTIN_NEW
 bool g_NoHeapRoute = false;
 #else
+// 
+// Permanently disable allocation routing (to avoid unrelated allocations)
+//
 const bool g_NoHeapRoute = true;
 #endif
 
