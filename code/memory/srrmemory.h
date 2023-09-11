@@ -18,7 +18,6 @@
 #include <radmemory.hpp>
 #include <radthread.hpp>
 #include <main/commandlineoptions.h>
-#include <memory/stlallocators.h>
 #include <stddef.h>
 #include <string.h>
 #include <vector>
