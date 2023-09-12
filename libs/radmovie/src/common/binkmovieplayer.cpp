@@ -673,7 +673,7 @@ void radMoviePlayerBink::Service( void )
 
                         if( dest.m_DestPitch < 0 )
                         {
-                            pDest = ( char * ) dest.m_pDest + ( dest.m_Height - 1 ) * dest.m_DestPitch;
+                            pDest = ( char * ) dest.m_pDest + S64( dest.m_Height - 1 ) * dest.m_DestPitch;
                         }
 
                         if( 0 == ::BinkCopyToBufferRect( m_BinkHandle, pDest,
