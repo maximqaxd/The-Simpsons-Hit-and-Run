@@ -301,9 +301,12 @@ void pglDisplay::SetGamma(float r, float g, float b)
 
 void pglDisplay::SwapBuffers(void)
 {
-    BeginContext();
+    SDL_LockMutex( mutex );
+    SDL_GLContext prev = SDL_GL_GetCurrentContext();
+    SDL_GL_MakeCurrent(win, hRC);
     SDL_GL_SwapWindow(win);
-    EndContext();
+    SDL_GL_MakeCurrent(win, prev);
+    SDL_UnlockMutex( mutex );
     reset = false;
 }
 
@@ -368,6 +371,7 @@ void pglDisplay::BeginContext(void)
 {
     SDL_LockMutex(mutex);
     prevRC = SDL_GL_GetCurrentContext();
+    PDDIASSERT(prevRC != hRC);
     int error = SDL_GL_MakeCurrent(win, hRC);
     PDDIASSERT(!error);
 }
