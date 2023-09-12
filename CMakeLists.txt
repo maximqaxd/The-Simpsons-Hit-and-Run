@@ -1193,8 +1193,11 @@ add_library(bink STATIC ${BINK_SOURCES})
 target_compile_definitions(bink
 	PRIVATE
 		USING_EGT
+		INC_BINK2
+		NO_BINK20
 		NO_BINK10_SUPPORT
 	PUBLIC
+		__RADFINAL__
 		__RADINSTATICLIB__
 )
 if (WIN32)
