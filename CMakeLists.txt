@@ -998,6 +998,8 @@ set(BINK_SOURCES
 	"libs/sdks/bink/binkfile.c"
 	"libs/sdks/bink/binkmarkers.c"
 	"libs/sdks/bink/binkread.c"
+	"libs/sdks/bink/binkoal.c"
+	"libs/sdks/bink/binkssmix.c"
 	"libs/sdks/bink/binkutil.c"
 	"libs/sdks/bink/blitter.c" # custom
 	"libs/sdks/bink/expand2.c"
@@ -1200,8 +1202,9 @@ target_compile_definitions(bink
 		__RADFINAL__
 		__RADINSTATICLIB__
 )
+target_link_libraries(bink OpenAL::OpenAL)
 if (WIN32)
-	target_link_libraries(bink PUBLIC Winmm)
+	target_link_libraries(bink Winmm)
 endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	target_compile_options(bink

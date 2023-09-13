@@ -217,9 +217,9 @@ void radMoviePlayerBink::Load( const char * pVideoFileName, unsigned int audioTr
 
         // Use direct sound on win32
 
-        #ifdef WIN32
-        ::BinkSoundUseXAudio2WinDevice( NULL );
-        #endif // WIN32
+        #ifdef RAD_WIN32
+        ::BinkSoundUseOpenAL( 48000, 2 );
+        #endif // RAD_WIN32
 
         // We tell bink to play the one sound track
         // specified in the audioTrackIndex array
