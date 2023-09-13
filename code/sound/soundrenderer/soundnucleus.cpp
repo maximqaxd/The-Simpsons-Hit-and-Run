@@ -332,8 +332,8 @@ void SoundNucleusInitialize( radMemoryAllocator alloc )
     desc.m_MaxRootAllocations  = 170;
     desc.m_NumAuxSends         = NUM_AUX_SENDS;
 #ifdef RAD_WIN32    
-    desc.m_SamplingRate        = 24000;
-#endif  
+    desc.m_SamplingRate        = 48000;
+#endif
     
 #ifndef RAD_PS2
     desc.m_ReservedSoundMemory = totalStreamSoundMemoryNeeded + totalClipMemoryNeeded;
