@@ -93,7 +93,7 @@ const ControlMap FMV_CONTROL_MAP[] =
     #endif
 #endif // RAD_PS2
 
-#ifdef RAD_XBOX
+#ifdef RAD_CONSOLE // RAD_XBOX
     { "A",              FMVInput::Skip },
     { "Start",          FMVInput::Start},
     #ifdef ANY_BUTTON_SKIP
@@ -116,7 +116,7 @@ const ControlMap FMV_CONTROL_MAP[] =
     #endif
 #endif // RAD_XBOX
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     { "feStart",         FMVInput::Skip },
     { "feBack",          FMVInput::Skip },
     { "feKeyboardBack",  FMVInput::Skip },
