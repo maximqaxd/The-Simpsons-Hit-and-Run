@@ -74,7 +74,8 @@ bool AnimatedIcon::sDbgEnableArrowScaling = false;
 AnimatedIcon::AnimatedIcon() :
     mDSGEntity( NULL ),
     mRenderLayer( RenderEnums::LevelSlot ),
-    mFlags( 0 )
+    mFlags( 0 ),
+    mAllocated( true )
 {
 #ifdef RAD_TUNE
     AttachWatcherVariables();
@@ -411,7 +412,6 @@ void* AnimatedIcon::operator new( size_t size )
     rAssert( sAnimatedIconPool != NULL );
     rAssert( sNumAllocated < MAX_ICONS );
 
-    void* data = NULL;
     if ( sNumAllocated < MAX_ICONS )
     {
         unsigned int i;
@@ -419,15 +419,13 @@ void* AnimatedIcon::operator new( size_t size )
         {
             if ( !sAnimatedIconPool[ i ].mAllocated )
             {
-                sAnimatedIconPool[ i ].mAllocated = true;
-                data = static_cast<void*>(&sAnimatedIconPool[ i ]);
                 ++sNumAllocated;
-                break;
+                return static_cast<void*>(&sAnimatedIconPool[i]);
             }
         }
     }
 
-    return data;
+    return NULL;
 }
 
 //=============================================================================
