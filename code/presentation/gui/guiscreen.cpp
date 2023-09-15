@@ -828,11 +828,7 @@ CGuiScreen::RestoreButtons()
 bool
 CGuiScreen::IsWideScreenDisplay()
 {
-#ifdef RAD_XBOX
     return p3d::display->IsWidescreen();
-#else
-    return false;
-#endif
 }
 
 void

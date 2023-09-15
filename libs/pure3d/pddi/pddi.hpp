@@ -324,7 +324,7 @@ public:
    // amb nov29/2001 : return the current front buffer
    PDDI_INTERFACE unsigned Screenshot(pddiColour* buffer, int nBytes) PDDI_PURE;
 
-   PDDI_INTERFACE bool IsWidescreen(void) {return false; };
+   PDDI_INTERFACE bool IsWidescreen(void) {return GetWidth() * 3 > GetHeight() * 4; };
 
    PDDI_INTERFACE void SetForceVSync(bool IsForceVSync, bool only60 = false) {m_ForceVSync = IsForceVSync; m_only60 = only60;}
    PDDI_INTERFACE bool GetForceVSync(void) {return m_ForceVSync;}
