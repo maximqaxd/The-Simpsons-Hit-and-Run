@@ -509,10 +509,12 @@ void Win32Platform::InitializePlatform()
     //
     DisplaySplashScreen( Error ); // blank screen
 
+#ifndef __SWITCH__
     //
     // Show in fullscreen if fullscreen flag is set.
     //
     SDL_SetWindowFullscreen( mWnd, mFullscreen ? SDL_WINDOW_FULLSCREEN : 0 );
+#endif
 
     //
     // Opening the drive is SLOW...

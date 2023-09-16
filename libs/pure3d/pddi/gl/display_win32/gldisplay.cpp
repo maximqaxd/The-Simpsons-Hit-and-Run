@@ -155,7 +155,9 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     if (pDisplayMode)
         SDL_SetWindowDisplayMode(win, pDisplayMode);
 
+#ifndef __SWITCH__
     SDL_SetWindowFullscreen(win, mode == PDDI_DISPLAY_FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
+#endif
     SDL_GL_GetDrawableSize( win, &winWidth, &winHeight );
     winBitDepth = bpp;
 
