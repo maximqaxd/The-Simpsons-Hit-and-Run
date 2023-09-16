@@ -448,7 +448,6 @@ void FePure3dObject::Render()
 
     float posX = mPosX;
 
-#ifdef RAD_XBOX
     // TC: Hack!! (for SRR2 HUD map)
     //
     static const float WIDE_SCREEN_CORRECTION_SCALE = (4.0f / 3.0f) * (9.0f / 16.0f);
@@ -457,7 +456,6 @@ void FePure3dObject::Render()
         width *= WIDE_SCREEN_CORRECTION_SCALE;
         posX = (posX - 0.5f) * WIDE_SCREEN_CORRECTION_SCALE + 0.5f;
     }
-#endif
 
     float l = posX + mViewTranslateX;
     float r = l + width;
