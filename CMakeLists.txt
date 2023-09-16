@@ -1250,19 +1250,4 @@ if (SRR2_USE_PCH)
 	target_precompile_headers(SRR2 PRIVATE "code/main/pchsrr2.h")
 endif()
 
-target_include_directories(SRR2 PRIVATE
-	"code/"
-	#"libs/choreo/inc/"
-	#"libs/poser/inc/"
-	#"libs/pure3d/"
-	#"libs/radcontent/inc/"
-	#"libs/radcore/inc/"
-	#"libs/radmath/"
-	#"libs/radmovie/inc/"
-	#"libs/radmusic/inc/"
-	#"libs/radscript/inc/"
-	#"libs/radsound/inc/"
-	#"libs/scrooby/inc/"
-	#"libs/scrooby/src/"
-	#"libs/sim/"
-)
+target_include_directories(SRR2 PRIVATE "code/")
