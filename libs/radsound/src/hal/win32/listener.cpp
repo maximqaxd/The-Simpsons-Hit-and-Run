@@ -53,6 +53,7 @@ radSoundHalListener::radSoundHalListener
 
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 	alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
+    alGetError();
 }
 
 //============================================================================

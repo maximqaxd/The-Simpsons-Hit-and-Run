@@ -51,9 +51,12 @@
 Win32ReverbController::Win32ReverbController()
 {
     m_reverbInterface = ::radSoundHalEffectEAX2ReverbCreate( GMA_PERSISTENT );
-    m_reverbInterface->AddRef();
+    if (m_reverbInterface)
+    {
+        m_reverbInterface->AddRef();
 
-    registerReverbEffect( m_reverbInterface );
+        registerReverbEffect( m_reverbInterface );
+    }
 }
 
 //==============================================================================
@@ -68,8 +71,11 @@ Win32ReverbController::Win32ReverbController()
 //==============================================================================
 Win32ReverbController::~Win32ReverbController()
 {
-    m_reverbInterface->Release();
-    m_reverbInterface = NULL;
+    if (m_reverbInterface)
+    {
+        m_reverbInterface->Release();
+        m_reverbInterface = NULL;
+    }
 }
 
 //=============================================================================
@@ -84,7 +90,7 @@ Win32ReverbController::~Win32ReverbController()
 //=============================================================================
 void Win32ReverbController::SetReverbOn( reverbSettings* settings )
 {
-    if( settings != NULL )
+    if( settings != NULL && m_reverbInterface)
     {
         rReleaseString( "Settings not null\n" );
         SetReverbGain( settings->GetGain() );

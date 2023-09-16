@@ -246,5 +246,7 @@ void radSoundHalEffectEAX2Reverb::OnParameterUpdated(void)
 
 IRadSoundHalEffectEAX2Reverb * radSoundHalEffectEAX2ReverbCreate( radMemoryAllocator allocator )
 {
-    return new ( "radSoundHalEffectEAX2Reverb", allocator ) radSoundHalEffectEAX2Reverb( );
+    if (alcIsExtensionPresent(((radSoundHalSystem*)radSoundHalSystemGet())->GetOpenALDevice(), "ALC_EXT_EFX"))
+        return new ( "radSoundHalEffectEAX2Reverb", allocator ) radSoundHalEffectEAX2Reverb( );
+    return nullptr;
 }
