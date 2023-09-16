@@ -1009,9 +1009,6 @@ float HeapManager::GetFudgeFactor ()
     }
 #endif
 
-    // Account for larger than expected pointer size
-    FUDGE *= sizeof( void* ) / 4.0f;
-
     return FUDGE;
 }
 
