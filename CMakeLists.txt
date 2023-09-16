@@ -9,7 +9,17 @@ endif()
 
 find_package(SDL2 REQUIRED)
 find_package(PNG REQUIRED)
-find_package(OpenAL REQUIRED)
+
+set(SRR2_OPENAL_IMPL "OpenAL-Soft" CACHE STRING "OpenAL implementation")
+set_property(CACHE SRR2_OPENAL_IMPL PROPERTY STRINGS "OpenAL-Soft" "MojoAL")
+
+if (SRR2_OPENAL_IMPL STREQUAL "OpenAL-Soft")
+	find_package(OpenAL REQUIRED)
+	set(SRR2_OPENAL_TARGET OpenAL::OpenAL)
+else()
+	add_subdirectory(libs/sdks/mojoal SYSTEM)
+	set(SRR2_OPENAL_TARGET mojoal)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(
@@ -1160,7 +1170,7 @@ target_include_directories(radsound
 	PRIVATE "libs/radsound/src/common/"
 )
 target_link_libraries(radsound
-	OpenAL::OpenAL
+	${SRR2_OPENAL_TARGET}
 	radcore
 )
 
@@ -1202,7 +1212,7 @@ target_compile_definitions(bink
 		__RADFINAL__
 		__RADINSTATICLIB__
 )
-target_link_libraries(bink OpenAL::OpenAL)
+target_link_libraries(bink ${SRR2_OPENAL_TARGET})
 if (WIN32)
 	target_link_libraries(bink Winmm)
 endif()
