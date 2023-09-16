@@ -118,8 +118,9 @@
 #include <cheats/cheatinputsystem.h>
 #include <mission/gameplaymanager.h>
 
-
-
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
 
 #include <radload/radload.hpp>
 
@@ -310,7 +311,7 @@ bool Win32Platform::InitializeWindow()
 
     int w, h;
     TranslateResolution( StartingResolution, w, h );
-    mWnd = SDL_CreateWindow( ApplicationName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL );
+    mWnd = SDL_CreateWindow( ApplicationName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 
     rAssert(mWnd != NULL);
 
@@ -1613,6 +1614,19 @@ void Win32Platform::InitializeContext()
 
 void Win32Platform::TranslateResolution( Resolution res, int&x, int&y )
 {
+#ifdef __SWITCH__
+    AppletOperationMode operationMode = appletGetOperationMode();
+    if( operationMode == AppletOperationMode_Handheld )
+    {
+        x = 1280;
+        y = 720;
+    }
+    else
+    {
+        x = 1920;
+        y = 1080;
+    }
+#else
     switch( res )
     {
         case Res_640x480:
@@ -1656,6 +1670,7 @@ void Win32Platform::TranslateResolution( Resolution res, int&x, int&y )
             rAssert( false );
         }
     }
+#endif
 }
 
 //==============================================================================
