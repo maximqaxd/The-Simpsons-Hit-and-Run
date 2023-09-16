@@ -38,7 +38,7 @@ struct ControlMap
 
 const ControlMap GUI_CONTROL_MAP[] =
 {
-#if defined( RAD_GAMECUBE )
+#ifdef RAD_GAMECUBE
     { "LeftStickX",     GuiInput::XAxis },
     { "LeftStickY",     GuiInput::YAxis },
     { "RightStickX",    GuiInput::XAxisRight },
@@ -54,7 +54,9 @@ const ControlMap GUI_CONTROL_MAP[] =
     { "Y",              GuiInput::AuxY },
     { "TriggerL",       GuiInput::L1 },
     { "TriggerR",       GuiInput::R1 },
-#elif defined( RAD_PS2 )
+#endif
+
+#ifdef RAD_PS2
     { "LeftStickX",     GuiInput::XAxis },
     { "LeftStickY",     GuiInput::YAxis },
     { "RightStickX",    GuiInput::XAxisRight },
@@ -76,23 +78,10 @@ const ControlMap GUI_CONTROL_MAP[] =
     { "Wheel",          GuiInput::AuxXAxis },   //Only on the GT Wheel
     { "LGR1",           GuiInput::AuxUp },      //Only on the GT Wheel
     { "LGL1",           GuiInput::AuxDown },    //Only on the GT Wheel
-#elif defined( RAD_PC )
-    { "feMoveLeft",     GuiInput::Left },
-    { "feMoveRight",    GuiInput::Right },
-    { "feMoveUp",       GuiInput::Up },
-    { "feMoveDown",     GuiInput::Down },
-    { "feStart",        GuiInput::Start },
-    { "feBack",         GuiInput::Back },
-    { "feSelect",       GuiInput::Select },
-    { "feFunction1",    GuiInput::AuxX },
-    { "feFunction2",    GuiInput::L1 },
+    
+#endif
 
-    { "P1_KBD_Start",   GuiInput::P1_KBD_Start },
-    { "P1_KBD_Gas",     GuiInput::P1_KBD_Select },
-    { "P1_KBD_Brake",   GuiInput::P1_KBD_Back },
-    { "P1_KBD_Left",    GuiInput::P1_KBD_Left },
-    { "P1_KBD_Right",   GuiInput::P1_KBD_Right },
-#else // RAD_XBOX
+#ifdef RAD_CONSOLE // RAD_XBOX
     { "LeftStickX",     GuiInput::XAxis },
     { "LeftStickY",     GuiInput::YAxis },
     { "RightStickX",    GuiInput::XAxisRight },
@@ -109,6 +98,24 @@ const ControlMap GUI_CONTROL_MAP[] =
     { "Y",              GuiInput::AuxY },
     { "LeftTrigger",    GuiInput::L1 },
     { "RightTrigger",   GuiInput::R1 },
+#endif
+
+#ifdef RAD_PC
+    { "feMoveLeft",     GuiInput::Left },
+    { "feMoveRight",    GuiInput::Right },
+    { "feMoveUp",       GuiInput::Up },
+    { "feMoveDown",     GuiInput::Down },
+    { "feStart",        GuiInput::Start },
+    { "feBack",         GuiInput::Back },
+    { "feSelect",       GuiInput::Select },
+    { "feFunction1",    GuiInput::AuxX },
+    { "feFunction2",    GuiInput::L1 },
+
+    { "P1_KBD_Start", GuiInput::P1_KBD_Start },
+    { "P1_KBD_Gas", GuiInput::P1_KBD_Select },
+    { "P1_KBD_Brake", GuiInput::P1_KBD_Back },
+    { "P1_KBD_Left", GuiInput::P1_KBD_Left },
+    { "P1_KBD_Right", GuiInput::P1_KBD_Right },
 #endif
 
     { "",               GuiInput::UNKNOWN }
@@ -538,7 +545,7 @@ void CGuiUserInputHandler::OnButtonDown( int controllerId, int buttonId, const I
 
     switch( buttonId )
     {
-#ifndef RAD_PC  // for pc we handle them in onbutton()
+#ifndef RAD_WIN32  // for windows we handle them in onbutton()
         case GuiInput::Left:
         {
             this->Left( controllerId );
@@ -598,7 +605,7 @@ void CGuiUserInputHandler::OnButtonDown( int controllerId, int buttonId, const I
         {
             this->Start( controllerId );
 
-#ifdef RAD_CONSOLE
+#ifdef RAD_XBOX
             if( m_isStartToSelectMappingEnabled )
             {
                 // for Xbox only, START is mapped to same functionality as SELECT
@@ -666,7 +673,7 @@ void CGuiUserInputHandler::OnButtonDown( int controllerId, int buttonId, const I
         }
         default:
         {
-#ifdef RAD_PC
+#ifdef RAD_WIN32
             if ( buttonId >= GuiInput::P1_KBD_Start && buttonId <= GuiInput::P1_KBD_Right )
             {
                 //This is a super sprint Key.

@@ -48,7 +48,7 @@ static const CheatInputMapping CHEAT_INPUT_MAPPINGS[] =
     { "R1",             CHEAT_INPUT_RTRIGGER },
 #endif
 
-#ifdef RAD_XBOX
+#ifdef RAD_CONSOLE // RAD_XBOX
     { "A",              CHEAT_INPUT_0 },
     { "B",              CHEAT_INPUT_1 },
     { "X",              CHEAT_INPUT_2 },
@@ -57,7 +57,7 @@ static const CheatInputMapping CHEAT_INPUT_MAPPINGS[] =
     { "RightTrigger",   CHEAT_INPUT_RTRIGGER },
 #endif
 
-#ifdef RAD_WIN32        // these are not laid out yet
+#ifdef RAD_PC        // these are not laid out yet
     { "Attack",         CHEAT_INPUT_0 },
     { "Jump",           CHEAT_INPUT_1 },
     { "Sprint",         CHEAT_INPUT_2 },
