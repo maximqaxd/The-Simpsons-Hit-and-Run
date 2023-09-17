@@ -21,6 +21,7 @@
 //============================================================================
 
 #include "pch.hpp"
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -1011,14 +1012,14 @@ class radControllerSDL
     radControllerSDL
     (
         unsigned int thisAllocator,
-        int iController,
+        SDL_GameController* pController,
         unsigned int virtualTime,
         unsigned int bufferTime,
         unsigned int pollingRate
     )
         :
         radRefCount( 0 ),
-        m_pController( SDL_GameControllerOpen( iController ) )
+        m_pController( pController )
     {
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radControllerSDL" );
 
@@ -1030,6 +1031,7 @@ class radControllerSDL
 
         ::radObjectListCreate( & m_xIOl_InputPoints, g_ControllerSystemAllocator );
         ::radObjectListCreate( & m_xIOl_OutputPoints, g_ControllerSystemAllocator );
+
         //
         // Get a string to store our location
         //
@@ -1040,6 +1042,7 @@ class radControllerSDL
         // Create our location name based on our port and slot
         //
 
+        int iController = std::max(SDL_GameControllerGetPlayerIndex( pController ), 0);
 		m_xIString_Location->SetSize( 12 );
         m_xIString_Location->Append( "Port" );
         m_xIString_Location->Append( (unsigned int) iController );
@@ -1134,7 +1137,12 @@ class radControllerSystemSDL
         //
         // Check if devices have been inserted or removed
         //
-        if( event->type != SDL_CONTROLLERDEVICEADDED && event->type != SDL_CONTROLLERDEVICEREMOVED )
+        SDL_GameController* pController;
+        if( event->type == SDL_CONTROLLERDEVICEADDED )
+            pController = SDL_GameControllerOpen( event->cdevice.which );
+        else if( event->type == SDL_CONTROLLERDEVICEREMOVED )
+            pController = SDL_GameControllerFromInstanceID( event->cdevice.which );
+        else
             return 1;
 
         radControllerSystemSDL* sys = (radControllerSystemSDL*)userdata;
@@ -1148,11 +1156,16 @@ class radControllerSystemSDL
 
         char location[255];
 
-        sprintf( location, "Port%d\\Slot0", event->cdevice.which );
+        int iController = std::max( SDL_GameControllerGetPlayerIndex( pController ), 0 );
+        sprintf( location, "Port%d\\Slot0", iController );
 
         xIController2 = sys->GetControllerAtLocation( location );
 
-        xISDLController2 = (IRadControllerSDL*) xIController2.m_pInterface;
+        if ( xIController2 != NULL )
+        {
+            xISDLController2 = (IRadControllerSDL*)xIController2.m_pInterface;
+            rAssert( xISDLController2 != NULL );
+        }
 
         if( event->type == SDL_CONTROLLERDEVICEADDED )
         {
@@ -1180,7 +1193,7 @@ class radControllerSystemSDL
                 xIController2 = new ( g_ControllerSystemAllocator ) radControllerSDL
                 (
                     g_ControllerSystemAllocator,
-                    event->cdevice.which,
+                    pController,
                     virtualTime,
                     sys->m_EventBufferTime,
                     pollingRate
@@ -1199,9 +1212,15 @@ class radControllerSystemSDL
         }
         else if( event->type == SDL_CONTROLLERDEVICEREMOVED )
         {
+			//
+            // Here a device has been removed
             //
-            // TODO: Here a device has been removed
-            //
+            if ( xIController2 != NULL )
+            {
+                //We need to remove this from the set as the next thing to 
+                //plug in could be a new type of controller.
+                sys->m_xIOl_Controllers->RemoveObject( xIController2 );
+            }
         }
 
         IRadWeakInterfaceWrapper * pIWir;
@@ -1560,7 +1579,7 @@ class radControllerSystemSDL
                 xIController2 = new (g_ControllerSystemAllocator) radControllerSDL
                 (
                     g_ControllerSystemAllocator,
-                    i,
+                    SDL_GameControllerOpen( i ),
                     virtualTime,
                     m_EventBufferTime,
                     pollingRate
