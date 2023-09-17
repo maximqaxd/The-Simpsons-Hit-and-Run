@@ -160,15 +160,10 @@ void radMovieRenderStrategyBink::ChangeParameters( unsigned int width, unsigned 
         m_MovieWidth = width;
         m_MovieHeight = height;
 
-        // Assume that we'll fill the screen
-        if ( (unsigned int) p3d::display->GetWidth( ) >= m_MovieWidth )
+        // Assume that we'll fit the screen
+        if ( p3d::display->GetWidth( ) >= p3d::display->GetHeight( ) )
         {
-            #ifdef RAD_WIN32
-            m_DisplayMultiplier = (float) p3d::display->GetWidth( ) / ( float ) m_MovieWidth;
-            #else
-            m_DisplayMultiplier = (float)width / (float)p3d::display->GetWidth();
-            m_DisplayMultiplier *= m_DisplayMultiplier;
-            #endif
+            m_DisplayMultiplier = (float) p3d::display->GetHeight( ) / ( float ) m_MovieHeight;
         }
         else
         {
