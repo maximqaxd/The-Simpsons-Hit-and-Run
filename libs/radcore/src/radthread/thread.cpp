@@ -655,7 +655,7 @@ radThread::~radThread( void )
             //
             rWarningMsg( false, "radThread: Memory leak has occurred due to bad thread termination\n");
    
-	    //SDL_KillThread(m_ThreadHandle);
+            //SDL_KillThread(m_ThreadHandle);
         }
         else
         {
@@ -664,7 +664,7 @@ radThread::~radThread( void )
             // is not the active thread. Perform OS specific terminations. Note on XBOX
             // this cannot be done. 
             //
-	    //SDL_KillThread(m_ThreadHandle);
+            //SDL_KillThread(m_ThreadHandle);
             
             //
             // Can release lock. Print warning that this is a bad way to terminate thread
@@ -684,7 +684,7 @@ radThread::~radThread( void )
         //
         radThreadInternalUnlock( );   
 
-	SDL_WaitThread(m_ThreadHandle, nullptr);
+        //SDL_WaitThread(m_ThreadHandle, nullptr);
     }
 }
 
