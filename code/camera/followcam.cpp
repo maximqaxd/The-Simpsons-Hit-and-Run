@@ -1061,11 +1061,7 @@ void FollowCam::CalculateRod( rmt::Vector* rod,
 
     if ( !GetFlag( (Flag)LOOK_BACK ) )
     {
-#ifdef RAD_WIN32 // this retarded move is thanks to vs.net optimization.
-        desiredRotXZ += ( invertMod * leftRight * rmt::PI_BY2 );
-#else
         desiredRotXZ += ( invertMod * leftRight * LOOK_ROT );
-#endif
     }
 #endif
 
