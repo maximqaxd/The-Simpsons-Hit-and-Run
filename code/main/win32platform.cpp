@@ -718,6 +718,7 @@ void Win32Platform::DisplaySplashScreen( SplashScreen screenID,
     p3d::pddi->SetProjectionMode(pm);
 
     //Should do this after a vsync.
+    p3d::context->SwapBuffers();
     thisFont->Release();
 
     p3d::inventory->RemoveSectionElements(WIN32_SECTION);
