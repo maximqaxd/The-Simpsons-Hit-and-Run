@@ -31,6 +31,8 @@
 
 #include <strings/unicodeString.h>
 #include <p3d/unicode.hpp>
+#include <p3d/utility.hpp>
+#include <p3d/sprite.hpp>
 #include <string.h>
 
 //===========================================================================
@@ -123,21 +125,66 @@ CGuiScreenController::CGuiScreenController
     //
     m_pMenu->SetMenuItemEnabled( MENU_ITEM_CONFIGURATION, false, true );
 
-    // get the platform-specific Controller page
+    // get the PC Controller page
     //
-
-#if defined( RAD_PC )
     pPage = m_pScroobyScreen->GetPage( "ControllerPC" );
     rAssert( pPage );
-#elif defined( RAD_GAMECUBE )
+
+#ifdef RAD_CONSOLE
+    // and make it invisible
+    //
+    pPage->GetLayerByIndex( 0 )->SetVisible( false );
+
+    // get the Controller page
+    //
+    pPage = m_pScroobyScreen->GetPage( "Controller" );
+    rAssert( pPage );
+
+    // and make it visible
+    //
+    pPage->GetLayerByIndex( 0 )->SetVisible( true );
+
+    // get the Controller image
+    //
+    pPage = m_pScroobyScreen->GetPage( "ControllerImage" );
+    rAssert( pPage );
+
+    // and make it visible
+    //
+    pPage->GetLayerByIndex( 0 )->SetVisible( true );
+
+    // set platform-specific controller image
+    //
+#ifdef RAD_GAMECUBE
+    tSprite* pSprite = p3d::find<tSprite>( "controllerG.png" );
+#endif
+#ifdef RAD_PS2
+    tSprite* pSprite = p3d::find<tSprite>( "controllerP.png" );
+#endif
+#ifdef __SWITCH__
+    tSprite* pSprite = p3d::find<tSprite>( "controllerS.png" );
+#elif defined(RAD_XBOX) || defined(RAD_WIN32)
+    tSprite* pSprite = p3d::find<tSprite>( "controllerX.png" );
+#endif
+    rAssert( pSprite );
+
+    Scrooby::Sprite* controllerImage = pPage->GetSprite( "Controller" );
+    rAssert( controllerImage != NULL );
+    controllerImage->SetRawSprite( pSprite, true );
+
+    // get the platform-specific Controller page
+    //
+#if defined( RAD_GAMECUBE )
     pPage = m_pScroobyScreen->GetPage( "ControllerGC" );
     rAssert( pPage );
 #elif defined( RAD_PS2 )
     pPage = m_pScroobyScreen->GetPage( "ControllerPS2" );
     rAssert( pPage );
-#else // RAD_XBOX
+#elif defined(RAD_XBOX) || defined(RAD_WIN32)
     pPage = m_pScroobyScreen->GetPage( "ControllerXBOX" );
     rAssert( pPage );
+#endif
+
 #endif
 
     // and make it visible
