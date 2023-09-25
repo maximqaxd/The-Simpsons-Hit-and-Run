@@ -22,7 +22,7 @@
 //===========================================================================
 #include <presentation/gui/guientity.h>
 #include <presentation/gui/guimenu.h>
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <input/FEMouse.h>
 #endif
 
@@ -80,7 +80,7 @@ class CGuiWindow : public CGuiEntity
             GUI_SCREEN_ID_SOUND,
             GUI_SCREEN_ID_VIEW_MOVIES,
             GUI_SCREEN_ID_VIEW_CREDITS,
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             GUI_SCREEN_ID_DISPLAY,
 #endif
             GUI_SCREEN_ID_PLAY_MOVIE,
@@ -132,7 +132,7 @@ class CGuiWindow : public CGuiEntity
 
         bool IsRunning(void) {return m_state == GUI_WINDOW_STATE_RUNNING;}
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         virtual eFEHotspotType CheckCursorAgainstHotspots( float x, float y )
         {
             return HOTSPOT_NONE;

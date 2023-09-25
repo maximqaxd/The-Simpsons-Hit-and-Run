@@ -89,7 +89,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenOptions" );
     Scrooby::Group* pGroup = pPage->GetGroup( "Menu" );
     rAssert( pGroup != NULL );
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_pMenu->AddMenuItem( pGroup->GetText( "Display" ) );
 #endif
     m_pMenu->AddMenuItem( pGroup->GetText( "Controller" ) );
@@ -97,7 +97,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenOptions" );
     m_pMenu->AddMenuItem( pGroup->GetText( "ViewMovies" ) );
     m_pMenu->AddMenuItem( pGroup->GetText( "ViewCredits" ) );
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     Scrooby::Text* display = pGroup->GetText( "Display" );
     if( display != NULL )
     {
@@ -139,7 +139,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenOptions" );
     //
     m_pMenu->SetMenuItemEnabled( MENU_ITEM_DISPLAY_MODE, false, true );
 
-    #ifndef RAD_WIN32
+    #ifndef RAD_PC
     // re-center menu items
     //
     pGroup->ResetTransformation();
@@ -376,7 +376,7 @@ void CGuiScreenOptions::HandleMessage
 
                         break;
                     }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     case MENU_ITEM_DISPLAY:
                     {
                         m_pParent->HandleMessage( GUI_MSG_GOTO_SCREEN, GUI_SCREEN_ID_DISPLAY );

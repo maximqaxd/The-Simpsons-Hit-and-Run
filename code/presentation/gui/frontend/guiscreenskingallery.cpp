@@ -93,7 +93,7 @@ CGuiScreenSkinGallery::CGuiScreenSkinGallery
     m_elapsedTime( 0 ),
     m_projectileVelocity( 0.0f, 0.0f, 0.0f ),
     m_skinInfo( NULL ),
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_selectedSkin(0),
 #endif
     m_skinName( NULL )
@@ -252,7 +252,7 @@ void CGuiScreenSkinGallery::HandleMessage
             case GUI_MSG_MENU_SELECTION_MADE:
             {
                 this->OnMenuSelectionMade( static_cast<int>( param1 ) );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                 m_selectedSkin = static_cast<int>( param1 );
                 // Hide/disable all other menu items.
                 this->SetVisibilityForAllOtherMenuItems( false );
@@ -577,7 +577,7 @@ CGuiScreenSkinGallery::OnUpdate( unsigned int elapsedTime )
 
                 m_elapsedTime = 0;
                 m_screenState = SCREEN_STATE_NORMAL;
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                 // Show/enable all hidden menu items.
                 this->SetVisibilityForAllOtherMenuItems( true );
 #endif
@@ -777,7 +777,7 @@ CGuiScreenSkinGallery::Unload2DImages()
     m_isSkinsLoaded = false;
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 void CGuiScreenSkinGallery::SetVisibilityForAllOtherMenuItems( bool bVisible )
 {
     for( int i = 0; i < MAX_NUM_SKINS_PER_LEVEL; i++ )

@@ -206,7 +206,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenSound" );
         surroundSoundSetting->SetVisible( false );
     }
 
-  #ifndef RAD_WIN32 // for PC don't shift the pixels... essential for the mouse cursor.
+  #ifndef RAD_PC // for PC don't shift the pixels... essential for the mouse cursor.
     // and move regular sound menu down a bit to re-center vertically
     //
     Scrooby::Group* soundMenu = pPage->GetGroup( "Menu" );

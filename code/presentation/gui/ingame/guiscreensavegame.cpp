@@ -99,7 +99,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenSaveGame" );
         m_pMenu->AddMenuItem( menu->GetText( objectName ) );
     }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     Scrooby::Text* pText = pPage->GetText( "LoadSaveMessage" );
     if( pText != NULL )
     {

@@ -57,7 +57,7 @@ private:
     void SetMenuAlpha( float alpha );
     void OnMenuSelectionMade( int selection );
     void OnStartMission();
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     void SetVisibilityForAllOtherMenuItems( bool bDisable );
 #endif
 

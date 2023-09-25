@@ -43,7 +43,7 @@ enum ePauseSundayMenuItem
     MENU_ITEM_PAUSE_SUNDAY_OPTIONS,
     MENU_ITEM_SAVE_GAME,
     MENU_ITEM_PAUSE_SUNDAY_QUIT_GAME,
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     MENU_ITEM_PAUSE_SUNDAY_EXIT_GAME,
 #endif
 
@@ -59,7 +59,7 @@ static const char* PAUSE_SUNDAY_MENU_ITEMS[] =
     "Options",
     "SaveGame",
     "QuitGame"
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     ,"ExitToSystem"
 #endif
 };
@@ -111,6 +111,17 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenPauseSunday" );
 
         m_pMenu->AddMenuItem( pText );
     }
+
+#ifndef RAD_PC
+    pText = menu->GetText( "ExitToSystem" );
+    rAssert( pText );
+    pText->SetVisible( false );
+
+    // re-center menu items
+    //
+    menu->ResetTransformation();
+    menu->Translate( 0, -20 );
+#endif
 
 #ifdef RAD_DEMO
     // disable certain menu items for demos
@@ -226,7 +237,7 @@ void CGuiScreenPauseSunday::HandleMessage
 
                         break;
                     }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     case MENU_ITEM_PAUSE_SUNDAY_EXIT_GAME:
                     {
                         this->HandleQuitToSystem();

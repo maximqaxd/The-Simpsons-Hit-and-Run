@@ -73,7 +73,7 @@ private:
     bool m_isControllerReconnected : 1;
     bool m_wasFMVInputHandlerEnabled : 1;
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     bool m_quittingGame : 1;
 #endif
 

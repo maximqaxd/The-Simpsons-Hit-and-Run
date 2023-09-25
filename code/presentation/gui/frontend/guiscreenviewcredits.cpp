@@ -241,7 +241,7 @@ void CGuiScreenViewCredits::HandleMessage
                     CGuiUserInputHandler* userInputHandler = GetGuiSystem()->GetUserInputHandler( i );
                     if( userInputHandler != NULL )
                     {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                         if( userInputHandler->IsYAxisOnUp() )
 #else
                         if( userInputHandler->IsButtonDown( GuiInput::Up ) ||
@@ -255,7 +255,7 @@ void CGuiScreenViewCredits::HandleMessage
 
                         if( !m_playKKDialog ) // only allow speed-up if dialog is not playing
                         {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                             if( userInputHandler->IsYAxisOnDown() )
 #else
                             if( userInputHandler->IsButtonDown( GuiInput::Down ) ||

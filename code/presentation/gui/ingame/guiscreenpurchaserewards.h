@@ -46,7 +46,7 @@ public:
 
     void OnProcessRequestsComplete( void* pUserData );
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     virtual eFEHotspotType CheckCursorAgainstHotspots( float x, float y );
 #endif
 

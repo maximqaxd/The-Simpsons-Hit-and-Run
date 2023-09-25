@@ -165,7 +165,7 @@ void CGuiScreenMiniPause::HandleMessage
             }
             case GUI_MSG_CONTROLLER_BACK:
             {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     this->ResumeGame();
                     break;
 #else

@@ -48,7 +48,7 @@ public:
 
     virtual CGuiMenu* HasMenu() { return m_pMenu; }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     virtual eFEHotspotType CheckCursorAgainstHotspots( float x, float y );
 #endif
 

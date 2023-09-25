@@ -116,7 +116,7 @@ CGuiManagerFrontEnd::CGuiManagerFrontEnd
     m_isControllerReconnected( false ),
     m_wasFMVInputHandlerEnabled( false )
 {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_quittingGame = false;
 #endif
 }
@@ -330,7 +330,7 @@ MEMTRACK_PUSH_GROUP( "CGUIManagerFrontEnd" );
         this->AddWindow( CGuiWindow::GUI_SCREEN_ID_VIEW_MOVIES, pScreen );
     }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     pScroobyScreen = m_pScroobyProject->GetScreen( "Display" );
     if( pScroobyScreen != NULL )
     {
@@ -384,7 +384,7 @@ CGuiManagerFrontEnd::Start( CGuiWindow::eGuiWindowID initialWindow )
                    CGuiWindow::GUI_SCREEN_ID_MAIN_MENU;
 
 // On PC never show the splash screen.. it is very console-ish...
-#if defined(SHOW_SPLASH_SCREEN) && !defined(RAD_WIN32)
+#if defined(SHOW_SPLASH_SCREEN) && !defined(RAD_PC)
     bool skipSplashScreen = CommandLineOptions::Get( CLO_NO_SPLASH );
 #else
     bool skipSplashScreen = true;
@@ -565,7 +565,7 @@ void CGuiManagerFrontEnd::HandleMessage
                     //
                     GetGameFlow()->SetContext( CONTEXT_SUPERSPRINT_FE );
                 }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                 else if( m_quittingGame )
                 {
                     // let's begin the quit procedure
@@ -694,7 +694,7 @@ void CGuiManagerFrontEnd::HandleMessage
 
         case GUI_MSG_QUIT_GAME:
         {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             rAssert( GUI_FE_SCREEN_RUNNING == m_state );
 
             m_state = GUI_FE_SHUTTING_DOWN;
@@ -704,7 +704,7 @@ void CGuiManagerFrontEnd::HandleMessage
             // Tell the current screen to shut down.
             //
             this->FindWindowByID( m_currentScreen )->HandleMessage( GUI_MSG_WINDOW_EXIT );
-#endif // RAD_WIN32
+#endif // RAD_PC
 
             break;
         }

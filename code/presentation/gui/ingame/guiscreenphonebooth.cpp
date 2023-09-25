@@ -610,7 +610,7 @@ void CGuiScreenPhoneBooth::HandleMessage
     }
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiScreenPhoneBooth::CheckCursorAgainstHotspots
 //===========================================================================

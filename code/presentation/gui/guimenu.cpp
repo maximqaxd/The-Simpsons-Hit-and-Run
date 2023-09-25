@@ -85,7 +85,7 @@ CGuiMenu::CGuiMenu( CGuiEntity* pParent, int maxNumItems,
     m_isGreyOutEnabled( true ),
     m_elapsedTime( 0 ),
     m_selectionMadeElapsedTime( 0 ),
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_bIsSelectionOutlined( false ),
     m_selectionOutlineColour( tColour( 0, 0, 255, 192 ) ),
 #endif
@@ -200,7 +200,7 @@ void CGuiMenu::HandleMessage( eGuiMessage message, unsigned int param1,
 
             break;
         }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         case GUI_MSG_MOUSE_OVER:
         {
             this->SetNewSelection(param1);
@@ -561,7 +561,7 @@ void CGuiMenu::MakeSelection( bool isSelectionMade )
                 if( m_menuType == GUI_TEXT_MENU )
                 {
                     m_menuItems[ m_selection ]->SetOutlineColour( m_selectionMadeOutlineColour );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                     if( m_bIsSelectionOutlined )
                         m_menuItems[ m_selection ]->GetItem()->SetColour( DEFAULT_SELECTED_ITEM_COLOUR );
 #endif
@@ -795,7 +795,7 @@ void CGuiMenu::ChangeSelection( int deltaItems, bool isUserInput )
     }
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiMenu::ChangeSelection
 //===========================================================================

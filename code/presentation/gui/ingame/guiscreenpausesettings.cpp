@@ -75,7 +75,7 @@ const char* PAUSE_SETTINGS_MENU_ITEMS[] =
     ""
 };
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 SuperCam::Type PC_CAMERAS_FOR_WALKING[] =
 {
     SuperCam::WALKER_CAM,
@@ -171,7 +171,7 @@ MEMTRACK_PUSH_GROUP( "CGuiScreenPauseSettings" );
     }
 
     m_cameraSelections[ CAMERA_SELECTION_FOR_DRIVING ] = CAMERAS_FOR_DRIVING;
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_cameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = PC_CAMERAS_FOR_WALKING;
 #else
     m_cameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = CAMERAS_FOR_WALKING;
@@ -181,7 +181,7 @@ MEMTRACK_PUSH_GROUP( "CGuiScreenPauseSettings" );
     {
         m_numCameraSelections[ CAMERA_SELECTION_FOR_DRIVING ] = NUM_CAMERAS_FOR_DRIVING;
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         m_numCameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = NUM_PC_CAMERAS_FOR_WALKING;
 #else
         m_numCameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = NUM_CAMERAS_FOR_WALKING;
@@ -190,7 +190,7 @@ MEMTRACK_PUSH_GROUP( "CGuiScreenPauseSettings" );
     else
     {
         m_numCameraSelections[ CAMERA_SELECTION_FOR_DRIVING ] = NUM_CAMERAS_FOR_DRIVING_WITHOUT_CHEAT;
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         m_numCameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = NUM_PC_CAMERAS_FOR_WALKING_WITHOUT_CHEAT;
 #else
         m_numCameraSelections[ CAMERA_SELECTION_FOR_WALKING ] = NUM_CAMERAS_FOR_WALKING_WITHOUT_CHEAT;

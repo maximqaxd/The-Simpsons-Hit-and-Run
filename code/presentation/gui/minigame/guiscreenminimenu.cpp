@@ -188,7 +188,7 @@ CGuiScreenMiniMenu::CGuiScreenMiniMenu
     m_characterSlots( 0 ),
     m_numUnlockedVehicles( 0 ),
     m_optionsButton( NULL ),
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_currentTrack(0),
     m_bTrackSelected(false),
 #endif
@@ -1021,7 +1021,7 @@ void CGuiScreenMiniMenu::HandleMessage(	eGuiMessage message,
 	CGuiScreen::HandleMessage( message, param1, param2 );
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiScreenMiniMenu::CheckCursorAgainstHotspots
 //===========================================================================
@@ -1337,7 +1337,7 @@ CGuiScreenMiniMenu::SetTrackSelectionEnabled( bool enable )
     {
         m_characterSelectInfo->SetVisible( !enable );
     }
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     m_bTrackSelected = !enable;
 #endif
 }

@@ -48,7 +48,7 @@ static const CheatInputMapping CHEAT_INPUT_MAPPINGS[] =
     { "R1",             CHEAT_INPUT_RTRIGGER },
 #endif
 
-#ifdef RAD_CONSOLE // RAD_XBOX
+#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
     { "A",              CHEAT_INPUT_0 },
     { "B",              CHEAT_INPUT_1 },
     { "X",              CHEAT_INPUT_2 },

@@ -21,7 +21,7 @@
 #include <contexts/supersprint/supersprintcontext.h>
 #include <gameflow/gameflow.h>
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <input/inputmanager.h>
 #endif
 

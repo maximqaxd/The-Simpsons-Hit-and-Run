@@ -102,7 +102,7 @@ void VehicleMappable::LoadControllerMappings( unsigned int controllerId )
 
     // MS7
     // #ifdef this for different platforms
-    #ifdef RAD_CONSOLE // RAD_XBOX
+    #if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
 
     ClearMap(0);
     Map( "LeftStickX", Steer, 0, controllerId );

@@ -283,7 +283,7 @@ void CGuiScreenMissionGallery::HandleMessage
 
 //                m_guiManager->DisplayPrompt( PROMPT_CONFIRM_START_MISSION, this );
                 this->OnMenuSelectionMade( param1 );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                 // Hide/disable all other menu items.
                 this->SetVisibilityForAllOtherMenuItems( false );
 #endif
@@ -631,7 +631,7 @@ CGuiScreenMissionGallery::OnUpdate( unsigned int elapsedTime )
             m_elapsedTime = 0;
             m_screenState = SCREEN_STATE_NORMAL;
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
             // Show/enable all hidden menu items.
             this->SetVisibilityForAllOtherMenuItems( true );
 #endif
@@ -850,7 +850,7 @@ CGuiScreenMissionGallery::UnloadMissionImages()
     m_isMissionImagesLoaded = false;
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 void CGuiScreenMissionGallery::SetVisibilityForAllOtherMenuItems( bool bVisible )
 {
     for( int i = 0; i < NUM_MISSIONS_PER_LEVEL; i++ )

@@ -57,7 +57,7 @@ private:
 
     enum eMenuItem
     {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         MENU_ITEM_DISPLAY,
 #endif
         MENU_ITEM_CONTROLLER,

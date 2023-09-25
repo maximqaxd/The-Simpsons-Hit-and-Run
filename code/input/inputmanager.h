@@ -43,7 +43,7 @@ class InputManager : public IRadControllerConnectionChangeCallback,
                      public GameDataHandler
 {
 public:
-#ifdef RAD_XBOX
+#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
     enum eButtonMap
     {
         DPadUp,
@@ -186,7 +186,7 @@ public:
         AnalogL2,
         AnalogR2,
     };
-#else //RAD_GAMECUBE
+#elif defined(RAD_GAMECUBE)
     enum eButtonMap
     {
         DPadLeft,

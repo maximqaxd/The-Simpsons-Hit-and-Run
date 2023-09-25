@@ -445,7 +445,7 @@ CGuiScreenPurchaseRewards::OnProcessRequestsComplete( void* pUserData )
     }
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiScreenPurchaseRewards::CheckCursorAgainstHotspots
 //===========================================================================

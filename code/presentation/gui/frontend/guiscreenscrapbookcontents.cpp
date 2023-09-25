@@ -240,7 +240,7 @@ CGuiScreenScrapBookContents::~CGuiScreenScrapBookContents()
     }
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //===========================================================================
 // CGuiScreenScrapBookContents::CheckCursorAgainstHotspots
 //===========================================================================
