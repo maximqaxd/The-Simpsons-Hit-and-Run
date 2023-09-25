@@ -37,7 +37,7 @@
 #include <camera/supercamcontroller.h>
 #include <camera/followcam.h>
 #include <camera/wrecklesscam.h>
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <camera/pccam.h>
 #endif
 #include <data/gamedatamanager.h>
@@ -107,14 +107,14 @@ const int NUM_CAMERAS_FOR_DRIVING_WITHOUT_CHEAT = 3;
 SuperCam::Type CAMERAS_FOR_WALKING[] =
 {
     SuperCam::WALKER_CAM,
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     SuperCam::PC_CAM,
 #endif
     SuperCam::DEBUG_CAM,
     SuperCam::KULL_CAM
 };
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 const int NUM_CAMERAS_FOR_WALKING = sizeof(CAMERAS_FOR_WALKING)/sizeof(SuperCam::Type);
 
 // this must be less than or equal to NUM_CAMERAS_FOR_WALKING
@@ -630,7 +630,7 @@ void SuperCamCentral::Update( unsigned int milliseconds, bool isFirstSubstep )
          AllowCameraToggle() && 
          GetGameplayManager()->GetGameType() != GameplayManager::GT_SUPERSPRINT &&
          mActiveSuperCam &&
-#ifdef RAD_WIN32
+#ifdef RAD_PC
          mActiveSuperCam->GetType() != SuperCam::PC_CAM &&
 #endif
          mActiveSuperCam->GetType() != SuperCam::WALKER_CAM )
@@ -711,7 +711,7 @@ void SuperCamCentral::Update( unsigned int milliseconds, bool isFirstSubstep )
             //Test for lookback.
             float lookBack = mController->GetValue( SuperCamController::lookBack );
 
-#if defined(RAD_GAMECUBE) || defined(RAD_XBOX)  //Both now!
+#if defined(RAD_CONSOLE)
             float altLookBack = mController->GetValue( SuperCamController::altLookBack );
 
             lookBack = mController->GetAxisValue( SuperCamController::stickY );
@@ -720,7 +720,7 @@ void SuperCamCentral::Update( unsigned int milliseconds, bool isFirstSubstep )
 #endif
 
             if ( altLookBack == 1.0f || lookBack == -1.0f )
-#elif defined(RAD_WIN32)
+#elif defined(RAD_PC)
             if( lookBack > 0.8f )
 #else //This is PS2
             if ( mController->GetValue( SuperCamController::l2) >= 0.9f && mController->GetValue( SuperCamController::r2 ) >= 0.9f )
@@ -1644,7 +1644,7 @@ void SuperCamCentral::SubmitStatics()
         (camType == SuperCam::NEAR_FOLLOW_CAM ||
          camType == SuperCam::FAR_FOLLOW_CAM ||
          camType == SuperCam::WALKER_CAM ||
-#ifdef RAD_WIN32
+#ifdef RAD_PC
          camType == SuperCam::PC_CAM ||
 #endif
          camType == SuperCam::COMEDY_CAM ||
@@ -1657,7 +1657,7 @@ void SuperCamCentral::SubmitStatics()
         GetWorldPhysicsManager()->SubmitFencePiecesPseudoCallback(pos, mActiveSuperCam->GetCollisionRadius(), 
                                                                   mCollisionAreaIndex, mCameraSimState);
         GetWorldPhysicsManager()->SubmitAnimCollisionsPseudoCallback( pos, mActiveSuperCam->GetCollisionRadius(), mCollisionAreaIndex, mCameraSimState );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         if ( camType == SuperCam::PC_CAM )
         {
             //No dynamics in PC_CAM
@@ -1763,7 +1763,7 @@ bool SuperCamCentral::AllowAutoCameraChange()
              type == SuperCam::NEAR_FOLLOW_CAM || 
              type == SuperCam::FAR_FOLLOW_CAM || 
              type == SuperCam::WALKER_CAM || 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
              type == SuperCam::PC_CAM || 
 #endif
              type == SuperCam::COMEDY_CAM ||
@@ -1906,7 +1906,7 @@ void SuperCamCentral::HandleEvent( EventEnum id, void* pEventData )
                             }
                             else
                             {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
                                 SelectSuperCam( SuperCam::ON_FOOT_CAM, CUT | FORCE );
 #else
                                 SelectSuperCam( SuperCam::WALKER_CAM, CUT | FORCE );

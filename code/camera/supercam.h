@@ -100,7 +100,7 @@ public:
         RELATIVE_ANIMATED_CAM,
         SUPER_SPRINT_CAM,
         FIRST_PERSON_CAM,
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         ON_FOOT_CAM,
         PC_CAM,
 #endif

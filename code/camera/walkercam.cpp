@@ -714,7 +714,7 @@ void WalkerCam::UpdatePositionNormal( unsigned int milliseconds, float timeMod )
             xAxis *= -1.0f;  //Invert
         }
 
-#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_WIN32)
+#if defined(RAD_GAMECUBE) || defined(RAD_PS2) || defined(RAD_PC)
         if ( mController->IsWheel() )
         {
             //This is a wheel.  No left right on wheels.

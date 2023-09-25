@@ -353,7 +353,7 @@ void CameraRelativeCharacterController::GetDirection( rmt::Vector& outDirection 
 
     GetCharacterMappable( )->GetDirection( outDirection );
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     SuperCam* cam = GetSuperCamManager()->GetSCC( 0 )->GetActiveSuperCam();
     if( cam->GetType() == SuperCam::PC_CAM )
     {
