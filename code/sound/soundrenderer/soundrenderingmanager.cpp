@@ -747,15 +747,16 @@ void daSoundRenderingManager::QueueCementFileRegistration()
         m_languageSelected = true;
     }
 
-#ifdef RAD_XBOX
     //
     // Register the music rcfs -- no localization needed.
     //
+#if defined(RAD_XBOX) || defined(RAD_WIN32)
     m_soundCementFileHandles[i++] = GetLoadingManager()->RegisterCementLibrary( "music00.rcf" );
     m_soundCementFileHandles[i++] = GetLoadingManager()->RegisterCementLibrary( "music01.rcf" );
     m_soundCementFileHandles[i++] = GetLoadingManager()->RegisterCementLibrary( "music02.rcf" );
     m_soundCementFileHandles[i++] = GetLoadingManager()->RegisterCementLibrary( "music03.rcf" );
-#else
+#endif
+#ifndef RAD_XBOX
     m_soundCementFileHandles[i++] = GetLoadingManager()->RegisterCementLibrary( "music.rcf" );
 #endif
 

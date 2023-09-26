@@ -133,7 +133,8 @@ protected:
     static void TypeInfoComplete( void* pUserData );
     static void ScriptComplete( void* pUserData );
     static void SoundObjectCreated( const char* objName, IRefCount* obj );
-#else
+#endif
+
     void RunApuSoundScripts( void );
     void RunBartSoundScripts( void );
     void RunHomerSoundScripts( void );
@@ -147,7 +148,6 @@ protected:
     void RunSpanishSoundScripts( void );
     void RunCarSoundScripts( void );
     void RunTuningSoundScripts( void );
-#endif
 
 private:
 
@@ -155,7 +155,6 @@ private:
 
     void registerDialogueCementFiles( const char* cementFilename );
 
-#ifndef AUDIO_ENABLE_SCRIPTING
     template<class T>
     T& Create( const char* objName )
     {
@@ -168,7 +167,6 @@ private:
     }
 
     void SetCurrentNameSpace( IRadNameSpace* pNameSpace ) { m_pCurrentNameSpace = pNameSpace; }
-#endif
     
     // The singleton instance
     static daSoundRenderingManager*              s_Singleton;
@@ -202,6 +200,8 @@ private:
     //
 #ifdef RAD_XBOX
     static const unsigned int NUM_SOUND_CEMENT_FILES = 12;
+#elif defined(RAD_WIN32)
+    static const unsigned int NUM_SOUND_CEMENT_FILES = 11;
 #else
     static const unsigned int NUM_SOUND_CEMENT_FILES = 7;
 #endif
