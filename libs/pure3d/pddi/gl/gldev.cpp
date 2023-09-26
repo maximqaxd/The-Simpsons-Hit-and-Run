@@ -69,6 +69,7 @@ void pglDevice::GetLibraryInfo(pddiLibInfo* info)
     info->versionMinor = PDDI_VERSION_MINOR;
     info->versionBuild = PDDI_GL_BUILD;
     info->libID = PDDI_LIBID_OPENGL;
+    strcpy( info->description, libName );
 }
 
 unsigned pglDevice::GetCaps()
