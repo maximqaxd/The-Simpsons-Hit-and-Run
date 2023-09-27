@@ -827,13 +827,6 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
                 return false;
             }
 
-            const char* extension = strrchr( fileName, '.' );
-            if( strcmp( extension, ".rcf") == 0 )
-            {
-                // If any files in this rcf are required we will error out on the specific file later
-                return false;
-            }
-
             char errorString[256];
             sprintf( errorString, "%s:\n%s", ERROR_STRINGS[error], adjustedName );
             fprintf(stderr, "error: %s\n", errorString);
