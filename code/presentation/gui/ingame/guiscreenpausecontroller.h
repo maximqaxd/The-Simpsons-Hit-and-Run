@@ -19,7 +19,11 @@
 //===========================================================================
 // Nested Includes
 //===========================================================================
+#ifdef RAD_PC
+#include <presentation/gui/frontend/guiscreencontrollerWin32.h>
+#else
 #include <presentation/gui/frontend/guiscreencontroller.h>
+#endif
 
 //===========================================================================
 // Forward References
