@@ -747,7 +747,7 @@ void daSoundRenderingManager::QueueCementFileRegistration()
         m_languageSelected = true;
     }
 
-#ifdef RAD_XBOX
+#if defined( RAD_XBOX ) || defined( RAD_WIN32 )
     //
     // Register the music rcfs -- no localization needed.
     //

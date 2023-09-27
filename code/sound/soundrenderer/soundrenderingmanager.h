@@ -202,6 +202,8 @@ private:
     //
 #ifdef RAD_XBOX
     static const unsigned int NUM_SOUND_CEMENT_FILES = 12;
+#elif defined( RAD_WIN32 )
+    static const unsigned int NUM_SOUND_CEMENT_FILES = 10;
 #else
     static const unsigned int NUM_SOUND_CEMENT_FILES = 7;
 #endif
