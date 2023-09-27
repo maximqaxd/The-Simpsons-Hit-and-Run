@@ -273,8 +273,8 @@ private:
         
         struct
         {
-            StreamerResources* m_pResources;
-            IRadSoundRsdFileDataSource*     m_pRsdFileDataSource;
+            StreamerResources*          m_pResources;
+            IRadSoundHalDataSource*     m_pRsdFileDataSource;
         } m_StreamInfo;
     };
     

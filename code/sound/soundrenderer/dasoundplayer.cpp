@@ -376,7 +376,9 @@ void daSoundClipStreamPlayer::UpdateStream( void )
                     {
                         if ( NULL == m_StreamInfo.m_pRsdFileDataSource )
                         {
-                            m_pAllocatedResource->GetFileInstance( m_AllocResInstanceID )->CreateFileDataSource( & m_StreamInfo.m_pRsdFileDataSource );
+                            IRadSoundRsdFileDataSource* pFds;
+                            m_pAllocatedResource->GetFileInstance( m_AllocResInstanceID )->CreateFileDataSource( &pFds );
+                            m_StreamInfo.m_pRsdFileDataSource = pFds;
                         }
                         else if ( IRadSoundRsdFileDataSource::Initialized == m_StreamInfo.m_pRsdFileDataSource->GetState( ) )
                         {
@@ -384,7 +386,15 @@ void daSoundClipStreamPlayer::UpdateStream( void )
                                 pFileInstance->GetFileName( ),
                                 m_StreamInfo.m_pRsdFileDataSource->GetFormat( )->GetEncoding( ),
                                 m_StreamInfo.m_pRsdFileDataSource->GetFormat( )->GetNumberOfChannels( ) ); */
-                                
+
+                            if( m_StreamInfo.m_pRsdFileDataSource->GetFormat()->GetEncoding( ) == IRadSoundHalAudioFormat::RadicalAdpcm )
+                            {
+                                IRadSoundAdpcmDecodeStream* pDecodeStream = radSoundAdpcmDecodeStreamCreate( GMA_AUDIO_PERSISTENT );
+                                pDecodeStream->AddRef( );
+                                pDecodeStream->Initialize( m_StreamInfo.m_pRsdFileDataSource );
+                                m_StreamInfo.m_pRsdFileDataSource->Release();
+                                m_StreamInfo.m_pRsdFileDataSource = pDecodeStream;
+                            }
                             HookUpAndCuePlayer( );
                         }
                     }
