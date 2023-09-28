@@ -49,6 +49,9 @@ enum eMenuItem
     MENU_ITEM_ABORT_MISSION,
     MENU_ITEM_OPTIONS,
     MENU_ITEM_QUIT_GAME,
+#ifdef RAD_PC
+    MENU_ITEM_EXIT_GAME,
+#endif
 
     NUM_MENU_ITEMS
 };
@@ -61,6 +64,9 @@ static const char* MENU_ITEMS[] =
     "AbortMission",
     "Options",
     "QuitGame"
+#ifdef RAD_PC
+    ,"ExitToSystem"
+#endif
 };
 
 //===========================================================================
@@ -106,10 +112,27 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenPauseMission" );
     for( int i = 0; i < NUM_MENU_ITEMS; i++ )
     {
         pText = menu->GetText( MENU_ITEMS[ i ] );
+#ifdef RAD_PC
+        rAssert( pText || MENU_ITEMS[i] == MENU_ITEM_EXIT_GAME );
+        if( !pText )
+            continue;
+#else
         rAssert( pText );
+#endif
 
         m_pMenu->AddMenuItem( pText );
     }
+
+#ifndef RAD_PC
+    pText = menu->GetText( "ExitToSystem" );
+    if( pText )
+        pText->SetVisible( false );
+
+    // re-center menu items
+    //
+    menu->ResetTransformation();
+    menu->Translate( 0, -20 );
+#endif
 MEMTRACK_POP_GROUP("CGUIScreenPauseMission" );
 }
 
@@ -259,6 +282,14 @@ void CGuiScreenPauseMission::HandleMessage
 
                         break;
                     }
+#ifdef RAD_PC
+                    case MENU_ITEM_EXIT_GAME:
+                    {
+                        this->HandleQuitToSystem();
+
+                        break;
+                    }
+#endif
                     default:
                     {
                         rAssertMsg( 0, "WARNING: Invalid case for switch statement!\n" );

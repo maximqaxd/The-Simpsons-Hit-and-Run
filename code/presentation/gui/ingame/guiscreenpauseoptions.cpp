@@ -120,8 +120,8 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenPauseOptions" );
 
 #ifndef RAD_PC
     Scrooby::Text* pText = menu->GetText( "Display" );
-    rAssert( pText );
-    pText->SetVisible( false );
+    if( pText )
+        pText->SetVisible( false );
 
     // re-center menu items
     //

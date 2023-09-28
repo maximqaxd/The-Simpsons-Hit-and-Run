@@ -114,8 +114,8 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenPauseSunday" );
 
 #ifndef RAD_PC
     pText = menu->GetText( "ExitToSystem" );
-    rAssert( pText );
-    pText->SetVisible( false );
+    if( pText )
+        pText->SetVisible( false );
 
     // re-center menu items
     //
