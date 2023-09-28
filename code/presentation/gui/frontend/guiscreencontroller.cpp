@@ -161,10 +161,11 @@ CGuiScreenController::CGuiScreenController
 #ifdef RAD_PS2
     tSprite* pSprite = p3d::find<tSprite>( "controllerP.png" );
 #endif
+#if defined(RAD_XBOX) || defined(WIN32)
+    tSprite* pSprite = p3d::find<tSprite>( "controllerX.png" );
+#endif
 #ifdef __SWITCH__
     tSprite* pSprite = p3d::find<tSprite>( "controllerS.png" );
-#elif defined(RAD_XBOX) || defined(RAD_WIN32)
-    tSprite* pSprite = p3d::find<tSprite>( "controllerX.png" );
 #endif
     rAssert( pSprite );
 
