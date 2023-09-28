@@ -18,6 +18,10 @@
 #define WINVER 0x0501
 #define _WIN32_WINNT 0x400
 #include <windows.h>
+#ifdef RAD_PC
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+#endif
 #include <crtdbg.h>
 #endif
 
