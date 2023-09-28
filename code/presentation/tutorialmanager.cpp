@@ -442,7 +442,7 @@ void TutorialManager::ProcessQueue()
         //
         this->SetTutorialSeen( event, true );
 
-#ifndef RAD_WIN32
+#ifndef RAD_PC
         switch( event )
         {
         case TUTORIAL_BREAK_CAMERA:
