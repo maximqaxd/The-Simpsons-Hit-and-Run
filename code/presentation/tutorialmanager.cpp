@@ -613,7 +613,7 @@ void TutorialManager::ProcessQueue()
         GetGuiSystem()->GotoScreen( CGuiWindow::GUI_SCREEN_ID_TUTORIAL, 0, 0,
                                     CLEAR_WINDOW_HISTORY | FORCE_WINDOW_CHANGE_IMMEDIATE );
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
         m_DialogCurrentlyPlaying = false;
 #endif
         GetGameFlow()->SetContext( CONTEXT_PAUSE );
