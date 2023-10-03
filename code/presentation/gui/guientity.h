@@ -29,6 +29,9 @@
 	#define NULL 0
 #endif
 
+#ifdef __SWITCH__
+    const int PLATFORM_TEXT_INDEX = 0;
+#else
 #ifdef RAD_GAMECUBE
     const int PLATFORM_TEXT_INDEX = 0;
 #endif
@@ -38,8 +41,9 @@
 #ifdef RAD_XBOX
     const int PLATFORM_TEXT_INDEX = 2;
 #endif
-#ifdef RAD_WIN32 // parallel the xbox for now.
+#if RAD_WIN32 // parallel the xbox for now.
     const int PLATFORM_TEXT_INDEX = 2;
+#endif
 #endif
 
 enum eGuiMessage

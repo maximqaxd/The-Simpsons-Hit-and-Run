@@ -148,7 +148,7 @@ CGuiScreenPause::CGuiScreenPause
     pPage = m_pScroobyScreen->GetPage( "PauseFgd" );
     if( pPage != NULL )
     {
-#ifdef RAD_PC
+#ifdef RAD_WIN32
         pPage->SetVisible( false );
 #endif
 
