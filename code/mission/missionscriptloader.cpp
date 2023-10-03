@@ -2228,22 +2228,22 @@ void MissionScriptLoader::MustActionTrigger( int argc, const char** argv )
 void MissionScriptLoader::AddStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
-    char vehiclename[32];
-    char spawnname[32];
-    char ainame[32];
-    char confile[32];
+    const char* vehiclename;
+    const char* spawnname;
+    const char* ainame;
+    const char* confile;
 
-    strcpy( vehiclename, argv[ 1 ] );
-    strcpy( spawnname, argv[ 2 ] );
+    vehiclename = argv[ 1 ];
+    spawnname = argv[ 2 ];
     
     if(argc >= 4)
     {
-        strcpy( ainame, argv[ 3 ] );
+        ainame = argv[ 3 ];
     }
     else
     {
         // ever have this case?
-        ainame[0] = 0;
+        ainame = "";
     }
 
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
@@ -2271,7 +2271,9 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
 
         case 5:
         {
-            strcpy(confile, argv[4]);
+            confile = argv[4];
+            if( strcmp( confile, "Missions\\level02\\M1Chase.con" ) == 0 )
+                confile = "Missions\\level02\\M1chase.con";
             vehicle = GetGameplayManager()->AddMissionVehicle(vehiclename, confile);                
             // this method will return a pointer if the vehicle already exists in the list of mission cars,
             // or it will allocate a new one             
@@ -2280,7 +2282,9 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
 
         case 6:
         {
-            strcpy(confile, argv[4]);
+            confile = argv[4];
+            if( strcmp( confile, "Missions\\level02\\M1Chase.con" ) == 0 )
+                confile = "Missions\\level02\\M1chase.con";
             vehicle = GetGameplayManager()->AddMissionVehicle(vehiclename, confile, argv[5]);                
             // this method will return a pointer if the vehicle already exists in the list of mission cars,
             // or it will allocate a new one             
@@ -2382,22 +2386,22 @@ MEMTRACK_POP_GROUP( "Mission - Stage Vehicle" );
 void MissionScriptLoader::MoveStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
-    char vehiclename[32];
-    char spawnname[32];
-    char ainame[32];
+    const char* vehiclename;
+    const char* spawnname;
+    const char* ainame;
     
-    strcpy( vehiclename, argv[ 1 ] );
-    strcpy( spawnname, argv[ 2 ] );
+    vehiclename = argv[ 1 ];
+    spawnname = argv[ 2 ];
     
     
     if(argc >= 4)
     {
-        strcpy( ainame, argv[ 3 ] );
+        ainame = argv[ 3 ];
     }
     else
     {
         // ever have this case?
-        ainame[0] = 0;
+        ainame = "";
     }
     
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
@@ -2469,21 +2473,21 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
     char errMsg[256];
 #endif
 
-    char vehiclename[32];
-    char spawnname[32];
-    char ainame[32];
+    const char* vehiclename;
+    const char* spawnname;
+    const char* ainame;
     
-    strcpy( vehiclename, argv[ 1 ] );
-    strcpy( spawnname, argv[ 2 ] );
+    vehiclename = argv[ 1 ];
+    spawnname = argv[ 2 ];
     
     if(argc >= 4)
     {
-        strcpy( ainame, argv[ 3 ] );
+        ainame = argv[ 3 ];
     }
     else
     {
         // ever have this case?
-        ainame[0] = 0;
+        ainame = "";
     }
         
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
@@ -4095,18 +4099,24 @@ void MissionScriptLoader::LoadP3DFile( int argc, const char** argv )
 #else
     const char* name = "";
 #endif
+    const char* file = argv[ 1 ];
 
     // HACK HACK HACK : ignore loads ona bunch of stuff that we know we have preloaded
-    if((strcmp(argv[ 1 ], "art\\phonecamera.p3d") == 0) ||
-       (strcmp(argv[ 1 ], "art\\cards.p3d") == 0) ||
-       (strcmp(argv[ 1 ], "art\\wrench.p3d") == 0) ||
-       (strcmp(argv[ 1 ], "art\\missions\\generic\\missgen.p3d") == 0) ||
-       (strcmp(argv[ 1 ], "art\\cars\\common.p3d") == 0) ||
-       (strcmp(argv[ 1 ], "art\\cars\\huskA.p3d") == 0))
+    if((strcmp(file, "art\\phonecamera.p3d") == 0) ||
+       (strcmp(file, "art\\cards.p3d") == 0) ||
+       (strcmp(file, "art\\wrench.p3d") == 0) ||
+       (strcmp(file, "art\\missions\\generic\\missgen.p3d") == 0) ||
+       (strcmp(file, "art\\cars\\common.p3d") == 0) ||
+       (strcmp(file, "art\\cars\\huskA.p3d") == 0))
     {
         return;
     }
 
+    // HACK HACK HACK : fix capitalization of UFO asset
+    if(strcmp( file, "art\\missions\\level07\\ufo.p3d" ) == 0)
+    {
+        file = "art\\missions\\level07\\UFO.p3d";
+    }
 
     GameMemoryAllocator heap = GMA_LEVEL_MISSION;
 
@@ -4167,11 +4177,11 @@ void MissionScriptLoader::LoadP3DFile( int argc, const char** argv )
 
     if ( argc == 4 )
     {
-        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap, argv[ 3 ], argv[ 1 ], 0, (void*)name );
+        GetLoadingManager()->AddRequest( spInstance->mFileHandler, file, heap, argv[ 3 ], file, 0, (void*)name );
     }
     else
     {
-        GetLoadingManager()->AddRequest( spInstance->mFileHandler, argv[ 1 ], heap,  0, (void*)name );
+        GetLoadingManager()->AddRequest( spInstance->mFileHandler, file, heap,  0, (void*)name );
     }
 }
 
