@@ -153,26 +153,6 @@ CGuiScreenController::CGuiScreenController
     //
     pPage->GetLayerByIndex( 0 )->SetVisible( true );
 
-    // set platform-specific controller image
-    //
-#ifdef RAD_GAMECUBE
-    tSprite* pSprite = p3d::find<tSprite>( "controllerG.png" );
-#endif
-#ifdef RAD_PS2
-    tSprite* pSprite = p3d::find<tSprite>( "controllerP.png" );
-#endif
-#if defined(RAD_XBOX) || defined(WIN32)
-    tSprite* pSprite = p3d::find<tSprite>( "controllerX.png" );
-#endif
-#ifdef __SWITCH__
-    tSprite* pSprite = p3d::find<tSprite>( "controllerS.png" );
-#endif
-    rAssert( pSprite );
-
-    Scrooby::Sprite* controllerImage = pPage->GetSprite( "Controller" );
-    rAssert( controllerImage != NULL );
-    controllerImage->SetRawSprite( pSprite, true );
-
     // get the platform-specific Controller page
     //
 #if defined( RAD_GAMECUBE )

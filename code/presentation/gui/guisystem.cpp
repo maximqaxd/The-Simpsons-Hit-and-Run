@@ -214,21 +214,6 @@ const char* PROJECT_FILE_INGAME = "art\\frontend\\scrooby\\ingame.p3d";
 #define MOUSE_CURSOR_DIR "art\\frontend\\dynaload\\images\\"
 #endif
 #ifdef RAD_CONSOLE
-#define CONTROLLER_IMAGE_DIR "art\\frontend\\dynaload\\images\\controller\\"
-
-#ifdef RAD_GAMECUBE
-const char* CONTROLLER_IMAGE = CONTROLLER_IMAGE_DIR "controllerG.p3d";
-#endif
-#ifdef RAD_PS2
-const char* CONTROLLER_IMAGE = CONTROLLER_IMAGE_DIR "controllerP.p3d";
-#endif
-#if defined(RAD_XBOX) || defined(WIN32)
-const char* CONTROLLER_IMAGE = CONTROLLER_IMAGE_DIR "controllerX.p3d";
-#endif
-#ifdef __SWITCH__
-const char* CONTROLLER_IMAGE = CONTROLLER_IMAGE_DIR "controllerS.p3d";
-#endif
-#endif
 
 const char* INGAME_LEVEL_PROJECT_FILES[] = 
 {
@@ -1309,14 +1294,6 @@ void CGuiSystem::OnInitBootUp()
 
     if( !CommandLineOptions::Get( CLO_SKIP_FE ) )
     {
-#ifdef RAD_CONSOLE
-        GetLoadingManager()->AddRequest( FILEHANDLER_PURE3D,
-                                         CONTROLLER_IMAGE,
-                                         GMA_LEVEL_FE,
-                                         SCROOBY_INVENTORY_FRONTEND,
-                                         SCROOBY_INVENTORY_FRONTEND );
-#endif
-
         // load frontend Scrooby project (into FE heap)
         //
         GetLoadingManager()->AddRequest( FILEHANDLER_SCROOBY,
@@ -1404,14 +1381,6 @@ void CGuiSystem::OnReleaseBootUp()
 //===========================================================================
 void CGuiSystem::OnInitFrontEnd()
 {
-#ifdef RAD_CONSOLE
-    GetLoadingManager()->AddRequest( FILEHANDLER_PURE3D,
-                                     CONTROLLER_IMAGE,
-                                     GMA_LEVEL_FE,
-                                     SCROOBY_INVENTORY_FRONTEND,
-                                     SCROOBY_INVENTORY_FRONTEND );
-#endif
-
     // load frontend Scrooby project (into FE heap)
     GetLoadingManager()->AddRequest( FILEHANDLER_SCROOBY,
                                      PROJECT_FILE_FRONTEND,
