@@ -142,9 +142,11 @@ protected:
     void RunLevelSoundScripts( void );
     void RunSoundEffectScripts( void );
     void RunEnglishSoundScripts( void );
+#ifdef PAL
     void RunFrenchSoundScripts( void );
     void RunGermanSoundScripts( void );
     void RunSpanishSoundScripts( void );
+#endif
     void RunCarSoundScripts( void );
     void RunTuningSoundScripts( void );
 #endif

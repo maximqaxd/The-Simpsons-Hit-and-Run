@@ -972,6 +972,7 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
         RunEnglishSoundScripts();
         break;
 
+#ifdef PAL
     case DIALOGUE_LANGUAGE_FRENCH:
         RunFrenchSoundScripts();
         break;
@@ -983,6 +984,7 @@ void daSoundRenderingManager::QueueRadscriptFileLoads()
     case DIALOGUE_LANGUAGE_SPANISH:
         RunSpanishSoundScripts();
         break;
+#endif
 
     default:
         rAssert( false );
