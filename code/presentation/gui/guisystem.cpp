@@ -213,7 +213,6 @@ const char* PROJECT_FILE_INGAME = "art\\frontend\\scrooby\\ingame.p3d";
 #ifdef RAD_PC
 #define MOUSE_CURSOR_DIR "art\\frontend\\dynaload\\images\\"
 #endif
-#ifdef RAD_CONSOLE
 
 const char* INGAME_LEVEL_PROJECT_FILES[] = 
 {
