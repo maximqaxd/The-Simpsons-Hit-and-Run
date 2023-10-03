@@ -180,13 +180,20 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
     unsigned int*       pSize 
 )
 {
+    std::error_code error;
     std::string tmp(fileName);
     std::replace(tmp.begin(), tmp.end(), '\\', '/');
     std::filesystem::path path(tmp);
     path.make_preferred();
-    if (std::filesystem::exists(path))
+    if (std::filesystem::exists(path, error))
     {
-        *pSize = std::filesystem::file_size(path);
+        if (!error)
+            *pSize = std::filesystem::file_size(path, error);
+        if (error)
+        {
+            m_LastError = TranslateError(error);
+            return Error;
+        }
     }
     else
     {
