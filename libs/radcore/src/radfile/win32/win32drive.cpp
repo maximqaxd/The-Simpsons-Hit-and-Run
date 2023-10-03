@@ -262,7 +262,6 @@ radDrive::CompletionStatus radWin32Drive::ReadFile
     if (handle->good())
     {
         handle->read((char*)pData, bytesToRead);
-        int state = handle->rdstate();
         if (!handle->bad())
         {
             //
@@ -323,9 +322,9 @@ radDrive::CompletionStatus radWin32Drive::WriteFile
             //
             // Sucessful write
             //
-            *bytesWritten = handle->tellp() - std::streampos(position);
-            handle->sync();
-            *pSize = std::filesystem::file_size(fileName);
+            handle->seekp(0, std::ios_base::end);
+            *bytesWritten = bytesToWrite;
+            *pSize = handle->tellp();
             m_LastError = Success;
             return Complete;
         }
