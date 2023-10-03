@@ -657,7 +657,7 @@ class radControllerSDL
 					if(m_pController != NULL)
 					{
                         result = SDL_GameControllerRumble( m_pController,
-                            m_LeftGain, m_RightGain, SDL_HAPTIC_INFINITY );
+                            m_LeftGain, m_RightGain, 0 );
 					}
 
                     //
