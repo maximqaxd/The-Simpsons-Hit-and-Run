@@ -167,12 +167,14 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, bpp == 16 ? 5 : 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, bpp == 16 ? 6 : 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bpp == 16 ? 5 : 8);
-#ifndef __SWITCH__
-    if( init->bufferMask & PDDI_BUFFER_DEPTH )
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-#endif
+    if (init->bufferMask & PDDI_BUFFER_DEPTH)
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, init->bufferMask & PDDI_BUFFER_STENCIL ? 24 : 32);
+    else
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
     if (init->bufferMask & PDDI_BUFFER_STENCIL)
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    else
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
 #ifdef RAD_DEBUG
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
