@@ -2228,22 +2228,22 @@ void MissionScriptLoader::MustActionTrigger( int argc, const char** argv )
 void MissionScriptLoader::AddStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
-    const char* vehiclename;
-    const char* spawnname;
-    const char* ainame;
-    const char* confile;
+    char vehiclename[32];
+    char spawnname[32];
+    char ainame[32];
+    char confile[32];
 
-    vehiclename = argv[ 1 ];
-    spawnname = argv[ 2 ];
+    strcpy( vehiclename, argv[ 1 ] );
+    strcpy( spawnname, argv[ 2 ] );
     
     if(argc >= 4)
     {
-        ainame = argv[ 3 ];
+        strcpy( ainame, argv[ 3 ] );
     }
     else
     {
         // ever have this case?
-        ainame = "";
+        ainame[0] = 0;
     }
 
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
@@ -2271,9 +2271,10 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
 
         case 5:
         {
-            confile = argv[4];
-            if( strcmp( confile, "Missions\\level02\\M1Chase.con" ) == 0 )
-                confile = "Missions\\level02\\M1chase.con";
+            if(strcmp(argv[4], "Missions\\level02\\M1Chase.con") == 0)
+                strcpy(confile, "Missions\\level02\\M1chase.con");
+            else
+                strcpy(confile, argv[4]);
             vehicle = GetGameplayManager()->AddMissionVehicle(vehiclename, confile);                
             // this method will return a pointer if the vehicle already exists in the list of mission cars,
             // or it will allocate a new one             
@@ -2282,9 +2283,10 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
 
         case 6:
         {
-            confile = argv[4];
-            if( strcmp( confile, "Missions\\level02\\M1Chase.con" ) == 0 )
-                confile = "Missions\\level02\\M1chase.con";
+            if(strcmp(argv[4], "Missions\\level02\\M1Chase.con") == 0)
+                strcpy(confile, "Missions\\level02\\M1chase.con");
+            else
+                strcpy(confile, argv[4]);
             vehicle = GetGameplayManager()->AddMissionVehicle(vehiclename, confile, argv[5]);                
             // this method will return a pointer if the vehicle already exists in the list of mission cars,
             // or it will allocate a new one             
@@ -2386,22 +2388,22 @@ MEMTRACK_POP_GROUP( "Mission - Stage Vehicle" );
 void MissionScriptLoader::MoveStageVehicle( int argc, const char** argv )
 {
 MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
-    const char* vehiclename;
-    const char* spawnname;
-    const char* ainame;
+    char vehiclename[32];
+    char spawnname[32];
+    char ainame[32];
     
-    vehiclename = argv[ 1 ];
-    spawnname = argv[ 2 ];
+    strcpy( vehiclename, argv[ 1 ] );
+    strcpy( spawnname, argv[ 2 ] );
     
     
     if(argc >= 4)
     {
-        ainame = argv[ 3 ];
+        strcpy( ainame, argv[ 3 ] );
     }
     else
     {
         // ever have this case?
-        ainame = "";
+        ainame[0] = 0;
     }
     
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
@@ -2473,21 +2475,21 @@ MEMTRACK_PUSH_GROUP( "Mission - Stage Vehicle" );
     char errMsg[256];
 #endif
 
-    const char* vehiclename;
-    const char* spawnname;
-    const char* ainame;
+    char vehiclename[32];
+    char spawnname[32];
+    char ainame[32];
     
-    vehiclename = argv[ 1 ];
-    spawnname = argv[ 2 ];
+    strcpy( vehiclename, argv[ 1 ] );
+    strcpy( spawnname, argv[ 2 ] );
     
     if(argc >= 4)
     {
-        ainame = argv[ 3 ];
+        strcpy( ainame, argv[ 3 ] );
     }
     else
     {
         // ever have this case?
-        ainame = "";
+        ainame[0] = 0;
     }
         
     rTuneAssertMsg( spInstance->mpMission != NULL, "No mission is selected\n" );
