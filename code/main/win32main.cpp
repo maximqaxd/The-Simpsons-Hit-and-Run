@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <SDL_main.h>
 
-#ifdef __SWITCH__
+#if defined(__SWITCH__) && defined(RAD_DEBUG)
 #include <switch.h>
 #endif
 
@@ -57,7 +57,7 @@ static void ProcessCommandLineArgumentsFromFile();
 //=============================================================================
 extern "C" int main( int argc, char *argv[] )
 {
-#ifdef __SWITCH__
+#if defined(__SWITCH__) && defined(RAD_DEBUG)
     socketInitializeDefault();
     nxlinkStdio();
 #endif
