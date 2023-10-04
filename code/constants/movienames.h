@@ -87,7 +87,7 @@ namespace MovieNames
     static const char* GRACIELOGO = "movies\\gracie.rmv";
     static const char* VUGLOGO = "movies\\vuglogo.rmv";
     static const char* INTROFMV = "movies\\intro.rmv";
-    static const char* MOVIE1 = "movies\\fmv1a.rmv";
+    static const char* MOVIE1 = "movies\\fmv1A.rmv";
     static const char* MOVIE2 = "movies\\fmv2.rmv";
     static const char* MOVIE3 = "movies\\fmv3.rmv";
     static const char* MOVIE4 = "movies\\fmv4.rmv";
