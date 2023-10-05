@@ -308,7 +308,11 @@ bool Win32Platform::InitializeWindow()
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+#ifdef __SWITCH__
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 32 );
+#else
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
+#endif
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
 
     int w, h;

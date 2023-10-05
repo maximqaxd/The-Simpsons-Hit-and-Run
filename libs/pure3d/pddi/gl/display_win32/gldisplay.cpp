@@ -168,7 +168,11 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, bpp == 16 ? 6 : 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bpp == 16 ? 5 : 8);
     if (init->bufferMask & PDDI_BUFFER_DEPTH)
+#ifdef __SWITCH__
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, init->bufferMask & PDDI_BUFFER_STENCIL ? 24 : 32);
+#else
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+#endif
     else
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
     if (init->bufferMask & PDDI_BUFFER_STENCIL)
