@@ -237,7 +237,7 @@ float HumanVehicleController::GetSteering( bool& isWheel ) const
     isWheel = mpMappable->IsWheel();
     return rmt::Clamp( mpMappable->GetButton( VehicleMappable::Steer )->GetValue() * GC_STEERING_FUDGE, -1.0f, 1.0f );
 #else
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     isWheel = GetInputManager()->GetController(mControllerId)->IsWheel();
 #endif
 	return mpMappable->GetButton( VehicleMappable::Steer )->GetValue();

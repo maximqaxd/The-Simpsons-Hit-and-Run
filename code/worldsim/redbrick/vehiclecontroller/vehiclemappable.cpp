@@ -7,7 +7,7 @@
 //
 #include <worldsim/avatarmanager.h>
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <gameflow/gameflow.h>
 #include <contexts/context.h>
 #endif

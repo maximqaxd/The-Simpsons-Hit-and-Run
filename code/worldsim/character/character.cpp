@@ -312,7 +312,7 @@ mbSurfing(false),
 mbAllowUnload(true),
 mbIsPlayingIdleAnim(false),
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 mPCCamFacing( 0 ),
 #endif
 
