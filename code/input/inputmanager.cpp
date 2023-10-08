@@ -138,7 +138,7 @@ MEMTRACK_PUSH_GROUP( "InputManager" );
         // preallocate run time controller structure.
         mControllerArray[ i ].Create(i);
     }
-#ifndef RAD_WIN32
+#ifndef RAD_PC
     mxIControllerSystem2->RegisterConnectionChangeCallback( this );
 #endif
     rDebugString( "Just created User controller system\n" );
