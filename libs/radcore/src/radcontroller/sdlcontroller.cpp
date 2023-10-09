@@ -1610,8 +1610,6 @@ class radControllerSystemSDL
             }
         }
 
-        SDL_AddEventWatch( CheckDeviceConnectionStatus, this );
-
         //
         // Set everything to know state
         //        
@@ -1687,10 +1685,14 @@ void radControllerInitialize
     rAssert( s_pTheSDLControllerSystem2 == NULL );
 
     new ( alloc ) radControllerSystemSDL( pConnectionChangeCallback, alloc );
+
+    SDL_AddEventWatch( radControllerSystemSDL::CheckDeviceConnectionStatus, s_pTheSDLControllerSystem2 );
 }
 
 void radControllerTerminate( void )
 {
+    SDL_DelEventWatch( radControllerSystemSDL::CheckDeviceConnectionStatus, s_pTheSDLControllerSystem2 );
+
     radRelease( s_pTheSDLControllerSystem2, NULL );
 }
 
