@@ -90,7 +90,7 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
         m_xRadSoundHalBufferWin = static_cast< radSoundHalBufferWin * >( pIRadSoundHalBuffer );
         rAssert( m_xRadSoundHalBufferWin != NULL );
 
-        alSourcei(m_Source, AL_BUFFER, m_xRadSoundHalBufferWin->GetBuffer());
+        alSourcei( m_Source, AL_BUFFER, m_xRadSoundHalBufferWin->GetBuffer() );
 
         // Now get the format of the buffer, we'll just store it here
         m_xIRadSoundHalAudioFormat = m_xRadSoundHalBufferWin->GetFormat( );
@@ -107,6 +107,11 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
 			true
 		);
     }
+    else
+    {
+        alSourcei( m_Source, AL_BUFFER, NULL );
+    }
+
 }
 
 IRadSoundHalBuffer * radSoundHalVoiceWin::GetBuffer( void )
