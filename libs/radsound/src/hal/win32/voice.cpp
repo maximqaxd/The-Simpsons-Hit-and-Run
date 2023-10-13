@@ -109,7 +109,7 @@ void radSoundHalVoiceWin::SetBuffer( IRadSoundHalBuffer * pIRadSoundHalBuffer )
     }
     else
     {
-        alSourcei( m_Source, AL_BUFFER, NULL );
+        alSourcei( m_Source, AL_BUFFER, 0 );
     }
 
 }
