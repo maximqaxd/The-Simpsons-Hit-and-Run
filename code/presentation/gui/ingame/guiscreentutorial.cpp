@@ -250,9 +250,9 @@ void CGuiScreenTutorial::HandleMessage(	eGuiMessage message,
             }
             case GUI_MSG_CONTROLLER_START:
             {
-                // only pause if dialog is still playing
+                // only pause if dialog is done playing
                 //
-                if( GetTutorialManager()->IsDialogPlaying() )
+                if( !GetTutorialManager()->IsDialogPlaying() )
                 {
                     m_pParent->HandleMessage( GUI_MSG_PAUSE_INGAME );
                 }
