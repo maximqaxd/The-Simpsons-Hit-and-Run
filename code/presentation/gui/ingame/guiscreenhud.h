@@ -193,12 +193,7 @@ private:
     Scrooby::Sprite* m_messageBox;
     MessageQueue m_helpMessageQueue;
 
-#ifdef RAD_WIN32
-    Scrooby::Text* m_actionButton;
-    Scrooby::Text* m_actionLabel;
-#else
-    Scrooby::Sprite* m_actionButton;
-#endif
+    Scrooby::Group* m_actionButton;
 
     Scrooby::Sprite* m_missionComplete;
 

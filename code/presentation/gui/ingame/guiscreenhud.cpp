@@ -378,15 +378,9 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenHud" );
                                     MESSAGE_BOX_CORRECTION_SCALE * MESSAGE_BOX_VERTICAL_STRETCH,
                                     1.0f );
 
-    pGroup = pPage->GetGroup( "ActionButton" );
+    m_actionButton = pPage->GetGroup( "ActionButton" );
     rAssert( pGroup != NULL );
-    m_overlays[ HUD_ACTION_BUTTON ] = pGroup;
-#ifdef RAD_WIN32
-    m_actionButton = pGroup->GetText( "ActionTextButton" );
-    m_actionLabel = pGroup->GetText( "ActionTextLabel" );
-#else
-    m_actionButton = pGroup->GetSprite( "ActionButton" );
-#endif
+    m_overlays[ HUD_ACTION_BUTTON ] = m_actionButton;
 
     // hide all HUD overlays by default
     //
@@ -1753,11 +1747,6 @@ CGuiScreenHud::UpdateOverlays( unsigned int elapsedTime )
 
         m_actionButton->ResetTransformation();
         m_actionButton->ScaleAboutCenter( scale, scale, 1.0f );
-
-#ifdef RAD_WIN32
-        m_actionLabel->ResetTransformation();
-        m_actionLabel->ScaleAboutCenter( 0.85f, 0.85f, 1.0f );
-#endif
 
         m_elapsedTime[ HUD_ACTION_BUTTON ] += elapsedTime;
     }
