@@ -86,6 +86,7 @@ CGuiScreenTutorial::CGuiScreenTutorial
     m_tutorialMessage->CreateBitmapTextBuffer( MAX_TUTORIAL_MESSAGE_LENGTH );
 #ifdef RAD_WIN32
     m_tutorialMessage->ScaleAboutCenter( 0.25f );
+    m_tutorialMessage->SetBitmapTextLineSpacing( 30 );
 #else
     m_tutorialMessage->ScaleAboutCenter( 0.5f );
 #endif
