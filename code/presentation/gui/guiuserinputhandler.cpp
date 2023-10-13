@@ -98,6 +98,8 @@ const ControlMap GUI_CONTROL_MAP[] =
     { "Y",              GuiInput::AuxY },
     { "LeftTrigger",    GuiInput::L1 },
     { "RightTrigger",   GuiInput::R1 },
+    { "Black",          GuiInput::L1 },
+    { "White",          GuiInput::R1 },
 #endif
 
 #ifdef RAD_PC
