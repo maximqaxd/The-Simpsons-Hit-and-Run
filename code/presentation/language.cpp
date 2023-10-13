@@ -23,6 +23,11 @@
 #ifdef RAD_XBOX
     #include <xtl.h>
 #endif
+
+#ifdef __SWITCH__
+    #include <switch.h>
+#endif
+
 //========================================
 // Project Includes
 //========================================
@@ -170,11 +175,68 @@ Language GetHardwareLanguage()
     }
     #endif
 
-    #ifdef RAD_WIN32
+    #ifdef __SWITCH__
+    if( R_FAILED( setInitialize() ) )
+        return UNKNOWN;
+
+    u64 code;
+    SetLanguage lang;
+    Result rc = setGetSystemLanguage( &code );
+    if( R_SUCCEEDED( rc ) )
+        rc = setMakeLanguage( code, &lang );
+    setExit();
+
+    if( R_FAILED( rc ) )
+        return UNKNOWN;
+
+    switch ( lang )
+    {
+        case SetLanguage_JA:
+        {
+            return JAPANESE;
+        }
+        case SetLanguage_ENUS:
+        case SetLanguage_ENGB:
+        {
+            return ENGLISH;
+        }
+        case SetLanguage_FR:
+        case SetLanguage_FRCA:
+        {
+            return FRENCH;
+        }
+        case SetLanguage_DE:
+        {
+            return GERMAN;
+        }
+        case SetLanguage_IT:
+        {
+            return ITALIAN;
+        }
+        case SetLanguage_ES:
+        case SetLanguage_ES419:
+        {
+            return SPANISH;
+        }
+        case SetLanguage_NL:
+        {
+            return DUTCH;
+        }
+        case SetLanguage_PT:
+        case SetLanguage_PTBR:
+        {
+            return PORTUGUESE;
+        }
+        default:
+        {
+            return UNKNOWN;
+        }
+    }
+    #elif RAD_WIN32
     ////////////////////////////////////////////////////////////
     // WIN32
     ////////////////////////////////////////////////////////////
-    return ENGLISH;     // to be implemented.
+    return UNKNOWN;     // to be implemented.
     #endif
 }
 

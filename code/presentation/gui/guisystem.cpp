@@ -42,6 +42,7 @@
 #include <render/RenderManager/RenderLayer.h>
 
 #include <p3d/view.hpp>
+#include <p3d/unicode.hpp>
 #include <raddebug.hpp>     // Foundation
 #include <raddebugwatch.hpp>
 #include <Page.h>
@@ -1255,7 +1256,11 @@ void CGuiSystem::OnInitBootUp()
              "%s%slicenseX.p3d",
 #endif
 #ifdef RAD_WIN32
+#ifdef PAL
+             "%s%slicenseP.p3d",
+#else
              "%s%slicensePC.p3d",
+#endif
 #endif
              LICENSE_SCREEN_IMAGE_DIR,
              languageDir );
@@ -1360,7 +1365,10 @@ void CGuiSystem::OnReleaseBootUp()
     HeapMgr()->PopHeap(GMA_LEVEL_FE);
 
 #ifdef PAL
-    this->FormatTutorialTextWithLineBreaks();
+    if( m_pTextBible->GetCurrentLanguage() != Scrooby::XL_ENGLISH )
+    {
+        FormatTutorialTextWithLineBreaks();
+    }
 #endif
 
     m_state = GUI_IDLE;

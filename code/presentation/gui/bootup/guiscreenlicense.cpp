@@ -74,7 +74,11 @@ CGuiScreenLicense::CGuiScreenLicense
     tSprite* pSprite = p3d::find<tSprite>( "licenseX.png" );
 #endif
 #ifdef RAD_WIN32
+#ifdef PAL
+    tSprite* pSprite = p3d::find<tSprite>( "licenseP.png" );
+#else
     tSprite* pSprite = p3d::find<tSprite>( "licensePC.png" );
+#endif
 #endif
     rAssert( pSprite != NULL );
 

@@ -41,6 +41,11 @@ add_compile_definitions(
 	RAD_WIN32
 )
 
+option(SRR2_PAL OFF)
+if(SRR2_PAL)
+	add_compile_definitions(PAL)
+endif()
+
 option(SRR2_USE_DLMALLOC ON)
 if(SRR2_USE_DLMALLOC)
 	add_compile_definitions(USE_DOUG_LEA_HEAP)
@@ -523,13 +528,10 @@ set(SRR2_SOURCES
 	"code/sound/soundrenderer/scripts/cars.cpp"
 	"code/sound/soundrenderer/scripts/effects.cpp"
 	"code/sound/soundrenderer/scripts/english.cpp"
-	#"code/sound/soundrenderer/scripts/french.cpp"
-	#"code/sound/soundrenderer/scripts/german.cpp"
 	"code/sound/soundrenderer/scripts/homer.cpp"
 	"code/sound/soundrenderer/scripts/levels.cpp"
 	"code/sound/soundrenderer/scripts/lisa.cpp"
 	"code/sound/soundrenderer/scripts/marge.cpp"
-	#"code/sound/soundrenderer/scripts/spanish.cpp"
 	"code/sound/soundrenderer/scripts/tuning.cpp"
 	"code/sound/soundrenderer/soundallocatedresource.cpp"
 	"code/sound/soundrenderer/sounddynaload.cpp"
@@ -592,6 +594,13 @@ set(SRR2_SOURCES
 	"code/worldsim/worldobject.cpp"
 	"code/worldsim/worldphysicsmanager.cpp"
 )
+if(SRR2_PAL)
+	list(APPEND SRR2_SOURCES
+		"code/sound/soundrenderer/scripts/french.cpp"
+		"code/sound/soundrenderer/scripts/german.cpp"
+		"code/sound/soundrenderer/scripts/spanish.cpp"
+	)
+endif()
 
 set(RADCORE_SOURCES
 	#"libs/radcore/src/pch/pch.cpp"

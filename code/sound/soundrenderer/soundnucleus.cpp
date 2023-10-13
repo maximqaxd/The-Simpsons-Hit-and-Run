@@ -54,7 +54,7 @@ const unsigned int TOTAL_PS2_FREE_UNCOMPRESSED_CLIP_BYTES = ( 1624 * 1024 * 7 ) 
     
     const int PLAYBACK_RATE = 0;
 
-#ifdef PAL
+#if defined RAD_XBOX && defined PAL
     AudioFormat gCompressedStreamAudioFormat =   { 1, & gXAdpcmEncoding, 24000 };
 #else
     AudioFormat gCompressedStreamAudioFormat =   { 1, & gPcmEncoding, 24000 };
