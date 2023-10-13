@@ -6487,7 +6487,7 @@ public radRefCount
 	{
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radMemoryDlAllocator" );
         m_SizeOfMemory = radMemoryRoundUp( size, MALLOC_ALIGNMENT );
-		m_StartOfMemory = (uintptr_t)::radMemoryAllocAligned( allocator, m_SizeOfMemory, MALLOC_ALIGNMENT );
+		m_StartOfMemory = (uintptr_t)::radMemoryAlloc( allocator, m_SizeOfMemory );
 		m_EndOfMemory = m_StartOfMemory + m_SizeOfMemory;
         m_HighWaterMark = 0;
 
