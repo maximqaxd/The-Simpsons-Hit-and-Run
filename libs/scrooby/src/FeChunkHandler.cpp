@@ -160,6 +160,7 @@ tEntity* FeProjectChunkHandler::LoadObject( tChunkFile* file, tEntityStore* stor
     m_pProject = pProject;
     m_pProject->Resize( 128 );
 
+    FeApp::GetInstance()->AddProject( m_pProject );
     
     // Grab the name, then ignore it
     file->GetString( tempString );

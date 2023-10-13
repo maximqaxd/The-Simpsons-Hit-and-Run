@@ -707,7 +707,7 @@ void FeApp::OnProjectLoadComplete( Scrooby::Project* pProject )
     //mProject = dynamic_cast< FeProject* >( pProject );
     //rAssert( mProject );
     
-    this->AddProject( pProject );
+    //this->AddProject( pProject );
     
     //
     // Clear the flag so the client can now request another load.
