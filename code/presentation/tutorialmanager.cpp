@@ -139,6 +139,7 @@ TutorialManager::TutorialManager() :
     m_EnableTutorialEvents( true ),
     m_DialogCurrentlyPlaying( false ),
     m_TimeSinceDialogStart( 0.0f ),
+    m_CurrentEvent( TUTORIAL_INVALID ),
     m_tutorialsSeen( 0 )
 {
 #ifndef FINAL
@@ -429,21 +430,21 @@ void TutorialManager::ProcessQueue()
         return;
     }
 
-    TutorialMode event = m_Queue.front();
+    m_CurrentEvent = m_Queue.front();
 
     //
     // Check if the event is marked in the character sheet as "already played"
     //
-    bool alreadySeen = this->QueryTutorialSeen( event );
+    bool alreadySeen = this->QueryTutorialSeen( m_CurrentEvent );
     if( !alreadySeen )
     {
         //
         // Make sure we never see this message again
         //
-        this->SetTutorialSeen( event, true );
+        this->SetTutorialSeen( m_CurrentEvent, true );
 
 #ifndef RAD_PC
-        switch( event )
+        switch( m_CurrentEvent )
         {
         case TUTORIAL_BREAK_CAMERA:
             {

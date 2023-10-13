@@ -86,6 +86,7 @@ class TutorialManager : public EventListener,
         bool  m_RaceMissionPlayed      : 1;
         bool  m_BonusMissionPlayed     : 1;
         float m_TimeSinceDialogStart;
+        TutorialMode m_CurrentEvent;
 
         int m_tutorialsSeen; // bit field
 
@@ -115,7 +116,7 @@ inline bool TutorialManager::IsTutorialEventsEnabled() const
 
 inline TutorialMode TutorialManager::GetCurrentEventID() const
 {
-    return m_Queue.front();
+    return m_CurrentEvent;
 }
 
 inline bool TutorialManager::IsDialogPlaying() const
