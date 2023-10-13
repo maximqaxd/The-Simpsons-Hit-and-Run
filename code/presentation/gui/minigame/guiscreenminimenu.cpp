@@ -53,6 +53,9 @@
 #include <raddebug.hpp>
 
 #include <string.h>
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
 
 //===========================================================================
 // Global Data, Local Data, Local Classes
@@ -1173,6 +1176,15 @@ void CGuiScreenMiniMenu::InitIntro()
 //===========================================================================
 void CGuiScreenMiniMenu::InitRunning()
 {
+#ifdef __SWITCH__
+    HidLaControllerSupportResultInfo info;
+    HidLaControllerSupportArg args;
+    hidLaCreateControllerSupportArg( &args );
+    args.hdr.player_count_max = 4;
+    args.hdr.enable_single_mode = false;
+    hidLaShowControllerSupportForSystem( &info, &args, false );
+#endif
+
 #ifdef MINI_MENU_SHOW_3D_CHARACTERS
     // set drawables for 3D characters
     //
