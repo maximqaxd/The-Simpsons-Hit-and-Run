@@ -1000,10 +1000,16 @@ int Win32Platform::GetNumProperties() const
 
 void Win32Platform::LoadDefaults()
 {
+#ifdef RAD_PC
+
 #ifdef RAD_DEBUG
     SetResolution( StartingResolution, StartingBPP, !CommandLineOptions::Get( CLO_WINDOW_MODE ) );
 #else
     SetResolution( StartingResolution, StartingBPP, true );
+#endif
+
+#else
+    SetResolution( StartingResolution, StartingBPP, false );
 #endif
     
 
