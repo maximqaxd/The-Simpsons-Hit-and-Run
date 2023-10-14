@@ -1742,7 +1742,7 @@ CGuiScreenHud::UpdateOverlays( unsigned int elapsedTime )
 
         float scale = GuiSFX::Pulse( (float)m_elapsedTime[ HUD_ACTION_BUTTON ],
                                      PULSE_PERIOD,
-                                     0.5f,
+                                     1.0f,
                                      PULSE_AMPLITUDE );
 
 #if defined( RAD_WIN32 ) && !defined( RAD_PC )
