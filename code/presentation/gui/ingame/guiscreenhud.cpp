@@ -1746,7 +1746,7 @@ CGuiScreenHud::UpdateOverlays( unsigned int elapsedTime )
                                      PULSE_AMPLITUDE );
 
 #if defined( RAD_WIN32 ) && !defined( RAD_PC )
-        scale *= 0.625f;
+        scale *= 0.5f;
 #endif
 
         m_actionButton->ResetTransformation();
