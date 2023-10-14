@@ -105,6 +105,13 @@ CGuiScreenTutorial::CGuiScreenTutorial
         disableTutorial->SetDisplayOutline( true );
         disableTutorial->SetTextMode( Scrooby::TEXT_WRAP );
     }
+#ifdef RAD_WIN32
+    Scrooby::Sprite* disableTutorialIcon = m_disableTutorial->GetSprite( "DisableTutorial" );
+    if( disableTutorialIcon != NULL )
+    {
+        disableTutorialIcon->ScaleAboutCenter( 0.375f );
+    }
+#endif
 
     Scrooby::Page* pPageSmallBoard = m_pScroobyScreen->GetPage( "SmallBoard" );
     if( pPageSmallBoard != NULL )

@@ -70,6 +70,7 @@ const float VEHICLE_SCALE = 0.5f;
 const float CHARACTER_ARROW_SCALE = 0.45f;
 const float VEHICLE_ARROW_SCALE = 0.85f;
 const float NUM_LAPS_ARROW_SCALE = 0.375f; // scale arrows down a bit
+const float BUTTON_SCALE = 0.375f;
 #else
 const float NUM_LAPS_ARROW_SCALE = 0.75f; // scale arrows down a bit
 #endif
@@ -441,6 +442,14 @@ CGuiScreenMiniMenu::CGuiScreenMiniMenu
     {
         optionsText->SetTextMode( Scrooby::TEXT_WRAP );
     }
+
+#ifdef RAD_WIN32
+    Scrooby::Sprite* optionsIcon = m_optionsButton->GetSprite( "Options" );
+    if( optionsText != NULL )
+    {
+        optionsIcon->ScaleAboutCenter( BUTTON_SCALE );
+    }
+#endif
 
     if( this->IsWideScreenDisplay() )
     {

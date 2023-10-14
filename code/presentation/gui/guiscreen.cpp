@@ -45,6 +45,10 @@
 #include <input/inputmanager.h>
 #endif
 
+#ifdef RAD_WIN32
+const float BUTTON_SCALE = 0.375f;
+#endif
+
 //===========================================================================
 // Global Data, Local Data, Local Classes
 //===========================================================================
@@ -225,6 +229,18 @@ CGuiScreen::CGuiScreen
             Scrooby::Text* accept = m_buttonIcons[ BUTTON_ICON_ACCEPT ]->GetText( "Accept" );
             rAssert( accept != NULL );
             accept->SetDisplayOutline( true );
+
+#ifdef RAD_WIN32
+            // resize the button icon
+            //
+            Scrooby::Sprite* icon = m_buttonIcons[ BUTTON_ICON_ACCEPT ]->GetSprite( "Accept" );
+            if( icon )
+            {
+                icon->ResetTransformation();
+                icon->ScaleAboutCenter( BUTTON_SCALE );
+            }
+#endif
+
 #endif
 
             break;
@@ -245,6 +261,18 @@ CGuiScreen::CGuiScreen
             Scrooby::Text* back = m_buttonIcons[ BUTTON_ICON_BACK ]->GetText( "Back" );
             rAssert( back != NULL );
             back->SetDisplayOutline( true );
+
+#ifdef RAD_WIN32
+            // resize the button icon
+            //
+            Scrooby::Sprite* icon = m_buttonIcons[ BUTTON_ICON_BACK ]->GetSprite( "Back" );
+            if( icon )
+            {
+                icon->ResetTransformation();
+                icon->ScaleAboutCenter( BUTTON_SCALE );
+            }
+#endif
+
 #endif
 
             break;
