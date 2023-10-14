@@ -125,16 +125,7 @@ CGuiScreenController::CGuiScreenController
     //
     m_pMenu->SetMenuItemEnabled( MENU_ITEM_CONFIGURATION, false, true );
 
-    // get the PC Controller page
-    //
-    pPage = m_pScroobyScreen->GetPage( "ControllerPC" );
-    rAssert( pPage );
-
 #ifdef RAD_CONSOLE
-    // and make it invisible
-    //
-    pPage->GetLayerByIndex( 0 )->SetVisible( false );
-
     // get the Controller page
     //
     pPage = m_pScroobyScreen->GetPage( "Controller" );
@@ -161,10 +152,12 @@ CGuiScreenController::CGuiScreenController
 #elif defined( RAD_PS2 )
     pPage = m_pScroobyScreen->GetPage( "ControllerPS2" );
     rAssert( pPage );
-#elif defined(RAD_XBOX) || defined(RAD_WIN32)
+#elif defined( RAD_XBOX )
     pPage = m_pScroobyScreen->GetPage( "ControllerXBOX" );
-    rAssert( pPage );
+#elif defined( RAD_WIN32 )
+    pPage = m_pScroobyScreen->GetPage( "ControllerPC" );
 #endif
+    rAssert( pPage );
 
 #endif
 
