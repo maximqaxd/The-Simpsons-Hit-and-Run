@@ -223,13 +223,6 @@ CGuiScreen::CGuiScreen
             m_buttonIcons[ BUTTON_ICON_ACCEPT ] = pPage->GetGroup( "AcceptLabel" );
             rAssert( m_buttonIcons[ BUTTON_ICON_ACCEPT ] != NULL );
 
-#ifndef RAD_PC
-            // add text outline to accept text
-            //
-            Scrooby::Text* accept = m_buttonIcons[ BUTTON_ICON_ACCEPT ]->GetText( "Accept" );
-            rAssert( accept != NULL );
-            accept->SetDisplayOutline( true );
-
 #ifdef RAD_WIN32
             // resize the button icon
             //
@@ -239,8 +232,12 @@ CGuiScreen::CGuiScreen
                 icon->ResetTransformation();
                 icon->ScaleAboutCenter( BUTTON_SCALE );
             }
-#endif
-
+#else
+            // add text outline to accept text
+            //
+            Scrooby::Text* accept = m_buttonIcons[ BUTTON_ICON_ACCEPT ]->GetText( "Accept" );
+            rAssert( accept != NULL );
+            accept->SetDisplayOutline( true );
 #endif
 
             break;
@@ -255,13 +252,6 @@ CGuiScreen::CGuiScreen
             m_buttonIcons[ BUTTON_ICON_BACK ] = pPage->GetGroup( "BackLabel" );
             rAssert( m_buttonIcons[ BUTTON_ICON_BACK ] != NULL );
 
-#ifndef RAD_PC
-            // add text outline to accept text
-            //
-            Scrooby::Text* back = m_buttonIcons[ BUTTON_ICON_BACK ]->GetText( "Back" );
-            rAssert( back != NULL );
-            back->SetDisplayOutline( true );
-
 #ifdef RAD_WIN32
             // resize the button icon
             //
@@ -271,8 +261,12 @@ CGuiScreen::CGuiScreen
                 icon->ResetTransformation();
                 icon->ScaleAboutCenter( BUTTON_SCALE );
             }
-#endif
-
+#else
+            // add text outline to accept text
+            //
+            Scrooby::Text* back = m_buttonIcons[ BUTTON_ICON_BACK ]->GetText( "Back" );
+            rAssert( back != NULL );
+            back->SetDisplayOutline( true );
 #endif
 
             break;
@@ -849,6 +843,14 @@ CGuiScreen::RestoreButtons()
         if( m_buttonIcons[ i ] != NULL )
         {
             m_buttonIcons[ i ]->SetVisible( true );
+#if defined( RAD_WIN32 ) && !defined( RAD_PC )
+            Scrooby::BoundedDrawable* buttonIcon = dynamic_cast< Scrooby::BoundedDrawable* >( m_buttonIcons[ i ]->GetChildDrawable( 1 ) );
+            if( buttonIcon )
+            {
+                buttonIcon->ResetTransformation();
+                buttonIcon->ScaleAboutCenter( BUTTON_SCALE );
+            }
+#endif
         }
     }
 }

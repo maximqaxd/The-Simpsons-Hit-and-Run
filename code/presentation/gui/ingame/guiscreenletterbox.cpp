@@ -100,6 +100,14 @@ CGuiScreenLetterBox::CGuiScreenLetterBox
     m_buttonIcons[ BUTTON_ICON_ACCEPT ] = m_skipButton->GetGroup( "AcceptLabel" );
     m_buttonIcons[ BUTTON_ICON_BACK ] = m_skipButton->GetGroup( "BackLabel" );
 
+#ifdef RAD_WIN32
+    Scrooby::Sprite* skipIcon = m_skipLabel->GetSprite( "Skip" );
+    if( skipIcon )
+    {
+        skipIcon->ScaleAboutCenter( 0.375f );
+    }
+#endif
+
     if( this->IsWideScreenDisplay() )
     {
         m_skipButton->ResetTransformation();
