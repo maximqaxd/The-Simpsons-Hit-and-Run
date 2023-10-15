@@ -3,13 +3,13 @@
 
 struct Stroke
 {
-    char x;
-    char y;
+    signed int x;
+    signed int y;
 };
 
 struct Glyph
 {
-    short firstStroke;
+    unsigned short firstStroke;
     unsigned char nStroke;
     unsigned char nVerts;
 };
