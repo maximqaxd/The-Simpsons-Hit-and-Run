@@ -113,7 +113,7 @@ MEMTRACK_PUSH_GROUP( "CGUIScreenPauseMission" );
     {
         pText = menu->GetText( MENU_ITEMS[ i ] );
 #ifdef RAD_PC
-        rAssert( pText || MENU_ITEMS[i] == MENU_ITEM_EXIT_GAME );
+        rAssert( pText || i == MENU_ITEM_EXIT_GAME );
         if( !pText )
             continue;
 #else
