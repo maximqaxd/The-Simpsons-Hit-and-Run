@@ -23,8 +23,6 @@
 #include <p3d/shader.hpp>
 #include <p3d/utility.hpp>
 
-#ifdef RAD_MOVIEPLAYER_USE_BINK
-
 #include <radprofiler.hpp>
 #include "binkrenderstrategy.hpp"
 
@@ -113,10 +111,12 @@ unsigned int radMovieRenderStrategyBink::LockNextDestination( LockedDestination 
         pLockedDestination->m_Width = m_pTile[ m_CurrentDestIndex ].m_Width;
         pLockedDestination->m_Height = m_pTile[ m_CurrentDestIndex ].m_Height;
 
+#ifdef RAD_MOVIEPLAYER_USE_BINK
         if( pLockedDestination->m_SrcPosY > 0 )
         {
             pLockedDestination->m_SrcPosY -= 1;
         }
+#endif
 
         return m_NumTiles - m_CurrentDestIndex;
     }
@@ -449,6 +449,3 @@ IRadMovieRenderStrategy * radMovieSimpleFullScreenRenderStrategyCreate( radMemor
 {
     return new( allocator )radMovieRenderStrategyBink( );
 }
-
-
-#endif // RAD_MOVIEPLAYER_USE_BINK

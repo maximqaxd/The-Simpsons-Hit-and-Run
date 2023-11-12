@@ -91,9 +91,9 @@
 // Define which platforms will be using bink movie player
 //
 
-#if ( defined RAD_WIN32 || defined RAD_XBOX || defined RAD_GAMECUBE)
+#if ( defined RAD_XBOX || defined RAD_GAMECUBE)
     #define RAD_MOVIEPLAYER_USE_BINK
-#else
+#elif defined RAD_PS2
     #undef RAD_MOVIEPLAYER_USE_BINK
 #endif
 

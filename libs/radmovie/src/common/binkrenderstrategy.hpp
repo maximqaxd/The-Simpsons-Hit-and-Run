@@ -24,13 +24,11 @@
 
 #include <radmovie2.hpp>
 
-#ifdef RAD_MOVIEPLAYER_USE_BINK
-
 //=============================================================================
 // Definitions
 //=============================================================================
 
-#if 0
+#ifdef RAD_MOVIEPLAYER_USE_BINK
 // Some pc video cards have max texture size so limit all texture dimensions to this
 #define RMV_TEXTURE_MAX_TEX_DIM 256
 #else
@@ -43,7 +41,7 @@
 // across many textures to keep texture dimensions smaller than RMV_TEXTURE_MAX_TEX_DIM)
 // This value limits the maximum movies (and can be changed if necessary.)
 
-#if 0
+#ifdef RAD_MOVIEPLAYER_USE_BINK
 #define RMV_MAX_NUM_TILES 9
 #else
 #define RMV_MAX_NUM_TILES 1
@@ -118,5 +116,3 @@ class radMovieRenderStrategyBink
 };
 
 #endif // RAD_MOVIEPLAYER_USE_BINK
-
-#endif // BINKRENDERSTRATEGYXBOX_HPP

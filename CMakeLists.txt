@@ -57,6 +57,13 @@ if(SRR2_REROUTE_ALL_HEAP_ALLOCATIONS)
 	add_compile_definitions(REROUTE_ALL_HEAP_ALLOCATIONS)
 endif()
 
+option(SRR2_USE_BINK OFF)
+if(SRR2_USE_BINK)
+	add_compile_definitions(RAD_MOVIEPLAYER_USE_BINK)
+else()
+  find_package(FFMPEG REQUIRED)
+endif()
+
 if(WIN32)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
@@ -850,12 +857,20 @@ set(RADMATH_SOURCES
 	"libs/radmath/radmath/vector.cpp"
 )
 
-set(RADMOVIE_SOURCES
-	"libs/radmovie/src/common/binkmovieplayer.cpp"
-	"libs/radmovie/src/common/binkradfile.cpp"
-	"libs/radmovie/src/common/binkrenderstrategy.cpp"
-	"libs/radmovie/src/pch/pch.cpp"
-)
+if(SRR2_USE_BINK)
+	set(RADMOVIE_SOURCES
+		"libs/radmovie/src/common/binkmovieplayer.cpp"
+		"libs/radmovie/src/common/binkradfile.cpp"
+		"libs/radmovie/src/common/binkrenderstrategy.cpp"
+		"libs/radmovie/src/pch/pch.cpp"
+	)
+else()
+	set(RADMOVIE_SOURCES
+		"libs/radmovie/src/common/ffmpegmovieplayer.cpp"
+		"libs/radmovie/src/common/binkrenderstrategy.cpp"
+		"libs/radmovie/src/pch/pch.cpp"
+	)
+endif()
 
 set(RADMUSIC_SOURCES
 	"libs/radmusic/src/memory/memory.cpp"
@@ -1010,54 +1025,56 @@ set(SIM_SOURCES
 	"libs/sim/simphysics/virtualcm.cpp"
 )
 
-set(BINK_SOURCES
-	"libs/sdks/bink/binkacd.cpp"
-	"libs/sdks/bink/binkasyncRR.c"
-	"libs/sdks/bink/binkasyncthread.c"
-	"libs/sdks/bink/binkcomm.c"
-	"libs/sdks/bink/binkfile.c"
-	"libs/sdks/bink/binkmarkers.c"
-	"libs/sdks/bink/binkread.c"
-	"libs/sdks/bink/binkoal.c"
-	"libs/sdks/bink/binkssmix.c"
-	"libs/sdks/bink/binkutil.c"
-	"libs/sdks/bink/blitter.c" # custom
-	"libs/sdks/bink/expand2.c"
-	"libs/sdks/bink/popmal.c"
-	"libs/sdks/bink/radfft.cpp"
-)
-
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
-	list(APPEND BINK_SOURCES "libs/sdks/bink/x86_cpu.c")
-endif ()
-
-if (WIN32)
-	list(APPEND BINK_SOURCES
-		"libs/sdks/bink/binkplugin.c"
-		"libs/sdks/bink/binkpluginw32.c"
-		"libs/sdks/bink/binkxa2.cpp"
-		"libs/sdks/bink/win32_radmem.c"
-		"libs/sdks/bink/win32_rrAtomics.cpp"
-		"libs/sdks/bink/win32_rrCpu.c"
-		"libs/sdks/bink/win32_rrThreads2.c"
-		"libs/sdks/bink/wintimer.c"
-	)
-	#if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
-	#	list(APPEND BINK_SOURCES "libs/sdks/bink/win64_rrAtomics_x64.asm")
-	#endif()
-else()
-	list(APPEND BINK_SOURCES
-		"libs/sdks/bink/binklnx.c"
-		#"libs/sdks/bink/binkpa.c"
-		#"libs/sdks/bink/binkplugin.c"
-		#"libs/sdks/bink/binkpluginlnx.c"
+if(SRR2_USE_BINK)
+	set(BINK_SOURCES
+		"libs/sdks/bink/binkacd.cpp"
+		"libs/sdks/bink/binkasyncRR.c"
+		"libs/sdks/bink/binkasyncthread.c"
+		"libs/sdks/bink/binkcomm.c"
+		"libs/sdks/bink/binkfile.c"
+		"libs/sdks/bink/binkmarkers.c"
+		"libs/sdks/bink/binkread.c"
+		"libs/sdks/bink/binkoal.c"
 		"libs/sdks/bink/binkssmix.c"
-		"libs/sdks/bink/posix_defread.c"
-		"libs/sdks/bink/posix_radmem.c"
-		"libs/sdks/bink/posix_rrCpu.c"
-		"libs/sdks/bink/posix_rrThreads2.c"
-		"libs/sdks/bink/cpp_rratomics.cpp"
+		"libs/sdks/bink/binkutil.c"
+		"libs/sdks/bink/blitter.c" # custom
+		"libs/sdks/bink/expand2.c"
+		"libs/sdks/bink/popmal.c"
+		"libs/sdks/bink/radfft.cpp"
 	)
+
+	if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+		list(APPEND BINK_SOURCES "libs/sdks/bink/x86_cpu.c")
+	endif ()
+
+	if (WIN32)
+		list(APPEND BINK_SOURCES
+			"libs/sdks/bink/binkplugin.c"
+			"libs/sdks/bink/binkpluginw32.c"
+			"libs/sdks/bink/binkxa2.cpp"
+			"libs/sdks/bink/win32_radmem.c"
+			"libs/sdks/bink/win32_rrAtomics.cpp"
+			"libs/sdks/bink/win32_rrCpu.c"
+			"libs/sdks/bink/win32_rrThreads2.c"
+			"libs/sdks/bink/wintimer.c"
+		)
+		#if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+		#	list(APPEND BINK_SOURCES "libs/sdks/bink/win64_rrAtomics_x64.asm")
+		#endif()
+	else()
+		list(APPEND BINK_SOURCES
+			"libs/sdks/bink/binklnx.c"
+			#"libs/sdks/bink/binkpa.c"
+			#"libs/sdks/bink/binkplugin.c"
+			#"libs/sdks/bink/binkpluginlnx.c"
+			"libs/sdks/bink/binkssmix.c"
+			"libs/sdks/bink/posix_defread.c"
+			"libs/sdks/bink/posix_radmem.c"
+			"libs/sdks/bink/posix_rrCpu.c"
+			"libs/sdks/bink/posix_rrThreads2.c"
+			"libs/sdks/bink/cpp_rratomics.cpp"
+		)
+	endif()
 endif()
 
 set(PDDI_SOURCES
@@ -1155,11 +1172,17 @@ target_include_directories(radmovie
 	PRIVATE "libs/radmovie/src/pch/"
 )
 target_link_libraries(radmovie
-	bink
 	p3d
 	radcore
 	radsound
 )
+if(SRR2_USE_BINK)
+	target_link_libraries(radmovie bink)
+else()
+	target_include_directories(radmovie PUBLIC ${FFMPEG_INCLUDE_DIRS})
+	target_link_directories(radmovie PUBLIC ${FFMPEG_LIBRARY_DIRS})
+	target_link_libraries(radmovie ${FFMPEG_LIBRARIES})
+endif()
 
 add_library(radmusic STATIC ${RADMUSIC_SOURCES})
 target_include_directories(radmusic
@@ -1211,34 +1234,35 @@ target_link_libraries(sim
 	poser
 )
 
-add_library(bink STATIC ${BINK_SOURCES})
-target_compile_definitions(bink
-	PRIVATE
-		USING_EGT
-		INC_BINK2
-		NO_BINK20
-		NO_BINK10_SUPPORT
-	PUBLIC
-		__RADFINAL__
-		__RADINSTATICLIB__
-)
-target_link_libraries(bink ${SRR2_OPENAL_TARGET})
-if (WIN32)
-	target_link_libraries(bink Winmm)
-endif()
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	target_compile_options(bink
-		PRIVATE -Wno-multichar
+if(SRR2_USE_BINK)
+	add_library(bink STATIC ${BINK_SOURCES})
+	target_compile_definitions(bink
+		PRIVATE
+			USING_EGT
+			INC_BINK2
+			NO_BINK20
+			NO_BINK10_SUPPORT
+		PUBLIC
+			__RADFINAL__
+			__RADINSTATICLIB__
+	)
+	target_link_libraries(bink ${SRR2_OPENAL_TARGET})
+	if (WIN32)
+		target_link_libraries(bink Winmm)
+	endif()
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		target_compile_options(bink
+			PRIVATE -Wno-multichar
+		)
+	endif()
+	target_include_directories(bink
+		PUBLIC "libs/sdks/bink/"
 	)
 endif()
-target_include_directories(bink
-	PUBLIC "libs/sdks/bink/"
-)
 
 add_executable(SRR2 ${SRR2_SOURCES})
 target_link_libraries(SRR2
 	SDL2::SDL2main
-	bink
 	choreo
 	p3d
 	pddi
@@ -1253,6 +1277,11 @@ target_link_libraries(SRR2
 	scrooby
 	sim
 )
+if(SRR2_USE_BINK)
+	target_link_libraries(SRR2 bink)
+else()
+	target_link_libraries(SRR2 ${FFMPEG_LIBRARIES})
+endif()
 target_compile_features(SRR2 PRIVATE cxx_std_17)
 
 option(SRR2_USE_PCH ON)

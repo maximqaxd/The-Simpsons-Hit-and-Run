@@ -25,7 +25,7 @@
 #ifndef RAD_MOVIEPLAYER_USE_BINK
 
 #include <raddebug.hpp>
-#include <radmath\radmath.hpp>
+#include <radmath/radmath.hpp>
 #include "radmoviefile.hpp"
 #include "movieplayer.hpp"
 #include "audiodatasource.hpp"
@@ -397,7 +397,7 @@ bool radMoviePlayer::GetVideoFrameInfo( VideoFrameInfo * frameInfo)
 
 float radMoviePlayer::GetFrameRate( void )
 {
-    rAssert( m_refIRadMovieRenderStrategy != NULL );
+    rAssert( m_refIRadMovieVideoDecoder != NULL );
 
     return ( float ) m_refIRadMovieVideoDecoder->GetFrameRate( );
 }

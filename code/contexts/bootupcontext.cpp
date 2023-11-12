@@ -9,11 +9,11 @@
 //
 //=============================================================================
 
-#ifdef RAD_RELEASE
+//#ifdef RAD_RELEASE
     #ifndef RAD_E3
         #define SHOW_MOVIES
     #endif
-#endif
+//#endif
 
 //========================================
 // System Includes

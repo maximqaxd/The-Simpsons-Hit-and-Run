@@ -259,7 +259,7 @@ struct IRadMovieRenderLoop : public IRefCount
 
 struct IRadMovieRenderStrategy : public IRefCount
 {
-    #ifdef RAD_MOVIEPLAYER_USE_BINK
+    #if defined RAD_WIN32 || defined RAD_MOVIEPLAYER_USE_BINK
 
         struct LockedDestination
         {
@@ -302,6 +302,11 @@ struct IRadMovieRenderStrategy : public IRefCount
         virtual void ResetParameters( void ) = 0;
         virtual void GetDestination( IDirect3DSurface8 ** ppIDirect3DSurface8 ) = 0;
         virtual bool Render( void ) = 0;
+
+        #elif defined RAD_WIN32
+    
+        virtual void SetParameters( unsigned int width, unsigned int height ) = 0;
+        virtual bool Render( void * pBuffers[], int strides[] ) = 0;
 
         #else
 
