@@ -237,12 +237,10 @@ void utilATGLibTerminate( void )
 void utilATGLibService( void )
 {
     #ifdef RAD_WIN32
-        MSG msg;
-
-        SDL_Event event;
-        while( SDL_PollEvent( &event ) )
+        SDL_Event msg;
+        while( SDL_PollEvent( &msg ) )
         {
-            if( event.type == SDL_QUIT )
+            if( msg.type == SDL_QUIT )
             {
                 g_Done = true;
                 break;
