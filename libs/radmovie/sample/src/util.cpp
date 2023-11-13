@@ -28,40 +28,15 @@
 #endif
 
 #ifdef RAD_WIN32
-HWND g_hWnd = 0;
-HINSTANCE g_hInstance = 0;
+#include <SDL.h>
+SDL_Window* g_pWnd = 0;
 extern bool g_Done;
 #endif
 
 //-------------------------------------------------------------------
-#ifdef RAD_WIN32
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    if( p3d::platform != NULL )
-    {
-        p3d::platform->ProcessWindowsMessage(hwnd, message, wParam, lParam);
-    }
-
-    switch(message)
-    {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-        default:
-            return DefWindowProc(hwnd, message, wParam, lParam);
-            break;
-    }
-
-    return 0;
-}
-#endif // RAD_WIN32
-
-
 void utilATGLibInit
 ( 
-    #ifdef RAD_WIN32
-    HINSTANCE hInstance
-    #elif defined RAD_PS2
+    #ifdef RAD_PS2
     int argc, char** argv
     #else
     void 
@@ -82,51 +57,13 @@ void utilATGLibInit
 
     #ifdef RAD_WIN32
 
-    g_hInstance = hInstance;
+    SDL_Init( SDL_INIT_EVERYTHING );
 
     // Create a window
     const char appName[] = "FTech RadMovie Simple Movie Player";
 
     // Create an application window
-    WNDCLASS wndclass;
-    wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wndclass.lpfnWndProc = WndProc;
-    wndclass.cbClsExtra = 0;
-    wndclass.cbWndExtra = 0;
-    wndclass.hInstance = hInstance;
-    wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wndclass.hbrBackground = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
-    wndclass.lpszMenuName= NULL;
-    wndclass.lpszClassName = appName;
-
-    RegisterClass(&wndclass);
-    
-    RECT clientRect;
-    clientRect.left = 0;
-    clientRect.top = 0;
-    clientRect.right = 640;
-    clientRect.bottom = 480;
-
-    AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
-
-    g_hWnd =
-        CreateWindow
-        (
-            appName,
-            appName,
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT,
-            CW_USEDEFAULT,
-            clientRect.right-clientRect.left, clientRect.bottom-clientRect.top,
-            NULL,
-            NULL,
-            hInstance,
-            NULL
-        );
-
-    assert(g_hWnd);
-    ShowWindow(g_hWnd, SW_SHOW);
+    g_pWnd = SDL_CreateWindow( appName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL );
 
     #endif // RAD_WIN32
 
@@ -137,7 +74,7 @@ void utilATGLibInit
 
     #if defined RAD_WIN32 
 
-        ::radPlatformInitialize( g_hWnd, hInstance );
+        ::radPlatformInitialize( g_pWnd );
         ::radTimeInitialize( );
         ::radDbgComTargetInitialize( WinSocket );
 
@@ -251,7 +188,13 @@ void utilATGLibInit
     radProfilerInitialize( );
     ::radControllerInitialize( NULL, RADMEMORY_ALLOC_DEFAULT );
     ::radSoundHalSystemInitialize( RADMEMORY_ALLOC_DEFAULT );
-    ::radSoundHalSystemGet( )->InitializeMemory( SOUND_MEMORY, SOUND_MAX_ROOT_ALLOCATIONS, AUX_SENDS );
+
+    IRadSoundHalSystem::SystemDescription desc;
+    desc.m_MaxRootAllocations = SOUND_MAX_ROOT_ALLOCATIONS;
+    desc.m_NumAuxSends = AUX_SENDS;
+    desc.m_ReservedSoundMemory = SOUND_MEMORY;
+    desc.m_SamplingRate = 48000;
+    ::radSoundHalSystemGet()->Initialize( desc );
 }
 
 void utilATGLibTerminate( void )
@@ -296,15 +239,14 @@ void utilATGLibService( void )
     #ifdef RAD_WIN32
         MSG msg;
 
-        while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        SDL_Event event;
+        while( SDL_PollEvent( &event ) )
         {
-            if(msg.message == WM_QUIT)
+            if( event.type == SDL_QUIT )
             {
                 g_Done = true;
                 break;
             }
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
         }
     #endif // RAD_WIN32
 
@@ -318,12 +260,7 @@ void utilPure3DInit( void )
 {
     // Initialise Pure3D platform object.
 
-    tPlatform * m_pPlatform = tPlatform::Create
-    (
-        #ifdef RAD_WIN32
-        g_hInstance
-        #endif // RAD_WIN32
-    );
+    tPlatform * m_pPlatform = tPlatform::Create( g_pWnd );
     rAssert( m_pPlatform );
 
     // Initialise the Pure3D context object.
@@ -357,7 +294,7 @@ void utilPure3DInit( void )
     #ifdef RAD_WIN32
 
     tContextInitData init;
-    init.hwnd = g_hWnd;
+    init.window = g_pWnd;
     init.xsize = 640;
     init.ysize = 480;
     init.adapterID = 0;

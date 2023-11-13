@@ -68,6 +68,8 @@ if(WIN32)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
+option(SRR2_BUILD_TESTS ON)
+
 set(SRR2_SOURCES
 	"code/ai/actionbuttonhandler.cpp"
 	"code/ai/actionbuttonmanager.cpp"
@@ -1183,6 +1185,29 @@ else()
 	target_link_directories(radmovie PUBLIC ${FFMPEG_LIBRARY_DIRS})
 	target_link_libraries(radmovie ${FFMPEG_LIBRARIES})
 endif()
+if(SRR2_BUILD_TESTS)
+	add_executable(simplemovie "libs/radmovie/sample/src/main.cpp" "libs/radmovie/sample/src/util.cpp"
+		"code/main/tuidunaligned.cpp")
+	target_link_libraries(simplemovie
+		radmovie
+		SDL2::SDL2
+		choreo
+		p3d
+		pddi
+		poser
+		radcore
+		radcontent
+		radmath
+		radmovie
+		radmusic
+		radsound
+		radscript
+		scrooby
+		sim
+	)
+	file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
+        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
 add_library(radmusic STATIC ${RADMUSIC_SOURCES})
 target_include_directories(radmusic
@@ -1206,6 +1231,16 @@ target_link_libraries(radsound
 	${SRR2_OPENAL_TARGET}
 	radcore
 )
+if(SRR2_BUILD_TESTS)
+	add_executable(simplesound "libs/radsound/sample/simplesound/src/main.cpp")
+	target_link_libraries(simplesound
+		radsound
+	)
+	file(COPY "libs/radsound/sample/simplesound/bin/win/sample.rsd"
+        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+	file(COPY "libs/radsound/sample/simplesound/bin/win/stream.rsd"
+        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
 add_library(radscript STATIC ${RADSCRIPT_SOURCES})
 target_include_directories(radscript

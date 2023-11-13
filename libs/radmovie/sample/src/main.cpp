@@ -311,6 +311,7 @@ void MovieRender::DoRender( void )
         {
             while( m_IsFrameReady == false && state != IRadMoviePlayer2::NoData && g_Done == false )
             {
+                ::utilATGLibService();
                 ::radFileService( );
                 ::radSoundHalSystemGet( )->Service( );
                 ::radSoundHalSystemGet( )->ServiceOncePerFrame( );
@@ -372,7 +373,7 @@ void InputHandler::Initialize( void )
     m_refInputs[ VOLUME_POINT ]   = m_refIRadController->GetInputPointByName( VOLUME_AXIS );
     m_refInputs[ PAN_POINT ]      = m_refIRadController->GetInputPointByName( PAN_AXIS );
     #else
-    m_refIRadController = ::radControllerSystemGet( )->GetControllerAtLocation( "Joystick0" );
+    m_refIRadController = ::radControllerSystemGet( )->GetControllerAtLocation( "Port0\\Slot0" );
 	rAssert( m_refIRadController != NULL );
 	rAssert( m_refIRadController->IsConnected() );
     m_refInputs[ PLAY_POINT ]     = m_refIRadController->GetInputPointByTypeAndIndex( "Button", 0 );
@@ -381,7 +382,7 @@ void InputHandler::Initialize( void )
     m_refInputs[ RELOAD_POINT_1 ] = m_refIRadController->GetInputPointByTypeAndIndex( "Button", 3 );
     m_refInputs[ QUIT_POINT ]     = m_refIRadController->GetInputPointByTypeAndIndex( "Button", 4 );
     m_refInputs[ VOLUME_POINT ]   = m_refIRadController->GetInputPointByTypeAndIndex( "YAxis", 0 );
-    m_refInputs[ PAN_POINT ]      = m_refIRadController->GetInputPointByTypeAndIndex( "ZAxis", 0 );
+    m_refInputs[ PAN_POINT ]      = m_refIRadController->GetInputPointByTypeAndIndex( "XAxis", 0 );
     #endif 
     for( unsigned int i = 0; i < NUM_POINTS; i++ ) { rAssert( m_refInputs[ i ] != NULL ); }
     m_refInputs[ PLAY_POINT ]->RegisterControllerInputPointCallback( this, PLAY_POINT );
@@ -481,9 +482,7 @@ void InputHandler::Terminate( void )
 // Main
 //=============================================================================
 
-#ifdef RAD_WIN32
-int __stdcall WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int )
-#elif defined RAD_PS2
+#ifdef RAD_PS2
 int main( int argc, char** argv )
 #else
 int main( void )
@@ -494,9 +493,7 @@ int main( void )
     rReleaseString("===========================\n" );
 
     ::utilATGLibInit( 
-        #ifdef RAD_WIN32
-        hInstance 
-        #elif defined RAD_PS2
+        #ifdef RAD_PS2
         argc, argv
         #endif 
         );
@@ -554,5 +551,8 @@ int main( void )
 #endif //RAD_WIN32
 }
 
-
-
+void MemoryHackCallback() { }
+void LeakDetectionStart( void ) {}
+void LeakDetectionStop( void ) {}
+void LeakDetectionAddRecord( const void* pMemory, const unsigned int size, const radMemoryAllocator heap ) {}
+void LeakDetectionRemoveRecord( void* pMemory ) {}
