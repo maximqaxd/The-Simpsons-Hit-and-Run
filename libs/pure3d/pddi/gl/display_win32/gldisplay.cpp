@@ -2,9 +2,9 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
-#include <pddi/gl/display_win32/gldisplay.hpp>
 #include <pddi/gl/gl.hpp>
 #include <pddi/gl/glcon.hpp>
+#include <pddi/gl/gldisplay.hpp>
 #include <pddi/base/debug.hpp>
 #include <SDL.h>
 

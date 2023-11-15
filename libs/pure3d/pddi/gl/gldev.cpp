@@ -4,6 +4,7 @@
 
 #include <pddi/gl/gl.hpp>
 #include <pddi/gl/gldev.hpp>
+#include <pddi/gl/gldisplay.hpp>
 #include <pddi/gl/glcon.hpp>
 #include <pddi/gl/gltex.hpp>
 #include <pddi/gl/glmat.hpp>
