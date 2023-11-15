@@ -66,6 +66,8 @@ void PlatformDrivesGetDefaultDrive( char* driveSpec )
     strncpy( driveSpec, bigDir, 2 );
     driveSpec[ 2 ] = '\0';
     _strupr( driveSpec );
+#elif defined RAD_VITA
+    strcpy(driveSpec, "ux0:");
 #else
     strcpy(driveSpec, "/");
 #endif // RAD_WIN32
@@ -179,7 +181,11 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
     }
 #endif // RAD_GAMECUBE
 
+#ifdef RAD_VITA
+    return strcasecmp(driveSpec, "ux0:") == 0;
+#else
     return strcmp(driveSpec, "/") == 0;
+#endif
 }
 
 //=============================================================================

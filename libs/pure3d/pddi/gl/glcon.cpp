@@ -123,18 +123,22 @@ void pglContext::BeginFrame()
     {
         contextID++;
 
+#ifndef RAD_VITA
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#endif
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
         glColor3f(1,1,1);
 
+#ifndef RAD_VITA
         glEnable(GL_DITHER);
 
         if(display->CheckExtension("GL_EXT_separate_specular_color"))
         {
             glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, GL_SEPARATE_SPECULAR_COLOR_EXT);
         }
+#endif
 
         SyncState(0xffffffff);
     }
@@ -683,9 +687,9 @@ void pglContext::SetupHardwareLight(int handle)
     else
         glDisable(h);
 
-    glLightf(h, GL_CONSTANT_ATTENUATION, state.lightingState->light[handle].attenA);
-    glLightf(h, GL_LINEAR_ATTENUATION, state.lightingState->light[handle].attenB);
-    glLightf(h, GL_QUADRATIC_ATTENUATION, state.lightingState->light[handle].attenC);
+    glLightfv(h, GL_CONSTANT_ATTENUATION, &state.lightingState->light[handle].attenA);
+    glLightfv(h, GL_LINEAR_ATTENUATION, &state.lightingState->light[handle].attenB);
+    glLightfv(h, GL_QUADRATIC_ATTENUATION, &state.lightingState->light[handle].attenC);
     
 
     float c[4];

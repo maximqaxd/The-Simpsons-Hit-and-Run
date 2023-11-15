@@ -25,6 +25,11 @@
 #include <switch.h>
 #endif
 
+#ifdef RAD_VITA
+#include <unistd.h>
+#include <psp2/kernel/clib.h>
+#endif
+
 //========================================
 // Project Includes
 //========================================
@@ -43,6 +48,15 @@ static void ProcessCommandLineArguments( int argc, char *argv[] );
 
 static void ProcessCommandLineArgumentsFromFile();
 
+static void LogOutputFunction( void *userdata, int category, SDL_LogPriority priority, const char *message )
+{
+#ifdef RAD_VITA
+    sceClibPrintf( "%s\n", message );
+#else
+    printf( "%s\n", message );
+    fflush( stdout );
+#endif
+}
 
 //=============================================================================
 // Function:    WinMain
@@ -61,6 +75,9 @@ extern "C" int main( int argc, char *argv[] )
     socketInitializeDefault();
     nxlinkStdio();
 #endif
+#ifdef RAD_VITA
+	chdir( "ux0:data/simpsons" );
+#endif
 
     //
     // Pick out and store command line settings.
@@ -73,6 +90,8 @@ extern "C" int main( int argc, char *argv[] )
     // Initialize SDL subsystems
     //
     SDL_Init( SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER );
+	
+    SDL_LogSetOutputFunction( LogOutputFunction, NULL );
 
     //
     // Have to get FTech setup first so that we can use all the memory services.

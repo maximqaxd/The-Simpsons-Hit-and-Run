@@ -18,21 +18,26 @@
 
 #include <math.h>
 #include <pddi/base/debug.hpp>
+#include <radmemory.hpp>
 
 static inline GLenum PickPixelFormat(pddiPixelFormat format)
 {
     switch (format)
     {
     case PDDI_PIXEL_RGB555:
+#ifndef RAD_VITA
     case PDDI_PIXEL_RGB565: return GL_RGB5;
     case PDDI_PIXEL_ARGB1555: return GL_RGB5_A1;
     case PDDI_PIXEL_ARGB4444: return GL_RGBA4;
+#endif
     case PDDI_PIXEL_RGB888: return GL_RGB8;
     case PDDI_PIXEL_ARGB8888: return GL_RGBA8;
     case PDDI_PIXEL_PAL8: return GL_COLOR_INDEX8_EXT;
+#ifndef RAD_VITA
     case PDDI_PIXEL_PAL4: return GL_COLOR_INDEX4_EXT;
     case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
     case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
+#endif
     case PDDI_PIXEL_DXT1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
     case PDDI_PIXEL_DXT3: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
     case PDDI_PIXEL_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -168,8 +173,10 @@ void pglTexture::SetGLState(void)
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
 
+#ifndef RAD_VITA
     float fpriority = float(priority) / 31.0f;
     glPrioritizeTextures(1, &gltexture, &fpriority);
+#endif
 }
 
 int fastlog2(int x)
@@ -225,12 +232,12 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
     {
         unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = new char[size_t(ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize)];
+            bits[i] = (char*)radMemoryAllocAligned(RADMEMORY_ALLOC_TEMP, size_t(ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize), 16);
     }
     else
     {
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = new char[(xSize>>i)*(ySize>>i)*4];
+            bits[i] = (char*)radMemoryAllocAligned(RADMEMORY_ALLOC_TEMP, (xSize>>i)*(ySize>>i)*4, 16);
     }
 
     lock.depth = bpp;
@@ -287,7 +294,7 @@ pglTexture::pglTexture(pglContext* c)
 pglTexture::~pglTexture()
 {
     for(int i = 0; i < nMipMap+1; i++)
-        delete bits[i];
+        radMemoryFreeAligned(bits[i]);
 
     if(bits) delete [] bits;
 

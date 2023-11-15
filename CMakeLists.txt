@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.25)
 
 project(SRR2)
 
+if(VITA)
+	include("${VITASDK}/share/vita.cmake" REQUIRED)
+	
+	add_compile_definitions(RAD_VITA)
+	## Configuration options for this app
+	# Display name (under bubble in LiveArea)
+	set(VITA_APP_NAME "Simpsons Hit and Run")
+	# Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
+	# unique string of developer and Y = a unique number for this app
+	set(VITA_TITLEID  "RADI00001")
+	# Optional version string to show in LiveArea's more info screen
+	set(VITA_VERSION  "01.00")
+endif()
+
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -9,6 +23,8 @@ endif()
 
 find_package(SDL2 REQUIRED)
 find_package(PNG REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 set(SRR2_OPENAL_IMPL "OpenAL-Soft" CACHE STRING "OpenAL implementation")
 set_property(CACHE SRR2_OPENAL_IMPL PROPERTY STRINGS "OpenAL-Soft" "MojoAL")
@@ -61,7 +77,13 @@ option(SRR2_USE_BINK OFF)
 if(SRR2_USE_BINK)
 	add_compile_definitions(RAD_MOVIEPLAYER_USE_BINK)
 else()
-  find_package(FFMPEG REQUIRED)
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET
+			libavformat
+			libavcodec
+			libswresample
+			libswscale
+	)
 endif()
 
 if(WIN32)
@@ -1084,12 +1106,16 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/baseshader.cpp"
 	"libs/pure3d/pddi/base/font.cpp"
 	"libs/pure3d/pddi/base/pddiobj.cpp"
-	"libs/pure3d/pddi/gl/display_win32/gldisplay.cpp"
 	"libs/pure3d/pddi/gl/glcon.cpp"
 	"libs/pure3d/pddi/gl/gldev.cpp"
 	"libs/pure3d/pddi/gl/glmat.cpp"
 	"libs/pure3d/pddi/gl/gltex.cpp"
 )
+if(VITA)
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
+else()
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
+endif()
 if(CMAKE_SYSTEM_NAME STREQUAL Nintendo3DS)
 	# TODO: the 3DS GPU is technically capable of OpenGL ES 1.1 (+ some 2.0),
 	# but I'm not sure how complete https://github.com/cpp3ds/gl3ds is
@@ -1126,6 +1152,7 @@ target_include_directories(pddi
 target_link_libraries(pddi
 	SDL2::SDL2
 	radmath
+	radcore
 )
 
 add_library(p3d STATIC ${P3D_SOURCES})
@@ -1181,9 +1208,7 @@ target_link_libraries(radmovie
 if(SRR2_USE_BINK)
 	target_link_libraries(radmovie bink)
 else()
-	target_include_directories(radmovie PUBLIC ${FFMPEG_INCLUDE_DIRS})
-	target_link_directories(radmovie PUBLIC ${FFMPEG_LIBRARY_DIRS})
-	target_link_libraries(radmovie ${FFMPEG_LIBRARIES})
+	target_link_libraries(radmovie PkgConfig::FFmpeg)
 endif()
 if(SRR2_BUILD_TESTS)
 	add_executable(simplemovie "libs/radmovie/sample/src/main.cpp" "libs/radmovie/sample/src/util.cpp"
@@ -1191,22 +1216,35 @@ if(SRR2_BUILD_TESTS)
 	target_link_libraries(simplemovie
 		radmovie
 		SDL2::SDL2
-		choreo
 		p3d
 		pddi
-		poser
 		radcore
-		radcontent
-		radmath
-		radmovie
-		radmusic
 		radsound
-		radscript
-		scrooby
-		sim
+		PkgConfig::FFmpeg
 	)
+	if(VITA)
+		target_link_libraries(simplemovie
+			vitaGL
+			SceLibKernel_stub
+			ScePvf_stub
+			mathneon
+			SceAudio_stub
+			SceAppMgr_stub
+			SceAppUtil_stub
+			ScePgf_stub
+			vitashark
+			SceShaccCgExt
+			SceShaccCg_stub
+			SceCtrl_stub
+			taihen_stub
+			SceKernelDmacMgr_stub
+		)
+	endif()
 	file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+	if(VITA)
+		vita_create_self(simplemovie.self simplemovie)
+	endif()
 endif()
 
 add_library(radmusic STATIC ${RADMUSIC_SOURCES})
@@ -1235,11 +1273,15 @@ if(SRR2_BUILD_TESTS)
 	add_executable(simplesound "libs/radsound/sample/simplesound/src/main.cpp")
 	target_link_libraries(simplesound
 		radsound
+		Threads::Threads
 	)
 	file(COPY "libs/radsound/sample/simplesound/bin/win/sample.rsd"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 	file(COPY "libs/radsound/sample/simplesound/bin/win/stream.rsd"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+	if(VITA)
+		vita_create_self(simplesound.self simplesound)
+	endif()
 endif()
 
 add_library(radscript STATIC ${RADSCRIPT_SOURCES})
@@ -1297,6 +1339,7 @@ endif()
 
 add_executable(SRR2 ${SRR2_SOURCES})
 target_link_libraries(SRR2
+	SDL2::SDL2
 	SDL2::SDL2main
 	choreo
 	p3d
@@ -1311,11 +1354,30 @@ target_link_libraries(SRR2
 	radscript
 	scrooby
 	sim
+	Threads::Threads
 )
+if(VITA)
+	target_link_libraries(SRR2
+		vitaGL
+		SceLibKernel_stub
+		ScePvf_stub
+		mathneon
+		SceAudio_stub
+		SceAppMgr_stub
+		SceAppUtil_stub
+		ScePgf_stub
+		vitashark
+		SceShaccCgExt
+		SceShaccCg_stub
+		SceCtrl_stub
+		taihen_stub
+		SceKernelDmacMgr_stub
+	)
+endif()
 if(SRR2_USE_BINK)
 	target_link_libraries(SRR2 bink)
 else()
-	target_link_libraries(SRR2 ${FFMPEG_LIBRARIES})
+	target_link_libraries(SRR2 PkgConfig::FFmpeg)
 endif()
 target_compile_features(SRR2 PRIVATE cxx_std_17)
 
@@ -1325,3 +1387,18 @@ if (SRR2_USE_PCH)
 endif()
 
 target_include_directories(SRR2 PRIVATE "code/")
+
+if(VITA)
+	## Create Vita files
+	vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+	# The FILE directive lets you add additional files to the VPK, the syntax is
+	# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
+	vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+		VERSION ${VITA_VERSION}
+		NAME ${VITA_APP_NAME}
+		FILE sce_sys/icon0.png sce_sys/icon0.png
+		FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+		FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+		FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+	)
+endif()

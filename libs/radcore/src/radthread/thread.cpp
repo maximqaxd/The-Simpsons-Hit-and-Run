@@ -559,7 +559,7 @@ radThread::radThread
     // Create thread which then sets its own priority.
     //
     m_Priority = priority;
-    m_ThreadHandle = SDL_CreateThreadWithStackSize(InternalThreadEntry, /*name*/nullptr, stackSize, this);
+    m_ThreadHandle = SDL_CreateThreadWithStackSize(InternalThreadEntry, /*name*/nullptr, stackSize * 1024, this);
 
     //
     // Release our protection.

@@ -531,12 +531,21 @@ void radWin32Drive::SetMediaInfo( void )
     }
     else
     {
+#ifdef RAD_VITA
+        //
+        // Don't have media info, so fill structure in with dummy info
+        //
+        m_MediaInfo.m_MediaState = IRadDrive::MediaInfo::MediaPresent;
+        m_MediaInfo.m_FreeSpace = WIN32_DEFAULT_SECTOR_SIZE;
+        m_MediaInfo.m_FreeFiles = WIN32_DEFAULT_SECTOR_SIZE;
+#else
         //
         // Don't have media info, so fill structure in with 0s
         //
         m_MediaInfo.m_MediaState = IRadDrive::MediaInfo::MediaNotPresent;
         m_MediaInfo.m_FreeSpace = 0;
         m_MediaInfo.m_FreeFiles = 0;
+#endif
         m_LastError = TranslateError(error);
     }
 

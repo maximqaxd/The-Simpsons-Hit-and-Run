@@ -315,9 +315,18 @@ bool Win32Platform::InitializeWindow()
 #endif
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
 
+    int flags = 0;
+#ifndef RAD_VITA
+    // Use VitaGL instead of OpenGL
+    flags |= SDL_WINDOW_OPENGL; 
+#endif
+#ifdef __SWITCH__
+    // Support switching between docked and handheld mode
+    flags |= SDL_WINDOW_RESIZABLE;
+#endif
     int w, h;
     TranslateResolution( StartingResolution, w, h );
-    mWnd = SDL_CreateWindow( ApplicationName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
+    mWnd = SDL_CreateWindow( ApplicationName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags );
 
     rAssert(mWnd != NULL);
 
@@ -1640,6 +1649,9 @@ void Win32Platform::TranslateResolution( Resolution res, int&x, int&y )
         x = 1920;
         y = 1080;
     }
+#elif defined(RAD_VITA)
+    x = 960;
+    y = 544;
 #else
     switch( res )
     {
