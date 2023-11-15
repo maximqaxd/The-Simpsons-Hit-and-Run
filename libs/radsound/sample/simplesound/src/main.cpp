@@ -86,11 +86,8 @@ bool g_Quit = false;
 //
 //------------------------------------------------------------------------------
 
-#ifdef RAD_WIN32
-    void radStartup( const char* banner, HINSTANCE hInstance )
-#else
-    void radStartup( const char* banner )
-#endif
+
+void radStartup( const char* banner )
 {
     rDebugString( banner );
     
@@ -256,7 +253,7 @@ void Go( void )
 //------------------------------------------------------------------------------
 
 #ifdef RAD_WIN32
-    int __stdcall WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int )
+    int main( int argc, char* argv[ ] )
 #endif
 #ifdef RAD_XBOX
     void _cdecl main (void)
@@ -271,11 +268,7 @@ void Go( void )
     //
     // Startup all necessary systems (this is a locally defined function)
     //
-    #ifdef RAD_WIN32	// RAD_WIN32 only
-        ::radStartup( "Foundation Tech - Radical Sound Sample V1.00\n", hInstance );
-    #else
-        ::radStartup( "Foundation Tech - Radical Sound Sample V1.00\n" );
-    #endif
+    ::radStartup( "Foundation Tech - Radical Sound Sample V1.00\n" );
 
     //
     // First, lets initialize the sound system.  (It should really be initialized
