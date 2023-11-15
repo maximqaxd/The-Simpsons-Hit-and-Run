@@ -2,20 +2,7 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
-
-
-
-#ifdef RAD_WIN32
-    #include <pddi/gl/display_win32/gldisplay.hpp>
-    #include <pddi/gl/display_win32/gl.hpp>
-#endif
-
-#ifdef RAD_LINUX
-    #include <pddi/gl/display_linux/gldisplay.hpp>
-    #include <pddi/gl/display_linux/gl.hpp>
-#endif
-
-
+#include <pddi/gl/gl.hpp>
 #include <pddi/gl/glcon.hpp>
 #include <pddi/gl/gldev.hpp>
 #include <pddi/gl/gltex.hpp>

@@ -2,10 +2,8 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
-
 #include <pddi/gl/display_vita/gldisplay.hpp>
-#include <vitaGL.h>
-
+#include <pddi/gl/gl.hpp>
 #include <pddi/gl/glcon.hpp>
 #include <pddi/base/debug.hpp>
 #include <SDL.h>
