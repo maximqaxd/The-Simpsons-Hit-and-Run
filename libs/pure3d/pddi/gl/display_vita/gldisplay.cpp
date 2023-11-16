@@ -99,7 +99,7 @@ bool pglDisplay ::InitDisplay(int x, int y, int bpp)
 bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
 {
     extBGRA = true;
-    return vglInit(0x100000);
+    return vglInit(0x800000);
 }
 
 pddiDisplayInfo* pglDisplay ::GetDisplayInfo(void)
@@ -190,6 +190,7 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
 {
     // not implemented under vita
     assert( 0 && "PDDI: pddiDisplay::ScreenShot() - Not implemented under vita." );
+    return 0;
 }
 
 unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayModes)

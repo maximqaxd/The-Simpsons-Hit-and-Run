@@ -15,16 +15,17 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
 {
     switch (format)
     {
+#ifdef RAD_VITA
+    case PDDI_PIXEL_RGB888: return GL_BGR;
+    case PDDI_PIXEL_ARGB8888: return GL_BGRA;
+#else
     case PDDI_PIXEL_RGB555:
-#ifndef RAD_VITA
     case PDDI_PIXEL_RGB565: return GL_RGB5;
     case PDDI_PIXEL_ARGB1555: return GL_RGB5_A1;
     case PDDI_PIXEL_ARGB4444: return GL_RGBA4;
-#endif
     case PDDI_PIXEL_RGB888: return GL_RGB8;
     case PDDI_PIXEL_ARGB8888: return GL_RGBA8;
     case PDDI_PIXEL_PAL8: return GL_COLOR_INDEX8_EXT;
-#ifndef RAD_VITA
     case PDDI_PIXEL_PAL4: return GL_COLOR_INDEX4_EXT;
     case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
     case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
