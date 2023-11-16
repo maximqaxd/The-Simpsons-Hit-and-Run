@@ -224,12 +224,12 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
     {
         unsigned int blocksize = type == PDDI_TEXTYPE_DXT1 ? 8 : 16;
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = (char*)radMemoryAllocAligned(RADMEMORY_ALLOC_TEMP, size_t(ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize), 16);
+            bits[i] = (char*)radMemoryAllocAligned(radMemoryGetCurrentAllocator(), size_t(ceil(double(xSize>>i)/4)*ceil(double(ySize>>i)/4)*blocksize), 16);
     }
     else
     {
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = (char*)radMemoryAllocAligned(RADMEMORY_ALLOC_TEMP, (xSize>>i)*(ySize>>i)*4, 16);
+            bits[i] = (char*)radMemoryAllocAligned(radMemoryGetCurrentAllocator(), (xSize>>i)*(ySize>>i)*4, 16);
     }
 
     lock.depth = bpp;
