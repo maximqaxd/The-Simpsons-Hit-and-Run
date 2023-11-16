@@ -157,6 +157,8 @@ bool radMoviePlayer::Render( void )
         if( state != AL_PLAYING )  // have we fallen behind, if so reset
             alSourcePlay( m_AudioSource );
 
+        FlushAudioQueue();
+
         //
         // The video frame has been used.  The next can be decoded
         //
@@ -572,8 +574,6 @@ void radMoviePlayer::Service( void )
                 }
             }
         }
-
-        FlushAudioQueue();
     }
 }
 
