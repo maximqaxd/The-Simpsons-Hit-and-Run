@@ -38,12 +38,12 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	add_compile_options(
-		-Werror
-		-fvisibility=hidden
-	)
+	add_compile_options(-fvisibility=hidden)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		add_compile_options(-ggdb)
+		add_compile_options(
+			-Werror
+			-ggdb
+		)
 	endif()
 endif()
 
