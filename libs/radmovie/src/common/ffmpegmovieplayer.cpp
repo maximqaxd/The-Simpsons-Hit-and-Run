@@ -205,6 +205,7 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
     AV_CHK( avcodec_parameters_to_context( m_pVideoCtx, pVideoParams ) );
     AV_CHK( avcodec_open2( m_pVideoCtx, pVideoCodec, NULL ) );
 
+#ifndef RAD_VITA
     m_pSwsCtx = sws_getContext(
         pVideoParams->width,
         pVideoParams->height,
@@ -214,6 +215,7 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
         AV_PIX_FMT_BGRA,
         0, NULL, NULL, NULL
     );
+#endif
 
     if( audioTrackIndex != radMovie_NoAudioTrack )
     {
@@ -473,12 +475,21 @@ void radMoviePlayer::Service( void )
                         {
                             uint8_t* pDest = (uint8_t*)dest.m_pDest;
 
+#ifdef RAD_VITA
+                            memcpy( pDest, m_pVideoFrame->data[0], m_pVideoFrame->linesize[0] * m_pVideoFrame->height );
+                            pDest += m_pVideoFrame->linesize[0] * m_pVideoFrame->height;
+                            memcpy( pDest, m_pVideoFrame->data[1], m_pVideoFrame->linesize[1] * m_pVideoFrame->height / 2 );
+                            pDest += m_pVideoFrame->linesize[1] * m_pVideoFrame->height / 2;
+                            memcpy( pDest, m_pVideoFrame->data[2], m_pVideoFrame->linesize[2] * m_pVideoFrame->height / 2 );
+#else
+
                             // If one of these copies fail, we'll have to skip this frame
                             // and not iterate the loop
                             if( sws_scale( m_pSwsCtx,
                                 m_pVideoFrame->data, m_pVideoFrame->linesize,
                                 dest.m_SrcPosY, m_pVideoFrame->height - dest.m_SrcPosY,
                                 &pDest, &dest.m_DestPitch ) >= 0 )
+#endif
                             {
                                 AVRational rational = m_pFormatCtx->streams[0]->time_base;
                                 m_PresentationTime = (m_pVideoFrame->pts * rational.num * 1000) / rational.den;
