@@ -300,7 +300,8 @@ enum pddiTextureType
     PDDI_TEXTYPE_GC_8BIT,
     PDDI_TEXTYPE_GC_16BIT,
     PDDI_TEXTYPE_GC_32BIT,
-    PDDI_TEXTYPE_GC_DXT1
+    PDDI_TEXTYPE_GC_DXT1,
+    PDDI_TEXTYPE_YUV
 };
 
 // pixel formats
@@ -334,7 +335,8 @@ enum pddiPixelFormat
     PDDI_PIXEL_GC_8BIT,
     PDDI_PIXEL_GC_16BIT,
     PDDI_PIXEL_GC_32BIT,
-    PDDI_PIXEL_GC_DXT1
+    PDDI_PIXEL_GC_DXT1,
+    PDDI_PIXEL_YUV
 };
 
 enum pddiTextureUsageHint

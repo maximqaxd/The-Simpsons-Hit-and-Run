@@ -77,6 +77,9 @@ static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth
 
     case PDDI_TEXTYPE_DXT5:
         return PDDI_PIXEL_DXT5;
+
+    case PDDI_TEXTYPE_YUV:
+        return PDDI_PIXEL_YUV;
     }
     PDDIASSERT(false);
     return PDDI_PIXEL_UNKNOWN;
@@ -106,6 +109,12 @@ void pglTexture::SetGLState(void)
             glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, xSize,
                 ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
         }
+#ifdef RAD_VITA
+        else if (type == PDDI_TEXTYPE_YUV)
+        {
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_YUV420P_BT601_VGL, xSize, ySize, 0, (xSize * ySize * 3) / 2, (GLvoid*)bits[0]);
+        }
+#endif
         else
         {
             glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
@@ -197,11 +206,13 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
     log2X = fastlog2(xSize);
     log2Y = fastlog2(ySize);
 
+#ifndef RAD_VITA
     if((log2X == -1) || (log2Y == -1))
     {
         lastError = PDDI_TEX_NOT_POW_2;
         return false;
     }
+#endif
 
     ((pddiExtGLContext*)context->GetExtension(PDDI_EXT_GL_CONTEXT))->BeginContext();
 
@@ -229,7 +240,7 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
     else
     {
         for(int i = 0; i < nMipMap+1; i++)
-            bits[i] = (char*)radMemoryAllocAligned(radMemoryGetCurrentAllocator(), (xSize>>i)*(ySize>>i)*4, 16);
+            bits[i] = (char*)radMemoryAllocAligned(radMemoryGetCurrentAllocator(), ((xSize>>i)*(ySize>>i)*bpp)/8, 16);
     }
 
     lock.depth = bpp;
@@ -265,7 +276,7 @@ bool pglTexture::Create(int x, int y, int bpp, int alphaDepth, int nMip, pddiTex
         lock.rgbaMask[3] = 0xff000000;
     }
 
-    context->ADD_STAT(PDDI_STAT_TEXTURE_ALLOC_32BIT, (float)((xSize * ySize * 4) / 1024));
+    context->ADD_STAT(PDDI_STAT_TEXTURE_ALLOC_32BIT, (float)((xSize * ySize * lock.depth) / 8192));
     context->ADD_STAT(PDDI_STAT_TEXTURE_COUNT_32BIT, 1);
 
     ((pddiExtGLContext*)context->GetExtension(PDDI_EXT_GL_CONTEXT))->EndContext();
@@ -290,7 +301,7 @@ pglTexture::~pglTexture()
 
     if(bits) delete [] bits;
 
-    context->ADD_STAT(PDDI_STAT_TEXTURE_ALLOC_32BIT, -(float)((xSize * ySize * 4) / 1024));
+    context->ADD_STAT(PDDI_STAT_TEXTURE_ALLOC_32BIT, -(float)((xSize * ySize * lock.depth) / 8192));
     context->ADD_STAT(PDDI_STAT_TEXTURE_COUNT_32BIT, -1);
 }
 
@@ -330,16 +341,21 @@ pddiLockInfo* pglTexture::Lock(int mipMap, pddiRect* rect)
 
     lock.width = 1 << (log2X-mipMap);
     lock.height = 1 << (log2Y-mipMap);
-    if (lock.format != PDDI_PIXEL_DXT1 && lock.format != PDDI_PIXEL_DXT3 && lock.format != PDDI_PIXEL_DXT5)
+    if (lock.format == PDDI_PIXEL_DXT1 || lock.format == PDDI_PIXEL_DXT3 || lock.format == PDDI_PIXEL_DXT5)
     {
-        lock.pitch = -lock.width * 4;
-        lock.bits = bits[mipMap] + (lock.width * (lock.height - 1) * 4);
+        unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
+        lock.pitch = ceil( double( xSize >> mipMap ) / 4 ) * blocksize;
+        lock.bits = bits[mipMap];
+    }
+    else if (lock.format == PDDI_PIXEL_YUV)
+    {
+        lock.pitch = (lock.width * lock.depth) / 8;
+        lock.bits = bits[mipMap];
     }
     else
     {
-        unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
-        lock.pitch = ceil(double(xSize>>mipMap)/4)*blocksize;
-        lock.bits = bits[mipMap];
+        lock.pitch = -(lock.width * 4);
+        lock.bits = bits[mipMap] + (lock.width * (lock.height - 1) * 4);
     }
 
     return &lock;
