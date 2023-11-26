@@ -54,11 +54,11 @@ unsigned int const radMovie_NoAudioTrack = 0xFFFFFFFF;
 //
 // If the video of the movie player starts falling behind the audio,
 // the movie player will not render frames until it catches up.  This
-// value controls how many frames the video can fall behind before
+// value controls how many milliseconds the video can fall behind before
 // the catch-up process begins
 //
 
-#define RAD_MOVIE_PLAYER_VIDEO_LAG 0
+#define RAD_MOVIE_PLAYER_VIDEO_LAG 10
 
 #define AV_CHK(x) if (int error = (x) < 0) { \
         char str[AV_ERROR_MAX_STRING_SIZE]; \
