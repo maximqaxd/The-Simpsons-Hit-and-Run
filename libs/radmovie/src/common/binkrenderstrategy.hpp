@@ -35,7 +35,11 @@
 #define RMV_TEXTURE_MAX_TEX_DIM 1024 // somewhat arbitrary, just needs to be big
 #endif // RAD_XBOX
 
+#ifdef RAD_VITA
+#define RMV_TEXTURE_BITDEPTH 12
+#else
 #define RMV_TEXTURE_BITDEPTH 32
+#endif
 
 // Max number of textures to be used to render a video frame. (Video frame broken
 // across many textures to keep texture dimensions smaller than RMV_TEXTURE_MAX_TEX_DIM)

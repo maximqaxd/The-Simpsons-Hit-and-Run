@@ -201,8 +201,10 @@ void radMovieRenderStrategyBink::ChangeParameters( unsigned int width, unsigned 
                 //
                 // Create texture (platform dependent)
                 //
-
-                #ifdef RAD_WIN32
+                
+                #if RAD_VITA
+                bool wasTextureCreated = m_pTile[ tileIndex ].m_pTexture->Create( m_MovieWidth, m_MovieHeight, RMV_TEXTURE_BITDEPTH, 0, 0, PDDI_TEXTYPE_YUV );
+                #elif RAD_WIN32
                 bool wasTextureCreated = m_pTile[ tileIndex ].m_pTexture->Create( RMV_TEXTURE_MAX_TEX_DIM, RMV_TEXTURE_MAX_TEX_DIM, RMV_TEXTURE_BITDEPTH, 8, 0, PDDI_TEXTYPE_RGB );
                 #elif RAD_XBOX
                 bool wasTextureCreated = m_pTile[ tileIndex ].m_pTexture->Create( m_MovieWidth, m_MovieHeight, RMV_TEXTURE_BITDEPTH, 0, 0, PDDI_TEXTYPE_LINEAR );
@@ -279,9 +281,19 @@ bool radMovieRenderStrategyBink::Render( void )
         #if defined RAD_WIN32
 
         float u = 0.0f;
-        float v = 1.0f;
         float du = m_pTile[ tile ].m_Width / ( float ) m_pTile[ tile ].m_pTexture->GetWidth( );
+        
+        #if RAD_VITA
+
+        float v = 0.0f;
+        float dv = m_pTile[ tile ].m_Height / ( float ) m_pTile[ tile ].m_pTexture->GetHeight( );
+
+        #else
+
+        float v = 1.0f;
         float dv = - ( float ) ( m_pTile[ tile ].m_Height / ( float ) m_pTile[ tile ].m_pTexture->GetHeight( ) );
+
+        #endif
 
         #elif RAD_XBOX
 
