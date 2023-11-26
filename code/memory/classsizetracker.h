@@ -16,7 +16,7 @@
 // Nested Includes
 //========================================
 class tName;
-#ifndef WIN32
+#ifndef RAD_WIN32
 #define USECLASSSIZETRACKER
 #endif
 
