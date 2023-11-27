@@ -81,20 +81,20 @@ namespace MovieNames
 
 #elif defined RAD_WIN32
 
-    //static const char* DEMO = "movies\\demo.rmv";
-    static const char* RADICALLOGO = "movies\\radlogo.rmv";
-    static const char* FOXLOGO = "movies\\foxlogo.rmv";
-    static const char* GRACIELOGO = "movies\\gracie.rmv";
-    static const char* VUGLOGO = "movies\\vuglogo.rmv";
-    static const char* INTROFMV = "movies\\intro.rmv";
-    static const char* MOVIE1 = "movies\\fmv1A.rmv";
-    static const char* MOVIE2 = "movies\\fmv2.rmv";
-    static const char* MOVIE3 = "movies\\fmv3.rmv";
-    static const char* MOVIE4 = "movies\\fmv4.rmv";
-    static const char* MOVIE5 = "movies\\fmv5.rmv";
-    static const char* MOVIE6 = "movies\\fmv6.rmv";
-    static const char* MOVIE7 = "movies\\fmv7.rmv";
-    static const char* MOVIE8 = "movies\\fmv8.rmv";
+    //static const char* DEMO = "movies/demo.rmv";
+    static const char* RADICALLOGO = "movies/radlogo.rmv";
+    static const char* FOXLOGO = "movies/foxlogo.rmv";
+    static const char* GRACIELOGO = "movies/gracie.rmv";
+    static const char* VUGLOGO = "movies/vuglogo.rmv";
+    static const char* INTROFMV = "movies/intro.rmv";
+    static const char* MOVIE1 = "movies/fmv1A.rmv";
+    static const char* MOVIE2 = "movies/fmv2.rmv";
+    static const char* MOVIE3 = "movies/fmv3.rmv";
+    static const char* MOVIE4 = "movies/fmv4.rmv";
+    static const char* MOVIE5 = "movies/fmv5.rmv";
+    static const char* MOVIE6 = "movies/fmv6.rmv";
+    static const char* MOVIE7 = "movies/fmv7.rmv";
+    static const char* MOVIE8 = "movies/fmv8.rmv";
 
 #endif
 }
