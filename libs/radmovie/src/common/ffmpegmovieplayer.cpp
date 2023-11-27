@@ -63,7 +63,7 @@ unsigned int const radMovie_NoAudioTrack = 0xFFFFFFFF;
 #define AV_CHK(x) if (int error = (x) < 0) { \
         char str[AV_ERROR_MAX_STRING_SIZE]; \
         av_strerror( error, str, AV_ERROR_MAX_STRING_SIZE ); \
-        rDebugPrintf( "%s\n", str ); \
+        rDebugPrintf( "%s at %s:%d\n", str, __FILE__, __LINE__ ); \
         return; \
     };
 
@@ -183,6 +183,8 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
     rAssert( m_State == IRadMoviePlayer2::NoData );
     rAssert( pVideoFileName != NULL );
 
+    rDebugPrintf( "radMoviePlayer: Loading %s\n", pVideoFileName );
+
     m_refIRadStopwatch->Stop( );
     m_refIRadStopwatch->Reset( );
 
@@ -256,6 +258,16 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
     //
 
     m_refIRadMovieRenderStrategy->ChangeParameters( pVideoParams->width, pVideoParams->height );
+
+    //
+    // Print out some helpful information
+    //
+    rDebugPrintf( "\nradMoviePlayer: Summary\n" \
+                  "     * Resolution         [%dx%d]\n" \
+                  "     * Format             [%d]\n" \
+                  "     * Audio Track        [%d]\n\n",
+        pVideoParams->width, pVideoParams->height,
+        pVideoParams->format, m_AudioTrackIndex );
 
     // The buffered data source's input must be set before the stream player's
 
