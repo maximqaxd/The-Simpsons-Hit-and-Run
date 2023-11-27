@@ -63,7 +63,7 @@ if(SRR2_PAL)
 	add_compile_definitions(PAL)
 endif()
 
-option(SRR2_USE_DLMALLOC ON)
+option(SRR2_USE_DLMALLOC OFF)
 if(SRR2_USE_DLMALLOC)
 	add_compile_definitions(USE_DOUG_LEA_HEAP)
 endif()
