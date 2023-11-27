@@ -232,7 +232,7 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
         AV_CHK( swr_alloc_set_opts2( &m_pSwrCtx,
             &layout,
             AV_SAMPLE_FMT_S16,
-            48000,
+            pAudioParams->sample_rate,
             &pAudioParams->ch_layout,
             (AVSampleFormat)pAudioParams->format,
             pAudioParams->sample_rate,
@@ -535,7 +535,7 @@ void radMoviePlayer::Service( void )
                         // TODO: Add buffer queuing support to radsound and move this code to that module.
                         ALuint buffer;
                         alGenBuffers( 1, &buffer );
-                        alBufferData( buffer, AL_FORMAT_STEREO16, output, bufferSize, 48000 );
+                        alBufferData( buffer, AL_FORMAT_STEREO16, output, bufferSize, m_pAudioFrame->sample_rate );
                         alSourceQueueBuffers( m_AudioSource, 1, &buffer );
                         av_freep( &output );
                     }
