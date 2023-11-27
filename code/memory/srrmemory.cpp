@@ -1667,7 +1667,7 @@ void HeapManager::DumpArtStats ()
     //In-game Only
     const float HS_LEVEL_ZONE = 8.0f;
     //const float HS_LEVEL_OTHER = 5.0f;
-    const float HS_LEVEL_HUD = 2.5f;
+    const float HS_LEVEL_HUD = 5.0f;
     //const float HS_LEVEL_MISSION = 2.8f;
     const float HS_LEVEL_AUDIO_INGAME = 0.05f;
     //Mnigame Only
