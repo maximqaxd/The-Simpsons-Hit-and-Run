@@ -413,10 +413,8 @@ bool radMoviePlayer::GetVideoFrameInfo( VideoFrameInfo * frameInfo)
 
 float radMoviePlayer::GetFrameRate( void )
 {
-    rAssert( m_pFormatCtx != NULL );
-
-    AVRational rational = m_pFormatCtx->streams[0]->time_base;
-    return (float)rational.den / (float)rational.num;
+    // Sweet little lies, frame number is in milliseconds
+    return 1000.0f;
 }
 
 //=============================================================================
@@ -425,9 +423,7 @@ float radMoviePlayer::GetFrameRate( void )
 
 unsigned int radMoviePlayer::GetCurrentFrameNumber( void )
 {
-    rAssert( m_pVideoFrame != NULL );
-
-    return m_pVideoFrame->pts;
+    return m_PresentationTime;
 }
 
 //=============================================================================
