@@ -14,6 +14,8 @@
 #include <string.h>
 #include <SDL.h>
 
+#include <debug/profiler.h>
+
 // vertex arrays rendering
 GLenum primTypeTable[5] =
 {
@@ -591,6 +593,8 @@ void pglPrimBuffer::SetIndices(unsigned short* i, int count)
 
 void pglPrimBuffer::Display(void)
 {
+    BEGIN_PROFILE( "pglPrimBuffer::Display" );
+
     glVertexPointer(3,GL_FLOAT,0,coord);
 
     if(vertexType & PDDI_V_NORMAL)
@@ -631,6 +635,8 @@ void pglPrimBuffer::Display(void)
     {
         glDrawArrays(primTypeTable[primType], 0, total);
     }
+
+    END_PROFILE( "pglPrimBuffer::Display" );
 }
 
 /*

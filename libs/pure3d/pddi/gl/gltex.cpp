@@ -11,6 +11,8 @@
 #include <pddi/base/debug.hpp>
 #include <radmemory.hpp>
 
+#include <debug/profiler.h>
+
 static inline GLenum PickPixelFormat(pddiPixelFormat format)
 {
     switch (format)
@@ -87,6 +89,8 @@ static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth
 
 void pglTexture::SetGLState(void)
 {
+    BEGIN_PROFILE( "pglTexture::SetGLState" );
+
     if(context->contextID != contextID)
     {
         contextID = context->contextID;
@@ -178,6 +182,8 @@ void pglTexture::SetGLState(void)
     float fpriority = float(priority) / 31.0f;
     glPrioritizeTextures(1, &gltexture, &fpriority);
 #endif
+
+    END_PROFILE( "pglTexture::SetGLState" );
 }
 
 int fastlog2(int x)

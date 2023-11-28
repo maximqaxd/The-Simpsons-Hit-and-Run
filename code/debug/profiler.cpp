@@ -44,14 +44,14 @@
 Profiler* Profiler::spInstance = NULL;
 
 int Profiler::sRed = 0;
-int Profiler::sGreen = 0;
+int Profiler::sGreen = 255;
 int Profiler::sBlue = 0;
 int Profiler::sPage = 0;
 int Profiler::sLeftOffset = 0;
 int Profiler::sTopOffset = 0;
-bool Profiler::sDisplay = false;
-bool Profiler::sDumpToOutput = false;
-bool Profiler::sEnableCollection = false;
+bool Profiler::sDisplay = true;
+bool Profiler::sDumpToOutput = true;
+bool Profiler::sEnableCollection = true;
 
 
 //******************************************************************************

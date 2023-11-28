@@ -16,19 +16,20 @@
 // Nested Includes
 //========================================
 
-//========================================
-// Forward References
-//========================================
-
-#if !defined( RAD_RELEASE ) && !defined( WORLD_BUILDER ) && !defined( RAD_MW ) && !defined( RAD_WIN32 )
-    #define PROFILER_ENABLED
+#if !defined( RAD_RELEASE ) && !defined( WORLD_BUILDER ) && !defined( RAD_MW )
+#define PROFILER_ENABLED
 #endif // RAD_RELEASE
 
 
 #include "main/commandlineoptions.h"
 
-#include <p3d/entity.hpp>
-#include <radload/utility/hashtable.hpp>
+#include <p3d/p3dtypes.hpp>
+
+//========================================
+// Forward References
+//========================================
+
+template<class T> class HashTable;
 
 //===========================================================================
 // *** USE THESE MACROS, DO NOT INVOKE PROFILER DIRECTLY ***
