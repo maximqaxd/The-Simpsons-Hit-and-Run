@@ -28,8 +28,9 @@ pglDisplay ::pglDisplay(pddiDisplayInfo* info)
     context = NULL;
 
     win = NULL;
-    hRC = NULL;
-    prevRC = NULL;
+    renderContext = NULL;
+    resourceContext = NULL;
+    prevContext = NULL;
 
     extBGRA = false;
 
@@ -37,16 +38,14 @@ pglDisplay ::pglDisplay(pddiDisplayInfo* info)
 
     reset = true;
 	m_ForceVSync = false;
-
-    mutex = SDL_CreateMutex();
 }
 
 pglDisplay ::~pglDisplay()
 {
     /* release and free the device context and rendering context */
-    SDL_GL_DeleteContext(hRC);
+    SDL_GL_DeleteContext(renderContext);
+    SDL_GL_DeleteContext(resourceContext);
     SDL_SetWindowGammaRamp(win, initialGammaRamp[0], initialGammaRamp[1], initialGammaRamp[2]);
-    SDL_DestroyMutex(mutex);
 }
 
 #define KEYPRESSED(x) (GetKeyState((x)) & (1<<(sizeof(int)*8)-1))
@@ -61,7 +60,8 @@ long pglDisplay ::ProcessWindowMessage(SDL_Window* win, const SDL_WindowEvent* e
 
         case SDL_WINDOWEVENT_CLOSE:
             /* release and free the device context and rendering context */
-            SDL_GL_DeleteContext(hRC);
+            SDL_GL_DeleteContext(renderContext);
+            SDL_GL_DeleteContext(resourceContext);
             break;
 
 		default:
@@ -152,7 +152,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     SDL_GL_GetDrawableSize( win, &winWidth, &winHeight );
     winBitDepth = bpp;
 
-    if (hRC)
+    if (renderContext)
         return true;
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, bpp == 16 ? 5 : 8);
@@ -175,11 +175,10 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
 
-    prevRC = SDL_GL_GetCurrentContext();
-    hRC = SDL_GL_CreateContext(win);
-    if (!hRC)
+    renderContext = SDL_GL_CreateContext(win);
+    if (!renderContext)
         fprintf(stderr, "SDL_GL_CreateContext() error: %s\n", SDL_GetError());
-    PDDIASSERT(hRC);
+    PDDIASSERT(renderContext);
 
     if (!gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ))
         return false;
@@ -222,7 +221,13 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     glDebugMessageCallback(MessageCallback, NULL);
 #endif
 
-    int error = SDL_GL_MakeCurrent(win, NULL);
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_TRUE);
+    resourceContext = SDL_GL_CreateContext(win);
+    if (!resourceContext)
+        fprintf(stderr, "SDL_GL_CreateContext() error: %s\n", SDL_GetError());
+    PDDIASSERT(resourceContext);
+
+    int error = SDL_GL_MakeCurrent(win, renderContext);
     PDDIASSERT(!error);
 
     return true;
@@ -305,12 +310,7 @@ void pglDisplay::SetGamma(float r, float g, float b)
 
 void pglDisplay::SwapBuffers(void)
 {
-    SDL_LockMutex( mutex );
-    SDL_GLContext prev = SDL_GL_GetCurrentContext();
-    SDL_GL_MakeCurrent(win, hRC);
     SDL_GL_SwapWindow(win);
-    SDL_GL_MakeCurrent(win, prev);
-    SDL_UnlockMutex( mutex );
     reset = false;
 }
 
@@ -373,17 +373,15 @@ float pglDisplay::EndTiming()
 
 void pglDisplay::BeginContext(void)
 {
-    SDL_LockMutex(mutex);
-    prevRC = SDL_GL_GetCurrentContext();
-    PDDIASSERT(prevRC != hRC);
-    int error = SDL_GL_MakeCurrent(win, hRC);
+    prevContext = SDL_GL_GetCurrentContext();
+    PDDIASSERT(prevContext != resourceContext);
+    int error = SDL_GL_MakeCurrent(win, resourceContext);
     PDDIASSERT(!error);
 }
 
 void pglDisplay::EndContext(void)
 {
-    int error = SDL_GL_MakeCurrent(win, prevRC);
+    int error = SDL_GL_MakeCurrent(win, prevContext);
     PDDIASSERT(!error);
-    SDL_UnlockMutex(mutex);
 }
 

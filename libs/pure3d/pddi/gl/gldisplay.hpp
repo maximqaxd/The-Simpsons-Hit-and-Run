@@ -74,14 +74,14 @@ private:
     float gammaR,gammaG,gammaB;
 
     SDL_Window* win;
-    void* hRC;
-    void* prevRC;
+    void* renderContext;
+    void* resourceContext;
+    void* prevContext;
 
     bool extBGRA;
     bool reset;
 
     float beginTime;
-    SDL_mutex* mutex;
 };
 
 #endif
