@@ -375,13 +375,17 @@ void pglDisplay::BeginContext(void)
 {
     prevContext = SDL_GL_GetCurrentContext();
     PDDIASSERT(prevContext != resourceContext);
-    int error = SDL_GL_MakeCurrent(win, resourceContext);
-    PDDIASSERT(!error);
+
+    // Attempt to bind as a surfaceless context first
+    if( SDL_GL_MakeCurrent( NULL, resourceContext ) < 0 )
+        SDL_GL_MakeCurrent( win, resourceContext );
+    PDDIASSERT( SDL_GL_GetCurrentContext() == resourceContext );
 }
 
 void pglDisplay::EndContext(void)
 {
-    int error = SDL_GL_MakeCurrent(win, prevContext);
-    PDDIASSERT(!error);
+    if( SDL_GL_MakeCurrent( NULL, prevContext ) < 0 )
+        SDL_GL_MakeCurrent( win, prevContext );
+    PDDIASSERT( SDL_GL_GetCurrentContext() == prevContext );
 }
 
