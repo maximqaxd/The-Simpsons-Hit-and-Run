@@ -75,10 +75,8 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     display->AddRef();
     disp->SetContext(this);
 
-    display->BeginContext();
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     DefaultState();
-    display->EndContext();
     contextID = 0;
 
     extContext = new pglExtContext(display);
@@ -104,8 +102,6 @@ pglContext::~pglContext()
 void pglContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
-
-    extContext->BeginContext();
 
     SDL_GL_SetSwapInterval(display->GetForceVSync() ? 1 : 0);
 
@@ -144,8 +140,6 @@ void pglContext::BeginFrame()
 
 void pglContext::EndFrame()
 {
-    extContext->EndContext();
-
     pddiBaseContext::EndFrame();
 }
 

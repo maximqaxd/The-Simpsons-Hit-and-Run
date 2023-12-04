@@ -222,9 +222,6 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     glDebugMessageCallback(MessageCallback, NULL);
 #endif
 
-    int error = SDL_GL_MakeCurrent(win, NULL);
-    PDDIASSERT(!error);
-
     return true;
 }
 
