@@ -489,6 +489,9 @@ pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFo
     strips = NULL;
     indices = NULL;
 
+    valid = false;
+    vertexBuffer = indexBuffer = 0;
+
     primType = type;
     vertexType = vertexFormat;
 
@@ -521,15 +524,11 @@ pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFo
     if(indexCount) 
         indices = new unsigned short[indexCount];
 
-    mem += nIndex * 2;
-
     nStrips = 0;
     strips = NULL;
 
-    mem /= 1024.0f;
-
     context->ADD_STAT(PDDI_STAT_BUFFERED_COUNT, 1);
-    context->ADD_STAT(PDDI_STAT_BUFFERED_ALLOC, mem);
+    context->ADD_STAT(PDDI_STAT_BUFFERED_ALLOC, mem / 1024.0f);
 }
 
 pglPrimBuffer::~pglPrimBuffer()
@@ -544,7 +543,7 @@ pglPrimBuffer::~pglPrimBuffer()
     delete [] colour;
 
     context->ADD_STAT(PDDI_STAT_BUFFERED_COUNT, -1);
-    context->ADD_STAT(PDDI_STAT_BUFFERED_ALLOC, -mem);
+    context->ADD_STAT(PDDI_STAT_BUFFERED_ALLOC, -mem / 1024.0f);
 }
 
 pddiPrimBufferStream* pglPrimBuffer::Lock()
@@ -566,6 +565,8 @@ void pglPrimBuffer::Unlock(pddiPrimBufferStream* stream)
 
     if(colour)
         colour -= total * 4;
+
+    valid = false;
 }
 
 unsigned char* pglPrimBuffer::LockIndexBuffer()
@@ -583,18 +584,40 @@ void pglPrimBuffer::SetIndices(unsigned short* i, int count)
 {
     PDDIASSERT(count <= (int)indexCount);
     memcpy(indices, i, count * sizeof(unsigned short));
+    valid = false;
 }
 
 void pglPrimBuffer::Display(void)
 {
+    //if(!total)
+    //    return;
+
     BEGIN_PROFILE( "pglPrimBuffer::Display" );
 
-    glVertexPointer(3,GL_FLOAT,0,coord);
+    if(!vertexBuffer)
+    {
+        glGenBuffers(1, &vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, mem, NULL, GL_STATIC_DRAW);
+    }
+    else
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    }
+    
+    GLintptr offset = 0;
+    if( !valid )
+        glBufferSubData( GL_ARRAY_BUFFER, offset, allocated*12, coord );
+    glVertexPointer(3,GL_FLOAT,0,(void*)offset);
+    offset += allocated*12;
 
     if(vertexType & PDDI_V_NORMAL)
     {
+        if(!valid)
+            glBufferSubData(GL_ARRAY_BUFFER,offset,allocated*12,normal);
         glEnableClientState(GL_NORMAL_ARRAY);
-        glNormalPointer(GL_FLOAT,0,normal);
+        glNormalPointer(GL_FLOAT,0,(void*)offset);
+        offset += allocated*12;
     }
     else
     {
@@ -603,8 +626,11 @@ void pglPrimBuffer::Display(void)
 
     if(vertexType & PDDI_V_COLOUR)
     {
+        if(!valid)
+            glBufferSubData(GL_ARRAY_BUFFER,offset,allocated*4,colour);
         glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4,GL_UNSIGNED_BYTE,0,colour);
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,(void*)offset);
+        offset += allocated*4;
     }
     else
     {
@@ -613,8 +639,11 @@ void pglPrimBuffer::Display(void)
 
     if(vertexType & 0xf)
     {
+        if(!valid)
+            glBufferSubData(GL_ARRAY_BUFFER,offset,allocated*8,uv);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2,GL_FLOAT,0, uv);
+        glTexCoordPointer(2,GL_FLOAT,0,(void*)offset);
+        offset += allocated*8;
     }
     else
     {
@@ -623,12 +652,28 @@ void pglPrimBuffer::Display(void)
 
     if(indexCount && indices)
     {
-        glDrawElements(primTypeTable[primType],indexCount,GL_UNSIGNED_SHORT,indices);
+        if(!indexBuffer)
+        {
+            glGenBuffers(1, &indexBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBuffer);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,indexCount*sizeof(unsigned short),NULL,GL_STATIC_DRAW);
+        }
+        else
+        {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBuffer);
+        }
+
+        if(!valid)
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,0,indexCount*sizeof(unsigned short),indices);
+        glDrawElements(primTypeTable[primType],indexCount,GL_UNSIGNED_SHORT,0);
     }
     else
     {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
         glDrawArrays(primTypeTable[primType], 0, total);
     }
+
+    valid = true;
 
     END_PROFILE( "pglPrimBuffer::Display" );
 }

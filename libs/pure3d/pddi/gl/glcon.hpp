@@ -166,7 +166,11 @@ protected:
     unsigned short* indices;
     unsigned indexCount;
 
-    float mem;
+    bool valid;
+    GLuint vertexBuffer;
+    GLuint indexBuffer;
+
+    unsigned mem;
 };
     
 #endif
