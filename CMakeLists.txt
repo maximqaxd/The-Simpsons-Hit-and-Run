@@ -1142,6 +1142,7 @@ target_include_directories(radcontent
 target_link_libraries(radcontent
 	radcore
 	radmath
+	pddi
 )
 
 add_library(pddi STATIC ${PDDI_SOURCES})
