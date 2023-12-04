@@ -17,9 +17,9 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
 {
     switch (format)
     {
-#ifdef RAD_VITA
-    case PDDI_PIXEL_RGB888: return GL_BGR;
-    case PDDI_PIXEL_ARGB8888: return GL_BGRA;
+#if defined RAD_VITA || defined RAD_GLES
+    case PDDI_PIXEL_RGB888: return GL_BGRA_EXT;
+    case PDDI_PIXEL_ARGB8888: return GL_BGRA_EXT;
 #else
     case PDDI_PIXEL_RGB555:
     case PDDI_PIXEL_RGB565: return GL_RGB5;
@@ -32,9 +32,15 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
     case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
     case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
 #endif
+#ifdef RAD_GLES
+    case PDDI_PIXEL_DXT1: return GL_RGBA;
+    case PDDI_PIXEL_DXT3: return GL_RGBA;
+    case PDDI_PIXEL_DXT5: return GL_RGBA;
+#else
     case PDDI_PIXEL_DXT1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
     case PDDI_PIXEL_DXT3: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
     case PDDI_PIXEL_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+#endif
     }
     PDDIASSERT(false);
     return GL_INVALID_ENUM;
@@ -87,6 +93,10 @@ static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth
     return PDDI_PIXEL_UNKNOWN;
 };
 
+#ifdef RAD_GLES
+#include "decompress.h"
+#endif
+
 void pglTexture::SetGLState(void)
 {
     BEGIN_PROFILE( "pglTexture::SetGLState" );
@@ -107,13 +117,28 @@ void pglTexture::SetGLState(void)
 //      if(nMipMap == 0)
         if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
+#if RAD_GLES
+            unsigned char* image = new unsigned char[xSize * ySize * 4];
+            unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
+            if (type == PDDI_TEXTYPE_DXT1)
+                BlockDecompressImageBC1(xSize, ySize, (const uint8_t*)bits[0], image);
+            else if (type == PDDI_TEXTYPE_DXT3)
+                BlockDecompressImageBC2(xSize, ySize, (const uint8_t*)bits[0], image);
+            else if( type == PDDI_TEXTYPE_DXT5)
+                BlockDecompressImageBC3(xSize, ySize, (const uint8_t*)bits[0], image);
+            glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
+                ySize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                image);
+            delete [] image;
+#else
             unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
             GLenum internalFormat = lock.format == PDDI_PIXEL_DXT5 ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT :
                 lock.format == PDDI_PIXEL_DXT3 ? GL_COMPRESSED_RGBA_S3TC_DXT3_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
             glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, xSize,
                 ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
+#endif
         }
-#ifdef RAD_VITA
+#if defined(RAD_VITA) && !defined(RAD_GLES)
         else if (type == PDDI_TEXTYPE_YUV)
         {
             glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_YUV420P_BT601_VGL, xSize, ySize, 0, (xSize * ySize * 3) / 2, (GLvoid*)bits[0]);
@@ -122,7 +147,7 @@ void pglTexture::SetGLState(void)
         else
         {
             glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
-                ySize, 0, lock.native ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE,
+                ySize, 0, lock.native ? GL_BGRA_EXT : GL_RGBA, GL_UNSIGNED_BYTE,
                 (GLvoid *)bits[0]);
         }
         /*
@@ -178,7 +203,7 @@ void pglTexture::SetGLState(void)
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
 
-#ifndef RAD_VITA
+#ifndef RAD_GLES
     float fpriority = float(priority) / 31.0f;
     glPrioritizeTextures(1, &gltexture, &fpriority);
 #endif

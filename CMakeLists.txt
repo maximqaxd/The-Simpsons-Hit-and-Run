@@ -86,6 +86,11 @@ else()
 	)
 endif()
 
+option(SRR2_USE_GLES OFF)
+if(SRR2_USE_GLES)
+	add_compile_definitions(RAD_GLES)
+endif()
+
 if(WIN32)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
@@ -1110,18 +1115,15 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/gl/gldev.cpp"
 	"libs/pure3d/pddi/gl/glmat.cpp"
 	"libs/pure3d/pddi/gl/gltex.cpp"
+	"libs/pure3d/pddi/gl/glad/src/glad.c"
 )
-if(VITA)
+if(SRR2_USE_GLES)
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/decompress.cpp")
+endif()
+if(VITA AND NOT SRR2_USE_GLES)
 	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
 else()
 	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
-endif()
-if(CMAKE_SYSTEM_NAME STREQUAL Nintendo3DS)
-	# TODO: the 3DS GPU is technically capable of OpenGL ES 1.1 (+ some 2.0),
-	# but I'm not sure how complete https://github.com/cpp3ds/gl3ds is
-	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/glad/src/glad.c")
-else()
-	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/glad/src/glad.c")
 endif()
 
 add_library(radcore STATIC ${RADCORE_SOURCES})
@@ -1225,7 +1227,6 @@ if(SRR2_BUILD_TESTS)
 	)
 	if(VITA)
 		target_link_libraries(simplemovie
-			vitaGL
 			SceLibKernel_stub
 			ScePvf_stub
 			mathneon
@@ -1233,13 +1234,15 @@ if(SRR2_BUILD_TESTS)
 			SceAppMgr_stub
 			SceAppUtil_stub
 			ScePgf_stub
-			vitashark
 			SceShaccCgExt
 			SceShaccCg_stub
 			SceCtrl_stub
 			taihen_stub
 			SceKernelDmacMgr_stub
 		)
+		if(NOT SRR2_USE_GLES)
+			target_link_libraries(simplemovie vitaGL vitashark)
+		endif()
 	endif()
 	file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -1359,7 +1362,6 @@ target_link_libraries(SRR2
 )
 if(VITA)
 	target_link_libraries(SRR2
-		vitaGL
 		SceLibKernel_stub
 		ScePvf_stub
 		mathneon
@@ -1367,13 +1369,15 @@ if(VITA)
 		SceAppMgr_stub
 		SceAppUtil_stub
 		ScePgf_stub
-		vitashark
 		SceShaccCgExt
 		SceShaccCg_stub
 		SceCtrl_stub
 		taihen_stub
 		SceKernelDmacMgr_stub
 	)
+	if(NOT SRR2_USE_GLES)
+		target_link_libraries(SRR2 vitaGL vitashark)
+	endif()
 endif()
 if(SRR2_USE_BINK)
 	target_link_libraries(SRR2 bink)
@@ -1391,15 +1395,35 @@ target_include_directories(SRR2 PRIVATE "code/")
 
 if(VITA)
 	## Create Vita files
-	vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
-	# The FILE directive lets you add additional files to the VPK, the syntax is
-	# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
-	vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
-		VERSION ${VITA_VERSION}
-		NAME ${VITA_APP_NAME}
-		FILE sce_sys/icon0.png sce_sys/icon0.png
-		FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-		FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-		FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-	)
+	if(SRR2_USE_GLES)
+		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
+		# The FILE directive lets you add additional files to the VPK, the syntax is
+		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
+		vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+			VERSION ${VITA_VERSION}
+			NAME ${VITA_APP_NAME}
+			FILE sce_sys/icon0.png sce_sys/icon0.png
+			FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+			FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+			FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+
+			#suprx
+			FILE module/libGLESv1_CM.suprx module/libGLESv1_CM.suprx
+			FILE module/libgpu_es4_ext.suprx module/libgpu_es4_ext.suprx
+			FILE module/libIMGEGL.suprx module/libIMGEGL.suprx
+			FILE module/libpvrPSP2_WSEGL.suprx module/libpvrPSP2_WSEGL.suprx
+		)
+	else()
+		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+		# The FILE directive lets you add additional files to the VPK, the syntax is
+		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
+		vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+			VERSION ${VITA_VERSION}
+			NAME ${VITA_APP_NAME}
+			FILE sce_sys/icon0.png sce_sys/icon0.png
+			FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+			FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+			FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+		)
+	endif()
 endif()

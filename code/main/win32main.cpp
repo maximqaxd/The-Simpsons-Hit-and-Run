@@ -28,6 +28,7 @@
 #ifdef RAD_VITA
 #include <unistd.h>
 #include <psp2/kernel/clib.h>
+unsigned int sceLibcHeapSize = 16 * 1024 * 1024;
 #endif
 
 //========================================

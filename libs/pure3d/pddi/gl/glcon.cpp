@@ -16,6 +16,14 @@
 
 #include <debug/profiler.h>
 
+#ifdef RAD_GLES
+#define glOrtho glOrthof
+#define glFrustum glFrustumf
+#define glClearDepth glClearDepthf
+#define glDepthRange glDepthRangef
+#define glFogi glFogx
+#endif
+
 // vertex arrays rendering
 GLenum primTypeTable[5] =
 {
@@ -115,9 +123,9 @@ void pglContext::BeginFrame()
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
-        glColor3f(1,1,1);
+        glColor4f(1,1,1,1);
 
-#ifndef RAD_VITA
+#ifndef RAD_GLES
         glEnable(GL_DITHER);
 
         if(display->CheckExtension("GL_EXT_separate_specular_color"))
@@ -248,6 +256,149 @@ void pglContext::SetScissor(pddiRect* rect)
     }
 }
 
+#ifdef RAD_GLES
+#include <vector>
+class pglPrimStream : public pddiPrimStream
+{
+public:
+    std::vector<pddiVector> coords;
+    std::vector<pddiVector> normals;
+    std::vector<GLubyte> colours;
+    std::vector<pddiVector2> uvs;
+
+    GLenum primitive;
+
+    void Coord(float x, float y, float z)  
+    {
+        coords.push_back( pddiVector{ x, y, z } );
+    }
+
+    void Normal(float x, float y, float z) 
+    {
+        normals.push_back( pddiVector{ x, y, z } );
+    }
+
+    void Colour(pddiColour colour, int channel = 0)
+    {
+        colours.push_back( colour.Red() );
+        colours.push_back( colour.Green() );
+        colours.push_back( colour.Blue() );
+        colours.push_back( colour.Alpha() );
+    }
+
+    void UV(float u, float v, int channel = 0) 
+    { 
+        if(channel == 0)
+        {
+            uvs.push_back( pddiVector2{ u, v } );
+        }
+    }
+
+    void Specular(pddiColour colour) 
+    {
+        //
+    }
+
+    void Vertex(pddiVector* v, pddiColour c) 
+    {
+        colours.push_back( c.Red() );
+        colours.push_back( c.Green() );
+        colours.push_back( c.Blue() );
+        colours.push_back( c.Alpha() );
+        coords.push_back( *v );
+    }
+
+    void Vertex(pddiVector* v, pddiVector* n)
+    {
+        normals.push_back( *n );
+        coords.push_back( *v );
+    }
+
+    void Vertex(pddiVector* v, pddiVector2* uv)
+    {
+        uvs.push_back( *uv );
+        coords.push_back( *v );
+    }
+
+    void Vertex(pddiVector* v, pddiColour c, pddiVector2* uv)
+    {
+        colours.push_back( c.Red() );
+        colours.push_back( c.Green() );
+        colours.push_back( c.Blue() );
+        colours.push_back( c.Alpha() );
+        uvs.push_back( *uv );
+        coords.push_back( *v );
+    }
+
+    void Vertex(pddiVector* v, pddiVector* n, pddiVector2* uv)
+    {
+        normals.push_back( *n );
+        uvs.push_back( *uv );
+        coords.push_back( *v );
+    }
+
+} thePrimStream;
+
+pddiPrimStream* pglContext::BeginPrims(pddiShader* mat, pddiPrimType primType, unsigned vertexType, int vertexCount, unsigned pass)
+{
+    if(!mat)
+        mat = defaultShader;
+
+    pddiBaseContext::BeginPrims(mat, primType, vertexType, vertexCount);
+    pddiBaseShader* material = (pddiBaseShader*)mat;
+    ADD_STAT( PDDI_STAT_MATERIAL_OPS, !material->IsCurrent() );
+    material->SetMaterial();
+    thePrimStream.primitive = primTypeTable[primType];
+    return &thePrimStream;
+}
+
+void pglContext::EndPrims(pddiPrimStream* stream)
+{
+    pddiBaseContext::EndPrims(stream);
+    pglPrimStream* glstream = (pglPrimStream*)stream;
+
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+    glVertexPointer( 3, GL_FLOAT, 0, glstream->coords.data() );
+
+    if( !glstream->normals.empty() )
+    {
+        glEnableClientState( GL_NORMAL_ARRAY );
+        glNormalPointer( GL_FLOAT, 0, glstream->normals.data() );
+    }
+    else
+    {
+        glDisableClientState( GL_NORMAL_ARRAY );
+    }
+
+    if( !glstream->colours.empty() )
+    {
+        glEnableClientState( GL_COLOR_ARRAY );
+        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, glstream->colours.data() );
+    }
+    else
+    {
+        glDisableClientState( GL_COLOR_ARRAY );
+    }
+
+    if( !glstream->uvs.empty() )
+    {
+        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+        glTexCoordPointer( 2, GL_FLOAT, 0, glstream->uvs.data() );
+    }
+    else
+    {
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    }
+    
+    glDrawArrays( glstream->primitive, 0, glstream->coords.size() );
+
+    glstream->coords.clear();
+    glstream->normals.clear();
+    glstream->colours.clear();
+    glstream->uvs.clear();
+}
+#else
 class pglPrimStream : public pddiPrimStream
 {
 public:
@@ -332,7 +483,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     pddiBaseContext::EndPrims(stream);
     glEnd();
 }
-
+#endif
 
 class pglPrimBufferStream : public pddiPrimBufferStream
 {
@@ -589,16 +740,13 @@ void pglPrimBuffer::SetIndices(unsigned short* i, int count)
 
 void pglPrimBuffer::Display(void)
 {
-    //if(!total)
-    //    return;
-
     BEGIN_PROFILE( "pglPrimBuffer::Display" );
 
     if(!vertexBuffer)
     {
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, mem, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, mem, NULL, GL_DYNAMIC_DRAW);
     }
     else
     {
@@ -656,7 +804,7 @@ void pglPrimBuffer::Display(void)
         {
             glGenBuffers(1, &indexBuffer);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBuffer);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER,indexCount*sizeof(unsigned short),NULL,GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,indexCount*sizeof(unsigned short),NULL,GL_DYNAMIC_DRAW);
         }
         else
         {
@@ -891,6 +1039,12 @@ void pglContext::SetStencilOp(pddiStencilOp failOp, pddiStencilOp zFailOp, pddiS
     glStencilOp(stencilTable[failOp],stencilTable[zFailOp],stencilTable[zPassOp]);
 }
 
+#ifdef RAD_GLES
+void pglContext::SetFillMode(pddiFillMode mode)
+{
+    pddiBaseContext::SetFillMode(mode);
+}
+#else
 // polygon fill
 GLenum fillTable[3] =
 {
@@ -904,6 +1058,7 @@ void pglContext::SetFillMode(pddiFillMode mode)
     pddiBaseContext::SetFillMode(mode);
     glPolygonMode(GL_FRONT_AND_BACK, fillTable[mode]);
 }
+#endif
 
 // fog
 void pglContext::EnableFog(bool enable)

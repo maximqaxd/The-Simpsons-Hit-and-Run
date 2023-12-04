@@ -202,7 +202,7 @@ void radMovieRenderStrategyBink::ChangeParameters( unsigned int width, unsigned 
                 // Create texture (platform dependent)
                 //
                 
-                #if RAD_VITA
+                #if RAD_VITA && !RAD_GLES
                 bool wasTextureCreated = m_pTile[ tileIndex ].m_pTexture->Create( m_MovieWidth, m_MovieHeight, RMV_TEXTURE_BITDEPTH, 0, 0, PDDI_TEXTYPE_YUV );
                 #elif RAD_WIN32
                 bool wasTextureCreated = m_pTile[ tileIndex ].m_pTexture->Create( RMV_TEXTURE_MAX_TEX_DIM, RMV_TEXTURE_MAX_TEX_DIM, RMV_TEXTURE_BITDEPTH, 8, 0, PDDI_TEXTYPE_RGB );

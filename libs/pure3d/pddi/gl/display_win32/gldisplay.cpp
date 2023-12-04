@@ -167,19 +167,26 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     else
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+#ifndef RAD_VITA
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
 #ifdef RAD_DEBUG
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
 #endif
 
     prevRC = SDL_GL_GetCurrentContext();
     hRC = SDL_GL_CreateContext(win);
     if (!hRC)
-        fprintf(stderr, "SDL_GL_CreateContext() error: %s\n", SDL_GetError());
+        SDL_Log("SDL_GL_CreateContext() error: %s", SDL_GetError());
     PDDIASSERT(hRC);
 
+#ifdef RAD_GLES
+    if (!gladLoadGLES1Loader( (GLADloadproc)SDL_GL_GetProcAddress ))
+        return false;
+#else
     if (!gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ))
         return false;
+#endif
 
     char* glVendor   = (char*)glGetString(GL_VENDOR);
     char* glRenderer = (char*)glGetString(GL_RENDERER);
@@ -209,11 +216,11 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", last);
     }
 
-    extBGRA = CheckExtension("GL_EXT_bgra");
+    extBGRA = CheckExtension("GL_EXT_bgra") || CheckExtension("GL_EXT_texture_format_BGRA8888");
 
-    //sprintf(userDisplayInfo[0].description,"OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
+    SDL_Log("OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
 
-#ifdef RAD_DEBUG
+#if defined RAD_DEBUG && !defined RAD_VITA
     glEnable(GL_DEBUG_OUTPUT_KHR);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
     glDebugMessageCallback(MessageCallback, NULL);
@@ -306,7 +313,7 @@ void pglDisplay::SwapBuffers(void)
     
 unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
 {
-
+#ifndef RAD_GLES
     if(nBytes < (winHeight * winWidth * 4))
         return 0;
 
@@ -327,6 +334,7 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
     }
 
     return winHeight * winWidth * 4;
+#endif
 }
 
 unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayModes)

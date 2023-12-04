@@ -5,7 +5,7 @@
 
 // stub OpenGL header, all pddi gl code uses this instead of '#include <GL/gl.h>
 
-#ifdef RAD_VITA
+#if defined(RAD_VITA) && !defined(RAD_GLES)
 #include <vitaGL.h>
 #else
 #include <glad/glad.h>
