@@ -145,26 +145,17 @@ public:
     void Display(void);
 
 protected:
-    friend class pglPrimBufferStream;
-    pglPrimBufferStream* stream;
     pglContext* context;
 
     pddiPrimType primType;
     unsigned vertexType;
 
-    int nStrips;
-    int* strips;
+    GLuint buffer;
+    GLuint indices;
 
-    float* coord;
-    float* normal;
-    float* uv;
-    unsigned char* colour;
-
-    unsigned allocated;
-    unsigned total;
-
-    unsigned short* indices;
+    unsigned vertexCount;
     unsigned indexCount;
+    unsigned stride;
 
     float mem;
 };
