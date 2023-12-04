@@ -81,7 +81,6 @@ private:
     bool reset;
 
     float beginTime;
-    SDL_mutex* mutex;
 };
 
 #endif

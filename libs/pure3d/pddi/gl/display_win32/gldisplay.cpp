@@ -37,8 +37,6 @@ pglDisplay ::pglDisplay(pddiDisplayInfo* info)
 
     reset = true;
 	m_ForceVSync = false;
-
-    mutex = SDL_CreateMutex();
 }
 
 pglDisplay ::~pglDisplay()
@@ -46,7 +44,6 @@ pglDisplay ::~pglDisplay()
     /* release and free the device context and rendering context */
     SDL_GL_DeleteContext(hRC);
     SDL_SetWindowGammaRamp(win, initialGammaRamp[0], initialGammaRamp[1], initialGammaRamp[2]);
-    SDL_DestroyMutex(mutex);
 }
 
 #define KEYPRESSED(x) (GetKeyState((x)) & (1<<(sizeof(int)*8)-1))
@@ -302,12 +299,7 @@ void pglDisplay::SetGamma(float r, float g, float b)
 
 void pglDisplay::SwapBuffers(void)
 {
-    SDL_LockMutex( mutex );
-    SDL_GLContext prev = SDL_GL_GetCurrentContext();
-    SDL_GL_MakeCurrent(win, hRC);
     SDL_GL_SwapWindow(win);
-    SDL_GL_MakeCurrent(win, prev);
-    SDL_UnlockMutex( mutex );
     reset = false;
 }
 
@@ -370,7 +362,6 @@ float pglDisplay::EndTiming()
 
 void pglDisplay::BeginContext(void)
 {
-    SDL_LockMutex(mutex);
     prevRC = SDL_GL_GetCurrentContext();
     PDDIASSERT(prevRC != hRC);
     int error = SDL_GL_MakeCurrent(win, hRC);
@@ -381,6 +372,5 @@ void pglDisplay::EndContext(void)
 {
     int error = SDL_GL_MakeCurrent(win, prevRC);
     PDDIASSERT(!error);
-    SDL_UnlockMutex(mutex);
 }
 
