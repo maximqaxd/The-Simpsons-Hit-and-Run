@@ -75,8 +75,10 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     display->AddRef();
     disp->SetContext(this);
 
+    display->BeginContext();
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
     DefaultState();
+    display->EndContext();
     contextID = 0;
 
     extContext = new pglExtContext(display);
@@ -102,6 +104,8 @@ pglContext::~pglContext()
 void pglContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
+
+    extContext->BeginContext();
 
     SDL_GL_SetSwapInterval(display->GetForceVSync() ? 1 : 0);
 
@@ -140,6 +144,8 @@ void pglContext::BeginFrame()
 
 void pglContext::EndFrame()
 {
+    extContext->EndContext();
+
     pddiBaseContext::EndFrame();
 }
 
@@ -337,106 +343,63 @@ void pglContext::EndPrims(pddiPrimStream* stream)
 class pglPrimBufferStream : public pddiPrimBufferStream
 {
 public:
-    float* coord;
-    float* normal;
-    float* uv;
-    unsigned char* colour;
+    pglPrimBuffer* buffer;
 
-    unsigned stride;
-    unsigned allocated;
-    unsigned total;
-
-    pglPrimBufferStream(void* basePtr, unsigned vertexFormat, int nVertex)
+    pglPrimBufferStream(pglPrimBuffer* b)
     {
-        unsigned char* bufferPtr = (unsigned char*)basePtr;
-
-        stride = total = allocated = 0;
-        coord = normal = uv = NULL;
-        colour = NULL;
-
-        coord = (float*)bufferPtr;
-        bufferPtr += 12;
-        stride += 12;
-
-        if(vertexFormat & PDDI_V_NORMAL) 
-        {
-            normal = (float*)bufferPtr;
-            bufferPtr += 12;
-            stride += 12;
-        }
-
-        if(vertexFormat & 0xf) 
-        {
-            uv = (float*)bufferPtr;
-            bufferPtr += 8;
-            stride += 8;
-        }
-
-        if(vertexFormat & PDDI_V_COLOUR) 
-        {
-            colour = bufferPtr;
-            bufferPtr += 4;
-            stride += 4;
-        }
-
-        allocated = nVertex;
-        total = 0;
+        buffer = b;
     }
 
     void Next(void)  
     {
-        if(coord)
-            coord += stride / sizeof(float);
+        if(buffer->coord)
+            buffer->coord += 3;
 
-        if(normal)
-            normal += stride / sizeof( float );
+        if(buffer->normal)
+            buffer->normal += 3;
 
-        if(uv)
-            uv += stride / sizeof( float );
+        if(buffer->uv)
+            buffer->uv += 2;
 
-        if(colour)
-            colour += stride;
+        if(buffer->colour)
+            buffer->colour += 4;
 
-        total++;
-        PDDIASSERT(total <= allocated);
+        buffer->total++;
+        PDDIASSERT(buffer->total <= buffer->allocated);
     }
 
     void Position(float x, float y, float z)  
     { 
-        PDDIASSERT(coord);
-        coord[0] = x;
-        coord[1] = y;
-        coord[2] = z;
+        buffer->coord[0] = x;
+        buffer->coord[1] = y;
+        buffer->coord[2] = z;
         Next();
     }
 
     void Normal(float x, float y, float z) 
     { 
-        PDDIASSERT(normal);
-        normal[0] = x;
-        normal[1] = y;
-        normal[2] = z;
+        buffer->normal[0] = x;
+        buffer->normal[1] = y;
+        buffer->normal[2] = z;
     }
 
-    void Colour(pddiColour c, int channel = 0)         
+    void Colour(pddiColour colour, int channel = 0)         
     {
-        PDDIASSERT(colour);
         // HBW: Multiple CBVs not yet implemented.  For now just ignore channel.
-        colour[0] = c.Red();
-        colour[1] = c.Green();
-        colour[2] = c.Blue();
-        colour[3] = c.Alpha();
+        buffer->colour[0] = colour.Red();
+        buffer->colour[1] = colour.Green();
+        buffer->colour[2] = colour.Blue();
+        buffer->colour[3] = colour.Alpha();
     }
 
     void TexCoord1(float u, int channel = 0) {}
 
     void TexCoord2(float u, float v, int channel = 0) 
     { 
-        PDDIASSERT(uv);
         if(channel == 0)
         {
-            uv[0] = u;
-            uv[1] = v;
+            buffer->uv[0] = u;
+            buffer->uv[1] = v;
         }
     }
 
@@ -458,66 +421,61 @@ public:
 
     void Vertex(pddiVector* v, pddiColour c) 
     {
-        PDDIASSERT(normal && coord);
-        colour[0] = c.Red();
-        colour[1] = c.Green();
-        colour[2] = c.Blue();
-        colour[3] = c.Alpha();
-        coord[0] = v->x;
-        coord[1] = v->y;
-        coord[2] = v->z;
+        buffer->colour[0] = c.Red();
+        buffer->colour[1] = c.Green();
+        buffer->colour[2] = c.Blue();
+        buffer->colour[3] = c.Alpha();
+        buffer->coord[0] = v->x;
+        buffer->coord[1] = v->y;
+        buffer->coord[2] = v->z;
         Next();
     }
 
     void Vertex(pddiVector* v, pddiVector* n)
     {
-        PDDIASSERT(normal && coord);
-        normal[0] = n->x;
-        normal[1] = n->y;
-        normal[2] = n->z;
-        coord[0] = v->x;
-        coord[1] = v->y;
-        coord[2] = v->z;
+        buffer->normal[0] = n->x;
+        buffer->normal[1] = n->y;
+        buffer->normal[2] = n->z;
+        buffer->coord[0] = v->x;
+        buffer->coord[1] = v->y;
+        buffer->coord[2] = v->z;
         Next();
     }
 
-    void Vertex(pddiVector* v, pddiVector2* t)
+    void Vertex(pddiVector* v, pddiVector2* uv)
     {
-        PDDIASSERT(uv && coord);
-        uv[0] = t->u;
-        uv[1] = t->v;
-        coord[0] = v->x;
-        coord[1] = v->y;
-        coord[2] = v->z;
+        buffer->uv[0] = uv->u;
+        buffer->uv[1] = uv->v;
+        buffer->coord[0] = v->x;
+        buffer->coord[1] = v->y;
+        buffer->coord[2] = v->z;
         Next();
     }
 
-    void Vertex(pddiVector* v, pddiColour c, pddiVector2* t)
+    void Vertex(pddiVector* v, pddiColour c, pddiVector2* uv)
     {
-        PDDIASSERT(normal && uv && coord);
-        colour[0] = c.Red();
-        colour[1] = c.Green();
-        colour[2] = c.Blue();
-        colour[3] = c.Alpha();
-        uv[0] = t->u;
-        uv[1] = t->v;
-        coord[0] = v->x;
-        coord[1] = v->y;
-        coord[2] = v->z;
+        buffer->colour[0] = c.Red();
+        buffer->colour[1] = c.Green();
+        buffer->colour[2] = c.Blue();
+        buffer->colour[3] = c.Alpha();
+        buffer->uv[0] = uv->u;
+        buffer->uv[1] = uv->v;
+        buffer->coord[0] = v->x;
+        buffer->coord[1] = v->y;
+        buffer->coord[2] = v->z;
         Next();
     }
 
-    void Vertex(pddiVector* v, pddiVector* n, pddiVector2* t)
+    void Vertex(pddiVector* v, pddiVector* n, pddiVector2* uv)
     {
-        PDDIASSERT(normal && uv && coord);
-        normal[0] = n->x;
-        normal[1] = n->y;
-        normal[2] = n->z;
-        uv[0] = t->u;
-        uv[1] = t->v;
-        coord[0] = v->x;
-        coord[1] = v->y;
-        coord[2] = v->z;
+        buffer->normal[0] = n->x;
+        buffer->normal[1] = n->y;
+        buffer->normal[2] = n->z;
+        buffer->uv[0] = uv->u;
+        buffer->uv[1] = uv->v;
+        buffer->coord[0] = v->x;
+        buffer->coord[1] = v->y;
+        buffer->coord[2] = v->z;
         Next();
     }
 
@@ -529,46 +487,51 @@ public:
 
 pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFormat, int nVertex, int nIndex) : context(c)
 {
-    buffer = indices = 0;
+    stream = new pglPrimBufferStream(this);
+
+    total = allocated = nStrips = 0;
+    coord = normal = uv = NULL;
+    colour = NULL;
+    strips = NULL;
+    indices = NULL;
 
     primType = type;
     vertexType = vertexFormat;
 
-    vertexCount = nVertex;
+    allocated = nVertex;
     
-    stride = 12;
+    coord = new float[3 * nVertex];
+    mem = 12;
 
     if(vertexFormat & PDDI_V_NORMAL) 
     {
-        stride += 12;
+        normal = new float[3 * nVertex];
+        mem += 12;
     }
 
     if(vertexFormat & 0xf) 
     {
-        stride += 8;
+        uv = new float[2 * nVertex];
+        mem += 8;
     }
 
     if(vertexFormat & PDDI_V_COLOUR) 
     {
-        stride += 4;
+        colour = new unsigned char[4 * nVertex];
+        mem += 4;
     }
 
-    mem = stride * nVertex;
-
-    glGenBuffers(1, &buffer);
-    PDDIASSERT(buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, stride * nVertex, NULL, GL_STATIC_DRAW);
+    mem *= nVertex;
 
     indexCount = nIndex;
-    if(indexCount)
-    {
-        glGenBuffers(1, &indices);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, nIndex * 2, NULL, GL_STATIC_DRAW);
-    }
+    if(indexCount) 
+        indices = new unsigned short[indexCount];
 
     mem += nIndex * 2;
+
+    nStrips = 0;
+    strips = NULL;
+
     mem /= 1024.0f;
 
     context->ADD_STAT(PDDI_STAT_BUFFERED_COUNT, 1);
@@ -577,8 +540,14 @@ pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFo
 
 pglPrimBuffer::~pglPrimBuffer()
 {
-    glDeleteBuffers(1, &buffer);
-    glDeleteBuffers(1, &indices);
+    delete stream;
+
+    delete [] strips;
+    delete [] indices;
+    delete [] coord;
+    delete [] normal;
+    delete [] uv;
+    delete [] colour;
 
     context->ADD_STAT(PDDI_STAT_BUFFERED_COUNT, -1);
     context->ADD_STAT(PDDI_STAT_BUFFERED_ALLOC, -mem);
@@ -586,91 +555,85 @@ pglPrimBuffer::~pglPrimBuffer()
 
 pddiPrimBufferStream* pglPrimBuffer::Lock()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    PDDIASSERT(ptr);
-    return new pglPrimBufferStream(ptr, vertexType, vertexCount);
+    total = 0;
+    return stream;
 }
 
 void pglPrimBuffer::Unlock(pddiPrimBufferStream* stream)
 {
-    delete stream;
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    if(coord)
+        coord -= total * 3;
+
+    if(normal)
+        normal -= total * 3;
+
+    if(uv)
+        uv -= total * 2;
+
+    if(colour)
+        colour -= total * 4;
 }
 
 unsigned char* pglPrimBuffer::LockIndexBuffer()
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
-    void* ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-    PDDIASSERT(ptr);
-    return (unsigned char*)ptr;
+    PDDIASSERT(0);
+    return NULL;
 }
 
 void pglPrimBuffer::UnlockIndexBuffer(int count)
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
-    glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+    PDDIASSERT(0);
 }
 
 void pglPrimBuffer::SetIndices(unsigned short* i, int count)
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned short), i, GL_STATIC_DRAW);
-    indexCount = count;
+    PDDIASSERT(count <= (int)indexCount);
+    memcpy(indices, i, count * sizeof(unsigned short));
 }
 
 void pglPrimBuffer::Display(void)
 {
     BEGIN_PROFILE( "pglPrimBuffer::Display" );
-    
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
 
-    unsigned char* offset = 0;
-    glVertexPointer(3,GL_FLOAT,stride,offset);
-    offset += 12;
+    glVertexPointer(3,GL_FLOAT,0,coord);
 
     if(vertexType & PDDI_V_NORMAL)
     {
         glEnableClientState(GL_NORMAL_ARRAY);
-        glNormalPointer(GL_FLOAT,stride,offset);
-        offset += 12;
+        glNormalPointer(GL_FLOAT,0,normal);
     }
     else
     {
         glDisableClientState(GL_NORMAL_ARRAY);
     }
 
-    if(vertexType & 0xf)
-    {
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2,GL_FLOAT,stride,offset);
-        offset += 8;
-    }
-    else
-    {
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
-
     if(vertexType & PDDI_V_COLOUR)
     {
         glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4,GL_UNSIGNED_BYTE,stride,offset);
-        offset += 4;
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,colour);
     }
     else
     {
         glDisableClientState(GL_COLOR_ARRAY);
     }
 
-    if(indexCount && indices)
+    if(vertexType & 0xf)
     {
-        glDrawElements(primTypeTable[primType],indexCount,GL_UNSIGNED_SHORT,0);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2,GL_FLOAT,0, uv);
     }
     else
     {
-        glDrawArrays(primTypeTable[primType], 0, vertexCount);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    if(indexCount && indices)
+    {
+        glDrawElements(primTypeTable[primType],indexCount,GL_UNSIGNED_SHORT,indices);
+    }
+    else
+    {
+        glDrawArrays(primTypeTable[primType], 0, total);
     }
 
     END_PROFILE( "pglPrimBuffer::Display" );

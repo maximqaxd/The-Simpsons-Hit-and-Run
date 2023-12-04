@@ -7,8 +7,6 @@
 #include <radload/utility/hashtable.hpp>
 #include <radload/utility/queue.hpp>
 #include <radfile.hpp>
-#include <p3d/utility.hpp>
-#include <pddi/pddiext.hpp>
 
 #ifdef RADLOAD_USE_WATCHER
 #include <raddebugwatch.hpp>
@@ -169,10 +167,6 @@ radLoadFileLoader* radLoadManager::GetFileLoader( const char* extension )
 void radLoadManager::InternalService()
 {
     m_pMutex->Lock();
-
-    pddiExtGLContext* gl = (pddiExtGLContext*)p3d::pddi->GetExtension( PDDI_EXT_GL_CONTEXT );
-    if( gl ) gl->BeginContext();
-
     while( !m_bDone )
     {
         if( !m_pLoadQueue->Empty() )
@@ -249,9 +243,6 @@ void radLoadManager::InternalService()
             SwitchTasks();
         }
     }
-
-    if( gl ) gl->EndContext();
-
     m_pMutex->Unlock();
 }
 
