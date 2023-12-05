@@ -88,17 +88,10 @@ static SDLInputPoint g_SDLPoints[] =
     { g_Sdlipt[ 0 ], "Back",             SDL_CONTROLLER_BUTTON_BACK },
     { g_Sdlipt[ 0 ], "LeftThumb",        SDL_CONTROLLER_BUTTON_LEFTSTICK },
     { g_Sdlipt[ 0 ], "RightThumb",       SDL_CONTROLLER_BUTTON_RIGHTSTICK },
-#ifdef __SWITCH__
-    { g_Sdlipt[ 0 ], "A",                SDL_CONTROLLER_BUTTON_B },
-    { g_Sdlipt[ 0 ], "B",                SDL_CONTROLLER_BUTTON_A },
-    { g_Sdlipt[ 0 ], "X",                SDL_CONTROLLER_BUTTON_Y },
-    { g_Sdlipt[ 0 ], "Y",                SDL_CONTROLLER_BUTTON_X },
-#else
     { g_Sdlipt[ 0 ], "A",                SDL_CONTROLLER_BUTTON_A },
     { g_Sdlipt[ 0 ], "B",                SDL_CONTROLLER_BUTTON_B },
     { g_Sdlipt[ 0 ], "X",                SDL_CONTROLLER_BUTTON_X },
     { g_Sdlipt[ 0 ], "Y",                SDL_CONTROLLER_BUTTON_Y },
-#endif
     { g_Sdlipt[ 0 ], "Black",            SDL_CONTROLLER_BUTTON_LEFTSHOULDER },
     { g_Sdlipt[ 0 ], "White",            SDL_CONTROLLER_BUTTON_RIGHTSHOULDER },
     { g_Sdlipt[ 1 ], "LeftTrigger",      SDL_CONTROLLER_AXIS_TRIGGERLEFT },
