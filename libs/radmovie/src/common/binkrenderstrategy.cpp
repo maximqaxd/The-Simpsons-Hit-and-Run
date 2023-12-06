@@ -283,7 +283,7 @@ bool radMovieRenderStrategyBink::Render( void )
         float u = 0.0f;
         float du = m_pTile[ tile ].m_Width / ( float ) m_pTile[ tile ].m_pTexture->GetWidth( );
         
-        #if RAD_VITA
+        #if defined RAD_VITA && !defined RAD_GLES
 
         float v = 0.0f;
         float dv = m_pTile[ tile ].m_Height / ( float ) m_pTile[ tile ].m_pTexture->GetHeight( );

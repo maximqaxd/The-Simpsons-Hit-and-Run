@@ -35,7 +35,7 @@
 #define RMV_TEXTURE_MAX_TEX_DIM 1024 // somewhat arbitrary, just needs to be big
 #endif // RAD_XBOX
 
-#ifdef RAD_VITA
+#if defined RAD_VITA && !defined RAD_GLES
 #define RMV_TEXTURE_BITDEPTH 12
 #else
 #define RMV_TEXTURE_BITDEPTH 32
