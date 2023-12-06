@@ -313,13 +313,16 @@ void pglDisplay::SwapBuffers(void)
     
 unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
 {
-#ifndef RAD_GLES
     if(nBytes < (winHeight * winWidth * 4))
         return 0;
 
+#ifndef RAD_GLES
     glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0,  winWidth, winHeight, GL_BGRA, GL_UNSIGNED_BYTE, buffer);  
+#endif
+    glReadPixels(0, 0,  winWidth, winHeight, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
+#ifndef RAD_GLES
     glReadBuffer(GL_BACK);
+#endif
 
     unsigned tmp[2048];
     PDDIASSERT(winWidth < 2048);
@@ -334,7 +337,6 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
     }
 
     return winHeight * winWidth * 4;
-#endif
 }
 
 unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayModes)
