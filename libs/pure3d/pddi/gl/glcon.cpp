@@ -16,14 +16,6 @@
 
 #include <debug/profiler.h>
 
-#ifdef RAD_GLES
-#define glOrtho glOrthof
-#define glFrustum glFrustumf
-#define glClearDepth glClearDepthf
-#define glDepthRange glDepthRangef
-#define glFogi glFogx
-#endif
-
 // vertex arrays rendering
 GLenum primTypeTable[5] =
 {

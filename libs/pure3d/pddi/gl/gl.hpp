@@ -10,3 +10,16 @@
 #else
 #include <glad/glad.h>
 #endif
+
+#ifdef RAD_GLES
+#undef glOrtho
+#undef glFrustum
+#undef glClearDepth
+#undef glDepthRange
+#undef glFogi
+#define glOrtho glOrthof
+#define glFrustum glFrustumf
+#define glClearDepth glClearDepthf
+#define glDepthRange glDepthRangef
+#define glFogi glFogx
+#endif
