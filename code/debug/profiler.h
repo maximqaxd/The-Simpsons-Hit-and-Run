@@ -18,6 +18,7 @@
 
 #if !defined( RAD_RELEASE ) && !defined( WORLD_BUILDER ) && !defined( RAD_MW )
 #define PROFILER_ENABLED
+#define MICROPROFILE_ENABLED 1
 #endif // RAD_RELEASE
 
 
@@ -51,6 +52,21 @@ template<class T> class HashTable;
 
     #define SNSTART(id, txt)
     #define SNSTOP(id)
+
+#elif defined MICROPROFILE_ENABLED
+
+    #include <microprofile.h>
+
+    #define CREATE_PROFILER()       MicroProfileSetEnableAllGroups(true); MicroProfileSetForceMetaCounters(true);
+    #define DESTROY_PROFILER()      MicroProfileShutdown();
+
+    #define BEGIN_PROFILE(string)   MICROPROFILE_ENTERI("SRR2", string, MP_YELLOW);
+    #define END_PROFILE(string)     MICROPROFILE_LEAVE();
+
+    #define BEGIN_PROFILER_FRAME()
+    #define END_PROFILER_FRAME()    MicroProfileFlip(nullptr);
+
+	#define RENDER_PROFILER()
 
 #else
 

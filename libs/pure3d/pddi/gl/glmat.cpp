@@ -7,6 +7,8 @@
 #include <pddi/gl/gltex.hpp>
 #include <pddi/gl/glcon.hpp>
 
+#include <microprofile.h>
+
 pddiShadeColourTable pglMat::colourTable[] = 
 {
     {PDDI_SP_AMBIENT  , SHADE_COLOUR(&pglMat::SetAmbient)},
@@ -292,6 +294,8 @@ int pglMat::CountDevPasses(void)
 
 void pglMat::SetDevPass(unsigned pass)
 {
+    MICROPROFILE_SCOPEI( "PDDI", "pglMat::SetDevPass", MP_RED );
+
     int i = 0;
 
     if(texEnv[i].texture)

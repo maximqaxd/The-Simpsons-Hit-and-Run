@@ -695,6 +695,7 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radprofiler/profiler2.cpp"
 	"libs/radcore/src/radprofiler/profiler.cpp"
 	"libs/radcore/src/radprofiler/profilesample.cpp"
+	"libs/radcore/src/radprofiler/microprofile.cpp"
 	"libs/radcore/src/radremotecommand/functionlist.cpp"
 	"libs/radcore/src/radremotecommand/remotecommandserver.cpp"
 	"libs/radcore/src/radremotecommand/remotecommandtarget.cpp"
@@ -1360,6 +1361,10 @@ target_link_libraries(SRR2
 	sim
 	Threads::Threads
 )
+if(WIN32)
+	# needed for microprofile
+	target_link_libraries(SRR2 wsock32)
+endif()
 if(VITA)
 	target_link_libraries(SRR2
 		SceLibKernel_stub

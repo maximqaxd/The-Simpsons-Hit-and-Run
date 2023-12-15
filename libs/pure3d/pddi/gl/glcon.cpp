@@ -14,7 +14,7 @@
 #include <string.h>
 #include <SDL.h>
 
-#include <debug/profiler.h>
+#include <microprofile.h>
 
 // vertex arrays rendering
 GLenum primTypeTable[5] =
@@ -346,6 +346,8 @@ pddiPrimStream* pglContext::BeginPrims(pddiShader* mat, pddiPrimType primType, u
 
 void pglContext::EndPrims(pddiPrimStream* stream)
 {
+    MICROPROFILE_SCOPEI("SRR2", "pglContext::EndPrims", MP_RED);
+
     pddiBaseContext::EndPrims(stream);
     pglPrimStream* glstream = (pglPrimStream*)stream;
 
@@ -382,7 +384,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     {
         glDisableClientState( GL_TEXTURE_COORD_ARRAY );
     }
-    
+
     glDrawArrays( glstream->primitive, 0, glstream->coords.size() );
 
     glstream->coords.clear();
@@ -732,7 +734,7 @@ void pglPrimBuffer::SetIndices(unsigned short* i, int count)
 
 void pglPrimBuffer::Display(void)
 {
-    BEGIN_PROFILE( "pglPrimBuffer::Display" );
+    MICROPROFILE_SCOPEI("PDDI", "pglPrimBuffer::Display", MP_RED);
 
     if(!vertexBuffer)
     {
@@ -814,8 +816,6 @@ void pglPrimBuffer::Display(void)
     }
 
     valid = true;
-
-    END_PROFILE( "pglPrimBuffer::Display" );
 }
 
 /*

@@ -32,7 +32,7 @@
 #include <memory/srrmemory.h>
 
 
-#ifdef PROFILER_ENABLED
+#if defined PROFILER_ENABLED && !defined MICROPROFILE_ENABLED
 
 //******************************************************************************
 //
