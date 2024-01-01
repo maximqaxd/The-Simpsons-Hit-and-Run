@@ -67,6 +67,7 @@ public:
     void FillHeadingXY(const Vector& heading);
     void FillReflection(const Vector& point, const Vector& normal);
     void SetPerspective(const float fov, const float aspect, const float pnear, const float pfar);
+    void SetOrthographic(const float left, const float right, const float bottom, const float top, const float pnear, const float pfar);
 
     // matrix ops
     void Invert(void);       // invert the matrix

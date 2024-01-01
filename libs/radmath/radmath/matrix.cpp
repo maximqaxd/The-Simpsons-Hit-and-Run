@@ -280,7 +280,6 @@ void Matrix::FillReflection(const Vector& point, const Vector& normal)
 
 }
 
-
 void Matrix::SetPerspective(const float fov, const float aspect, const float n, const float f)
 {
     float halfx = Tan(fov*0.5f)*n;
@@ -296,6 +295,20 @@ void Matrix::SetPerspective(const float fov, const float aspect, const float n, 
     Row4(2).Set(  0,  0, a, 1);
     Row4(3).Set(  0,  0, b, 0);
 
+}
+
+void Matrix::SetOrthographic(const float l, const float r, const float b, const float t, const float n, const float f)
+{
+    FillScale(
+        2.0f / (r - l),
+        2.0f / (t - b),
+        -2.0f / (f - n)
+    );
+    Row(3).Set(
+        (r + l) / (r - l),
+        (t + b) / (t - b),
+        (f + n) / (f - n)
+    );
 }
 
 void Matrix::Transpose(void)
