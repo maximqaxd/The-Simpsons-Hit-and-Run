@@ -143,7 +143,7 @@ static void DecompressBlockBC1Internal (const uint8_t* block,
 				uint32_t finalColor, positionCode;
 				uint8_t alpha;
 
-				alpha = alphaValues [j*4+i];
+				alpha = alphaValues ? alphaValues [j*4+i] : 255;
 
 				finalColor = 0;
 				positionCode = (code >>  2*(4*j+i)) & 0x03;
@@ -172,7 +172,7 @@ static void DecompressBlockBC1Internal (const uint8_t* block,
 				uint32_t finalColor, positionCode;
 				uint8_t alpha;
 
-				alpha = alphaValues [j*4+i];
+				alpha = alphaValues ? alphaValues [j*4+i] : 255;
 
 				finalColor = 0;
 				positionCode = (code >>  2*(4*j+i)) & 0x03;
@@ -188,7 +188,7 @@ static void DecompressBlockBC1Internal (const uint8_t* block,
 					finalColor = PackRGBA((r0+r1)/2, (g0+g1)/2, (b0+b1)/2, alpha);
 					break;
 				case 3:
-					finalColor = PackRGBA(0, 0, 0, alpha);
+					finalColor = PackRGBA(0, 0, 0, alphaValues ? alpha : 0);
 					break;
 				}
 
@@ -197,6 +197,12 @@ static void DecompressBlockBC1Internal (const uint8_t* block,
 		}
 	}
 }
+
+enum BC1Mode
+{
+	BC1_RGB = 0,
+	BC1_RGBA = 1
+};
 
 /*
 Decompresses one block of a BC1 (DXT1) texture and stores the resulting pixels at the appropriate offset in 'image'.
@@ -208,7 +214,7 @@ const uint8_t* blockStorage:	pointer to the block to decompress.
 uint32_t* image:				pointer to image where the decompressed pixel data should be stored.
 */
 void DecompressBlockBC1 (uint32_t x, uint32_t y, uint32_t stride,
-	const uint8_t* blockStorage, unsigned char* image)
+	BC1Mode mode, const uint8_t* blockStorage, unsigned char* image)
 {
 	static const uint8_t const_alpha [] = {
 		255, 255, 255, 255,
@@ -218,7 +224,7 @@ void DecompressBlockBC1 (uint32_t x, uint32_t y, uint32_t stride,
 	};
 
 	DecompressBlockBC1Internal (blockStorage,
-		image + x * sizeof (uint32_t) + (y * stride), stride, const_alpha);
+		image + x * sizeof (uint32_t) + (y * stride), stride, mode == BC1_RGB ? const_alpha : NULL);
 }
 
 /*
@@ -490,7 +496,7 @@ void BlockDecompressImageBC1(uint32_t width, uint32_t height, const uint8_t* blo
  
 	for (uint32_t j = 0; j < blockCountY; j++)
 	{
-		for (uint32_t i = 0; i < blockCountX; i++) DecompressBlockBC1(i*4, j*4, width*4, blockStorage + i * 8, image);
+		for (uint32_t i = 0; i < blockCountX; i++) DecompressBlockBC1(i*4, j*4, width*4, BC1_RGBA, blockStorage + i * 8, image);
 		blockStorage += blockCountX * 8;
 	}
 }
