@@ -319,17 +319,35 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     glEnableVertexAttribArray( 0 );
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, glstream->coords.data() );
 
-    glstream->normals.resize(glstream->coords.size());
-    glEnableVertexAttribArray( 1 );
-    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, glstream->normals.data() );
+    if( !glstream->normals.empty() )
+    {
+        glEnableVertexAttribArray( 1 );
+        glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, glstream->normals.data() );
+    }
+    else
+    {
+        glDisableVertexAttribArray( 1 );
+    }
 
-    glstream->uvs.resize(glstream->coords.size());
-    glEnableVertexAttribArray( 2 );
-    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, glstream->uvs.data() );
+    if( !glstream->uvs.empty() )
+    {
+        glEnableVertexAttribArray( 2 );
+        glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, glstream->uvs.data() );
+    }
+    else
+    {
+        glDisableVertexAttribArray( 2 );
+    }
 
-    glstream->colours.resize(glstream->coords.size() * 4);
-    glEnableVertexAttribArray( 3 );
-    glVertexAttribPointer( 3, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, glstream->colours.data() );
+    if( !glstream->colours.empty() )
+    {
+        glEnableVertexAttribArray( 3 );
+        glVertexAttribPointer( 3, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, glstream->colours.data() );
+    }
+    else
+    {
+        glDisableVertexAttribArray( 3 );
+    }
 
     glDrawArrays( glstream->primitive, 0, glstream->coords.size() );
 
@@ -505,22 +523,25 @@ pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFo
     stride = 36;
 
     mem = stride * nVertex;
-    buffer = new unsigned char[mem]();
+    buffer = new unsigned char[mem];
 
     unsigned char* ptr = buffer;
     coord = (float*)ptr;
     ptr += 12;
-
+    
+    if(vertexFormat & PDDI_V_NORMAL)
     {
         normal = (float*)ptr;
         ptr += 12;
     }
-
+    
+    if(vertexFormat & 0xf)
     {
         uv = (float*)ptr;
         ptr += 8;
     }
-
+    
+    if(vertexFormat & PDDI_V_COLOUR)
     {
         colour = ptr;
         ptr += 4;
@@ -637,23 +658,38 @@ void pglPrimBuffer::Display(void)
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
         offset += 12;
-
+        
+        if(vertexType & PDDI_V_NORMAL)
         {
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,stride,(void*)offset);
             offset += 12;
         }
-
+        else
+        {
+            glDisableVertexAttribArray(1);
+        }
+        
+        if(vertexType & 0xf)
         {
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,stride,(void*)offset);
             offset += 8;
         }
-
+        else
+        {
+            glDisableVertexAttribArray(2);
+        }
+        
+        if(vertexType & PDDI_V_COLOUR)
         {
             glEnableVertexAttribArray(3);
             glVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_TRUE,stride,(void*)offset);
             offset += 4;
+        }
+        else
+        {
+            glDisableVertexAttribArray(3);
         }
 
         if(indexCount && indices)
