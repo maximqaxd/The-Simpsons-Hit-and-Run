@@ -316,7 +316,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
 
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-    glEnableVertexAttribArray( 9 );
+    glEnableVertexAttribArray( 0 );
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, glstream->coords.data() );
 
     glstream->normals.resize(glstream->coords.size());
