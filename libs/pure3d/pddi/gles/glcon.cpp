@@ -550,11 +550,7 @@ pglPrimBuffer::~pglPrimBuffer()
 
     GLuint buffers[] = { vertexBuffer, indexBuffer };
     glDeleteBuffers(2, buffers);
-#ifdef RAD_GLES
     glDeleteVertexArraysOES(1, &vertexArray);
-#else
-    glDeleteVertexArrays(1, &vertexArray);
-#endif
 }
 
 pddiPrimBufferStream* pglPrimBuffer::Lock()
@@ -634,13 +630,8 @@ void pglPrimBuffer::Display(void)
 
     if(!vertexArray)
     {
-#ifdef RAD_GLES
         glGenVertexArraysOES(1, &vertexArray);
         glBindVertexArrayOES(vertexArray);
-#else
-        glGenVertexArrays(1, &vertexArray);
-        glBindVertexArray(vertexArray);
-#endif
 
         GLintptr offset = 0;
         glEnableVertexAttribArray(0);
@@ -672,11 +663,7 @@ void pglPrimBuffer::Display(void)
     }
     else
     {
-#ifdef RAD_GLES
         glBindVertexArrayOES(vertexArray);
-#else
-        glBindVertexArray(vertexArray);
-#endif
     }
 
     if(indexCount && indices)
@@ -688,11 +675,7 @@ void pglPrimBuffer::Display(void)
         glDrawArrays(primTypeTable[primType], 0, total);
     }
 
-#ifdef RAD_GLES
     glBindVertexArrayOES( 0 );
-#else
-    glBindVertexArray( 0 );
-#endif
 }
 
 /*
@@ -890,26 +873,10 @@ void pglContext::SetStencilOp(pddiStencilOp failOp, pddiStencilOp zFailOp, pddiS
     glStencilOp(stencilTable[failOp],stencilTable[zFailOp],stencilTable[zPassOp]);
 }
 
-#ifdef RAD_GLES
 void pglContext::SetFillMode(pddiFillMode mode)
 {
     pddiBaseContext::SetFillMode(mode);
 }
-#else
-// polygon fill
-GLenum fillTable[3] =
-{
-    GL_FILL,
-    GL_LINE,
-    GL_POINT
-};
-
-void pglContext::SetFillMode(pddiFillMode mode)
-{
-    pddiBaseContext::SetFillMode(mode);
-    glPolygonMode(GL_FRONT_AND_BACK, fillTable[mode]);
-}
-#endif
 
 // fog
 void pglContext::EnableFog(bool enable)

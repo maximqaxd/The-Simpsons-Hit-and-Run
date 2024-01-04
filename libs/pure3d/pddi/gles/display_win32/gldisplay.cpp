@@ -311,13 +311,7 @@ unsigned pglDisplay::Screenshot(pddiColour* buffer, int nBytes)
     if(nBytes < (winHeight * winWidth * 4))
         return 0;
 
-#ifndef RAD_GLES
-    glReadBuffer(GL_FRONT);
-#endif
     glReadPixels(0, 0,  winWidth, winHeight, GL_BGRA_EXT, GL_UNSIGNED_BYTE, buffer);
-#ifndef RAD_GLES
-    glReadBuffer(GL_BACK);
-#endif
 
     unsigned tmp[2048];
     PDDIASSERT(winWidth < 2048);
