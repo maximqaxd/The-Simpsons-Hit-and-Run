@@ -6,6 +6,7 @@
 #include <pddi/gles/gldisplay.hpp>
 #include <pddi/gles/gltex.hpp>
 #include <pddi/gles/glcon.hpp>
+#include <pddi/gles/decompress.hpp>
 
 #include <math.h>
 #include <pddi/base/debug.hpp>
@@ -17,30 +18,11 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
 {
     switch (format)
     {
-#if defined RAD_VITA || defined RAD_GLES
     case PDDI_PIXEL_RGB888: return GL_BGRA_EXT;
     case PDDI_PIXEL_ARGB8888: return GL_BGRA_EXT;
-#else
-    case PDDI_PIXEL_RGB555:
-    case PDDI_PIXEL_RGB565: return GL_RGB5;
-    case PDDI_PIXEL_ARGB1555: return GL_RGB5_A1;
-    case PDDI_PIXEL_ARGB4444: return GL_RGBA4;
-    case PDDI_PIXEL_RGB888: return GL_RGB8;
-    case PDDI_PIXEL_ARGB8888: return GL_RGBA8;
-    case PDDI_PIXEL_PAL8: return GL_COLOR_INDEX8_EXT;
-    case PDDI_PIXEL_PAL4: return GL_COLOR_INDEX4_EXT;
-    case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
-    case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
-#endif
-#ifdef RAD_GLES
     case PDDI_PIXEL_DXT1: return GL_RGBA;
     case PDDI_PIXEL_DXT3: return GL_RGBA;
     case PDDI_PIXEL_DXT5: return GL_RGBA;
-#else
-    case PDDI_PIXEL_DXT1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-    case PDDI_PIXEL_DXT3: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-    case PDDI_PIXEL_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-#endif
     }
     PDDIASSERT(false);
     return GL_INVALID_ENUM;
@@ -93,10 +75,6 @@ static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth
     return PDDI_PIXEL_UNKNOWN;
 };
 
-#ifdef RAD_GLES
-#include "decompress.h"
-#endif
-
 void pglTexture::SetGLState(void)
 {
     if(context->contextID != contextID)
@@ -107,7 +85,6 @@ void pglTexture::SetGLState(void)
 
     MICROPROFILE_SCOPEI("PDDI", "pglTexture::SetGLState", MP_RED);
 
-    glEnable(GL_TEXTURE_2D);
     if(!valid)
     {
         glDeleteTextures(1, &gltexture);
@@ -117,7 +94,6 @@ void pglTexture::SetGLState(void)
 //      if(nMipMap == 0)
         if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
-#if RAD_GLES
             unsigned char* image = new unsigned char[xSize * ySize * 4];
             unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
             if (type == PDDI_TEXTYPE_DXT1)
@@ -130,20 +106,7 @@ void pglTexture::SetGLState(void)
                 ySize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                 image);
             delete [] image;
-#else
-            unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
-            GLenum internalFormat = lock.format == PDDI_PIXEL_DXT5 ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT :
-                lock.format == PDDI_PIXEL_DXT3 ? GL_COMPRESSED_RGBA_S3TC_DXT3_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, xSize,
-                ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
-#endif
         }
-#if defined(RAD_VITA) && !defined(RAD_GLES)
-        else if (type == PDDI_TEXTYPE_YUV)
-        {
-            glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_YUV420P_BT601_VGL, xSize, ySize, 0, (xSize * ySize * 3) / 2, (GLvoid*)bits[0]);
-        }
-#endif
         else
         {
             glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,

@@ -85,19 +85,6 @@ GLenum alphaCompareTable[8] =
     GL_NOTEQUAL
 };
 
-#ifdef RAD_GLES
-GLenum alphaBlendTable[8][2] =
-{
-    { GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
-    { GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA },  //PDDI_BLEND_ALPHA
-    { GL_ONE, GL_ONE },                        //PDDI_BLEND_ADD
-    { GL_ONE, GL_ONE },           //PDDI_BLEND_SUBTRACT
-    { GL_DST_COLOR, GL_ZERO },                 //PDDI_BLEND_MODULATE,
-    { GL_DST_COLOR, GL_SRC_COLOR},             //PDDI_BLEND_MODULATE2,
-    { GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
-    { GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
-};
-#else
 GLenum alphaBlendTable[8][3] =
 {
     { GL_FUNC_ADD, GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
@@ -109,7 +96,6 @@ GLenum alphaBlendTable[8][3] =
     { GL_FUNC_ADD, GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
     { GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
 };
-#endif
 
 static inline void FillGLColour(pddiColour c, float* f)
 {
@@ -152,7 +138,7 @@ pglMat::pglMat(pglContext* c)
     texEnv[0].enabled = true;
     pass = 0;
     program = 0;
-    modelview = projection = -1;
+    modelview = projection = sampler = -1;
 }
 
 pglMat::~pglMat() 
@@ -296,7 +282,7 @@ void pglMat::SetDevPass(unsigned pass)
     {
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         CompileShader(vertexShader,
-            "precision highp float;\n"
+            "precision mediump float;\n"
             "attribute vec3 position;\n"
             "attribute vec3 normal;\n"
             "attribute vec2 texcoord;\n"
@@ -315,25 +301,25 @@ void pglMat::SetDevPass(unsigned pass)
             "    fn = normal;\n"
             "    fc = color;\n"
             "    vec4 vertPos4 = modelview * vec4(position, 1.0);\n"
-            "    vertPos = vec3(vertPos4) / vertPos4.w;\n"
-            "    gl_Position = projection * modelview * vec4(position, 1.0);\n"
+            "    vertPos = vertPos4.xyz / vertPos4.w;\n"
+            "    gl_Position = projection * vertPos4;\n"
             "}\n"
         );
 
         GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         CompileShader(fragmentShader,
-            "precision highp float;\n"
+            "precision mediump float;\n"
             "varying vec2 tc;\n"
             "varying vec3 fn;\n"
             "varying vec4 fc;\n"
             "varying vec3 vertPos;\n"
 
+            "uniform sampler2D sampler;\n"
+
             "void main() {\n"
-            "    gl_FragColor = fc;\n"
+            "    gl_FragColor = texture2D(sampler, tc) * fc;\n"
             "}\n"
         );
-
-        PDDIASSERT(vertexShader && fragmentShader);
 
         program = glCreateProgram();
         
@@ -342,14 +328,27 @@ void pglMat::SetDevPass(unsigned pass)
         glBindAttribLocation(program, 2, "texcoord");
         glBindAttribLocation(program, 3, "color");
 
-        if(LinkProgram(program, vertexShader, fragmentShader));
+        if(!LinkProgram(program, vertexShader, fragmentShader))
         {
-            modelview = glGetUniformLocation(program, "modelview");
-            projection = glGetUniformLocation(program, "projection");
+            glDeleteProgram(program);
+            program = 0;
         }
+
+        PDDIASSERT(program);
+
+        // Don't leak shaders
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
     }
 
     glUseProgram(program);
+
+    if(modelview < 0)
+        modelview = glGetUniformLocation( program, "modelview" );
+    if(projection < 0)
+        projection = glGetUniformLocation( program, "projection" );
+    if(sampler < 0)
+        sampler = glGetUniformLocation( program, "sampler" );
 
     int i = 0;
 
@@ -357,6 +356,7 @@ void pglMat::SetDevPass(unsigned pass)
     {
         texEnv[i].texture->SetGLState();
 
+        glUniform1i(sampler, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMagTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMinTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uvTable[texEnv[i].uvMode]);
@@ -364,7 +364,7 @@ void pglMat::SetDevPass(unsigned pass)
     }
     else
     {
-        glDisable(GL_TEXTURE_2D);
+        // TODO
     }
 
     if(texEnv[i].alphaTest)
@@ -452,28 +452,16 @@ bool pglMat::LinkProgram(GLuint program, GLuint vertexShader, GLuint fragmentSha
         // The maxLength includes the NULL character
         std::vector<GLchar> infoLog(maxLength);
         glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-        
-        // We don't need the program anymore.
-        glDeleteProgram(program);
-        // Don't leak shaders either.
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
 
         SDL_Log("Program linking error: %s", infoLog.data());
         return false;
     }
 
-    // Always detach shaders after a successful link.
+    // Always detach shaders after a successful link
     if(vertexShader)
-    {
         glDetachShader(program, vertexShader);
-        glDeleteShader(vertexShader);
-    }
     if(fragmentShader)
-    {
         glDetachShader(program, fragmentShader);
-        glDeleteShader(fragmentShader);
-    }
     return true;
 }
 

@@ -96,7 +96,7 @@ private:
     pglTextureEnv texEnv[pglMaxPasses];
 
     GLuint program;
-    GLint modelview, projection;
+    GLint modelview, projection, sampler;
 };
 
 #endif
