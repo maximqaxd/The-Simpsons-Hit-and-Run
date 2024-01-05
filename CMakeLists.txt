@@ -1432,7 +1432,7 @@ if(VITA)
 			FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 
 			#suprx
-			FILE module/libGLESv1_CM.suprx module/libGLESv1_CM.suprx
+			FILE module/libGLESv2.suprx module/libGLESv2.suprx
 			FILE module/libgpu_es4_ext.suprx module/libgpu_es4_ext.suprx
 			FILE module/libIMGEGL.suprx module/libIMGEGL.suprx
 			FILE module/libpvrPSP2_WSEGL.suprx module/libpvrPSP2_WSEGL.suprx
