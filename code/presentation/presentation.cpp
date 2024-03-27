@@ -428,7 +428,7 @@ void PresentationManager::PlayFMV( const char* FileName,
     strcpy( pEvent->fileName, "D:\\movies\\" );
 #elif RAD_PS2
     strcpy( pEvent->fileName, "movies\\" );
-#elif RAD_WIN32
+#elif WIN32
     strcpy( pEvent->fileName, "movies\\" );
 #else
     strcpy( pEvent->fileName, "movies/" );
