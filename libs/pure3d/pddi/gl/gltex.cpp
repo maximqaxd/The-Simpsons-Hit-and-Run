@@ -117,7 +117,7 @@ void pglTexture::SetGLState(void)
 //      if(nMipMap == 0)
         if (type == PDDI_TEXTYPE_DXT1 || type == PDDI_TEXTYPE_DXT3 || type == PDDI_TEXTYPE_DXT5)
         {
-#if RAD_GLES
+#if defined(RAD_VITA) && defined(RAD_GLES)
             unsigned char* image = new unsigned char[xSize * ySize * 4];
             unsigned int blocksize = lock.format == PDDI_PIXEL_DXT1 ? 8 : 16;
             if (type == PDDI_TEXTYPE_DXT1)

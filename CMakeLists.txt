@@ -1115,29 +1115,17 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/pddiobj.cpp"
 )
 
-if(SRR2_USE_GLES)
-	list(APPEND PDDI_SOURCES 
-		"libs/pure3d/pddi/gles/glcon.cpp"
-		"libs/pure3d/pddi/gles/gldev.cpp"
-		"libs/pure3d/pddi/gles/glmat.cpp"
-		"libs/pure3d/pddi/gles/gltex.cpp"
-		"libs/pure3d/pddi/gles/decompress.cpp"
-		"libs/pure3d/pddi/gles/glad/src/glad.c"
-		"libs/pure3d/pddi/gles/display_win32/gldisplay.cpp"
-	)
+list(APPEND PDDI_SOURCES
+	"libs/pure3d/pddi/gl/glcon.cpp"
+	"libs/pure3d/pddi/gl/gldev.cpp"
+	"libs/pure3d/pddi/gl/glmat.cpp"
+	"libs/pure3d/pddi/gl/gltex.cpp"
+	"libs/pure3d/pddi/gl/glad/src/glad.c"
+)
+if(VITA)
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
 else()
-	list(APPEND PDDI_SOURCES 
-		"libs/pure3d/pddi/gl/glcon.cpp"
-		"libs/pure3d/pddi/gl/gldev.cpp"
-		"libs/pure3d/pddi/gl/glmat.cpp"
-		"libs/pure3d/pddi/gl/gltex.cpp"
-		"libs/pure3d/pddi/gl/glad/src/glad.c"
-	)
-	if(VITA)
-		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
-	else()
-		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
-	endif()
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
 endif()
 
 add_library(radcore STATIC ${RADCORE_SOURCES})
@@ -1162,17 +1150,10 @@ target_link_libraries(radcontent
 )
 
 add_library(pddi STATIC ${PDDI_SOURCES})
-if(SRR2_USE_GLES)
-	target_include_directories(pddi
-		PUBLIC "libs/pure3d/"
-		PRIVATE "libs/pure3d/pddi/gles/glad/include/"
-	)
-else()
-	target_include_directories(pddi
-		PUBLIC "libs/pure3d/"
-		PRIVATE "libs/pure3d/pddi/gl/glad/include/"
-	)
-endif()
+target_include_directories(pddi
+	PUBLIC "libs/pure3d/"
+	PRIVATE "libs/pure3d/pddi/gl/glad/include/"
+)
 target_link_libraries(pddi
 	SDL2::SDL2
 	radmath
