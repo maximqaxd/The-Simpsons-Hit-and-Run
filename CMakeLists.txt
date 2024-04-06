@@ -81,6 +81,7 @@ else()
 	pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET
 			libavformat
 			libavcodec
+			libavutil
 			libswresample
 			libswscale
 	)
