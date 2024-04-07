@@ -32,7 +32,7 @@ static inline GLenum PickPixelFormat(pddiPixelFormat format)
     case PDDI_PIXEL_LUM8: return GL_LUMINANCE8;
     case PDDI_PIXEL_DUDV88: return GL_LUMINANCE8_ALPHA8;
 #endif
-#ifdef RAD_GLES
+#if defined(RAD_VITA) && defined(RAD_GLES)
     case PDDI_PIXEL_DXT1: return GL_RGBA;
     case PDDI_PIXEL_DXT3: return GL_RGBA;
     case PDDI_PIXEL_DXT5: return GL_RGBA;
@@ -93,7 +93,7 @@ static inline pddiPixelFormat PickPixelFormat(pddiTextureType type, int bitDepth
     return PDDI_PIXEL_UNKNOWN;
 };
 
-#ifdef RAD_GLES
+#if defined( RAD_VITA ) && defined( RAD_GLES )
 #include "decompress.h"
 #endif
 
