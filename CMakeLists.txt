@@ -1113,15 +1113,15 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/baseshader.cpp"
 	"libs/pure3d/pddi/base/font.cpp"
 	"libs/pure3d/pddi/base/pddiobj.cpp"
-)
-
-list(APPEND PDDI_SOURCES
 	"libs/pure3d/pddi/gl/glcon.cpp"
 	"libs/pure3d/pddi/gl/gldev.cpp"
 	"libs/pure3d/pddi/gl/glmat.cpp"
 	"libs/pure3d/pddi/gl/gltex.cpp"
 	"libs/pure3d/pddi/gl/glad/src/glad.c"
 )
+if(SRR2_USE_GLES)
+	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/decompress.cpp")
+endif()
 if(VITA)
 	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
 else()
