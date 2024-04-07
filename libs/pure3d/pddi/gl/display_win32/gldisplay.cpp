@@ -32,6 +32,9 @@ pglDisplay ::pglDisplay(pddiDisplayInfo* info)
     prevRC = NULL;
 
     extBGRA = false;
+#ifdef RAD_GLES
+    extBlend = false;
+#endif
 
     gammaR = gammaG = gammaB = 1.0f;
 
@@ -217,6 +220,9 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     }
 
     extBGRA = CheckExtension("GL_EXT_bgra") || CheckExtension("GL_EXT_texture_format_BGRA8888");
+#ifdef RAD_GLES
+    extBlend = CheckExtension("GL_OES_blend_equation_separate");
+#endif
 
     SDL_Log("OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
 

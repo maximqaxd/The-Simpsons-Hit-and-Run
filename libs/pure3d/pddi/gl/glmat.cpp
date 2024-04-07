@@ -117,9 +117,6 @@ static inline void FillGLColour(pddiColour c, float* f)
 pglMat::pglMat(pglContext* c) 
 {
     context = c;
-#ifdef RAD_GLES
-    extBlend = c->GetDisplay()->CheckExtension("GL_OES_blend_equation_separate");
-#endif
 
     for(int i = 0; i < pglMaxPasses; i++)
     {
@@ -322,7 +319,8 @@ void pglMat::SetDevPass(unsigned pass)
     {
         glEnable(GL_BLEND);
 #ifdef RAD_GLES
-        if(extBlend) glBlendEquationSeparateOES(alphaBlendTable[texEnv[i].alphaBlendMode][0],alphaBlendTable[texEnv[i].alphaBlendMode][0]);
+        if(context->GetDisplay()->ExtBlend())
+            glBlendEquationSeparateOES(alphaBlendTable[texEnv[i].alphaBlendMode][0],alphaBlendTable[texEnv[i].alphaBlendMode][0]);
 #else
         glBlendEquation(alphaBlendTable[texEnv[i].alphaBlendMode][0]);
 #endif

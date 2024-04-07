@@ -47,6 +47,9 @@ public:
 
     void SetContext(pglContext* c) {context = c;}
     bool ExtBGRA(void) { return extBGRA;}
+#ifdef RAD_GLES
+    bool ExtBlend(void) { return extBlend; }
+#endif
     bool CheckExtension(const char*);
     bool HasReset(void) { return reset; }
 
@@ -78,6 +81,9 @@ private:
     void* prevRC;
 
     bool extBGRA;
+#ifdef RAD_GLES
+    bool extBlend;
+#endif
     bool reset;
 
     float beginTime;

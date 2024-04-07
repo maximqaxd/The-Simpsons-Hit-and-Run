@@ -91,9 +91,6 @@ private:
     pglContext* context;
     int pass;
     pglTextureEnv texEnv[pglMaxPasses];
-#ifdef RAD_GLES
-    bool extBlend;
-#endif
 };
 
 #endif
