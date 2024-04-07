@@ -6,6 +6,7 @@
 #include <pddi/gl/glmat.hpp>
 #include <pddi/gl/gltex.hpp>
 #include <pddi/gl/glcon.hpp>
+#include <pddi/gl/gldisplay.hpp>
 
 #include <microprofile.h>
 
@@ -93,19 +94,6 @@ GLenum alphaCompareTable[8] =
     GL_NOTEQUAL
 };
 
-#ifdef RAD_GLES
-GLenum alphaBlendTable[8][2] =
-{
-    { GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
-    { GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA },  //PDDI_BLEND_ALPHA
-    { GL_ONE, GL_ONE },                        //PDDI_BLEND_ADD
-    { GL_ONE, GL_ONE },           //PDDI_BLEND_SUBTRACT
-    { GL_DST_COLOR, GL_ZERO },                 //PDDI_BLEND_MODULATE,
-    { GL_DST_COLOR, GL_SRC_COLOR},             //PDDI_BLEND_MODULATE2,
-    { GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
-    { GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
-};
-#else
 GLenum alphaBlendTable[8][3] =
 {
     { GL_FUNC_ADD, GL_ONE, GL_ZERO },                       //PDDI_BLEND_NONE,
@@ -117,7 +105,6 @@ GLenum alphaBlendTable[8][3] =
     { GL_FUNC_ADD, GL_ONE, GL_SRC_ALPHA},                   //PDDI_BLEND_ADDMODULATEALPHA,
     { GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
 };
-#endif
 
 static inline void FillGLColour(pddiColour c, float* f)
 {
@@ -130,6 +117,9 @@ static inline void FillGLColour(pddiColour c, float* f)
 pglMat::pglMat(pglContext* c) 
 {
     context = c;
+#ifdef RAD_GLES
+    extBlend = c->GetDisplay()->CheckExtension("GL_OES_blend_equation_separate");
+#endif
 
     for(int i = 0; i < pglMaxPasses; i++)
     {
@@ -332,11 +322,11 @@ void pglMat::SetDevPass(unsigned pass)
     {
         glEnable(GL_BLEND);
 #ifdef RAD_GLES
-        glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][0],alphaBlendTable[texEnv[i].alphaBlendMode][1]);
+        if(extBlend) glBlendEquationSeparateOES(alphaBlendTable[texEnv[i].alphaBlendMode][0],alphaBlendTable[texEnv[i].alphaBlendMode][0]);
 #else
         glBlendEquation(alphaBlendTable[texEnv[i].alphaBlendMode][0]);
-        glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][1],alphaBlendTable[texEnv[i].alphaBlendMode][2]);
 #endif
+        glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][1],alphaBlendTable[texEnv[i].alphaBlendMode][2]);
     }
  
     if(texEnv[i].lit)
