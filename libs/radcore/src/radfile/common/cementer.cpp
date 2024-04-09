@@ -560,8 +560,8 @@ radFile* radCementLibrary::OpenFile
         if ( hashEntry == NULL )
         {
             radKey32 key = StringKeyToKey32( (char*) fileName );
-            
-            hashEntry = radCFHeader::FindFile( m_Header, m_pHashedFileEntries, key );
+            if ( key != 0 )
+                hashEntry = radCFHeader::FindFile( m_Header, m_pHashedFileEntries, key );
         }
 
         if( hashEntry != NULL )
