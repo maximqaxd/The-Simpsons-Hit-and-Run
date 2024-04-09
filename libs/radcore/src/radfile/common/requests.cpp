@@ -477,14 +477,15 @@ radDrive::CompletionStatus FileOpenRequest::DoRequest( void )
     //
     // If we got here, then the file was not found in a cement library.
     //
-    radDrive::CompletionStatus status = pDrive->OpenFile
-                                            ( 
-                                                m_pFile->m_Filename,
-                                                m_Flags,
-                                                m_WriteAccess,
-                                                &m_pFile->m_Handle,
-                                                &m_pFile->m_Size
-                                            );
+    radDrive::CompletionStatus status = IsStringKey( m_pFile->m_Filename ) ? radDrive::Error :
+        pDrive->OpenFile
+        (
+            m_pFile->m_Filename,
+            m_Flags,
+            m_WriteAccess,
+            &m_pFile->m_Handle,
+            &m_pFile->m_Size
+        );
 
     if ( status == radDrive::Complete )
     {

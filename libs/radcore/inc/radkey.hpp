@@ -368,7 +368,8 @@ inline radCrc radCRCCalculate( const char* buf, unsigned int buf_size, radCrc CR
 }
 
 void KeyToStringKey32( char * pBuf, radKey32 key );
-radKey32 StringKeyToKey32( char * pBuf );
+radKey32 StringKeyToKey32( const char * pBuf );
+bool IsStringKey( const char * pBuf );
 
 
 #endif //RADKEY_HPP

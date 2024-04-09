@@ -21,12 +21,17 @@
 
 void KeyToStringKey32( char * pBuf, radKey32 key )
 {
-    sprintf( pBuf, "%d", key );
+    sprintf( pBuf, "0x%x", key );
 }
 
-radKey32 StringKeyToKey32( char * pBuf )
+radKey32 StringKeyToKey32( const char * pBuf )
 {
-    return atoi( pBuf );
+    return strtoul( pBuf, NULL, 0 );
+}
+
+bool IsStringKey( const char* pBuf )
+{
+    return pBuf && pBuf[0] == '0' && pBuf[1] == 'x';
 }
 
 //
@@ -554,15 +559,9 @@ radFile* radCementLibrary::OpenFile
         //  
         // Find the given file in the hash table
         //
-        radCFHeader::HFE* hashEntry =
-            radCFHeader::FindFile( m_Header, m_pHashedFileEntries, radCFHeader::HashFunction( fileName ) );
-            
-        if ( hashEntry == NULL )
-        {
-            radKey32 key = StringKeyToKey32( (char*) fileName );
-            if ( key != 0 )
-                hashEntry = radCFHeader::FindFile( m_Header, m_pHashedFileEntries, key );
-        }
+        radKey32 key = IsStringKey( fileName ) ? StringKeyToKey32( fileName )
+                                                    : radCFHeader::HashFunction( fileName );
+        radCFHeader::HFE* hashEntry = radCFHeader::FindFile( m_Header, m_pHashedFileEntries, key );
 
         if( hashEntry != NULL )
         {
