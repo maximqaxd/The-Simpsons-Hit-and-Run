@@ -307,12 +307,13 @@ bool Win32Platform::InitializeWindow()
     // These attributes must be set prior to creating the first window
 #ifdef RAD_GLES
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 1 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, RAD_GLES_VERSION );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
 #else
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-#endif
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+#endif
 #ifdef __SWITCH__
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 32 );
 #else
@@ -322,7 +323,7 @@ bool Win32Platform::InitializeWindow()
 
     int flags = 0;
 #if !defined(RAD_VITA) || defined(RAD_GLES)
-    // Use VitaGL instead of OpenGL
+    // Use OpenGL instead of VitaGL
     flags |= SDL_WINDOW_OPENGL;
 #endif
 #ifdef __SWITCH__

@@ -282,7 +282,7 @@ void pglMat::SetDevPass(unsigned pass)
     {
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         CompileShader(vertexShader,
-            "precision mediump float;\n"
+            "precision highp float;\n"
             "attribute vec3 position;\n"
             "attribute vec3 normal;\n"
             "attribute vec2 texcoord;\n"

@@ -165,11 +165,6 @@ void pglTexture::SetGLState(void)
     {
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
-
-#ifndef RAD_GLES
-    float fpriority = float(priority) / 31.0f;
-    glPrioritizeTextures(1, &gltexture, &fpriority);
-#endif
 }
 
 int fastlog2(int x)

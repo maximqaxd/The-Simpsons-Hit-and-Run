@@ -87,9 +87,15 @@ else()
 	)
 endif()
 
-option(SRR2_USE_GLES OFF)
-if(SRR2_USE_GLES)
+set(SRR2_P3D_PDDI "OpenGL" CACHE STRING "Pure3D PDDI implementation")
+set_property(CACHE SRR2_P3D_PDDI PROPERTY STRINGS "OpenGL" "GLES1" "GLES2")
+if(SRR2_P3D_PDDI STREQUAL "GLES1")
 	add_compile_definitions(RAD_GLES)
+	add_compile_definitions(RAD_GLES_VERSION=1)
+endif()
+if(SRR2_P3D_PDDI STREQUAL "GLES2")
+	add_compile_definitions(RAD_GLES)
+	add_compile_definitions(RAD_GLES_VERSION=2)
 endif()
 
 if(WIN32)
@@ -1113,19 +1119,33 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/baseshader.cpp"
 	"libs/pure3d/pddi/base/font.cpp"
 	"libs/pure3d/pddi/base/pddiobj.cpp"
-	"libs/pure3d/pddi/gl/glcon.cpp"
-	"libs/pure3d/pddi/gl/gldev.cpp"
-	"libs/pure3d/pddi/gl/glmat.cpp"
-	"libs/pure3d/pddi/gl/gltex.cpp"
-	"libs/pure3d/pddi/gl/glad/src/glad.c"
 )
-if(SRR2_USE_GLES)
-	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/decompress.cpp")
-endif()
-if(VITA)
-	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
+if(SRR2_P3D_PDDI STREQUAL "GLES2")
+	list(APPEND PDDI_SOURCES
+		"libs/pure3d/pddi/gles/glcon.cpp"
+		"libs/pure3d/pddi/gles/gldev.cpp"
+		"libs/pure3d/pddi/gles/glmat.cpp"
+		"libs/pure3d/pddi/gles/gltex.cpp"
+		"libs/pure3d/pddi/gles/glad/src/glad.c"
+		"libs/pure3d/pddi/gles/decompress.cpp"
+		"libs/pure3d/pddi/gles/display_win32/gldisplay.cpp"
+	)
 else()
-	list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
+	list(APPEND PDDI_SOURCES
+		"libs/pure3d/pddi/gl/glcon.cpp"
+		"libs/pure3d/pddi/gl/gldev.cpp"
+		"libs/pure3d/pddi/gl/glmat.cpp"
+		"libs/pure3d/pddi/gl/gltex.cpp"
+		"libs/pure3d/pddi/gl/glad/src/glad.c"
+	)
+	if(SRR2_P3D_PDDI STREQUAL "GLES1")
+		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/decompress.cpp")
+	endif()
+	if(VITA)
+		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_vita/gldisplay.cpp")
+	else()
+		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/display_win32/gldisplay.cpp")
+	endif()
 endif()
 
 add_library(radcore STATIC ${RADCORE_SOURCES})
@@ -1150,10 +1170,12 @@ target_link_libraries(radcontent
 )
 
 add_library(pddi STATIC ${PDDI_SOURCES})
-target_include_directories(pddi
-	PUBLIC "libs/pure3d/"
-	PRIVATE "libs/pure3d/pddi/gl/glad/include/"
-)
+target_include_directories(pddi PUBLIC "libs/pure3d/")
+if(SRR2_P3D_PDDI STREQUAL GLES2)
+	target_include_directories(pddi PRIVATE "libs/pure3d/pddi/gles/glad/include/")
+else()
+	target_include_directories(pddi PRIVATE "libs/pure3d/pddi/gl/glad/include/")
+endif()
 target_link_libraries(pddi
 	SDL2::SDL2
 	radmath
