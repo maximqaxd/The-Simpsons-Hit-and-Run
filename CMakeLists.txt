@@ -1126,6 +1126,7 @@ if(SRR2_P3D_PDDI STREQUAL "GLES2")
 		"libs/pure3d/pddi/gles/gldev.cpp"
 		"libs/pure3d/pddi/gles/glmat.cpp"
 		"libs/pure3d/pddi/gles/gltex.cpp"
+		"libs/pure3d/pddi/gles/glprog.cpp"
 		"libs/pure3d/pddi/gles/glad/src/glad.c"
 		"libs/pure3d/pddi/gles/decompress.cpp"
 		"libs/pure3d/pddi/gles/display_win32/gldisplay.cpp"

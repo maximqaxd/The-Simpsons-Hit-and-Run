@@ -11,6 +11,7 @@
 #include <pddi/gles/gl.hpp>
 #include <pddi/gles/glcon.hpp>
 class pglTexture;
+class pglProgram;
 
 const int pglMaxPasses = 1;
 
@@ -89,14 +90,13 @@ public:
 
 private:
     bool CompileShader(GLuint shader, const char* source);
-    bool LinkProgram(GLuint program, GLuint vertexShader, GLuint fragmentShader);
    
     pglContext* context;
     int pass;
     pglTextureEnv texEnv[pglMaxPasses];
 
-    GLuint program, textured;
-    GLint modelview, projection, sampler;
+    pglProgram* program;
+    pglProgram* textured;
 };
 
 #endif

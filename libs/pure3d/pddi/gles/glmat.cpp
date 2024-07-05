@@ -6,6 +6,7 @@
 #include <pddi/gles/glmat.hpp>
 #include <pddi/gles/gltex.hpp>
 #include <pddi/gles/glcon.hpp>
+#include <pddi/gles/glprog.hpp>
 
 #include <vector>
 #include <microprofile.h>
@@ -137,13 +138,16 @@ pglMat::pglMat(pglContext* c)
     }
     texEnv[0].enabled = true;
     pass = 0;
-    program = 0;
-    modelview = projection = sampler = -1;
+    program = new pglProgram();
+    program->AddRef();
+    textured = new pglProgram();
+    textured->AddRef();
 }
 
 pglMat::~pglMat() 
 {
-    glDeleteProgram(program);
+    program->Release();
+    textured->Release();
 
     for(int i = 0; i < pglMaxPasses; i++)
         if(texEnv[i].texture)
@@ -278,7 +282,7 @@ void pglMat::SetDevPass(unsigned pass)
 {
     MICROPROFILE_SCOPEI( "PDDI", "pglMat::SetDevPass", MP_RED );
 
-    if(!program)
+    if(!program->GetProgram() || !textured->GetProgram())
     {
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         CompileShader(vertexShader,
@@ -334,32 +338,15 @@ void pglMat::SetDevPass(unsigned pass)
             "}\n"
         );
 
-        program = glCreateProgram();
-        glBindAttribLocation(program, 0, "position");
-        glBindAttribLocation(program, 1, "normal");
-        glBindAttribLocation(program, 2, "texcoord");
-        glBindAttribLocation(program, 3, "color");
-
-        if(!LinkProgram(program, vertexShader, fragmentShader))
+        if(!program->LinkProgram(vertexShader, fragmentShader))
         {
-            glDeleteProgram(program);
-            program = 0;
+            PDDIASSERT(false);
         }
 
-        textured = glCreateProgram();
-        glBindAttribLocation(textured, 0, "position");
-        glBindAttribLocation(textured, 1, "normal");
-        glBindAttribLocation(textured, 2, "texcoord");
-        glBindAttribLocation(textured, 3, "color");
-
-        if(!LinkProgram(textured, vertexShader, textureShader))
+        if(!textured->LinkProgram(vertexShader, textureShader))
         {
-            glDeleteProgram(textured);
-            textured = 0;
+            PDDIASSERT(false);
         }
-
-        PDDIASSERT(program);
-        PDDIASSERT(textured);
 
         // Don't leak shaders
         glDeleteShader(vertexShader);
@@ -367,22 +354,15 @@ void pglMat::SetDevPass(unsigned pass)
         glDeleteShader(textureShader);
     }
 
-    if(modelview < 0)
-        modelview = glGetUniformLocation(textured, "modelview");
-    if(projection < 0)
-        projection = glGetUniformLocation(textured, "projection");
-    if(sampler < 0)
-        sampler = glGetUniformLocation(textured, "sampler");
-
     int i = 0;
 
     if(texEnv[i].texture)
     {
+        context->SetShaderProgram(textured);
+        textured->SetSampler(0);
+
         texEnv[i].texture->SetGLState();
 
-        glUseProgram(textured);
-
-        glUniform1i(sampler, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMagTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMinTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uvTable[texEnv[i].uvMode]);
@@ -390,7 +370,7 @@ void pglMat::SetDevPass(unsigned pass)
     }
     else
     {
-        glUseProgram(program);
+        context->SetShaderProgram(program);
     }
 
     if(texEnv[i].alphaTest)
@@ -429,9 +409,6 @@ void pglMat::SetDevPass(unsigned pass)
     {
         glEnable(GL_CULL_FACE);
     }
-
-    glUniformMatrix4fv(modelview, 1, GL_FALSE, context->GetMatrix(PDDI_MATRIX_MODELVIEW)->m[0]);
-    glUniformMatrix4fv(projection, 1, GL_FALSE, context->GetProjectionMatrix()->m[0]);
 }
 
 bool pglMat::CompileShader(GLuint shader, const char* source)
@@ -458,36 +435,3 @@ bool pglMat::CompileShader(GLuint shader, const char* source)
     }
     return true;
 }
-
-bool pglMat::LinkProgram(GLuint program, GLuint vertexShader, GLuint fragmentShader)
-{
-    if(vertexShader)
-        glAttachShader(program, vertexShader);
-    if(fragmentShader)
-        glAttachShader(program, fragmentShader);
-
-    glLinkProgram(program);
-
-    GLint isLinked = 0;
-    glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
-    if (isLinked == GL_FALSE)
-    {
-        GLint maxLength = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-
-        // The maxLength includes the NULL character
-        std::vector<GLchar> infoLog(maxLength);
-        glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-
-        SDL_Log("Program linking error: %s", infoLog.data());
-        return false;
-    }
-
-    // Always detach shaders after a successful link
-    if(vertexShader)
-        glDetachShader(program, vertexShader);
-    if(fragmentShader)
-        glDetachShader(program, fragmentShader);
-    return true;
-}
-

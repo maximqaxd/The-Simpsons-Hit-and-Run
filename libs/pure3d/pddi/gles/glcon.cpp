@@ -8,6 +8,7 @@
 #include <pddi/gles/gldisplay.hpp>
 #include <pddi/gles/gltex.hpp>
 #include <pddi/gles/glmat.hpp>
+#include <pddi/gles/glprog.hpp>
 
 #include <pddi/base/debug.hpp>
 #include <math.h>
@@ -70,6 +71,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 {
     device = dev;
     display = disp;
+    shaderProgram = nullptr;
 
     device->AddRef();
     display->AddRef();
@@ -89,6 +91,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 pglContext::~pglContext()
 {
     defaultShader->Release();
+    shaderProgram->Release();
 
     delete extContext;
     delete extGamma;
@@ -179,6 +182,8 @@ void pglContext::SetupHardwareProjection(void)
             break;
     }
 
+    if (shaderProgram)
+        shaderProgram->SetProjectionMatrix(projection.m[0]);
 }
 
 void pglContext::LoadHardwareMatrix(pddiMatrixType id)
@@ -187,6 +192,8 @@ void pglContext::LoadHardwareMatrix(pddiMatrixType id)
     {
         case PDDI_MATRIX_MODELVIEW :
         {
+            if (shaderProgram)
+                shaderProgram->SetModelViewMatrix(state.matrixStack[id]->Top()->m[0]);
         }
         break;
         default :
@@ -977,5 +984,11 @@ float pglContext::EndTiming(void)
     return display->EndTiming();
 }
 
-
-
+void pglContext::SetShaderProgram(pglProgram* program)
+{
+    shaderProgram = program;
+    shaderProgram->AddRef();
+    glUseProgram(shaderProgram->GetProgram());
+    shaderProgram->SetProjectionMatrix(projection.m[0]);
+    LoadHardwareMatrix(PDDI_MATRIX_MODELVIEW);
+}

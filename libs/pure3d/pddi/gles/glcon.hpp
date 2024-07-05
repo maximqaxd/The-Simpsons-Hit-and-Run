@@ -13,6 +13,7 @@
 
 class pglDisplay;
 class pglDevice;
+class pglProgram;
 
 class pglExtContext;
 class pglExtGamma;
@@ -82,7 +83,7 @@ public :
 
     // internal pddiglfunctions
     pglDisplay* GetDisplay(void) {return display;}
-    const pddiMatrix* GetProjectionMatrix(void) {return &projection;}
+    void SetShaderProgram(pglProgram* program);
 
     unsigned contextID;
 
@@ -102,6 +103,7 @@ protected:
     pglExtGamma* extGamma;
 
     pddiShader* defaultShader;
+    pglProgram* shaderProgram;
 
 //   int nBuffered;
 //   unsigned currentMatId;
