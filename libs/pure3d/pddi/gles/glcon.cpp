@@ -327,6 +327,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     else
     {
         glDisableVertexAttribArray( 1 );
+        glVertexAttrib3f( 1, 0.0f, 0.0f, 0.0f );
     }
 
     if( !glstream->uvs.empty() )
@@ -337,6 +338,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     else
     {
         glDisableVertexAttribArray( 2 );
+        glVertexAttrib2f( 2, 0.0f, 0.0f );
     }
 
     if( !glstream->colours.empty() )
@@ -347,6 +349,7 @@ void pglContext::EndPrims(pddiPrimStream* stream)
     else
     {
         glDisableVertexAttribArray( 3 );
+        glVertexAttrib4f( 3, 1.0f, 1.0f, 1.0f, 1.0f );
     }
 
     glDrawArrays( glstream->primitive, 0, glstream->coords.size() );
@@ -662,12 +665,13 @@ void pglPrimBuffer::Display(void)
         if(vertexType & PDDI_V_NORMAL)
         {
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,stride,(void*)offset);
+            glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
             offset += 12;
         }
         else
         {
             glDisableVertexAttribArray(1);
+            glVertexAttrib3f(1, 0.0f, 0.0f, 0.0f);
         }
         
         if(vertexType & 0xf)
@@ -679,6 +683,7 @@ void pglPrimBuffer::Display(void)
         else
         {
             glDisableVertexAttribArray(2);
+            glVertexAttrib2f(2, 0.0f, 0.0f);
         }
         
         if(vertexType & PDDI_V_COLOUR)
@@ -690,6 +695,7 @@ void pglPrimBuffer::Display(void)
         else
         {
             glDisableVertexAttribArray(3);
+            glVertexAttrib4f(3, 1.0f, 1.0f, 1.0f, 1.0f);
         }
 
         if(indexCount && indices)
