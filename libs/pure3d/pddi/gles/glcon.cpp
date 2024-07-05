@@ -132,7 +132,7 @@ void pglContext::Clear(unsigned bufferMask)
     int myClearMask = 0;
     myClearMask |= (bufferMask & PDDI_BUFFER_COLOUR) ? GL_COLOR_BUFFER_BIT : 0;
     myClearMask |= (bufferMask & PDDI_BUFFER_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0;
-    myClearMask |= (bufferMask & PDDI_BUFFER_STENCIL) ? GL_STENCIL_BUFFER_BIT : 0;
+    //myClearMask |= (bufferMask & PDDI_BUFFER_STENCIL) ? GL_STENCIL_BUFFER_BIT : 0;
 
     glClearDepthf(state.viewState->clearDepth);
     glClearColor(float(state.viewState->clearColour.Red())/255.0f, 
