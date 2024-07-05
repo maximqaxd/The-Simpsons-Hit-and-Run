@@ -95,7 +95,7 @@ private:
     int pass;
     pglTextureEnv texEnv[pglMaxPasses];
 
-    GLuint program;
+    GLuint program, textured;
     GLint modelview, projection, sampler;
 };
 

@@ -314,6 +314,19 @@ void pglMat::SetDevPass(unsigned pass)
             "varying vec4 fc;\n"
             "varying vec3 vertPos;\n"
 
+            "void main() {\n"
+            "    gl_FragColor = fc;\n"
+            "}\n"
+        );
+
+        GLuint textureShader = glCreateShader(GL_FRAGMENT_SHADER);
+        CompileShader(textureShader,
+            "precision mediump float;\n"
+            "varying vec2 tc;\n"
+            "varying vec3 fn;\n"
+            "varying vec4 fc;\n"
+            "varying vec3 vertPos;\n"
+
             "uniform sampler2D sampler;\n"
 
             "void main() {\n"
@@ -322,7 +335,6 @@ void pglMat::SetDevPass(unsigned pass)
         );
 
         program = glCreateProgram();
-        
         glBindAttribLocation(program, 0, "position");
         glBindAttribLocation(program, 1, "normal");
         glBindAttribLocation(program, 2, "texcoord");
@@ -334,27 +346,41 @@ void pglMat::SetDevPass(unsigned pass)
             program = 0;
         }
 
+        textured = glCreateProgram();
+        glBindAttribLocation(textured, 0, "position");
+        glBindAttribLocation(textured, 1, "normal");
+        glBindAttribLocation(textured, 2, "texcoord");
+        glBindAttribLocation(textured, 3, "color");
+
+        if(!LinkProgram(textured, vertexShader, textureShader))
+        {
+            glDeleteProgram(textured);
+            textured = 0;
+        }
+
         PDDIASSERT(program);
+        PDDIASSERT(textured);
 
         // Don't leak shaders
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+        glDeleteShader(textureShader);
     }
 
-    glUseProgram(program);
-
     if(modelview < 0)
-        modelview = glGetUniformLocation( program, "modelview" );
+        modelview = glGetUniformLocation(textured, "modelview");
     if(projection < 0)
-        projection = glGetUniformLocation( program, "projection" );
+        projection = glGetUniformLocation(textured, "projection");
     if(sampler < 0)
-        sampler = glGetUniformLocation( program, "sampler" );
+        sampler = glGetUniformLocation(textured, "sampler");
 
     int i = 0;
 
     if(texEnv[i].texture)
     {
         texEnv[i].texture->SetGLState();
+
+        glUseProgram(textured);
 
         glUniform1i(sampler, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMagTable[texEnv[i].filterMode]);
@@ -364,7 +390,7 @@ void pglMat::SetDevPass(unsigned pass)
     }
     else
     {
-        // TODO
+        glUseProgram(program);
     }
 
     if(texEnv[i].alphaTest)
