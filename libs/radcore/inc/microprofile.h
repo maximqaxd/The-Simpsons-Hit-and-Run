@@ -816,7 +816,7 @@ typedef void (*MicroProfileOnFreeze)(int nFrozen);
 #endif
 
 #ifndef MICROPROFILE_STACK_MAX
-#define MICROPROFILE_STACK_MAX 64
+#define MICROPROFILE_STACK_MAX 256
 #endif
 
 #ifndef MICROPROFILE_BREAK_ON_PATCH_FAIL
