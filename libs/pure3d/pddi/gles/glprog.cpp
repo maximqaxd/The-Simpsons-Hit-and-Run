@@ -18,7 +18,7 @@ static inline void UniformColour(GLint loc, pddiColour c)
 pglProgram::pglProgram()
 {
     program = 0;
-    projection = modelview = normalmatrix = sampler = -1;
+    projection = modelview = normalmatrix = -1;
 }
 
 pglProgram::~pglProgram()
@@ -48,9 +48,6 @@ void pglProgram::SetModelViewMatrix(const pddiMatrix* matrix)
 
 void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
 {
-    if (sampler >= 0)
-        glUniform1i(sampler, 0);
-
     glUniform1i(lit, texEnv->lit ? 1 : 0);
     UniformColour(acm, texEnv->ambient);
     UniformColour(ecm, texEnv->emissive);
@@ -131,7 +128,6 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
     projection = glGetUniformLocation(program, "projection");
     modelview = glGetUniformLocation(program, "modelview");
     normalmatrix = glGetUniformLocation(program, "normalmatrix");
-    sampler = glGetUniformLocation(program, "sampler");
 
     for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
     {
