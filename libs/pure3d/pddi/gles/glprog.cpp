@@ -54,6 +54,9 @@ void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
     UniformColour(dcm, texEnv->diffuse);
     UniformColour(scm, texEnv->specular);
     glUniform1f(srm, texEnv->shininess);
+    PDDIASSERT(!texEnv->alphaTest || texEnv->alphaCompareMode == PDDI_COMPARE_GREATER ||
+        texEnv->alphaCompareMode == PDDI_COMPARE_GREATEREQUAL);
+    glUniform1f(alpharef, texEnv->alphaTest ? texEnv->alphaRef : 0.0f);
 }
 
 void pglProgram::SetLightState(int handle, const pddiLight* lightState)
@@ -128,6 +131,7 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
     projection = glGetUniformLocation(program, "projection");
     modelview = glGetUniformLocation(program, "modelview");
     normalmatrix = glGetUniformLocation(program, "normalmatrix");
+    alpharef = glGetUniformLocation(program, "alpharef");
 
     for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
     {

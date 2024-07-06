@@ -351,7 +351,10 @@ void pglMat::SetDevPass(unsigned pass)
             "varying vec4 cpri;\n"
             "varying vec4 csec;\n"
 
+            "uniform float alpharef;\n"
+
             "void main() {\n"
+            "    if (cpri.a < alpharef) discard;\n"
             "    gl_FragColor = cpri + csec;\n"
             "}\n"
         );
@@ -364,9 +367,12 @@ void pglMat::SetDevPass(unsigned pass)
             "varying vec4 csec;\n"
 
             "uniform sampler2D sampler;\n"
+            "uniform float alpharef;\n"
 
             "void main() {\n"
-            "    gl_FragColor = texture2D(sampler, tc) * cpri + csec;\n"
+            "    vec4 c = texture2D(sampler, tc) * cpri + csec;\n"
+            "    if (c.a < alpharef) discard;\n"
+            "    gl_FragColor = c;\n"
             "}\n"
         );
 
@@ -406,11 +412,6 @@ void pglMat::SetDevPass(unsigned pass)
         program->SetTextureEnvironment(&texEnv[i]);
     }
 
-    if(texEnv[i].alphaTest)
-    {
-        // TODO
-    }
-
     if(texEnv[i].alphaBlendMode == PDDI_BLEND_NONE)
     {
         glDisable(GL_BLEND);
@@ -420,13 +421,6 @@ void pglMat::SetDevPass(unsigned pass)
         glEnable(GL_BLEND);
         glBlendEquation(alphaBlendTable[texEnv[i].alphaBlendMode][0]);
         glBlendFunc(alphaBlendTable[texEnv[i].alphaBlendMode][1],alphaBlendTable[texEnv[i].alphaBlendMode][2]);
-    }
- 
-    if(texEnv[i].lit)
-    {
-    }
-    else
-    {
     }
 
     if( texEnv[i].twoSided || context->GetCullMode() == PDDI_CULL_NONE )
