@@ -312,19 +312,18 @@ void pglMat::SetDevPass(unsigned pass)
 
             "void main() {\n"
             "    vec4 v = modelview * vec4(position, 1.0);\n"
-            "    vec3 N = normalize(mat3(normalmatrix) * normal);\n"
+            "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
 
             "    vec3 c = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
             "    for (int i = 0; lit > 0 && i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
             "        if (lights[i].enabled <= 0) continue;\n"
 
-            "        vec3 L = normalize(lights[i].position.xyz - v.xyz);\n"
-            "        vec3 E = normalize(-v.xyz);\n"
-            "        vec3 R = normalize(-reflect(L,N));\n"
+            "        vec3 l = normalize(lights[i].position.xyz - v.xyz);\n"
+            "        vec3 h = normalize(l.xyz + vec3(0.0, 0.0, 1.0));\n"
 
-            "        vec3 diff = max(dot(N,L), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
-            "        float S = srm > 0.0 ? pow(max(dot(R,E),0.0),srm) : 1.0;\n"
-            "        vec3 spec = S * scm.rgb * lights[i].colour.rgb;\n"
+            "        vec3 diff = max(dot(n,l), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        float s = srm > 0.0 ? pow(max(dot(n,h),0.0),srm) : 1.0;\n"
+            "        vec3 spec = s * scm.rgb * lights[i].colour.rgb;\n"
             "        c += diff + spec;\n"
             "    }\n"
 
