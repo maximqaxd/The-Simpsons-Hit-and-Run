@@ -89,6 +89,7 @@ void pglProgram::SetLightState(int handle, const pddiLight* lightState)
     glUniform1i(lights[handle].enabled, lightState->enabled ? 1 : 0);
     glUniform4fv(lights[handle].position, 1, dir);
     UniformColour(lights[handle].colour, lightState->colour);
+    glUniform3f(lights[handle].attenuation, lightState->attenA, lightState->attenB, lightState->attenC);
 }
 
 void pglProgram::SetAmbientLight(pddiColour ambient)
@@ -138,6 +139,7 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
         lights[i].enabled = glGetUniformLocation(program, (prefix + "enabled").c_str());
         lights[i].position = glGetUniformLocation(program, (prefix + "position").c_str());
         lights[i].colour = glGetUniformLocation(program, (prefix + "colour").c_str());
+        lights[i].attenuation = glGetUniformLocation( program, (prefix + "attenuation").c_str() );
     }
 
     lit = glGetUniformLocation(program, "lit");

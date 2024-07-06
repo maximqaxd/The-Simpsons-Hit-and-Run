@@ -32,7 +32,7 @@ protected:
     // Uniform locations
     GLint projection, modelview, normalmatrix, sampler;
     struct {
-        GLint enabled, position, colour;
+        GLint enabled, position, colour, attenuation;
     } lights[PDDI_MAX_LIGHTS];
     GLint lit, acs, acm, dcm, scm, ecm, srm;
 };

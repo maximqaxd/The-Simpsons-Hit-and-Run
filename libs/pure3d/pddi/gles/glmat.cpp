@@ -294,6 +294,7 @@ void pglMat::SetDevPass(unsigned pass)
             "    int enabled;\n"
             "    vec4 position;\n"
             "    vec4 colour;\n"
+            "    vec3 attenuation;\n"
             "} lights[" PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "];\n"
 
             // Scene
@@ -315,16 +316,21 @@ void pglMat::SetDevPass(unsigned pass)
             "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
 
             "    vec3 c = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
-            "    for (int i = 0; lit > 0 && i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
+            "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
             "        if (lights[i].enabled <= 0) continue;\n"
 
+            "        float d = length(lights[i].position.xyz - v.xyz);\n"
             "        vec3 l = normalize(lights[i].position.xyz - v.xyz);\n"
             "        vec3 h = normalize(l.xyz + vec3(0.0, 0.0, 1.0));\n"
 
-            "        vec3 diff = max(dot(n,l), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        vec3 att = lights[i].attenuation;\n"
+            "        float a = lights[i].position.w > 0.0 ? 1.0 / (att.x + att.y * d + att.z * d * d) : 1.0;\n"
             "        float s = srm > 0.0 ? pow(max(dot(n,h),0.0),srm) : 1.0;\n"
-            "        vec3 spec = s * scm.rgb * lights[i].colour.rgb;\n"
-            "        c += diff + spec;\n"
+            "        float f = dot(n,l) > 0.0 ? 1.0 : 0.0;\n"
+
+            "        vec3 diff = max(dot(n,l), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        vec3 spec = f * s * scm.rgb * lights[i].colour.rgb;\n"
+            "        c += a * (diff + spec);\n"
             "    }\n"
 
             "    fc = color * vec4(c, 1.0);\n"
