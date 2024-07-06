@@ -7,7 +7,9 @@
 #define _GLPROG_HPP_
 
 #include <pddi/pddi.hpp>
+#include <pddi/base/basecontext.hpp>
 #include <pddi/gles/gl.hpp>
+struct pglTextureEnv;
 
 class pglProgram : public pddiObject
 {
@@ -18,13 +20,21 @@ public:
     GLuint GetProgram() { return program; }
     bool LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 
-    void SetProjectionMatrix(const GLfloat* matrix);
-    void SetModelViewMatrix(const GLfloat* matrix);
-    void SetSampler(GLint texture);
+    void SetProjectionMatrix(const pddiMatrix* matrix);
+    void SetModelViewMatrix(const pddiMatrix* matrix);
+    void SetTextureEnvironment(const pglTextureEnv* texEnv);
+    void SetLightState(int handle, const pddiLight* lightState);
+    void SetAmbientLight(pddiColour ambient);
 
 protected:
     GLuint program;
-    GLint modelview, projection, sampler;
+
+    // Uniform locations
+    GLint projection, modelview, normalmatrix, sampler;
+    struct {
+        GLint enabled, position, colour;
+    } lights[PDDI_MAX_LIGHTS];
+    GLint lit, acs, acm, dcm, scm, ecm, srm;
 };
 
 #endif

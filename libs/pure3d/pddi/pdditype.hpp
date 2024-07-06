@@ -22,6 +22,9 @@
     #define DLLEXPORT 
 #endif
 
+#define PDDI_STRING(x) #x
+#define PDDI_STRINGIZE(x) PDDI_STRING(x)
+
 //-------------------------------------------------------------------
 // pddiObject
 //-------------------------------------------------------------------

@@ -183,7 +183,7 @@ void pglContext::SetupHardwareProjection(void)
     }
 
     if (shaderProgram)
-        shaderProgram->SetProjectionMatrix(projection.m[0]);
+        shaderProgram->SetProjectionMatrix(&projection);
 }
 
 void pglContext::LoadHardwareMatrix(pddiMatrixType id)
@@ -193,7 +193,7 @@ void pglContext::LoadHardwareMatrix(pddiMatrixType id)
         case PDDI_MATRIX_MODELVIEW :
         {
             if (shaderProgram)
-                shaderProgram->SetModelViewMatrix(state.matrixStack[id]->Top()->m[0]);
+                shaderProgram->SetModelViewMatrix(state.matrixStack[id]->Top());
         }
         break;
         default :
@@ -755,42 +755,20 @@ void pglContext::DrawPrimBuffer(pddiShader* mat, pddiPrimBuffer* buffer)
 
 int pglContext::GetMaxLights(void)
 {
-    return 8;
+    return PDDI_MAX_LIGHTS;
 }
 
 void pglContext::SetupHardwareLight(int handle)
 {
-    float c[4];
-    FillGLColour(state.lightingState->light[handle].colour, c);
-    
-    float dir[4];
-    switch(state.lightingState->light[handle].type)
-    {
-        case PDDI_LIGHT_DIRECTIONAL :
-            dir[0] = -state.lightingState->light[handle].worldDirection.x;
-            dir[1] = -state.lightingState->light[handle].worldDirection.y;
-            dir[2] = -state.lightingState->light[handle].worldDirection.z;
-            dir[3] = 0.0f;
-            break;
-
-        case PDDI_LIGHT_POINT :
-            dir[0] = state.lightingState->light[handle].worldPosition.x;
-            dir[1] = state.lightingState->light[handle].worldPosition.y;
-            dir[2] = state.lightingState->light[handle].worldPosition.z;
-            dir[3] = 1.0f;
-            break;
-
-        case PDDI_LIGHT_SPOT :
-            PDDIASSERT(0);
-            break;
-    }
+    if(shaderProgram)
+        shaderProgram->SetLightState(handle, &state.lightingState->light[handle]);
 }
 
 void pglContext::SetAmbientLight(pddiColour col)
 {
     pddiBaseContext::SetAmbientLight(col);
-    float ambient[4];
-    FillGLColour(col,ambient);
+    if(shaderProgram)
+        shaderProgram->SetAmbientLight(col);
 }
 
 
@@ -986,9 +964,19 @@ float pglContext::EndTiming(void)
 
 void pglContext::SetShaderProgram(pglProgram* program)
 {
+    if(program == shaderProgram)
+        return;
+
     shaderProgram = program;
+    if(!shaderProgram)
+        return;
+
     shaderProgram->AddRef();
     glUseProgram(shaderProgram->GetProgram());
-    shaderProgram->SetProjectionMatrix(projection.m[0]);
+    shaderProgram->SetProjectionMatrix(&projection);
+
     LoadHardwareMatrix(PDDI_MATRIX_MODELVIEW);
+    for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
+        SetupHardwareLight(i);
+    SetAmbientLight(state.lightingState->ambient);
 }

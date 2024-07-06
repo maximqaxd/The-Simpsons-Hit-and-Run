@@ -98,14 +98,6 @@ GLenum alphaBlendTable[8][3] =
     { GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_SRC_ALPHA} //PDDI_BLEND_SUBMODULATEALPHA
 };
 
-static inline void FillGLColour(pddiColour c, float* f)
-{
-    f[0] = float(c.Red()) / 255;
-    f[1] = float(c.Green()) / 255;
-    f[2] = float(c.Blue()) / 255;
-    f[3] = float(c.Alpha()) / 255;
-}
-
 pglMat::pglMat(pglContext* c) 
 {
     context = c;
@@ -287,6 +279,7 @@ void pglMat::SetDevPass(unsigned pass)
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         CompileShader(vertexShader,
             "precision highp float;\n"
+
             "attribute vec3 position;\n"
             "attribute vec3 normal;\n"
             "attribute vec2 texcoord;\n"
@@ -294,19 +287,50 @@ void pglMat::SetDevPass(unsigned pass)
 
             "uniform mat4 projection;\n"
             "uniform mat4 modelview;\n"
+            "uniform mat4 normalmatrix;\n"
+
+            // Lights
+            "uniform struct LightParams {\n"
+            "    int enabled;\n"
+            "    vec4 position;\n"
+            "    vec4 colour;\n"
+            "} lights[" PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "];\n"
+
+            // Scene
+            "uniform int lit;\n"
+            "uniform vec4 acs;\n"
+
+            // Material
+            "uniform vec4 acm;\n"
+            "uniform vec4 dcm;\n"
+            "uniform vec4 scm;\n"
+            "uniform vec4 ecm;\n"
+            "uniform float srm;\n"
 
             "varying vec2 tc;\n"
-            "varying vec3 fn;\n"
             "varying vec4 fc;\n"
-            "varying vec3 vertPos;\n"
 
             "void main() {\n"
+            "    vec4 v = modelview * vec4(position, 1.0);\n"
+            "    vec3 N = normalize(mat3(normalmatrix) * normal);\n"
+
+            "    vec3 c = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
+            "    for (int i = 0; lit > 0 && i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
+            "        if (lights[i].enabled <= 0) continue;\n"
+
+            "        vec3 L = normalize(lights[i].position.xyz - v.xyz);\n"
+            "        vec3 E = normalize(-v.xyz);\n"
+            "        vec3 R = normalize(-reflect(L,N));\n"
+
+            "        vec3 diff = max(dot(N,L), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        float S = srm > 0.0 ? pow(max(dot(R,E),0.0),srm) : 1.0;\n"
+            "        vec3 spec = S * scm.rgb * lights[i].colour.rgb;\n"
+            "        c += diff + spec;\n"
+            "    }\n"
+
+            "    fc = color * vec4(c, 1.0);\n"
             "    tc = texcoord;\n"
-            "    fn = normal;\n"
-            "    fc = color;\n"
-            "    vec4 vertPos4 = modelview * vec4(position, 1.0);\n"
-            "    vertPos = vertPos4.xyz / vertPos4.w;\n"
-            "    gl_Position = projection * vertPos4;\n"
+            "    gl_Position = projection * v;\n"
             "}\n"
         );
 
@@ -314,9 +338,7 @@ void pglMat::SetDevPass(unsigned pass)
         CompileShader(fragmentShader,
             "precision mediump float;\n"
             "varying vec2 tc;\n"
-            "varying vec3 fn;\n"
             "varying vec4 fc;\n"
-            "varying vec3 vertPos;\n"
 
             "void main() {\n"
             "    gl_FragColor = fc;\n"
@@ -327,9 +349,7 @@ void pglMat::SetDevPass(unsigned pass)
         CompileShader(textureShader,
             "precision mediump float;\n"
             "varying vec2 tc;\n"
-            "varying vec3 fn;\n"
             "varying vec4 fc;\n"
-            "varying vec3 vertPos;\n"
 
             "uniform sampler2D sampler;\n"
 
@@ -359,7 +379,7 @@ void pglMat::SetDevPass(unsigned pass)
     if(texEnv[i].texture)
     {
         context->SetShaderProgram(textured);
-        textured->SetSampler(0);
+        textured->SetTextureEnvironment(&texEnv[i]);
 
         texEnv[i].texture->SetGLState();
 
@@ -371,6 +391,7 @@ void pglMat::SetDevPass(unsigned pass)
     else
     {
         context->SetShaderProgram(program);
+        program->SetTextureEnvironment(&texEnv[i]);
     }
 
     if(texEnv[i].alphaTest)
@@ -391,11 +412,6 @@ void pglMat::SetDevPass(unsigned pass)
  
     if(texEnv[i].lit)
     {
-        float c[4];
-        FillGLColour(texEnv[i].ambient, c);
-        FillGLColour(texEnv[i].emissive, c);
-        FillGLColour(texEnv[i].diffuse, c);
-        FillGLColour(texEnv[i].specular, c);
     }
     else
     {
