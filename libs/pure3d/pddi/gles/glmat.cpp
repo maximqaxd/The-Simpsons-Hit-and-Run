@@ -309,7 +309,8 @@ void pglMat::SetDevPass(unsigned pass)
             "uniform float srm;\n"
 
             "varying vec2 tc;\n"
-            "varying vec4 fc;\n"
+            "varying vec4 cpri;\n"
+            "varying vec4 csec;\n"
 
             "vec3 direction(vec4 p1, vec4 p2) {\n"
             "    if (p2.w == 0.0 && p1.w != 0.0)\n"
@@ -324,26 +325,27 @@ void pglMat::SetDevPass(unsigned pass)
             "    vec4 v = modelview * vec4(position, 1.0);\n"
             "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
 
-            "    vec3 c = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
+            "    vec3 diff = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
+            "    vec3 spec = vec3(0.0);\n"
             "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
             "        if (lights[i].enabled <= 0) continue;\n"
 
+            "        vec3 vp = direction(v, lights[i].position);\n"
+            "        vec3 h = normalize(vp.xyz + vec3(0.0, 0.0, 1.0));\n"
             "        float d = distance(v.xyz, lights[i].position.xyz);\n"
-            "        vec3 l = direction(v, lights[i].position);\n"
-            "        vec3 h = normalize(l.xyz + vec3(0.0, 0.0, 1.0));\n"
 
             "        vec3 k = lights[i].attenuation;\n"
             "        float s = srm > 0.0 ? pow(max(dot(n,h),0.0),srm) : 1.0;\n"
-            "        float f = dot(n,l) != 0.0 ? 1.0 : 0.0;\n"
+            "        float f = max(dot(n,vp), 0.0) != 0.0 ? 1.0 : 0.0;\n"
 
-            "        vec3 diff = max(dot(n,l), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
-            "        vec3 spec = f * s * scm.rgb * lights[i].colour.rgb;\n"
             "        float att = lights[i].position.w != 0.0 ? 1.0 / (k.x + k.y * d + k.z * d * d) : 1.0;\n"
-            "        c += att * (diff + spec);\n"
+            "        diff += att * max(dot(n,vp), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        spec += att * f * s * scm.rgb * lights[i].colour.rgb;\n"
             "    }\n"
 
-            "    fc = color * vec4(c, dcm.a);\n"
             "    tc = texcoord;\n"
+            "    cpri = color * vec4(diff, dcm.a);\n"
+            "    csec = vec4(spec, 0.0);\n"
             "    gl_Position = projection * v;\n"
             "}\n"
         );
@@ -352,10 +354,11 @@ void pglMat::SetDevPass(unsigned pass)
         CompileShader(fragmentShader,
             "precision mediump float;\n"
             "varying vec2 tc;\n"
-            "varying vec4 fc;\n"
+            "varying vec4 cpri;\n"
+            "varying vec4 csec;\n"
 
             "void main() {\n"
-            "    gl_FragColor = fc;\n"
+            "    gl_FragColor = cpri + csec;\n"
             "}\n"
         );
 
@@ -363,12 +366,13 @@ void pglMat::SetDevPass(unsigned pass)
         CompileShader(textureShader,
             "precision mediump float;\n"
             "varying vec2 tc;\n"
-            "varying vec4 fc;\n"
+            "varying vec4 cpri;\n"
+            "varying vec4 csec;\n"
 
             "uniform sampler2D sampler;\n"
 
             "void main() {\n"
-            "    gl_FragColor = texture2D(sampler, tc) * fc;\n"
+            "    gl_FragColor = texture2D(sampler, tc) * cpri + csec;\n"
             "}\n"
         );
 
