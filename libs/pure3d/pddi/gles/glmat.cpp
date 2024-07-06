@@ -321,6 +321,8 @@ void pglMat::SetDevPass(unsigned pass)
             "        return normalize(p2.xyz - p1.xyz);\n"
             "}\n"
 
+            "float power(float x, float y) { return y != 0.0 ? pow(x,y) : 1.0; }\n"
+
             "void main() {\n"
             "    vec4 v = modelview * vec4(position, 1.0);\n"
             "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
@@ -330,17 +332,16 @@ void pglMat::SetDevPass(unsigned pass)
             "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
             "        if (lights[i].enabled <= 0) continue;\n"
 
-            "        vec3 vp = direction(v, lights[i].position);\n"
-            "        vec3 h = normalize(vp.xyz + vec3(0.0, 0.0, 1.0));\n"
-            "        float d = distance(v.xyz, lights[i].position.xyz);\n"
+            "        vec3 VP = direction(v, lights[i].position);\n"
+            "        float f = max(dot(n,VP), 0.0) != 0.0 ? 1.0 : 0.0;\n"
+            "        vec3 h = normalize(VP + vec3(0.0, 0.0, 1.0));\n"
 
             "        vec3 k = lights[i].attenuation;\n"
-            "        float s = srm > 0.0 ? pow(max(dot(n,h),0.0),srm) : 1.0;\n"
-            "        float f = max(dot(n,vp), 0.0) != 0.0 ? 1.0 : 0.0;\n"
+            "        float d = distance(v.xyz, lights[i].position.xyz);\n"
+            "        float att = lights[i].position.w != 0.0 ? 1.0 / (k[0] + k[1] * d + k[2] * d * d) : 1.0;\n"
 
-            "        float att = lights[i].position.w != 0.0 ? 1.0 / (k.x + k.y * d + k.z * d * d) : 1.0;\n"
-            "        diff += att * max(dot(n,vp), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
-            "        spec += att * f * s * scm.rgb * lights[i].colour.rgb;\n"
+            "        diff += att * max(dot(n,VP), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        spec += att * f * power(max(dot(n,h),0.0),srm) * scm.rgb * lights[i].colour.rgb;\n"
             "    }\n"
 
             "    tc = texcoord;\n"
