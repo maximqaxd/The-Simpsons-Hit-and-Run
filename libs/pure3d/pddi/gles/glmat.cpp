@@ -312,42 +312,35 @@ void pglMat::SetDevPass(unsigned pass)
             "varying vec4 cpri;\n"
             "varying vec4 csec;\n"
 
-            "vec3 direction(vec4 p1, vec4 p2) {\n"
-            "    if (p2.w == 0.0 && p1.w != 0.0)\n"
-            "        return normalize(p2.xyz);\n"
-            "    else if (p1.w == 0.0 && p2.w != 0.0)\n"
-            "        return -normalize(p1.xyz);\n"
-            "    else\n"
-            "        return normalize(p2.xyz - p1.xyz);\n"
-            "}\n"
-
+            "vec3 direction(vec4 p1, vec4 p2) { return normalize(p2.xyz * sign(p1.w) - p1.xyz * sign(p2.w)); }\n"
             "float power(float x, float y) { return y != 0.0 ? pow(x,y) : 1.0; }\n"
+            "float product(vec3 x, vec3 y) { return max(dot(x,y), 0.0); }\n"
 
             "void main() {\n"
-            "    vec4 v = modelview * vec4(position, 1.0);\n"
+            "    vec4 V = modelview * vec4(position, 1.0);\n"
             "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
 
             "    vec3 diff = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
             "    vec3 spec = vec3(0.0);\n"
             "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
-            "        if (lights[i].enabled <= 0) continue;\n"
+            "        if (lights[i].enabled == 0) continue;\n"
 
-            "        vec3 VP = direction(v, lights[i].position);\n"
-            "        float f = max(dot(n,VP), 0.0) != 0.0 ? 1.0 : 0.0;\n"
+            "        vec3 VP = direction(V, lights[i].position);\n"
+            "        float f = product(n,VP) != 0.0 ? 1.0 : 0.0;\n"
             "        vec3 h = normalize(VP + vec3(0.0, 0.0, 1.0));\n"
 
             "        vec3 k = lights[i].attenuation;\n"
-            "        float d = distance(v.xyz, lights[i].position.xyz);\n"
+            "        float d = distance(V.xyz, lights[i].position.xyz);\n"
             "        float att = lights[i].position.w != 0.0 ? 1.0 / (k[0] + k[1] * d + k[2] * d * d) : 1.0;\n"
 
-            "        diff += att * max(dot(n,VP), 0.0) * dcm.rgb * lights[i].colour.rgb;\n"
-            "        spec += att * f * power(max(dot(n,h),0.0),srm) * scm.rgb * lights[i].colour.rgb;\n"
+            "        diff += att * product(n,VP) * dcm.rgb * lights[i].colour.rgb;\n"
+            "        spec += att * f * power(product(n,h),srm) * scm.rgb * lights[i].colour.rgb;\n"
             "    }\n"
 
             "    tc = texcoord;\n"
             "    cpri = color * vec4(diff, dcm.a);\n"
             "    csec = vec4(spec, 0.0);\n"
-            "    gl_Position = projection * v;\n"
+            "    gl_Position = projection * V;\n"
             "}\n"
         );
 
