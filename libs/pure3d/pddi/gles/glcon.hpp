@@ -175,7 +175,6 @@ protected:
     bool valid;
     GLuint vertexBuffer;
     GLuint indexBuffer;
-    GLuint vertexArray;
 
     unsigned mem;
 };

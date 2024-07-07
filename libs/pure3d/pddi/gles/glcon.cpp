@@ -523,7 +523,7 @@ pglPrimBuffer::pglPrimBuffer(pglContext* c, pddiPrimType type, unsigned vertexFo
     indices = NULL;
 
     valid = false;
-    vertexBuffer = indexBuffer = vertexArray = 0;
+    vertexBuffer = indexBuffer = 0;
 
     primType = type;
     vertexType = vertexFormat;
@@ -581,7 +581,6 @@ pglPrimBuffer::~pglPrimBuffer()
 
     GLuint buffers[] = { vertexBuffer, indexBuffer };
     glDeleteBuffers(2, buffers);
-    glDeleteVertexArraysOES(1, &vertexArray);
 }
 
 pddiPrimBufferStream* pglPrimBuffer::Lock()
@@ -659,61 +658,51 @@ void pglPrimBuffer::Display(void)
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     }
 
-    if(!vertexArray)
+    GLintptr offset = 0;
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
+    offset += 12;
+
+    if(vertexType & PDDI_V_NORMAL)
     {
-        glGenVertexArraysOES(1, &vertexArray);
-        glBindVertexArrayOES(vertexArray);
-
-        GLintptr offset = 0;
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
         offset += 12;
-        
-        if(vertexType & PDDI_V_NORMAL)
-        {
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,stride,(void*)offset);
-            offset += 12;
-        }
-        else
-        {
-            glDisableVertexAttribArray(1);
-            glVertexAttrib3f(1, 0.0f, 0.0f, 0.0f);
-        }
-        
-        if(vertexType & 0xf)
-        {
-            glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,stride,(void*)offset);
-            offset += 8;
-        }
-        else
-        {
-            glDisableVertexAttribArray(2);
-            glVertexAttrib2f(2, 0.0f, 0.0f);
-        }
-        
-        if(vertexType & PDDI_V_COLOUR)
-        {
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_TRUE,stride,(void*)offset);
-            offset += 4;
-        }
-        else
-        {
-            glDisableVertexAttribArray(3);
-            glVertexAttrib4f(3, 1.0f, 1.0f, 1.0f, 1.0f);
-        }
-
-        if(indexCount && indices)
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBuffer);
-        else
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     }
     else
     {
-        glBindVertexArrayOES(vertexArray);
+        glDisableVertexAttribArray(1);
+        glVertexAttrib3f(1, 0.0f, 0.0f, 0.0f);
     }
+        
+    if(vertexType & 0xf)
+    {
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,stride,(void*)offset);
+        offset += 8;
+    }
+    else
+    {
+        glDisableVertexAttribArray(2);
+        glVertexAttrib2f(2, 0.0f, 0.0f);
+    }
+        
+    if(vertexType & PDDI_V_COLOUR)
+    {
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3,4,GL_UNSIGNED_BYTE,GL_TRUE,stride,(void*)offset);
+        offset += 4;
+    }
+    else
+    {
+        glDisableVertexAttribArray(3);
+        glVertexAttrib4f(3, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    if(indexCount && indices)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBuffer);
+    else
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 
     if(indexCount && indices)
     {
