@@ -1265,7 +1265,7 @@ if(SRR2_BUILD_TESTS)
 			taihen_stub
 			SceKernelDmacMgr_stub
 		)
-		if(NOT SRR2_USE_GLES)
+		if(SRR2_P3D_PDDI STREQUAL "OpenGL")
 			target_link_libraries(simplemovie vitaGL vitashark)
 		endif()
 	endif()
@@ -1404,7 +1404,7 @@ if(VITA)
 		taihen_stub
 		SceKernelDmacMgr_stub
 	)
-	if(NOT SRR2_USE_GLES)
+	if(SRR2_P3D_PDDI STREQUAL "OpenGL")
 		target_link_libraries(SRR2 vitaGL vitashark)
 	endif()
 endif()
@@ -1424,7 +1424,7 @@ target_include_directories(SRR2 PRIVATE "code/")
 
 if(VITA)
 	## Create Vita files
-	if(SRR2_USE_GLES)
+	if(SRR2_P3D_PDDI STREQUAL "GLES2")
 		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
 		# The FILE directive lets you add additional files to the VPK, the syntax is
 		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
