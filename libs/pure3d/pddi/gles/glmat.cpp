@@ -130,17 +130,10 @@ pglMat::pglMat(pglContext* c)
     }
     texEnv[0].enabled = true;
     pass = 0;
-    program = new pglProgram();
-    program->AddRef();
-    textured = new pglProgram();
-    textured->AddRef();
 }
 
 pglMat::~pglMat() 
 {
-    program->Release();
-    textured->Release();
-
     for(int i = 0; i < pglMaxPasses; i++)
         if(texEnv[i].texture)
             texEnv[i].texture->Release();
@@ -274,142 +267,18 @@ void pglMat::SetDevPass(unsigned pass)
 {
     MICROPROFILE_SCOPEI( "PDDI", "pglMat::SetDevPass", MP_RED );
 
-    if(!program->GetProgram() || !textured->GetProgram())
-    {
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        CompileShader(vertexShader,
-            "precision highp float;\n"
-
-            "attribute vec3 position;\n"
-            "attribute vec3 normal;\n"
-            "attribute vec2 texcoord;\n"
-            "attribute vec4 color;\n"
-
-            "uniform mat4 projection;\n"
-            "uniform mat4 modelview;\n"
-            "uniform mat4 normalmatrix;\n"
-
-            // Lights
-            "uniform struct LightParams {\n"
-            "    int enabled;\n"
-            "    vec4 position;\n"
-            "    vec4 colour;\n"
-            "    vec3 attenuation;\n"
-            "} lights[" PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "];\n"
-
-            // Scene
-            "uniform int lit;\n"
-            "uniform vec4 acs;\n"
-
-            // Material
-            "uniform vec4 acm;\n"
-            "uniform vec4 dcm;\n"
-            "uniform vec4 scm;\n"
-            "uniform vec4 ecm;\n"
-            "uniform float srm;\n"
-
-            "varying vec2 tc;\n"
-            "varying vec4 cpri;\n"
-            "varying vec4 csec;\n"
-
-            "vec3 direction(vec4 p1, vec4 p2) { return normalize(p2.xyz * sign(p1.w) - p1.xyz * sign(p2.w)); }\n"
-            "float power(float x, float y) { return y != 0.0 ? pow(x,y) : 1.0; }\n"
-            "float product(vec3 x, vec3 y) { return max(dot(x,y), 0.0); }\n"
-
-            "void main() {\n"
-            "    vec4 V = modelview * vec4(position, 1.0);\n"
-            "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
-
-            "    vec3 diff = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
-            "    vec3 spec = vec3(0.0);\n"
-            "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
-            "        if (lights[i].enabled == 0) continue;\n"
-
-            "        vec3 VP = direction(V, lights[i].position);\n"
-            "        float f = product(n,VP) != 0.0 ? 1.0 : 0.0;\n"
-            "        vec3 h = normalize(VP + vec3(0.0, 0.0, 1.0));\n"
-
-            "        vec3 k = lights[i].attenuation;\n"
-            "        float d = distance(V.xyz, lights[i].position.xyz);\n"
-            "        float att = lights[i].position.w != 0.0 ? 1.0 / (k[0] + k[1] * d + k[2] * d * d) : 1.0;\n"
-
-            "        diff += att * product(n,VP) * dcm.rgb * lights[i].colour.rgb;\n"
-            "        spec += att * f * power(product(n,h),srm) * scm.rgb * lights[i].colour.rgb;\n"
-            "    }\n"
-
-            "    tc = texcoord;\n"
-            "    cpri = color * vec4(diff, dcm.a);\n"
-            "    csec = vec4(spec, 0.0);\n"
-            "    gl_Position = projection * V;\n"
-            "}\n"
-        );
-
-        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        CompileShader(fragmentShader,
-            "precision mediump float;\n"
-            "varying vec2 tc;\n"
-            "varying vec4 cpri;\n"
-            "varying vec4 csec;\n"
-
-            "uniform float alpharef;\n"
-
-            "void main() {\n"
-            "    if (cpri.a < alpharef) discard;\n"
-            "    gl_FragColor = cpri + csec;\n"
-            "}\n"
-        );
-
-        GLuint textureShader = glCreateShader(GL_FRAGMENT_SHADER);
-        CompileShader(textureShader,
-            "precision mediump float;\n"
-            "varying vec2 tc;\n"
-            "varying vec4 cpri;\n"
-            "varying vec4 csec;\n"
-
-            "uniform sampler2D sampler;\n"
-            "uniform float alpharef;\n"
-
-            "void main() {\n"
-            "    vec4 c = texture2D(sampler, tc) * cpri + csec;\n"
-            "    if (c.a < alpharef) discard;\n"
-            "    gl_FragColor = c;\n"
-            "}\n"
-        );
-
-        if(!program->LinkProgram(vertexShader, fragmentShader))
-        {
-            PDDIASSERT(false);
-        }
-
-        if(!textured->LinkProgram(vertexShader, textureShader))
-        {
-            PDDIASSERT(false);
-        }
-
-        // Don't leak shaders
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-        glDeleteShader(textureShader);
-    }
-
     int i = 0;
+    
+    context->SetTextureEnvironment(&texEnv[i]);
 
     if(texEnv[i].texture)
     {
-        context->SetShaderProgram(textured);
-        textured->SetTextureEnvironment(&texEnv[i]);
-
         texEnv[i].texture->SetGLState();
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMagTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMinTable[texEnv[i].filterMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uvTable[texEnv[i].uvMode]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, uvTable[texEnv[i].uvMode]);
-    }
-    else
-    {
-        context->SetShaderProgram(program);
-        program->SetTextureEnvironment(&texEnv[i]);
     }
 
     if(texEnv[i].alphaBlendMode == PDDI_BLEND_NONE)
@@ -431,29 +300,4 @@ void pglMat::SetDevPass(unsigned pass)
     {
         glEnable(GL_CULL_FACE);
     }
-}
-
-bool pglMat::CompileShader(GLuint shader, const char* source)
-{
-    glShaderSource(shader, 1, &source, 0);
-    glCompileShader(shader);
-
-    GLint isCompiled = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
-    if(isCompiled == GL_FALSE)
-    {
-        GLint maxLength = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-        // The maxLength includes the NULL character
-        std::vector<GLchar> infoLog(maxLength);
-        glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
-        
-        // We don't need the shader anymore.
-        glDeleteShader(shader);
-
-        SDL_Log("Shader compilation error: %s", infoLog.data());
-        return false;
-    }
-    return true;
 }

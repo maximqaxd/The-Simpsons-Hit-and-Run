@@ -89,14 +89,9 @@ public:
     void SetDevPass(unsigned);
 
 private:
-    bool CompileShader(GLuint shader, const char* source);
-   
     pglContext* context;
     int pass;
     pglTextureEnv texEnv[pglMaxPasses];
-
-    pglProgram* program;
-    pglProgram* textured;
 };
 
 #endif

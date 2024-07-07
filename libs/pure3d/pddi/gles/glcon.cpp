@@ -71,7 +71,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 {
     device = dev;
     display = disp;
-    shaderProgram = nullptr;
+    currentProgram = nullptr;
 
     device->AddRef();
     display->AddRef();
@@ -84,6 +84,120 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     extContext = new pglExtContext(display);
     extGamma = new pglExtGamma(display);
 
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    pglProgram::CompileShader(vertexShader,
+        "precision highp float;\n"
+
+        "attribute vec3 position;\n"
+        "attribute vec3 normal;\n"
+        "attribute vec2 texcoord;\n"
+        "attribute vec4 color;\n"
+
+        "uniform mat4 projection;\n"
+        "uniform mat4 modelview;\n"
+        "uniform mat4 normalmatrix;\n"
+
+        // Lights
+        "uniform struct LightParams {\n"
+        "    int enabled;\n"
+        "    vec4 position;\n"
+        "    vec4 colour;\n"
+        "    vec3 attenuation;\n"
+        "} lights[" PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "];\n"
+
+        // Scene
+        "uniform int lit;\n"
+        "uniform vec4 acs;\n"
+
+        // Material
+        "uniform vec4 acm;\n"
+        "uniform vec4 dcm;\n"
+        "uniform vec4 scm;\n"
+        "uniform vec4 ecm;\n"
+        "uniform float srm;\n"
+
+        "varying vec2 tc;\n"
+        "varying vec4 cpri;\n"
+        "varying vec4 csec;\n"
+
+        "vec3 direction(vec4 p1, vec4 p2) { return normalize(p2.xyz * sign(p1.w) - p1.xyz * sign(p2.w)); }\n"
+        "float power(float x, float y) { return y != 0.0 ? pow(x,y) : 1.0; }\n"
+        "float product(vec3 x, vec3 y) { return max(dot(x,y), 0.0); }\n"
+
+        "void main() {\n"
+        "    vec4 V = modelview * vec4(position, 1.0);\n"
+        "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
+
+        "    vec3 diff = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
+        "    vec3 spec = vec3(0.0);\n"
+        "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
+        "        if (lights[i].enabled == 0) continue;\n"
+
+        "        vec3 VP = direction(V, lights[i].position);\n"
+        "        float f = product(n,VP) != 0.0 ? 1.0 : 0.0;\n"
+        "        vec3 h = normalize(VP + vec3(0.0, 0.0, 1.0));\n"
+
+        "        vec3 k = lights[i].attenuation;\n"
+        "        float d = distance(V.xyz, lights[i].position.xyz);\n"
+        "        float att = lights[i].position.w != 0.0 ? 1.0 / (k[0] + k[1] * d + k[2] * d * d) : 1.0;\n"
+
+        "        diff += att * product(n,VP) * dcm.rgb * lights[i].colour.rgb;\n"
+        "        spec += att * f * power(product(n,h),srm) * scm.rgb * lights[i].colour.rgb;\n"
+        "    }\n"
+
+        "    tc = texcoord;\n"
+        "    cpri = color * vec4(diff, dcm.a);\n"
+        "    csec = vec4(spec, 0.0);\n"
+        "    gl_Position = projection * V;\n"
+        "}\n"
+    );
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    pglProgram::CompileShader(fragmentShader,
+        "precision mediump float;\n"
+        "varying vec2 tc;\n"
+        "varying vec4 cpri;\n"
+        "varying vec4 csec;\n"
+
+        "uniform float alpharef;\n"
+
+        "void main() {\n"
+        "    if (cpri.a < alpharef) discard;\n"
+        "    gl_FragColor = cpri + csec;\n"
+        "}\n"
+    );
+
+    GLuint textureShader = glCreateShader(GL_FRAGMENT_SHADER);
+    pglProgram::CompileShader(textureShader,
+        "precision mediump float;\n"
+        "varying vec2 tc;\n"
+        "varying vec4 cpri;\n"
+        "varying vec4 csec;\n"
+
+        "uniform sampler2D sampler;\n"
+        "uniform float alpharef;\n"
+
+        "void main() {\n"
+        "    vec4 c = texture2D(sampler, tc) * cpri + csec;\n"
+        "    if (c.a < alpharef) discard;\n"
+        "    gl_FragColor = c;\n"
+        "}\n"
+    );
+
+    colorProgram = new pglProgram();
+    colorProgram->AddRef();
+    if(colorProgram->LinkProgram(vertexShader, fragmentShader))
+        SetShaderProgram(colorProgram);
+    
+    textureProgram = new pglProgram();
+    textureProgram->AddRef();
+    textureProgram->LinkProgram(vertexShader, textureShader);
+
+    // Don't leak shaders
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    glDeleteShader(textureShader);
+
     defaultShader = new pglMat(this);
     defaultShader->AddRef();
 }
@@ -91,7 +205,9 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 pglContext::~pglContext()
 {
     defaultShader->Release();
-    shaderProgram->Release();
+    colorProgram->Release();
+    textureProgram->Release();
+    currentProgram->Release();
 
     delete extContext;
     delete extGamma;
@@ -182,8 +298,8 @@ void pglContext::SetupHardwareProjection(void)
             break;
     }
 
-    if (shaderProgram)
-        shaderProgram->SetProjectionMatrix(&projection);
+    if(currentProgram)
+        currentProgram->SetProjectionMatrix(&projection);
 }
 
 void pglContext::LoadHardwareMatrix(pddiMatrixType id)
@@ -192,8 +308,8 @@ void pglContext::LoadHardwareMatrix(pddiMatrixType id)
     {
         case PDDI_MATRIX_MODELVIEW :
         {
-            if (shaderProgram)
-                shaderProgram->SetModelViewMatrix(state.matrixStack[id]->Top());
+            if(currentProgram)
+                currentProgram->SetModelViewMatrix(state.matrixStack[id]->Top());
         }
         break;
         default :
@@ -749,15 +865,15 @@ int pglContext::GetMaxLights(void)
 
 void pglContext::SetupHardwareLight(int handle)
 {
-    if(shaderProgram)
-        shaderProgram->SetLightState(handle, &state.lightingState->light[handle]);
+    if(currentProgram)
+        currentProgram->SetLightState(handle, &state.lightingState->light[handle]);
 }
 
 void pglContext::SetAmbientLight(pddiColour col)
 {
     pddiBaseContext::SetAmbientLight(col);
-    if(shaderProgram)
-        shaderProgram->SetAmbientLight(col);
+    if(currentProgram)
+        currentProgram->SetAmbientLight(col);
 }
 
 
@@ -953,19 +1069,25 @@ float pglContext::EndTiming(void)
 
 void pglContext::SetShaderProgram(pglProgram* program)
 {
-    if(program == shaderProgram)
+    if(program == currentProgram)
         return;
 
-    shaderProgram = program;
-    if(!shaderProgram)
+    currentProgram = program;
+    if(!currentProgram)
         return;
 
-    shaderProgram->AddRef();
-    glUseProgram(shaderProgram->GetProgram());
-    shaderProgram->SetProjectionMatrix(&projection);
+    currentProgram->AddRef();
+    glUseProgram(currentProgram->GetProgram());
+    currentProgram->SetProjectionMatrix(&projection);
 
     LoadHardwareMatrix(PDDI_MATRIX_MODELVIEW);
     for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
         SetupHardwareLight(i);
     SetAmbientLight(state.lightingState->ambient);
+}
+
+void pglContext::SetTextureEnvironment(const pglTextureEnv* texEnv)
+{
+    SetShaderProgram(texEnv->texture ? textureProgram : colorProgram);
+    currentProgram->SetTextureEnvironment(texEnv);
 }

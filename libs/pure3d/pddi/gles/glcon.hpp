@@ -14,6 +14,7 @@
 class pglDisplay;
 class pglDevice;
 class pglProgram;
+class pglTextureEnv;
 
 class pglExtContext;
 class pglExtGamma;
@@ -84,6 +85,7 @@ public :
     // internal pddiglfunctions
     pglDisplay* GetDisplay(void) {return display;}
     void SetShaderProgram(pglProgram* program);
+    void SetTextureEnvironment(const pglTextureEnv* texEnv);
 
     unsigned contextID;
 
@@ -103,7 +105,9 @@ protected:
     pglExtGamma* extGamma;
 
     pddiShader* defaultShader;
-    pglProgram* shaderProgram;
+    pglProgram* colorProgram;
+    pglProgram* textureProgram;
+    pglProgram* currentProgram;
 
 //   int nBuffered;
 //   unsigned currentMatId;

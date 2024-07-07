@@ -157,3 +157,28 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
         glDetachShader(program, fragmentShader);
     return true;
 }
+
+bool pglProgram::CompileShader(GLuint shader, const char* source)
+{
+    glShaderSource(shader, 1, &source, 0);
+    glCompileShader(shader);
+
+    GLint isCompiled = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+    if(isCompiled == GL_FALSE)
+    {
+        GLint maxLength = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+        // The maxLength includes the NULL character
+        std::vector<GLchar> infoLog(maxLength);
+        glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+
+        // We don't need the shader anymore.
+        glDeleteShader(shader);
+
+        SDL_Log("Shader compilation error: %s", infoLog.data());
+        return false;
+    }
+    return true;
+}
