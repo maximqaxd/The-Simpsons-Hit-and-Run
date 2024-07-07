@@ -1072,6 +1072,8 @@ void pglContext::SetShaderProgram(pglProgram* program)
     if(program == currentProgram)
         return;
 
+    if(currentProgram)
+        currentProgram->Release();
     currentProgram = program;
     if(!currentProgram)
         return;
