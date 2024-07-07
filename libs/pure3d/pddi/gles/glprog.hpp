@@ -31,7 +31,7 @@ protected:
     GLuint program;
 
     // Uniform locations
-    GLint projection, modelview, normalmatrix, alpharef;
+    GLint projection, modelview, normalmatrix, alpharef, sampler;
     struct {
         GLint enabled, position, colour, attenuation;
     } lights[PDDI_MAX_LIGHTS];
