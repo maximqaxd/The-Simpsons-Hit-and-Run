@@ -154,11 +154,13 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
     ecm = glGetUniformLocation(program, "ecm");
     srm = glGetUniformLocation(program, "srm");
 
+#if !defined(RAD_VITA) || defined(RAD_USE_PVR)
     // Always detach shaders after a successful link
     if(vertexShader)
         glDetachShader(program, vertexShader);
     if(fragmentShader)
         glDetachShader(program, fragmentShader);
+#endif
     return true;
 }
 

@@ -2,9 +2,9 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
-#include <pddi/gl/gl.hpp>
-#include <pddi/gl/glcon.hpp>
-#include <pddi/gl/gldisplay.hpp>
+#include <pddi/gles/gl.hpp>
+#include <pddi/gles/glcon.hpp>
+#include <pddi/gles/gldisplay.hpp>
 #include <pddi/base/debug.hpp>
 #include <SDL.h>
 
@@ -207,8 +207,7 @@ unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayMod
 
     return nModes;
 }
-    
-  
+
 void pglDisplay::BeginTiming()
 {
     beginTime = (float)SDL_GetTicks();

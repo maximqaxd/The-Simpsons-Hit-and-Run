@@ -230,7 +230,9 @@ void pglContext::BeginFrame()
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
+#if !defined(RAD_VITA) || defined(RAD_USE_PVR)
         glEnable(GL_DITHER);
+#endif
 
         SyncState(0xffffffff);
     }
@@ -828,8 +830,6 @@ void pglPrimBuffer::Display(void)
     {
         glDrawArrays(primTypeTable[primType], 0, total);
     }
-
-    glBindVertexArrayOES( 0 );
 }
 
 /*

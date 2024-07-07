@@ -347,8 +347,7 @@ unsigned pglDisplay::FillDisplayModes(int displayIndex, pddiModeInfo* displayMod
 
     return nModes;
 }
-    
-  
+
 void pglDisplay::BeginTiming()
 {
     beginTime = (float)SDL_GetTicks();
