@@ -107,6 +107,7 @@ protected:
     pddiShader* defaultShader;
     pglProgram* colorProgram;
     pglProgram* textureProgram;
+    pglProgram* alphaTestProgram;
     pglProgram* currentProgram;
 
 //   int nBuffered;

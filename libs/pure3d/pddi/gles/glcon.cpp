@@ -159,16 +159,27 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
         "varying vec4 cpri;\n"
         "varying vec4 csec;\n"
 
-        "uniform float alpharef;\n"
-
         "void main() {\n"
-        "    if (cpri.a < alpharef) discard;\n"
         "    gl_FragColor = cpri + csec;\n"
         "}\n"
     );
 
     GLuint textureShader = glCreateShader(GL_FRAGMENT_SHADER);
     pglProgram::CompileShader(textureShader,
+        "precision mediump float;\n"
+        "varying vec2 tc;\n"
+        "varying vec4 cpri;\n"
+        "varying vec4 csec;\n"
+
+        "uniform sampler2D tex;\n"
+
+        "void main() {\n"
+        "    gl_FragColor = texture2D(tex, tc) * cpri + csec;\n"
+        "}\n"
+    );
+
+    GLuint alphaTestShader = glCreateShader(GL_FRAGMENT_SHADER);
+    pglProgram::CompileShader(alphaTestShader,
         "precision mediump float;\n"
         "varying vec2 tc;\n"
         "varying vec4 cpri;\n"
@@ -187,16 +198,36 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
     colorProgram = new pglProgram();
     colorProgram->AddRef();
     if(colorProgram->LinkProgram(vertexShader, fragmentShader))
+    {
         SetShaderProgram(colorProgram);
+    }
+    else
+    {
+        colorProgram->Release();
+        colorProgram = nullptr;
+    }
     
     textureProgram = new pglProgram();
     textureProgram->AddRef();
-    textureProgram->LinkProgram(vertexShader, textureShader);
+    if(!textureProgram->LinkProgram(vertexShader, textureShader))
+    {
+        textureProgram->Release();
+        textureProgram = nullptr;
+    }
+
+    alphaTestProgram = new pglProgram();
+    alphaTestProgram->AddRef();
+    if(!alphaTestProgram->LinkProgram(vertexShader, alphaTestShader))
+    {
+        alphaTestProgram->Release();
+        alphaTestProgram = nullptr;
+    }
 
     // Don't leak shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     glDeleteShader(textureShader);
+    glDeleteShader(alphaTestShader);
 
     defaultShader = new pglMat(this);
     defaultShader->AddRef();
@@ -1090,6 +1121,9 @@ void pglContext::SetShaderProgram(pglProgram* program)
 
 void pglContext::SetTextureEnvironment(const pglTextureEnv* texEnv)
 {
-    SetShaderProgram(texEnv->texture ? textureProgram : colorProgram);
+    if(texEnv->texture)
+        SetShaderProgram(texEnv->alphaTest ? alphaTestProgram : textureProgram);
+    else
+        SetShaderProgram(colorProgram);
     currentProgram->SetTextureEnvironment(texEnv);
 }

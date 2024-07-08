@@ -18,7 +18,7 @@ static inline void UniformColour(GLint loc, pddiColour c)
 pglProgram::pglProgram()
 {
     program = 0;
-    projection = modelview = normalmatrix = sampler = -1;
+    projection = modelview = normalmatrix = alpharef = sampler = -1;
 }
 
 pglProgram::~pglProgram()
@@ -51,7 +51,7 @@ void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
     if (sampler >= 0)
         glUniform1i(sampler, 0);
 
-    if(texEnv->lit)
+    if (texEnv->lit)
     {
         UniformColour(acm, texEnv->ambient);
         UniformColour(ecm, texEnv->emissive);
@@ -67,9 +67,13 @@ void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
         glUniform4f(scm, 0.0f, 0.0f, 0.0f, 0.0f);
         glUniform1f(srm, 0.0f);
     }
-    PDDIASSERT(!texEnv->alphaTest || texEnv->alphaCompareMode == PDDI_COMPARE_GREATER ||
-        texEnv->alphaCompareMode == PDDI_COMPARE_GREATEREQUAL);
-    glUniform1f(alpharef, texEnv->alphaTest ? texEnv->alphaRef : 0.0f);
+
+    if (texEnv->alphaTest && alpharef >= 0)
+    {
+        PDDIASSERT(texEnv->alphaCompareMode == PDDI_COMPARE_GREATER ||
+            texEnv->alphaCompareMode == PDDI_COMPARE_GREATEREQUAL);
+        glUniform1f(alpharef, texEnv->alphaTest ? texEnv->alphaRef : 0.0f);
+    }
 }
 
 void pglProgram::SetLightState(int handle, const pddiLight* lightState)
