@@ -14,6 +14,7 @@
 #include <math.h>
 #include <string.h>
 #include <SDL.h>
+#include <vector>
 
 #include <microprofile.h>
 
