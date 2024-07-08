@@ -173,11 +173,11 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
         "varying vec4 cpri;\n"
         "varying vec4 csec;\n"
 
-        "uniform sampler2D sampler;\n"
         "uniform float alpharef;\n"
+        "uniform sampler2D tex;\n"
 
         "void main() {\n"
-        "    vec4 c = texture2D(sampler, tc) * cpri + csec;\n"
+        "    vec4 c = texture2D(tex, tc) * cpri + csec;\n"
         "    if (c.a < alpharef) discard;\n"
         "    gl_FragColor = c;\n"
         "}\n"

@@ -48,8 +48,8 @@ void pglProgram::SetModelViewMatrix(const pddiMatrix* matrix)
 
 void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
 {
-    if (texture >= 0)
-        glUniform1i(texture, 0);
+    if (sampler >= 0)
+        glUniform1i(sampler, 0);
 
     if(texEnv->lit)
     {
@@ -114,15 +114,15 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
 {
     program = glCreateProgram();
 
-    glBindAttribLocation(program, 0, "position");
-    glBindAttribLocation(program, 1, "normal");
-    glBindAttribLocation(program, 2, "texcoord");
-    glBindAttribLocation(program, 3, "color");
-
     if(vertexShader)
         glAttachShader(program, vertexShader);
     if(fragmentShader)
         glAttachShader(program, fragmentShader);
+
+    glBindAttribLocation(program, 0, "position");
+    glBindAttribLocation(program, 1, "normal");
+    glBindAttribLocation(program, 2, "texcoord");
+    glBindAttribLocation(program, 3, "color");
 
     glLinkProgram(program);
 
@@ -145,7 +145,7 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
     modelview = glGetUniformLocation(program, "modelview");
     normalmatrix = glGetUniformLocation(program, "normalmatrix");
     alpharef = glGetUniformLocation(program, "alpharef");
-    sampler = glGetUniformLocation(program, "sampler");
+    sampler = glGetUniformLocation(program, "tex");
 
     for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
     {
