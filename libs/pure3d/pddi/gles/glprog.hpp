@@ -20,6 +20,7 @@ public:
     GLuint GetProgram() { return program; }
     bool LinkProgram(GLuint vertexShader, GLuint fragmentShader);
     static bool CompileShader(GLuint shader, const char* source);
+    static pglProgram* CreateProgram(GLuint vertexShader, GLuint fragmentShader);
 
     void SetProjectionMatrix(const pddiMatrix* matrix);
     void SetModelViewMatrix(const pddiMatrix* matrix);

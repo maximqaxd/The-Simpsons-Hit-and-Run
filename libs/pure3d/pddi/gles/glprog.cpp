@@ -59,14 +59,6 @@ void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
         UniformColour(scm, texEnv->specular);
         glUniform1f(srm, texEnv->shininess);
     }
-    else
-    {
-        glUniform4f(acm, 0.0f, 0.0f, 0.0f, 0.0f);
-        glUniform4f(ecm, 1.0f, 1.0f, 1.0f, 1.0f);
-        glUniform4f(dcm, 1.0f, 1.0f, 1.0f, 1.0f);
-        glUniform4f(scm, 0.0f, 0.0f, 0.0f, 0.0f);
-        glUniform1f(srm, 0.0f);
-    }
 
     if (texEnv->alphaTest && alpharef >= 0)
     {
@@ -200,4 +192,16 @@ bool pglProgram::CompileShader(GLuint shader, const char* source)
         return false;
     }
     return true;
+}
+
+pglProgram* pglProgram::CreateProgram(GLuint vertexShader, GLuint fragmentShader)
+{
+    pglProgram* program = new pglProgram();
+    program->AddRef();
+    if(!program->LinkProgram(vertexShader, fragmentShader))
+    {
+        program->Release();
+        return nullptr;
+    }
+    return program;
 }

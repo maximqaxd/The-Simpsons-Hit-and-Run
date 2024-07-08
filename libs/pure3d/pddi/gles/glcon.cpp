@@ -96,6 +96,31 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
 
         "uniform mat4 projection;\n"
         "uniform mat4 modelview;\n"
+
+        "varying vec2 tc;\n"
+        "varying vec4 cpri;\n"
+        "varying vec4 csec;\n"
+
+        "void main() {\n"
+        "    vec4 V = modelview * vec4(position, 1.0);\n"
+        "    tc = texcoord;\n"
+        "    cpri = color;\n"
+        "    csec = vec4(0.0, 0.0, 0.0, 0.0);\n"
+        "    gl_Position = projection * V;\n"
+        "}\n"
+    );
+
+    GLuint litShader = glCreateShader(GL_VERTEX_SHADER);
+    pglProgram::CompileShader(litShader,
+        "precision highp float;\n"
+
+        "attribute vec3 position;\n"
+        "attribute vec3 normal;\n"
+        "attribute vec2 texcoord;\n"
+        "attribute vec4 color;\n"
+
+        "uniform mat4 projection;\n"
+        "uniform mat4 modelview;\n"
         "uniform mat4 normalmatrix;\n"
 
         // Lights
@@ -195,50 +220,37 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
         "}\n"
     );
 
-    colorProgram = new pglProgram();
-    colorProgram->AddRef();
-    if(colorProgram->LinkProgram(vertexShader, fragmentShader))
-    {
-        SetShaderProgram(colorProgram);
-    }
-    else
-    {
-        colorProgram->Release();
-        colorProgram = nullptr;
-    }
-    
-    textureProgram = new pglProgram();
-    textureProgram->AddRef();
-    if(!textureProgram->LinkProgram(vertexShader, textureShader))
-    {
-        textureProgram->Release();
-        textureProgram = nullptr;
-    }
+    colorProgram[0] = pglProgram::CreateProgram(vertexShader, fragmentShader);
+    colorProgram[1] = pglProgram::CreateProgram(litShader, fragmentShader);
 
-    alphaTestProgram = new pglProgram();
-    alphaTestProgram->AddRef();
-    if(!alphaTestProgram->LinkProgram(vertexShader, alphaTestShader))
-    {
-        alphaTestProgram->Release();
-        alphaTestProgram = nullptr;
-    }
+    textureProgram[0] = pglProgram::CreateProgram(vertexShader, textureShader);
+    textureProgram[1] = pglProgram::CreateProgram(litShader, textureShader);
+
+    alphaTestProgram[0] = pglProgram::CreateProgram(vertexShader, alphaTestShader);
+    alphaTestProgram[1] = pglProgram::CreateProgram(litShader, alphaTestShader);
 
     // Don't leak shaders
     glDeleteShader(vertexShader);
+    glDeleteShader(litShader);
     glDeleteShader(fragmentShader);
     glDeleteShader(textureShader);
     glDeleteShader(alphaTestShader);
-
+    
     defaultShader = new pglMat(this);
     defaultShader->AddRef();
+    SetShaderProgram(colorProgram[0]);
 }
 
 pglContext::~pglContext()
 {
     defaultShader->Release();
-    colorProgram->Release();
-    textureProgram->Release();
     currentProgram->Release();
+    for(int i = 0; i < 2; i++)
+    {
+        colorProgram[i]->Release();
+        textureProgram[i]->Release();
+        alphaTestProgram[i]->Release();
+    }
 
     delete extContext;
     delete extGamma;
@@ -1122,8 +1134,8 @@ void pglContext::SetShaderProgram(pglProgram* program)
 void pglContext::SetTextureEnvironment(const pglTextureEnv* texEnv)
 {
     if(texEnv->texture)
-        SetShaderProgram(texEnv->alphaTest ? alphaTestProgram : textureProgram);
+        SetShaderProgram(texEnv->alphaTest ? alphaTestProgram[texEnv->lit] : textureProgram[texEnv->lit]);
     else
-        SetShaderProgram(colorProgram);
+        SetShaderProgram(colorProgram[texEnv->lit]);
     currentProgram->SetTextureEnvironment(texEnv);
 }
