@@ -106,7 +106,6 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
         "} lights[" PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "];\n"
 
         // Scene
-        "uniform int lit;\n"
         "uniform vec4 acs;\n"
 
         // Material
@@ -128,7 +127,7 @@ pglContext::pglContext(pglDevice* dev, pglDisplay* disp) : pddiBaseContext((pddi
         "    vec4 V = modelview * vec4(position, 1.0);\n"
         "    vec3 n = normalize(mat3(normalmatrix) * normal);\n"
 
-        "    vec3 diff = lit > 0 ? ecm.rgb + acm.rgb * acs.rgb : vec3(1.0);\n"
+        "    vec3 diff = ecm.rgb + acm.rgb * acs.rgb;\n"
         "    vec3 spec = vec3(0.0);\n"
         "    for (int i = 0; i < " PDDI_STRINGIZE(PDDI_MAX_LIGHTS) "; i++) {\n"
         "        if (lights[i].enabled == 0) continue;\n"

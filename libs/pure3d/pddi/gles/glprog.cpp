@@ -48,15 +48,25 @@ void pglProgram::SetModelViewMatrix(const pddiMatrix* matrix)
 
 void pglProgram::SetTextureEnvironment(const pglTextureEnv* texEnv)
 {
-    if (sampler >= 0)
-        glUniform1i(sampler, 0);
+    if (texture >= 0)
+        glUniform1i(texture, 0);
 
-    glUniform1i(lit, texEnv->lit ? 1 : 0);
-    UniformColour(acm, texEnv->ambient);
-    UniformColour(ecm, texEnv->emissive);
-    UniformColour(dcm, texEnv->diffuse);
-    UniformColour(scm, texEnv->specular);
-    glUniform1f(srm, texEnv->shininess);
+    if(texEnv->lit)
+    {
+        UniformColour(acm, texEnv->ambient);
+        UniformColour(ecm, texEnv->emissive);
+        UniformColour(dcm, texEnv->diffuse);
+        UniformColour(scm, texEnv->specular);
+        glUniform1f(srm, texEnv->shininess);
+    }
+    else
+    {
+        glUniform4f(acm, 0.0f, 0.0f, 0.0f, 0.0f);
+        glUniform4f(ecm, 1.0f, 1.0f, 1.0f, 1.0f);
+        glUniform4f(dcm, 1.0f, 1.0f, 1.0f, 1.0f);
+        glUniform4f(scm, 0.0f, 0.0f, 0.0f, 0.0f);
+        glUniform1f(srm, 0.0f);
+    }
     PDDIASSERT(!texEnv->alphaTest || texEnv->alphaCompareMode == PDDI_COMPARE_GREATER ||
         texEnv->alphaCompareMode == PDDI_COMPARE_GREATEREQUAL);
     glUniform1f(alpharef, texEnv->alphaTest ? texEnv->alphaRef : 0.0f);
@@ -146,7 +156,6 @@ bool pglProgram::LinkProgram(GLuint vertexShader, GLuint fragmentShader)
         lights[i].attenuation = glGetUniformLocation( program, (prefix + "attenuation").c_str() );
     }
 
-    lit = glGetUniformLocation(program, "lit");
     acs = glGetUniformLocation(program, "acs");
     acm = glGetUniformLocation(program, "acm");
     dcm = glGetUniformLocation(program, "dcm");

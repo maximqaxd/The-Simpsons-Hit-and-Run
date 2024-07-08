@@ -35,7 +35,7 @@ protected:
     struct {
         GLint enabled, position, colour, attenuation;
     } lights[PDDI_MAX_LIGHTS];
-    GLint lit, acs, acm, dcm, scm, ecm, srm;
+    GLint acs, acm, dcm, scm, ecm, srm;
 };
 
 #endif
