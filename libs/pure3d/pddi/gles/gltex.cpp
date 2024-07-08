@@ -279,6 +279,8 @@ pglTexture::pglTexture(pglContext* c)
 
 pglTexture::~pglTexture()
 {
+    if(gltexture) glDeleteTextures(1, &gltexture);
+
     for(int i = 0; i < nMipMap+1; i++)
         radMemoryFreeAligned(bits[i]);
 
