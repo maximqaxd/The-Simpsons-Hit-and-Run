@@ -45,6 +45,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			-ggdb
 		)
 	endif()
+	if(VITA)
+		add_compile_options(
+			-ffast-math
+			-mtune=cortex-a9
+			-mfpu=neon
+		)
+	endif()
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -899,6 +906,12 @@ set(RADMATH_SOURCES
 	"libs/radmath/radmath/trig.cpp"
 	"libs/radmath/radmath/vector.cpp"
 )
+if(VITA)
+	list(APPEND RADMATH_SOURCES
+		"libs/radmath/radmath/platform/vita/neonmatrix.cpp"
+		"libs/radmath/radmath/platform/vita/neonvector.cpp"
+	)
+endif()
 
 if(SRR2_USE_BINK)
 	set(RADMOVIE_SOURCES
@@ -1232,6 +1245,9 @@ add_library(radmath STATIC ${RADMATH_SOURCES})
 target_include_directories(radmath
 	PUBLIC "libs/radmath/"
 )
+if(VITA)
+	target_link_libraries(radmath mathneon)
+endif()
 
 add_library(radmovie STATIC ${RADMOVIE_SOURCES})
 target_include_directories(radmovie

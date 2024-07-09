@@ -466,8 +466,9 @@ void Matrix::Transform(int n, const Vector4* src, Vector4* dest) const
         Transform(*src++, dest++);
 }
 
+#ifndef RAD_VITA
 #ifndef RAD_PS2 // these functions are implemented in ps2/matrix_ps2.cpp
-#ifndef RAD_GAMECUBE 
+#ifndef RAD_GAMECUBE
 void Matrix::Mult(const Matrix& a, const Matrix& b)
 {
     assert(a.m[0][3] == 0.0f);
@@ -519,7 +520,8 @@ void Matrix::MultFull(const Matrix& a, const Matrix& b)
 }
 
 #endif // RAD_GAMECUBE
-#endif //P3D_PS2
+#endif // RAD_PS2
+#endif // RAD_VITA
 
 // keep moving folks, nothing to see here
 #ifndef RAD_PS2

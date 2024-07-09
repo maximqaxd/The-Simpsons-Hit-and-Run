@@ -35,6 +35,7 @@ bool Vector::Equals(const Vector& a, float e) const
     return Epsilon(x, a.x, e) && Epsilon(y, a.y, e) && Epsilon(z, a.z, e);
 }
 
+#ifndef RAD_VITA
 #ifndef RAD_GAMECUBE
 // cross products
 void Vector::CrossProduct(const Vector& vect)
@@ -71,6 +72,7 @@ void Vector::Normalize(const Vector& vect)
     z = (vect.z * mag);
 
 }
+#endif
 #endif
 
 void Vector::Transform(const Matrix& m)
