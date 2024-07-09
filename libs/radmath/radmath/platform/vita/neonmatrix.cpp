@@ -15,6 +15,85 @@ extern "C"
 namespace RadicalMathLibrary
 {
 
+void Matrix::Transform(const Vector& src, Vector* dest) const
+{
+#ifdef P3D_NOASM
+    float x,y,z;
+    x = m[0][0]*src.x + m[1][0]*src.y + m[2][0]*src.z + m[3][0];
+    y = m[0][1]*src.x + m[1][1]*src.y + m[2][1]*src.z + m[3][1];
+    z = m[0][2]*src.x + m[1][2]*src.y + m[2][2]*src.z + m[3][2];
+    dest->Set(x,y,z);
+#else
+    float* mtx = const_cast<float*>(m[0]);
+    float* v = reinterpret_cast<float*>(const_cast<Vector*>(&src));
+    float* d = reinterpret_cast<float*>(const_cast<Vector*>(dest));
+    asm volatile (
+	"vld1.32 		{d0, d1}, [%1]			\n\t"	//Q0 = v
+	"vld1.32 		{d18, d19}, [%0]!		\n\t"	//Q1 = m
+	"vld1.32 		{d20, d21}, [%0]!		\n\t"	//Q2 = m+4
+	"vld1.32 		{d22, d23}, [%0]!		\n\t"	//Q3 = m+8
+	"vld1.32 		{d24, d25}, [%0]!		\n\t"	//Q4 = m+12
+
+	"vmul.f32 		q13, q9, d0[0]			\n\t"	//Q5 = Q1*Q0[0]
+	"vmla.f32 		q13, q10, d0[1]			\n\t"	//Q5 += Q1*Q0[1]
+	"vmla.f32 		q13, q11, d1[0]			\n\t"	//Q5 += Q2*Q0[2]
+	"vadd.f32 		q13, q13, q12			\n\t"	//Q5 += Q3
+	"vmov.f32 		q0, q13					\n\t"	//Q0 = q13
+
+	"vst1.32 		d0, [%2]! 				\n\t"	//r2 = D24
+	"fsts 			s2, [%2] 				\n\t"	//r2 = D25[0]
+	:
+	: "r"(m), "r"(v), "r"(d)
+    : "q0", "q9", "q10","q11", "q12", "q13", "memory"
+	);
+#endif
+}
+
+void Matrix::Transform(const Vector4& src, Vector4* dest) const
+{
+    float* mtx = const_cast<float*>(m[0]);
+    float* v = reinterpret_cast<float*>(const_cast<Vector4*>(&src));
+    float* d = reinterpret_cast<float*>(const_cast<Vector4*>(dest));
+#ifdef P3D_NOASM
+    matvec4_c(mtx, v, d);
+#else
+    matvec4_neon(mtx, v, d);
+#endif
+}
+
+void Matrix::RotateVector(const Vector& src, Vector* dest) const
+{
+#ifdef P3D_NOASM
+    float x,y,z;;
+    x = m[0][0]*src.x + m[1][0]*src.y + m[2][0]*src.z;
+    y = m[0][1]*src.x + m[1][1]*src.y + m[2][1]*src.z;
+    z = m[0][2]*src.x + m[1][2]*src.y + m[2][2]*src.z;
+    dest->Set(x,y,z);
+#else
+    float* mtx = const_cast<float*>(m[0]);
+    float* v = reinterpret_cast<float*>(const_cast<Vector*>(&src));
+    float* d = reinterpret_cast<float*>(const_cast<Vector*>(dest));
+    asm volatile (
+	"vld1.32 		{d0, d1}, [%1]			\n\t"	//Q0 = v
+	"vld1.32 		{d18, d19}, [%0]!		\n\t"	//Q1 = m
+	"vld1.32 		{d20, d21}, [%0]!		\n\t"	//Q2 = m+4
+	"vld1.32 		{d22, d23}, [%0]!		\n\t"	//Q3 = m+8
+	"vld1.32 		{d24, d25}, [%0]!		\n\t"	//Q4 = m+12
+
+	"vmul.f32 		q13, q9, d0[0]			\n\t"	//Q5 = Q1*Q0[0]
+	"vmla.f32 		q13, q10, d0[1]			\n\t"	//Q5 += Q1*Q0[1]
+	"vmla.f32 		q13, q11, d1[0]			\n\t"	//Q5 += Q2*Q0[2]
+	"vmov.f32 		q0, q13					\n\t"	//Q0 = q13
+
+	"vst1.32 		d0, [%2]! 				\n\t"	//r2 = D24
+	"fsts 			s2, [%2] 				\n\t"	//r2 = D25[0]
+	:
+	: "r"(m), "r"(v), "r"(d)
+    : "q0", "q9", "q10","q11", "q12", "q13", "memory"
+	);
+#endif
+}
+
 void Matrix::Mult(const Matrix &a, const Matrix &b)
 {
     assert(a.m[0][3] == 0.0f);

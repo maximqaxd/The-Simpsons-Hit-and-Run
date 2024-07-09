@@ -426,6 +426,19 @@ bool Matrix::IsOrthoNormal()
              Epsilon(d2, 0.0f);
 }
 
+void Matrix::Transform(int n, const Vector* src, Vector* dest) const
+{
+    for(int i = 0; i < n; i++)
+        Transform(*src++, dest++);
+}
+
+void Matrix::Transform(int n, const Vector4* src, Vector4* dest) const
+{
+    for(int i = 0; i < n; i++)
+        Transform(*src++, dest++);
+}
+
+#ifndef RAD_VITA
 void Matrix::Transform(const Vector& src, Vector* dest) const
 {
     float x,y,z;
@@ -454,19 +467,6 @@ void Matrix::RotateVector(const Vector& src, Vector* dest) const
     dest->Set(x,y,z);
 }
 
-void Matrix::Transform(int n, const Vector* src, Vector* dest) const
-{
-    for(int i = 0; i < n; i++)
-        Transform(*src++, dest++);
-}
-
-void Matrix::Transform(int n, const Vector4* src, Vector4* dest) const
-{
-    for(int i = 0; i < n; i++)
-        Transform(*src++, dest++);
-}
-
-#ifndef RAD_VITA
 #ifndef RAD_PS2 // these functions are implemented in ps2/matrix_ps2.cpp
 #ifndef RAD_GAMECUBE
 void Matrix::Mult(const Matrix& a, const Matrix& b)
