@@ -107,6 +107,13 @@ void pglTexture::SetGLState(void)
                 image);
             delete [] image;
         }
+#if defined RAD_VITA && !defined RAD_USE_PVR
+        else if (type == PDDI_TEXTYPE_YUV)
+        {
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, VGL_YUV420P_BT601, xSize,
+                ySize, 0, (xSize * ySize * 3) / 2, (GLvoid *)bits[0]);
+        }
+#endif
         else
         {
             glTexImage2D(GL_TEXTURE_2D, 0, PickPixelFormat(lock.format), xSize,
