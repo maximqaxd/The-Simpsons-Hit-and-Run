@@ -302,13 +302,13 @@ void Matrix::SetOrthographic(const float l, const float r, const float b, const 
     FillScale(
         2.0f / (r - l),
         2.0f / (t - b),
-        -2.0f / (f - n)
+        2.0f / (f - n)
     );
-    Row(3).Set(
-        (r + l) / (r - l),
-        (t + b) / (t - b),
-        (f + n) / (f - n)
-    );
+    FillTranslate(Vector(
+        -(r + l) / (r - l),
+        -(t + b) / (t - b),
+        -(f + n) / (f - n)
+    ));
 }
 
 void Matrix::Transpose(void)
