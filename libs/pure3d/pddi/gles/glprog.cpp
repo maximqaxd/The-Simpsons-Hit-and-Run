@@ -18,7 +18,7 @@ static inline void UniformColour(GLint loc, pddiColour c)
 pglProgram::pglProgram()
 {
     program = 0;
-    projection = modelview = normalmatrix = alpharef = sampler = -1;
+    projection = modelview = normalmatrix = alpharef = sampler = acs = -1;
 }
 
 pglProgram::~pglProgram()

@@ -28,6 +28,9 @@ public:
     void SetLightState(int handle, const pddiLight* lightState);
     void SetAmbientLight(pddiColour ambient);
 
+    inline bool SupportsLighting() { return acs >= 0; }
+    inline bool SupportsTextures() { return sampler >= 0; }
+
 protected:
     GLuint program;
 

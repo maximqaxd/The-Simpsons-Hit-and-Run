@@ -1126,9 +1126,12 @@ void pglContext::SetShaderProgram(pglProgram* program)
     currentProgram->SetProjectionMatrix(&projection);
 
     LoadHardwareMatrix(PDDI_MATRIX_MODELVIEW);
-    for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
-        SetupHardwareLight(i);
-    SetAmbientLight(state.lightingState->ambient);
+    if(currentProgram->SupportsLighting())
+    {
+        for (int i = 0; i < PDDI_MAX_LIGHTS; i++)
+            SetupHardwareLight(i);
+        SetAmbientLight(state.lightingState->ambient);
+    }
 }
 
 void pglContext::SetTextureEnvironment(const pglTextureEnv* texEnv)
