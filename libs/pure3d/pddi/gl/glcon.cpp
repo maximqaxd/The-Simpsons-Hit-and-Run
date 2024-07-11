@@ -109,7 +109,7 @@ void pglContext::BeginFrame()
     {
         contextID++;
 
-#ifndef RAD_VITA
+#ifndef RAD_VITAGL
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -117,7 +117,7 @@ void pglContext::BeginFrame()
         glCullFace(GL_FRONT);
         glColor4f(1,1,1,1);
 
-#ifndef RAD_GLES
+#if !defined RAD_GLES && !defined RAD_VITAGL
         glEnable(GL_DITHER);
 
         if(display->CheckExtension("GL_EXT_separate_specular_color"))

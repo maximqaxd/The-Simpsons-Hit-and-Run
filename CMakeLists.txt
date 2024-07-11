@@ -105,9 +105,9 @@ if(SRR2_P3D_PDDI STREQUAL "GLES2")
 	add_compile_definitions(RAD_GLES_VERSION=2)
 endif()
 if(VITA)
-	option(SRR2_USE_PVR OFF)
-	if(SRR2_USE_PVR)
-		add_compile_definitions(RAD_USE_PVR)
+	option(SRR2_USE_VITAGL ON)
+	if(SRR2_USE_VITAGL)
+		add_compile_definitions(RAD_VITAGL)
 	endif()
 endif()
 
@@ -1149,7 +1149,7 @@ if(SRR2_P3D_PDDI STREQUAL "GLES2")
 		"libs/pure3d/pddi/gles/glad/src/glad.c"
 		"libs/pure3d/pddi/gles/decompress.cpp"
 	)
-	if(VITA AND NOT SRR2_USE_PVR)
+	if(SRR2_USE_VITAGL)
 		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gles/display_vita/gldisplay.cpp")
 	else()
 		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gles/display_win32/gldisplay.cpp")
@@ -1277,39 +1277,26 @@ if(SRR2_BUILD_TESTS)
 		PkgConfig::FFmpeg
 	)
 	if(VITA)
-		if(SRR2_USE_PVR)
-			target_link_libraries(simplemovie
-				SceLibKernel_stub
-				ScePvf_stub
-				mathneon
-				SceAudio_stub
-				SceAppMgr_stub
-				SceAppUtil_stub
-				ScePgf_stub
-				SceShaccCgExt
-				SceShaccCg_stub
-				SceCtrl_stub
-				taihen_stub
-				SceKernelDmacMgr_stub
-			)
-		else()
+		if(SRR2_USE_VITAGL)
 			target_link_libraries(simplemovie
 				vitaGL
 				vitashark
-				SceLibKernel_stub
-				ScePvf_stub
-				mathneon
-				SceAudio_stub
-				SceAppMgr_stub
-				SceAppUtil_stub
-				ScePgf_stub
-				SceShaccCgExt
-				SceShaccCg_stub
-				SceCtrl_stub
-				taihen_stub
-				SceKernelDmacMgr_stub
 			)
 		endif()
+		target_link_libraries(simplemovie
+			SceLibKernel_stub
+			ScePvf_stub
+			mathneon
+			SceAudio_stub
+			SceAppMgr_stub
+			SceAppUtil_stub
+			ScePgf_stub
+			SceShaccCgExt
+			SceShaccCg_stub
+			SceCtrl_stub
+			taihen_stub
+			SceKernelDmacMgr_stub
+		)
 	endif()
 	file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
@@ -1432,39 +1419,26 @@ if(WIN32)
 	target_link_libraries(SRR2 wsock32)
 endif()
 if(VITA)
-	if(SRR2_USE_PVR)
-		target_link_libraries(SRR2
-			SceLibKernel_stub
-			ScePvf_stub
-			mathneon
-			SceAudio_stub
-			SceAppMgr_stub
-			SceAppUtil_stub
-			ScePgf_stub
-			SceShaccCgExt
-			SceShaccCg_stub
-			SceCtrl_stub
-			taihen_stub
-			SceKernelDmacMgr_stub
-		)
-	else()
+	if(SRR2_USE_VITAGL)
 		target_link_libraries(SRR2
 			vitaGL
 			vitashark
-			SceLibKernel_stub
-			ScePvf_stub
-			mathneon
-			SceAudio_stub
-			SceAppMgr_stub
-			SceAppUtil_stub
-			ScePgf_stub
-			SceShaccCgExt
-			SceShaccCg_stub
-			SceCtrl_stub
-			taihen_stub
-			SceKernelDmacMgr_stub
 		)
 	endif()
+	target_link_libraries(SRR2
+		SceLibKernel_stub
+		ScePvf_stub
+		mathneon
+		SceAudio_stub
+		SceAppMgr_stub
+		SceAppUtil_stub
+		ScePgf_stub
+		SceShaccCgExt
+		SceShaccCg_stub
+		SceCtrl_stub
+		taihen_stub
+		SceKernelDmacMgr_stub
+	)
 endif()
 if(SRR2_USE_BINK)
 	target_link_libraries(SRR2 bink)
@@ -1482,7 +1456,7 @@ target_include_directories(SRR2 PRIVATE "code/")
 
 if(VITA)
 	## Create Vita files
-	if(SRR2_USE_PVR)
+	if(NOT SRR2_USE_VITAGL)
 		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
 		# The FILE directive lets you add additional files to the VPK, the syntax is
 		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.

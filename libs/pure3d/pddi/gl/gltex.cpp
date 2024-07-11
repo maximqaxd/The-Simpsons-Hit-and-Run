@@ -138,10 +138,10 @@ void pglTexture::SetGLState(void)
                 ySize, 0, ceil(xSize/4.0)*ceil(ySize/4.0)*blocksize, (GLvoid*)bits[0]);
 #endif
         }
-#if defined(RAD_VITA) && !defined(RAD_GLES)
+#ifdef RAD_VITAGL
         else if (type == PDDI_TEXTYPE_YUV)
         {
-            glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_YUV420P_BT601_VGL, xSize, ySize, 0, (xSize * ySize * 3) / 2, (GLvoid*)bits[0]);
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, VGL_YUV420P_BT601, xSize, ySize, 0, (xSize * ySize * 3) / 2, (GLvoid*)bits[0]);
         }
 #endif
         else
@@ -203,7 +203,7 @@ void pglTexture::SetGLState(void)
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
 
-#ifndef RAD_GLES
+#if !defined RAD_GLES && !defined RAD_VITAGL
     float fpriority = float(priority) / 31.0f;
     glPrioritizeTextures(1, &gltexture, &fpriority);
 #endif

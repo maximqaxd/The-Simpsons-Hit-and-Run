@@ -273,7 +273,7 @@ void pglContext::BeginFrame()
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
-#if !defined(RAD_VITA) || defined(RAD_USE_PVR)
+#ifndef RAD_VITAGL
         glEnable(GL_DITHER);
 #endif
 

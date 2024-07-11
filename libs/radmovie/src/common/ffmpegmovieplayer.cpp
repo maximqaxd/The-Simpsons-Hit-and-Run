@@ -207,7 +207,7 @@ void radMoviePlayer::Load( const char * pVideoFileName, unsigned int audioTrackI
     AV_CHK( avcodec_parameters_to_context( m_pVideoCtx, pVideoParams ) );
     AV_CHK( avcodec_open2( m_pVideoCtx, pVideoCodec, NULL ) );
 
-#if !defined RAD_VITA || defined RAD_USE_PVR
+#ifndef RAD_VITAGL
     m_pSwsCtx = sws_getContext(
         pVideoParams->width,
         pVideoParams->height,
@@ -288,7 +288,7 @@ void radMoviePlayer::Unload( void )
         FlushAudioQueue();
         alDeleteSources( 1, &m_AudioSource );
 
-#if !defined RAD_VITA || defined RAD_USE_PVR
+#ifndef RAD_VITAGL
         sws_freeContext( m_pSwsCtx );
 #endif
         swr_free( &m_pSwrCtx );
@@ -485,7 +485,7 @@ void radMoviePlayer::Service( void )
                         {
                             uint8_t* pDest = (uint8_t*)dest.m_pDest;
 
-#if defined RAD_VITA && !defined RAD_USE_PVR
+#ifdef RAD_VITAGL
                             memcpy( pDest, m_pVideoFrame->data[0], m_pVideoFrame->linesize[0] * m_pVideoFrame->height );
                             pDest += m_pVideoFrame->linesize[0] * m_pVideoFrame->height;
                             memcpy( pDest, m_pVideoFrame->data[1], m_pVideoFrame->linesize[1] * m_pVideoFrame->height / 2 );
