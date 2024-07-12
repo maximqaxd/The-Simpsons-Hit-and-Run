@@ -7,6 +7,9 @@
 #ifdef RAD_VITAGL
 #include <vitaGL.h>
 #define GL_BGRA_EXT GL_BGRA
+#define glGenVertexArraysOES glGenVertexArrays
+#define glDeleteVertexArraysOES glDeleteVertexArrays
+#define glBindVertexArrayOES glBindVertexArray
 #else
 #include <glad/glad.h>
 #endif
