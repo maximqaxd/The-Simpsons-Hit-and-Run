@@ -11,9 +11,9 @@ if(VITA)
 	set(VITA_APP_NAME "Simpsons Hit and Run")
 	# Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
 	# unique string of developer and Y = a unique number for this app
-	set(VITA_TITLEID  "RADI00001")
+	set(VITA_TITLEID  "ROADRAGE2")
 	# Optional version string to show in LiveArea's more info screen
-	set(VITA_VERSION  "01.00")
+	set(VITA_VERSION  "01.10")
 endif()
 
 find_program(CCACHE_FOUND ccache)
