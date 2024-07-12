@@ -29,7 +29,7 @@ typedef unsigned char GameDataByte; // single byte of data
 // Interface Definitions
 //===========================================================================
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 const unsigned int NUM_GAME_SLOTS = 8; // number of available game slots
 #else
 const unsigned int NUM_GAME_SLOTS = 4; // number of available game slots
