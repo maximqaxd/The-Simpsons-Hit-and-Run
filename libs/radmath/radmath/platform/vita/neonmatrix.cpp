@@ -96,15 +96,6 @@ void Matrix::RotateVector(const Vector& src, Vector* dest) const
 
 void Matrix::Mult(const Matrix &a, const Matrix &b)
 {
-    assert(a.m[0][3] == 0.0f);
-    assert(a.m[1][3] == 0.0f);
-    assert(a.m[2][3] == 0.0f);
-    assert(a.m[3][3] == 1.0f);
-    assert(b.m[0][3] == 0.0f);
-    assert(b.m[1][3] == 0.0f);
-    assert(b.m[2][3] == 0.0f);
-    assert(b.m[3][3] == 1.0f);
-
 #ifdef P3D_NOASM
     // Mult
     m[0][0] = (a.m[0][0] * b.m[0][0]) + (a.m[0][1] * b.m[1][0]) + (a.m[0][2] * b.m[2][0]);
@@ -145,15 +136,15 @@ void Matrix::Mult(const Matrix &a, const Matrix &b)
 	"vmul.f32 		q13, q8, d2[0] 			\n\t"	//q13 = q8 * d2[0]
 	"vmul.f32 		q14, q8, d4[0] 			\n\t"	//q14 = q8 * d4[0]
 	"vmul.f32 		q15, q8, d6[0]	 		\n\t"	//q15 = q8 * d6[0]
-	"vmla.f32 		q12, q9, d0[1] 			\n\t"	//q12 = q9 * d0[1]
-	"vmla.f32 		q13, q9, d2[1] 			\n\t"	//q13 = q9 * d2[1]
-	"vmla.f32 		q14, q9, d4[1] 			\n\t"	//q14 = q9 * d4[1]
-	"vmla.f32 		q15, q9, d6[1] 			\n\t"	//q15 = q9 * d6[1]
-	"vmla.f32 		q12, q10, d1[0] 		\n\t"	//q12 = q10 * d1[0]
-	"vmla.f32 		q13, q10, d3[0] 		\n\t"	//q13 = q10 * d3[0]
-	"vmla.f32 		q14, q10, d5[0] 		\n\t"	//q14 = q10 * d5[0]
-	"vmla.f32 		q15, q10, d7[0] 		\n\t"	//q15 = q10 * d6[0]
-    "vadd.f32 		q15, q15, q11    		\n\t"	//q15 = q15 + q11
+	"vmla.f32 		q12, q9, d0[1] 			\n\t"	//q12 += q9 * d0[1]
+	"vmla.f32 		q13, q9, d2[1] 			\n\t"	//q13 += q9 * d2[1]
+	"vmla.f32 		q14, q9, d4[1] 			\n\t"	//q14 += q9 * d4[1]
+	"vmla.f32 		q15, q9, d6[1] 			\n\t"	//q15 += q9 * d6[1]
+	"vmla.f32 		q12, q10, d1[0] 		\n\t"	//q12 += q10 * d1[0]
+	"vmla.f32 		q13, q10, d3[0] 		\n\t"	//q13 += q10 * d3[0]
+	"vmla.f32 		q14, q10, d5[0] 		\n\t"	//q14 += q10 * d5[0]
+	"vmla.f32 		q15, q10, d7[0] 		\n\t"	//q15 += q10 * d6[0]
+	"vadd.f32		q15, q11				\n\t"	//q15 += q11
 
 	"vst1.32 		{d24, d25}, [%2]! 		\n\t"	//d = q12	
 	"vst1.32 		{d26, d27}, [%2]!		\n\t"	//d+4 = q13	
@@ -172,7 +163,7 @@ void Matrix::MultFull(const Matrix &a, const Matrix &b)
     float* m0 = const_cast<float*>(b.m[0]);
     float* m1 = const_cast<float*>(a.m[0]);
 #ifdef P3D_NOASM
-    matmul4_c(m0, m1, m);
+    matmul4_c(m0, m1, m[0]);
 #else
     matmul4_neon(m0, m1, m[0]);
 #endif
