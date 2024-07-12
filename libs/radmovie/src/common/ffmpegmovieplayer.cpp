@@ -64,6 +64,7 @@ unsigned int const radMovie_NoAudioTrack = 0xFFFFFFFF;
         char str[AV_ERROR_MAX_STRING_SIZE]; \
         av_strerror( error, str, AV_ERROR_MAX_STRING_SIZE ); \
         rDebugPrintf( "%s at %s:%d\n", str, __FILE__, __LINE__ ); \
+        SetState( IRadMoviePlayer2::NoData ); \
         return; \
     };
 
