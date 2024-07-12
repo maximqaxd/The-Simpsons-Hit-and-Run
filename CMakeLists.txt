@@ -38,7 +38,10 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	add_compile_options(-fvisibility=hidden)
+	add_compile_options(
+		-fvisibility=hidden
+		-ffast-math
+	)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		add_compile_options(
 			-Werror
@@ -47,7 +50,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 	if(VITA)
 		add_compile_options(
-			-ffast-math
 			-mtune=cortex-a9
 			-mfpu=neon
 		)
