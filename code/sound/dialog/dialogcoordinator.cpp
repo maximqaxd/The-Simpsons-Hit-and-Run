@@ -36,6 +36,7 @@
 #include <mission/objectives/missionobjective.h>
 #include <mission/conditions/missioncondition.h>
 #include <gameflow/gameflow.h>
+#include <presentation/tutorialmode.h>
 
 
 
@@ -131,9 +132,9 @@ DialogCoordinator::DialogCoordinator( IRadNameSpace* namespaceObj ) :
     {
         if( tutorialConvNames[i].platformSpecificLine )
         {
-#ifdef RAD_PS2
+#if defined RAD_PS2 || defined RAD_VITA
             sprintf( buffer, "%sps2", tutorialConvNames[i].convName );
-#elif RAD_GAMECUBE
+#elif defined RAD_GAMECUBE
             sprintf( buffer, "%sngc", tutorialConvNames[i].convName );
 #else
             sprintf( buffer, "%sxbx", tutorialConvNames[i].convName );
@@ -178,7 +179,7 @@ DialogCoordinator::~DialogCoordinator()
 //=============================================================================
 void DialogCoordinator::HandleEvent( EventEnum id, void* pEventData )
 {
-    unsigned int tutorialIndex;
+    TutorialMode tutorialMode;
     SelectableDialog* dialog;
     DialogEventData* eventData;
     DialogEventData raceEventData;
@@ -344,8 +345,8 @@ void DialogCoordinator::HandleEvent( EventEnum id, void* pEventData )
     {
         if( id == EVENT_TUTORIAL_DIALOG_PLAY )
         {
-            tutorialIndex = *(reinterpret_cast<unsigned int*>( pEventData ));
-            if( tutorialIndex < tutorialTableLength )
+            tutorialMode = *(reinterpret_cast<TutorialMode*>( pEventData ));
+            if( tutorialMode < tutorialTableLength )
             {
                 //
                 // It's always Bart.  Specify him by UID (his Character
@@ -355,7 +356,7 @@ void DialogCoordinator::HandleEvent( EventEnum id, void* pEventData )
                 character2 = NULL;
                 charUID1 = tEntity::MakeUID( "bart" );
                 charUID2 = tEntity::MakeUID( "homer" );
-                convName = tutorialConvNames[tutorialIndex].convNameKey;
+                convName = tutorialConvNames[tutorialMode].convNameKey;
             }
             else
             {
