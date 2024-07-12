@@ -1466,15 +1466,16 @@ if(VITA)
 			VERSION ${VITA_VERSION}
 			NAME ${VITA_APP_NAME}
 			FILE sce_sys/icon0.png sce_sys/icon0.png
-			FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-			FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-			FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+			sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+			sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+			sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+			art art
 
 			#suprx
-			FILE module/libGLESv2.suprx module/libGLESv2.suprx
-			FILE module/libgpu_es4_ext.suprx module/libgpu_es4_ext.suprx
-			FILE module/libIMGEGL.suprx module/libIMGEGL.suprx
-			FILE module/libpvrPSP2_WSEGL.suprx module/libpvrPSP2_WSEGL.suprx
+			module/libGLESv2.suprx module/libGLESv2.suprx
+			module/libgpu_es4_ext.suprx module/libgpu_es4_ext.suprx
+			module/libIMGEGL.suprx module/libIMGEGL.suprx
+			module/libpvrPSP2_WSEGL.suprx module/libpvrPSP2_WSEGL.suprx
 		)
 	else()
 		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
@@ -1484,9 +1485,10 @@ if(VITA)
 			VERSION ${VITA_VERSION}
 			NAME ${VITA_APP_NAME}
 			FILE sce_sys/icon0.png sce_sys/icon0.png
-			FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-			FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-			FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+			sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+			sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+			sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+			art art
 		)
 	endif()
 endif()

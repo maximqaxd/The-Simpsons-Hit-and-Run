@@ -182,7 +182,7 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
 #endif // RAD_GAMECUBE
 
 #ifdef RAD_VITA
-    return strcasecmp(driveSpec, "ux0:") == 0;
+    return strcmp(driveSpec, "UX0:") == 0 || strcmp( driveSpec, "APP0:" ) == 0;
 #else
     return strcmp(driveSpec, "/") == 0;
 #endif

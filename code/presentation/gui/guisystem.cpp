@@ -203,12 +203,22 @@ unsigned int g_scroobySimulationTime = 0;
 
 #endif // DEBUGWATCH
 
-const char* PROJECT_FILE_LANGUAGE = "art\\frontend\\scrooby\\language.p3d";
-const char* PROJECT_FILE_BOOTUP = "art\\frontend\\scrooby\\bootup.p3d";
-const char* PROJECT_FILE_BACKEND = "art\\frontend\\scrooby\\backend.p3d";
-const char* PROJECT_FILE_FRONTEND = "art\\frontend\\scrooby\\frontend.p3d";
-const char* PROJECT_FILE_MINIGAME = "art\\frontend\\scrooby\\minigame.p3d";
-const char* PROJECT_FILE_INGAME = "art\\frontend\\scrooby\\ingame.p3d";
+#ifdef RAD_VITA
+
+#define PROJECT_DRIVE_SPEC "APP0:\\"
+
+#else
+
+#define PROJECT_DRIVE_SPEC
+
+#endif
+
+const char* PROJECT_FILE_LANGUAGE = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\language.p3d";
+const char* PROJECT_FILE_BOOTUP = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\bootup.p3d";
+const char* PROJECT_FILE_BACKEND = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\backend.p3d";
+const char* PROJECT_FILE_FRONTEND = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\frontend.p3d";
+const char* PROJECT_FILE_MINIGAME = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\minigame.p3d";
+const char* PROJECT_FILE_INGAME = PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingame.p3d";
 
 #define LICENSE_SCREEN_IMAGE_DIR "art\\frontend\\dynaload\\images\\license\\"
 #ifdef RAD_PC
@@ -217,13 +227,13 @@ const char* PROJECT_FILE_INGAME = "art\\frontend\\scrooby\\ingame.p3d";
 
 const char* INGAME_LEVEL_PROJECT_FILES[] = 
 {
-    "art\\frontend\\scrooby\\ingamel1.p3d",
-    "art\\frontend\\scrooby\\ingamel2.p3d",
-    "art\\frontend\\scrooby\\ingamel3.p3d",
-    "art\\frontend\\scrooby\\ingamel4.p3d",
-    "art\\frontend\\scrooby\\ingamel5.p3d",
-    "art\\frontend\\scrooby\\ingamel6.p3d",
-    "art\\frontend\\scrooby\\ingamel7.p3d"
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel1.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel2.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel3.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel4.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel5.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel6.p3d",
+    PROJECT_DRIVE_SPEC "art\\frontend\\scrooby\\ingamel7.p3d"
 };
 
 const char* TEXT_BIBLE_NAME = "srr2";
