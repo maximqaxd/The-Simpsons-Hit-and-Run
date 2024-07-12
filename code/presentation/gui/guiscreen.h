@@ -69,6 +69,10 @@ enum eButtonIcon
     NUM_BUTTON_ICONS
 };
 
+#ifdef RAD_WIN32
+const float BUTTON_SCALE = 0.375f;
+#endif
+
 //===========================================================================
 // Interface Definitions
 //===========================================================================

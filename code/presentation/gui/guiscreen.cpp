@@ -45,10 +45,6 @@
 #include <input/inputmanager.h>
 #endif
 
-#ifdef RAD_WIN32
-const float BUTTON_SCALE = 0.375f;
-#endif
-
 //===========================================================================
 // Global Data, Local Data, Local Classes
 //===========================================================================

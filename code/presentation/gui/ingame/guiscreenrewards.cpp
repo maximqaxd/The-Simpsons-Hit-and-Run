@@ -243,6 +243,20 @@ IGuiScreenRewards::IGuiScreenRewards( Scrooby::Screen* pScreen,
     m_statsOverlayButton = pPage->GetGroup( "ToggleView" );
     m_statsOverlayButtonLabel = pPage->GetText( "ToggleView" );
 
+#ifdef RAD_WIN32
+    // resize the button icon
+    //
+    if( m_statsOverlayButton != NULL )
+    {
+        Scrooby::Sprite* icon = m_statsOverlayButton->GetSprite( "ToggleView" );
+        if( icon != NULL )
+        {
+            icon->ResetTransformation();
+            icon->ScaleAboutCenter( BUTTON_SCALE );
+        }
+    }
+#endif
+
     // get vehicle star ratings
     //
     for( int i = 0; i < NUM_VEHICLE_RATINGS; i++ )
