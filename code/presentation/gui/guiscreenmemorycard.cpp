@@ -69,7 +69,7 @@ CGuiScreenLoadSave::CGuiScreenLoadSave( Scrooby::Screen* pScreen )
     m_operation( SCREEN_OP_IDLE )
 {
     rAssert( pScreen != NULL );
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     Scrooby::Page* pPage = pScreen->GetPage( "GameSlots" );
     if( pPage != NULL )
     {
@@ -99,7 +99,7 @@ CGuiScreenLoadSave::CGuiScreenLoadSave( Scrooby::Screen* pScreen )
         Scrooby::Group* selectMemoryDevice = foreground->GetGroup( "SelectMemoryDevice" );
         rAssert( selectMemoryDevice != NULL );
 
-#ifdef RAD_XBOX
+#if defined RAD_XBOX || defined RAD_WIN32
         selectMemoryDevice->SetVisible( false );
 #endif
 

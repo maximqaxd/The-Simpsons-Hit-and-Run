@@ -105,7 +105,8 @@ public:
       B06,
       B07,
 
-      MAX_LEVEL
+      MAX_LEVEL,
+      LEVEL_FORCE_DWORD = 0x7FFFFFFF
    };
 
    enum LevelMissionCountEnum
@@ -118,7 +119,9 @@ public:
       L6MCount = 10,
       L7MCount = 10,
       L8MCount = 10,
-      L9MCount = 10
+      L9MCount = 10,
+
+      MISSION_COUNT_FORCE_DWORD = 0x7FFFFFFF
    };
 
    enum MissionEnum
@@ -133,7 +136,9 @@ public:
       M8,
       M9,
       M10,
-      numMissions
+      numMissions,
+
+      MISSION_FORCE_DWORD = 0x7FFFFFFF
    };
 
 private:

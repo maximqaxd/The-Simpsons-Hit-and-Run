@@ -515,6 +515,8 @@ void radWin32Drive::SetMediaInfo( void )
     //rAssert( strlen( realDriveName ) == 2 );
     strcpy(m_MediaInfo.m_VolumeName, realDriveName );
     //strcat(m_MediaInfo.m_VolumeName, "\\");
+
+    m_MediaInfo.m_SectorSize = WIN32_DEFAULT_SECTOR_SIZE;
     
     std::error_code error;
     std::filesystem::space_info space = std::filesystem::space(realDriveName, error);
@@ -526,30 +528,19 @@ void radWin32Drive::SetMediaInfo( void )
         //
         // No file limit, so set it to the available space
         //
-        m_MediaInfo.m_FreeFiles = space.available;
+        m_MediaInfo.m_FreeFiles = space.available / m_MediaInfo.m_SectorSize;
         m_LastError = Success;
     }
     else
     {
-#ifdef RAD_VITA
         //
         // Don't have media info, so fill structure in with dummy info
         //
         m_MediaInfo.m_MediaState = IRadDrive::MediaInfo::MediaPresent;
-        m_MediaInfo.m_FreeSpace = WIN32_DEFAULT_SECTOR_SIZE;
-        m_MediaInfo.m_FreeFiles = WIN32_DEFAULT_SECTOR_SIZE;
-#else
-        //
-        // Don't have media info, so fill structure in with 0s
-        //
-        m_MediaInfo.m_MediaState = IRadDrive::MediaInfo::MediaNotPresent;
-        m_MediaInfo.m_FreeSpace = 0;
-        m_MediaInfo.m_FreeFiles = 0;
-#endif
-        m_LastError = TranslateError(error);
+        m_MediaInfo.m_FreeSpace = UINT_MAX;
+        m_MediaInfo.m_FreeFiles = m_MediaInfo.m_FreeSpace / m_MediaInfo.m_SectorSize;
+        m_LastError = Success;
     }
-
-    m_MediaInfo.m_SectorSize = WIN32_DEFAULT_SECTOR_SIZE;
 }
 
 //=============================================================================
