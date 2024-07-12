@@ -1005,7 +1005,11 @@ CGuiScreenSaveGame::SaveGame()
 #endif
 
 #ifdef RAD_WIN32
+#ifdef RAD_PC
     m_guiManager->DisplayMessage( CGuiScreenMessage::MSG_ID_SAVING_GAME_PC, this );
+#else
+    m_guiManager->DisplayMessage( CGuiScreenMessage::MSG_ID_SAVING_GAME_XBOX, this );
+#endif
 #endif
 }
 

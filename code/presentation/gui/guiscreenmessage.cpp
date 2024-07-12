@@ -291,7 +291,7 @@ CGuiScreenMessage::GetControllerDisconnectedMessage(int controller_id, char *str
 #endif
 
 #ifdef RAD_WIN32
-    P3D_UNICODE* uni_string = GetTextBibleString( "MSG_CONTROLLER_DISCONNECTED_(XBOX)" );
+    P3D_UNICODE* uni_string = GetTextBibleString( "MSG_CONTROLLER_DISCONNECTED_(GC)" );
 #endif
 
     CGuiScreenMessage::ConvertUnicodeToChar(str_buffer, uni_string, max_char);
@@ -540,9 +540,44 @@ CGuiScreenMessage::FormatMessage( Scrooby::Text* pText,
 									GMA_LEVEL_FE : GMA_LEVEL_HUD);
 		}
 	}
-
-
 #endif // RAD_XBOX
+
+#ifdef RAD_WIN32
+    for( int i = 0; stringBuffer[i] != '\0'; i++ )
+    {
+        // search for slot wildcard character
+        //
+        if( stringBuffer[i] == SLOT_WILDCARD_CHARACTER )
+        {
+            HeapMgr()->PushHeap( GetGameFlow()->GetCurrentContext() == CONTEXT_FRONTEND ?
+                                    GMA_LEVEL_FE : GMA_LEVEL_HUD );
+            UnicodeString unicodeString; // splice the mu name inside
+            UnicodeString restofString;
+            UnicodeString deviceName;
+
+            const char* pVolumeName = GetMemoryCardManager()->GetCurrentDriveVolumeName();
+            if (strlen( pVolumeName ) < MAX_MEM_CARD_NAME)
+                deviceName.ReadAscii(pVolumeName);
+            else
+            {
+                deviceName.ReadAscii(pVolumeName, MAX_MEM_CARD_NAME-1);
+                UnicodeString ellipsis;
+                ellipsis.ReadAscii("...");
+                deviceName += ellipsis;
+            }
+
+            unicodeString.ReadUnicode(stringBuffer, i);
+            restofString.ReadUnicode(&stringBuffer[i+1]);
+            unicodeString += deviceName;
+            unicodeString += restofString;
+            pText->SetString(pText->GetIndex(),unicodeString);
+
+            HeapMgr()->PopHeap( GetGameFlow()->GetCurrentContext() == CONTEXT_FRONTEND ?
+                                    GMA_LEVEL_FE : GMA_LEVEL_HUD );
+        }
+    }
+#endif // RAD_WIN32
+
 }
 
 //===========================================================================
