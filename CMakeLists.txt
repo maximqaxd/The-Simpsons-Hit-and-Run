@@ -1149,12 +1149,14 @@ if(SRR2_P3D_PDDI STREQUAL "GLES2")
 		"libs/pure3d/pddi/gles/gltex.cpp"
 		"libs/pure3d/pddi/gles/glprog.cpp"
 		"libs/pure3d/pddi/gles/glad/src/glad.c"
-		"libs/pure3d/pddi/gles/decompress.cpp"
 	)
 	if(SRR2_USE_VITAGL)
 		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gles/display_vita/gldisplay.cpp")
 	else()
-		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gles/display_win32/gldisplay.cpp")
+		list(APPEND PDDI_SOURCES
+			"libs/pure3d/pddi/gles/decompress.cpp"
+			"libs/pure3d/pddi/gles/display_win32/gldisplay.cpp"
+		)
 	endif()
 else()
 	list(APPEND PDDI_SOURCES
