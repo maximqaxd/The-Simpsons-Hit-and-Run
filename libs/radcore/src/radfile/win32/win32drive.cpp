@@ -28,6 +28,7 @@
 #include "win32drive.hpp"
 #include <filesystem>
 #include <fstream>
+#include <SDL.h>
 
 //=============================================================================
 // Public Functions 
@@ -89,8 +90,15 @@ radWin32Drive::radWin32Drive( const char* pdrivespec, radMemoryAllocator alloc )
     //
     // Copy the drivename
     //
-    strncpy( m_DriveName, pdrivespec, radFileDrivenameMax );
-    m_DriveName[ radFileDrivenameMax ] = '\0';
+    radGetDefaultDrive( m_DriveName );
+    if ( strcmp(m_DriveName, pdrivespec ) != 0 )
+    {
+        rDebugPrintf( "%s %s", m_DriveName, pdrivespec );
+        strncpy( m_DriveName, pdrivespec, radFileDrivenameMax );
+        m_DriveName[radFileDrivenameMax] = '\0';
+        m_DrivePath = SDL_strlwr( m_DriveName );
+        SDL_strupr( m_DriveName );
+    }
     m_Capabilities = ( radDriveEnumerable | radDriveWriteable | radDriveDirectory | radDriveFile );
 }
 
@@ -183,7 +191,11 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
     std::error_code error;
     std::string tmp(fileName);
     std::replace(tmp.begin(), tmp.end(), '\\', '/');
-    std::filesystem::path path(tmp);
+    std::filesystem::path path;
+    if( m_DrivePath.empty() )
+        path = std::filesystem::current_path() / tmp;
+    else
+        path = m_DrivePath.string() + tmp;
     path.make_preferred();
     if (std::filesystem::exists(path, error))
     {
@@ -200,6 +212,7 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
         *pSize = 0;
         if (flags == OpenExisting)
         {
+            rDebugPrintf( "radWin32Drive: File %s (%s) was not found.", path.c_str(), m_DrivePath.c_str() );
             m_LastError = FileNotFound;
             return Error;
         }
@@ -456,7 +469,11 @@ radDrive::CompletionStatus radWin32Drive::DestroyDir( const char* pName )
         "This drive does not support the DestroyDir function." );
 
     std::error_code error;
-    std::filesystem::path path(pName);
+    std::filesystem::path path( pName );
+    if( m_DrivePath.empty() )
+        path = std::filesystem::current_path() / path;
+    else
+        path = m_DrivePath / path;
     if (std::filesystem::is_directory(path, error) &&
         std::filesystem::remove(path, error))
     {
@@ -483,7 +500,11 @@ radDrive::CompletionStatus radWin32Drive::DestroyFile( const char* filename )
     //
 
     std::error_code error;
-    std::filesystem::path path(filename);
+    std::filesystem::path path( filename );
+    if( m_DrivePath.empty() )
+        path = std::filesystem::current_path() / path;
+    else
+        path = m_DrivePath / path;
     if (!std::filesystem::is_directory(path, error) &&
         std::filesystem::remove(path, error))
     {

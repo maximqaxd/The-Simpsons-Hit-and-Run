@@ -136,6 +136,8 @@ private:
     unsigned int    m_OpenFiles;
     char            m_DriveName[ radFileDrivenameMax + 1 ];
 
+    std::filesystem::path m_DrivePath;
+
     //
     // Mutex for critical sections
     //
