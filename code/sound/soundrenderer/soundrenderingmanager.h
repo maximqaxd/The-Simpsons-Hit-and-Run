@@ -165,7 +165,6 @@ private:
         if( false == m_pCurrentNameSpace->AddInstance( objName, obj ) )
             rTunePrintf( "AUDIO: WARNING: Inventory Collision!: %s\n", objName );
         rReleaseAssert( GetSoundManager()->GetSoundLoader()->AddResourceToCurrentCluster( objName ) );
-        obj->Release();
         return *obj;
     }
 
