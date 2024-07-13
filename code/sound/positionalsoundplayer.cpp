@@ -231,6 +231,7 @@ void PositionalSoundPlayer::SetParameters( positionalSoundSettings* settings )
 {
     m_minDist = settings->GetMinDistance();
     m_maxDist = settings->GetMaxDistance();
+    m_outOfRange = false;
 
     m_positionalSettings = settings;
     m_positionalSettings->AddRef();
