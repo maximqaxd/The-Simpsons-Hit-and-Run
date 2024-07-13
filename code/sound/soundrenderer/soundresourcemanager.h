@@ -148,7 +148,7 @@ private:
     daSoundResourceData m_ResourceData[ MAX_SOUND_DATA_RESOURCES ];
     unsigned int m_NumResourceDatas;
     
-    radKey32 * m_pFileIdMemory;
+    daSoundResourceData::FileId* m_pFileIdMemory;
 };
 
 inline daSoundResourceManager* daSoundResourceManager::GetInstance( void )

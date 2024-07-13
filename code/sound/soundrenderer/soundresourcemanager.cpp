@@ -324,9 +324,9 @@ void daSoundResourceManager::SetResourceLockdown( bool lockdown )
         totalFiles += pRd->m_NumFiles;
     }
     
-    m_pFileIdMemory = (radKey32*) radMemoryAlloc( GMA_PERSISTENT, sizeof( radKey32 ) * totalFiles );
+    m_pFileIdMemory = (daSoundResourceData::FileId*) radMemoryAlloc( GMA_PERSISTENT, sizeof( daSoundResourceData::FileId ) * totalFiles );
    
-    radKey32* pCurrent = m_pFileIdMemory;
+    daSoundResourceData::FileId* pCurrent = m_pFileIdMemory;
     
     for( unsigned int r = 0; r < MAX_SOUND_DATA_RESOURCES; r ++ )
     {
@@ -336,7 +336,7 @@ void daSoundResourceManager::SetResourceLockdown( bool lockdown )
         {
             FlipSlashes( pRd->m_pFileIds[ f ].m_pName );
             
-            pCurrent[ f ] = ::radMakeCaseInsensitiveKey32( pRd->m_pFileIds[ f ].m_pName );
+            pCurrent[ f ].m_Key = ::radMakeCaseInsensitiveKey32( pRd->m_pFileIds[ f ].m_pName );
             radMemoryFree( pRd->m_pFileIds[ f ].m_pName );
         }
 
