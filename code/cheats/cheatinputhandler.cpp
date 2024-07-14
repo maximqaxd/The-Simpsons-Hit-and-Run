@@ -53,6 +53,8 @@ static const CheatInputMapping CHEAT_INPUT_MAPPINGS[] =
     { "B",              CHEAT_INPUT_1 },
     { "X",              CHEAT_INPUT_2 },
     { "Y",              CHEAT_INPUT_3 },
+    { "Black",          CHEAT_INPUT_LTRIGGER },
+    { "White",          CHEAT_INPUT_RTRIGGER },
     { "LeftTrigger",    CHEAT_INPUT_LTRIGGER },
     { "RightTrigger",   CHEAT_INPUT_RTRIGGER },
 #endif
