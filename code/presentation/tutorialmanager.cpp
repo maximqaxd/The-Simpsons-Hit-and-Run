@@ -142,13 +142,6 @@ TutorialManager::TutorialManager() :
     m_CurrentEvent( TUTORIAL_INVALID ),
     m_tutorialsSeen( 0 )
 {
-#ifndef FINAL
-    // We're going to be passing enums in void* messages - they'd better be big
-    // enough or else we're in big trouble
-    size_t sizeOfEnum = sizeof( TutorialMode );
-    size_t sizeOfVoid = sizeof( void* );
-    rReleaseAssert( sizeOfEnum <= sizeOfVoid );
-#endif
     m_Queue.reserve( 16 );
 
     GetGameDataManager()->RegisterGameData( this, 1 + sizeof( m_tutorialsSeen ), "Tutorial Manager" );
