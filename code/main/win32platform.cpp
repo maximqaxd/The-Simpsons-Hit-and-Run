@@ -108,7 +108,9 @@
 #include <loading/roaddatasegmentloader.h>
 #include <atc/atcloader.h>
 #include <data/gamedatamanager.h>
+#ifdef RAD_PC
 #include <data/config/gameconfigmanager.h>
+#endif
 #include <debug/debuginfo.h>
 #include <constants/srrchunks.h>
 #include <gameflow/gameflow.h>
@@ -514,11 +516,13 @@ void Win32Platform::InitializePlatform()
 {
     HeapMgr()->PushHeap (GMA_PERSISTENT);
 
+#ifdef RAD_PC
     //
     // Register with the game config manager
     //
     GetGameConfigManager()->RegisterConfig(this);
     GetGameConfigManager()->LoadConfigFile();
+#endif
 
     //
     // Rendering is good.
@@ -843,10 +847,12 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
             strncpy( adjustedName, &fileName[adjustedIndex], ( strlen( fileName ) - lastIndex ) );
             adjustedName[ strlen( fileName ) - lastIndex ] = '\0';
 
+#ifdef RAD_PC
             if( strcmp( fileName, GameConfigManager::ConfigFilename ) == 0 )
             {
                 return false;
             }
+#endif
 
             char errorString[256];
             sprintf( errorString, "%s:\n%s", ERROR_STRINGS[error], adjustedName );
@@ -978,7 +984,7 @@ bool Win32Platform::IsFullscreen() const
 //
 // Notes:
 //=============================================================================
-
+#ifdef RAD_PC
 const char* Win32Platform::GetConfigName() const
 {
     return "System";
@@ -1042,7 +1048,6 @@ void Win32Platform::LoadDefaults()
 //
 // Notes:
 //=============================================================================
-
 void Win32Platform::LoadConfig( ConfigString& config )
 {
     char property[ ConfigString::MaxLength ];
@@ -1182,7 +1187,7 @@ void Win32Platform::SaveConfig( ConfigString& config )
 
     config.WriteProperty("renderer", mRenderer);
 }
-
+#endif
 
 //******************************************************************************
 //

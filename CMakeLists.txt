@@ -210,8 +210,6 @@ set(SRR2_SOURCES
 	"code/contexts/supersprint/loadingsupersprintcontext.cpp"
 	"code/contexts/supersprint/supersprintcontext.cpp"
 	"code/contexts/supersprint/supersprintfecontext.cpp"
-	"code/data/config/configstring.cpp"
-	"code/data/config/gameconfigmanager.cpp"
 	"code/data/gamedatamanager.cpp"
 	"code/data/memcard/memorycardmanager.cpp"
 	"code/data/PersistentWorldManager.cpp"

@@ -32,7 +32,11 @@ class tContext;
 // Synopsis:    Provides abstraction for setting up and closing a win32 exe.
 //
 //=============================================================================
+#ifdef RAD_PC
 class Win32Platform : public Platform, public GameConfigHandler
+#else
+class Win32Platform : public Platform
+#endif
 {
 public:
 
@@ -96,12 +100,14 @@ public:
     int GetBPP() const;
     bool IsFullscreen() const;
 
+#ifdef RAD_PC
     // Implementation of the GameConfigHandler interface
     virtual const char* GetConfigName() const;
     virtual int GetNumProperties() const;
     virtual void LoadDefaults();
     virtual void LoadConfig( ConfigString& config );
     virtual void SaveConfig( ConfigString& config );
+#endif
 
 private:
 

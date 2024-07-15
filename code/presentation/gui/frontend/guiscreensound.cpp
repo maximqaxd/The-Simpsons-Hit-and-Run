@@ -30,7 +30,7 @@
 
 #include <string.h>
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 #include <data/config/gameconfigmanager.h>
 #endif
 
@@ -528,7 +528,7 @@ void CGuiScreenSound::InitRunning()
 //===========================================================================
 void CGuiScreenSound::InitOutro()
 {
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     // Save the new controller mappings to the config file.
     GetGameConfigManager()->SaveConfigFile();
 #endif

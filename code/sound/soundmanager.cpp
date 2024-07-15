@@ -1755,7 +1755,7 @@ void SoundManager::ResetData()
 #endif
 }
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
 //=============================================================================
 // SoundManager::GetConfigName
 //=============================================================================
@@ -2092,7 +2092,7 @@ void SoundManager::Initialize()
     ::radFactoryRegister( "reverbSettings", (radFactoryProc*) reverbSettings::ObjCreate );
     ::radFactoryRegister( "positionalSoundSettings", (radFactoryProc*) positionalSoundSettings::ObjCreate );
 
-#ifdef RAD_WIN32
+#ifdef RAD_PC
     //
     // Register with the game config manager
     //

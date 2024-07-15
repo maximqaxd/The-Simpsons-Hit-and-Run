@@ -94,7 +94,7 @@ enum SoundMode
 //=============================================================================
 
 class SoundManager : public EventListener,
-                     #ifdef RAD_WIN32
+                     #ifdef RAD_PC
                      public GameConfigHandler,  //ziemek: this is ugly..doh
                      #endif
                      public GameDataHandler
@@ -272,7 +272,7 @@ class SoundManager : public EventListener,
         virtual void SaveData( GameDataByte* dataBuffer, unsigned int numBytes );
         virtual void ResetData();
 
-        #ifdef RAD_WIN32
+        #ifdef RAD_PC
         // Implementation of the GameConfigHandler interface
         virtual const char* GetConfigName() const;
         virtual int GetNumProperties() const;
