@@ -13,7 +13,7 @@ if(VITA)
 	# unique string of developer and Y = a unique number for this app
 	set(VITA_TITLEID  "ROADRAGE2")
 	# Optional version string to show in LiveArea's more info screen
-	set(VITA_VERSION  "01.10")
+	set(VITA_VERSION  "00.60")
 endif()
 
 find_program(CCACHE_FOUND ccache)
