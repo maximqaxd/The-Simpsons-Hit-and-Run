@@ -1578,7 +1578,7 @@ void SoundManager::LoadData( const GameDataByte* dataBuffer, unsigned int numByt
     SoundMode loadedSoundMode;
     float calculatedAmbienceVolume;
 
-#ifdef RAD_WIN32 // temp
+#ifdef RAD_PC // temp
     return;
 #endif
 
