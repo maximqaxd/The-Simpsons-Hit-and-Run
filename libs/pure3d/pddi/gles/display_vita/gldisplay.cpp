@@ -95,6 +95,10 @@ bool pglDisplay ::InitDisplay(int x, int y, int bpp)
 
 bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
 {
+    displayInit = *init;
+    winWidth = init->xsize;
+    winHeight = init->ysize;
+    winBitDepth = init->bpp;
     extBGRA = true;
     return vglInit(0x800000);
 }
