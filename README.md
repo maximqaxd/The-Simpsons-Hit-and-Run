@@ -10,7 +10,7 @@ This port uses the PC assets, so you will need to have the PC version of the gam
 
 To install the port simply copy the contents of the installation folder to `sdmc:/switch/simpsons` on the Switch or `ux0:/data/simpsons` on the Vita.
 
-Finally download the [latest release](https://github.com/ZenoArrows/The-Simpsons-Hit-and-Run/releases) or this port and copy it to your console. On the Switch you simply the NRO into the same folder as the game data (`sdmc:/switch/simpsons`), on the Vita you can copy the VPK file anywhere and install it using [VitaShell](https://github.com/TheOfficialFloW/VitaShell).
+Finally download the [latest release](https://github.com/ZenoArrows/The-Simpsons-Hit-and-Run/releases) of this port and copy it to your console. On the Switch you simply the NRO into the same folder as the game data (`sdmc:/switch/simpsons`), on the Vita you can copy the VPK file anywhere and install it using [VitaShell](https://github.com/TheOfficialFloW/VitaShell).
 
 # Multi-Language support
 
