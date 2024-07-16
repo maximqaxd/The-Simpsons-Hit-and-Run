@@ -20,6 +20,7 @@
 #include <presentation/gui/guimenu.h>
 #include <presentation/gui/guisystem.h>
 #include <presentation/gui/guimanager.h>
+#include <presentation/gui/guitextbible.h>
 #include <presentation/gui/frontend/guimanagerfrontend.h>
 
 #include <cheats/cheatinputsystem.h>
@@ -99,6 +100,11 @@ CGuiScreenSplash::CGuiScreenSplash
     //
     m_pressStart->SetIndex( TEXT_LOADING );
     m_pressStart->SetColour( tColour( 255, 255, 255 ) );
+
+#ifdef __SWITCH__
+    start_text.ReadUnicode( GetTextBibleString( "PRESS_START" ) );
+    start_text.Replace( "START", "+" );
+#endif
 
     if( CommandLineOptions::Get( CLO_DEMO_TEST ) ||
         GetCheatInputSystem()->IsCheatEnabled( CHEAT_ID_DEMO_TEST ) )
@@ -197,7 +203,11 @@ void CGuiScreenSplash::HandleMessage
                 {
                     rAssert( m_pMenu != NULL );
 
-                    m_pressStart->SetIndex( TEXT_PRESS_START_GC +  PLATFORM_TEXT_INDEX);
+#ifdef __SWITCH__
+                    m_pressStart->SetStringBuffer( start_text.GetBuffer() );
+#else
+                    m_pressStart->SetIndex( TEXT_PRESS_START_GC + PLATFORM_TEXT_INDEX );
+#endif
                     m_pressStart->SetColour( m_pMenu->GetHighlightColour() );
                     m_pMenu->GetMenuItem( 0 )->m_attributes |= SELECTABLE;
 

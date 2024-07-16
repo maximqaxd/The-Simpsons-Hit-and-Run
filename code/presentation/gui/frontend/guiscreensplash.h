@@ -68,6 +68,9 @@ private:
 
     static short s_demoPlaybackToggle;
 
+#ifdef __SWITCH__
+    UnicodeString start_text;
+#endif
 };
 
 #endif // GUISCREENSPLASH_H
