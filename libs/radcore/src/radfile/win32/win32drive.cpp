@@ -93,6 +93,7 @@ radWin32Drive::radWin32Drive( const char* pdrivespec, radMemoryAllocator alloc )
     radGetDefaultDrive( m_DriveName );
     if ( strcmp(m_DriveName, pdrivespec ) != 0 )
     {
+        rDebugPrintf( "%s %s", m_DriveName, pdrivespec );
         strncpy( m_DriveName, pdrivespec, radFileDrivenameMax );
         m_DriveName[radFileDrivenameMax] = '\0';
         m_DrivePath = SDL_strlwr( m_DriveName );
@@ -211,6 +212,7 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
         *pSize = 0;
         if (flags == OpenExisting)
         {
+            rDebugPrintf( "radWin32Drive: File %s (%s) was not found.", path.c_str(), m_DrivePath.c_str() );
             m_LastError = FileNotFound;
             return Error;
         }
