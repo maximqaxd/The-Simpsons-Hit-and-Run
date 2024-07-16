@@ -1,6 +1,7 @@
 .vs/
 out/
 build/
+switch/
 module/
 art/
 CMakeSettings.json
