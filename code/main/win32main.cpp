@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <SDL_main.h>
 
-#if defined(__SWITCH__) && defined(RAD_DEBUG)
+#ifdef __SWITCH__
 #include <switch.h>
 #endif
 
@@ -72,9 +72,12 @@ static void LogOutputFunction( void *userdata, int category, SDL_LogPriority pri
 //=============================================================================
 extern "C" int main( int argc, char *argv[] )
 {
-#if defined(__SWITCH__) && defined(RAD_DEBUG)
+#ifdef __SWITCH__
+#ifdef RAD_DEBUG
     socketInitializeDefault();
     nxlinkStdio();
+#endif
+    romfsInit();
 #endif
 #ifdef RAD_VITA
 	chdir( "ux0:data/simpsons" );

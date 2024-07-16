@@ -183,6 +183,8 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
 
 #ifdef RAD_VITA
     return strcmp(driveSpec, "UX0:") == 0 || strcmp( driveSpec, "APP0:" ) == 0;
+#elif defined __SWITCH__
+    return strcmp( driveSpec, "/" ) == 0 || strcmp( driveSpec, "ROMFS:" ) == 0;
 #else
     return strcmp(driveSpec, "/") == 0;
 #endif

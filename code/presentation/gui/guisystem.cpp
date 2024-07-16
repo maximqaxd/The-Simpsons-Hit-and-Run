@@ -207,6 +207,10 @@ unsigned int g_scroobySimulationTime = 0;
 
 #define PROJECT_DRIVE_SPEC "APP0:\\"
 
+#elif defined __SWITCH__
+
+#define PROJECT_DRIVE_SPEC "ROMFS:\\"
+
 #else
 
 #define PROJECT_DRIVE_SPEC
