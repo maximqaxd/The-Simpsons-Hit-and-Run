@@ -4,7 +4,7 @@ project(SRR2)
 
 if(VITA)
 	include("${VITASDK}/share/vita.cmake" REQUIRED)
-	
+
 	add_compile_definitions(RAD_VITA)
 	## Configuration options for this app
 	# Display name (under bubble in LiveArea)
@@ -715,7 +715,6 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radprofiler/profiler2.cpp"
 	"libs/radcore/src/radprofiler/profiler.cpp"
 	"libs/radcore/src/radprofiler/profilesample.cpp"
-	"libs/radcore/src/radprofiler/microprofile.cpp"
 	"libs/radcore/src/radremotecommand/functionlist.cpp"
 	"libs/radcore/src/radremotecommand/remotecommandserver.cpp"
 	"libs/radcore/src/radremotecommand/remotecommandtarget.cpp"
@@ -731,6 +730,12 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radtime/stopwatch.cpp"
 	"libs/radcore/src/radtime/time.cpp"
 )
+
+option(SRR2_MICROPROFILE OFF)
+if(SRR2_MICROPROFILE)
+	add_compile_definitions(MICROPROFILE_ENABLED)
+	list(APPEND RADCORE_SOURCES	"libs/radcore/src/radprofiler/microprofile.cpp")
+endif()
 
 set(RADCONTENT_SOURCES
 	"libs/radcontent/src/radload/request.cpp"
@@ -1416,7 +1421,7 @@ target_link_libraries(SRR2
 	sim
 	Threads::Threads
 )
-if(WIN32)
+if(SRR2_MICROPROFILE AND WIN32)
 	# needed for microprofile
 	target_link_libraries(SRR2 wsock32)
 endif()
