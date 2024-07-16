@@ -2346,24 +2346,25 @@ void MissionStage::SwapInDefaultCarStart()
 
 void MissionStage::OnProcessRequestsComplete( void* pUserData)
 {
-
     //changed the forced car to an AI type car and so its locked from player
-
-    Character* pCharacter = NULL;
-
-    GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->SetUserDrivingCar(false);
-    GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->TransitToAI();
-    
-    //removed the NPC character driver.
-    pCharacter = GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->GetDriver();
-    if (pCharacter != NULL)
+    if( GetGameplayManager()->GetCurrentMission()->IsForcedCar() )
     {
-        GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->SetDriver(NULL);
-        GetCharacterManager()->RemoveCharacter(pCharacter);
-    }    
-    GetGameplayManager()->PlaceVehicleAtLocatorName(
-    GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle,
-        mSwapForcedCarRespawnLocatorName);
+        Character* pCharacter = NULL;
+
+        GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->SetUserDrivingCar(false);
+        GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->TransitToAI();
+    
+        //removed the NPC character driver.
+        pCharacter = GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->GetDriver();
+        if (pCharacter != NULL)
+        {
+            GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle->SetDriver(NULL);
+            GetCharacterManager()->RemoveCharacter(pCharacter);
+        }
+        GetGameplayManager()->PlaceVehicleAtLocatorName(
+        GetGameplayManager()->mVehicleSlots[GameplayManager::eOtherCar].mp_vehicle,
+            mSwapForcedCarRespawnLocatorName);
+    }
 
     //init the vehicle
     Vehicle* vehicle;
