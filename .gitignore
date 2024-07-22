@@ -2,6 +2,7 @@
 out/
 build/
 switch/
+romfs/
 module/
 art/
 CMakeSettings.json
