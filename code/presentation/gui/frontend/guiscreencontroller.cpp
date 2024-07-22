@@ -184,9 +184,9 @@ CGuiScreenController::CGuiScreenController
             {
                 textLabel->SetHorizontalJustification( Scrooby::Center );
                 if( i == 11 )
-                    textLabel->SetPosition( 190, 408 );
+                    textLabel->SetPosition( 135, 408 );
                 else if( i == 12 )
-                    textLabel->SetPosition( 315, 408 );
+                    textLabel->SetPosition( 335, 408 );
                 else
                     textLabel->SetVisible( false );
             }
