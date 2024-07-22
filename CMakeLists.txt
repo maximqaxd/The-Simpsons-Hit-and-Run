@@ -64,8 +64,11 @@ add_compile_definitions(
 	RAD_WIN32
 )
 
+set(SRR2_FILENAME "Simpsons")
+set(SRR2_REGION "NTSC")
 option(SRR2_PAL OFF)
 if(SRR2_PAL)
+	set(SRR2_REGION "PAL")
 	add_compile_definitions(PAL)
 endif()
 
@@ -1464,7 +1467,7 @@ if(VITA)
 		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
 		# The FILE directive lets you add additional files to the VPK, the syntax is
 		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
-		vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+		vita_create_vpk(${SRR2_FILENAME}${SRR2_REGION}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
 			VERSION ${VITA_VERSION}
 			NAME ${VITA_APP_NAME}
 			FILE sce_sys/icon0.png sce_sys/icon0.png
@@ -1483,7 +1486,7 @@ if(VITA)
 		vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
 		# The FILE directive lets you add additional files to the VPK, the syntax is
 		# FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
-		vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+		vita_create_vpk(${SRR2_FILENAME}${SRR2_REGION}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
 			VERSION ${VITA_VERSION}
 			NAME ${VITA_APP_NAME}
 			FILE sce_sys/icon0.png sce_sys/icon0.png
