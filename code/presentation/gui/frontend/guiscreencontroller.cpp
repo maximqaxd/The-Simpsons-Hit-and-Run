@@ -180,7 +180,7 @@ CGuiScreenController::CGuiScreenController
 
 #ifdef RAD_VITA
             // PS Vita doesn't have triggers, move the shoulder button labels
-            if( i > 10 )
+            if( i == 1 || i > 10 )
             {
                 textLabel->SetHorizontalJustification( Scrooby::Center );
                 if( i == 11 )
