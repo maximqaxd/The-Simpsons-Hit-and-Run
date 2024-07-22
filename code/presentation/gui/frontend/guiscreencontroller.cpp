@@ -178,6 +178,20 @@ CGuiScreenController::CGuiScreenController
             textLabel->StretchBoundingBox( 30, 0 );
 #endif // PAL
 
+#ifdef RAD_VITA
+            // PS Vita doesn't have triggers, move the shoulder button labels
+            if( i > 10 )
+            {
+                textLabel->SetHorizontalJustification( Scrooby::Center );
+                if( i == 11 )
+                    textLabel->SetPosition( 190, 408 );
+                else if( i == 12 )
+                    textLabel->SetPosition( 315, 408 );
+                else
+                    textLabel->SetVisible( false );
+            }
+#endif // RAD_VITA
+
             textLabel->SetTextMode( Scrooby::TEXT_WRAP );
             m_labels[ i ] = textLabel;
             m_numLabels++;
