@@ -2,18 +2,21 @@ cmake_minimum_required(VERSION 3.25)
 
 project(SRR2)
 
+set(SRR2_TITLE "Simpsons Hit & Run")
+set(SRR2_VERSION "00.61")
+
 if(VITA)
 	include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 	add_compile_definitions(RAD_VITA)
 	## Configuration options for this app
 	# Display name (under bubble in LiveArea)
-	set(VITA_APP_NAME "Simpsons Hit and Run")
+	set(VITA_APP_NAME ${SRR2_TITLE})
 	# Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
 	# unique string of developer and Y = a unique number for this app
 	set(VITA_TITLEID  "ROADRAGE2")
 	# Optional version string to show in LiveArea's more info screen
-	set(VITA_VERSION  "00.61")
+	set(VITA_VERSION ${SRR2_VERSION})
 endif()
 
 find_program(CCACHE_FOUND ccache)
@@ -1402,8 +1405,8 @@ if(SRR2_USE_BINK)
 	)
 endif()
 
-add_executable(SRR2 ${SRR2_SOURCES})
-target_link_libraries(SRR2
+add_executable(${PROJECT_NAME} ${SRR2_SOURCES})
+target_link_libraries(${PROJECT_NAME}
 	SDL2::SDL2
 	SDL2::SDL2main
 	choreo
@@ -1496,4 +1499,18 @@ if(VITA)
 			art art
 		)
 	endif()
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+	nx_generate_nacp(OUTPUT ${PROJECT_NAME}.nacp
+		NAME ${SRR2_TITLE}
+		AUTHOR "Radical Entertainment"
+		VERSION ${SRR2_VERSION}
+	)
+	nx_create_nro(${PROJECT_NAME}
+		OUTPUT ${SRR2_FILENAME}${SRR2_REGION}.nro
+		ICON ${PROJECT_NAME}.jpg
+		NACP ${PROJECT_NAME}.nacp
+		ROMFS romfs
+	)
 endif()
