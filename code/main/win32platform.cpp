@@ -716,7 +716,7 @@ void Win32Platform::DisplaySplashScreen( SplashScreen screenID,
             p3d::stack->Push();
             p3d::stack->LoadIdentity();
 
-            p3d::stack->Translate( textPosX, textPosY, 1.5f);
+            p3d::stack->Translate( textPosX, textPosY, 1.0f);
             float scaleSize = 1.0f / 480.0f;  //This is likely good for 528 also.
             p3d::stack->Scale(scaleSize * fontScale, scaleSize* fontScale , 1.0f);
 

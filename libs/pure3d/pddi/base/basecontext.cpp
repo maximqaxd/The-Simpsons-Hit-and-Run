@@ -148,7 +148,7 @@ void pddiBaseContext::DefaultState()
     state.viewState->zBias = 0.0f;
     state.viewState->zRange[0] = 0.0f;
     state.viewState->zRange[1] = 1.0f;   
-    state.viewState->scissor.Set(0, 0, 320, 200); // TODO<- should be screen size
+    state.viewState->scissor.Set(0, 0, display->GetWidth(), display->GetHeight());
     memset(state.viewState->clipPlane, 0, sizeof(pddiPlane) * PDDI_MAX_CLIP_PLANES);
     
     // renderState
