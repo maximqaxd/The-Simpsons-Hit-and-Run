@@ -223,6 +223,7 @@ CGuiManagerLanguage::CheckLanguage()
 
     switch( Language::GetHardwareLanguage() )
     {
+#ifndef RAD_WIN32
         case Language::ENGLISH:
         {
             CGuiTextBible::SetCurrentLanguage( Scrooby::XL_ENGLISH );
@@ -231,6 +232,7 @@ CGuiManagerLanguage::CheckLanguage()
 
             break;
         }
+#endif
         case Language::FRENCH:
         {
             CGuiTextBible::SetCurrentLanguage( Scrooby::XL_FRENCH );
