@@ -28,6 +28,11 @@
     #include <switch.h>
 #endif
 
+#ifdef RAD_VITA
+    #include <psp2/apputil.h>
+    #include <psp2/system_param.h>
+#endif
+
 //========================================
 // Project Includes
 //========================================
@@ -224,6 +229,57 @@ Language GetHardwareLanguage()
         }
         case SetLanguage_PT:
         case SetLanguage_PTBR:
+        {
+            return PORTUGUESE;
+        }
+        default:
+        {
+            return UNKNOWN;
+        }
+    }
+    #elif RAD_VITA
+    SceAppUtilInitParam init = { 0 };
+    SceAppUtilBootParam boot = { 0 };
+    if( sceAppUtilInit( &init, &boot ) < 0)
+        return UNKNOWN;
+
+    SceSystemParamLang lang;
+    if( sceAppUtilSystemParamGetInt( SCE_SYSTEM_PARAM_ID_LANG, reinterpret_cast<int*>( &lang ) ) < 0 )
+        return UNKNOWN;
+
+    switch ( lang )
+    {
+        case SCE_SYSTEM_PARAM_LANG_JAPANESE:
+        {
+            return JAPANESE;
+        }
+        case SCE_SYSTEM_PARAM_LANG_ENGLISH_US:
+        case SCE_SYSTEM_PARAM_LANG_ENGLISH_GB:
+        {
+            return ENGLISH;
+        }
+        case SCE_SYSTEM_PARAM_LANG_FRENCH:
+        {
+            return FRENCH;
+        }
+        case SCE_SYSTEM_PARAM_LANG_SPANISH:
+        {
+            return SPANISH;
+        }
+        case SCE_SYSTEM_PARAM_LANG_GERMAN:
+        {
+            return GERMAN;
+        }
+        case SCE_SYSTEM_PARAM_LANG_ITALIAN:
+        {
+            return ITALIAN;
+        }
+        case SCE_SYSTEM_PARAM_LANG_DUTCH:
+        {
+            return DUTCH;
+        }
+        case SCE_SYSTEM_PARAM_LANG_PORTUGUESE_PT:
+        case SCE_SYSTEM_PARAM_LANG_PORTUGUESE_BR:
         {
             return PORTUGUESE;
         }
