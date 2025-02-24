@@ -372,8 +372,9 @@ void Game::Initialize()
     //
     // Initialize the sound manager.
     //
+#ifndef RAD_DREAMCAST
     SoundManager::GetInstance()->Initialize();
-    
+#endif
     //
     // Initialize the timer system
     //
@@ -575,6 +576,7 @@ void Game::Run()
         //
         // Service the sound renderer.
         //
+#ifndef RAD_DREAMCAST
         SoundManager::GetInstance()->Update();
 
         if ( mpPlatform->PausedForErrors() )
@@ -586,7 +588,7 @@ void Game::Run()
             //
             SoundManager::GetInstance()->UpdateOncePerFrame( 0, NUM_CONTEXTS, false, true );
         }
-
+#endif
         //
         // Spin Pure3D async loading.
         //

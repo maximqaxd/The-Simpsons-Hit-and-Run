@@ -75,11 +75,13 @@
 
 #include <memory/srrmemory.h>
 
+#ifndef RAD_DREAMCAST
 #include <sound/soundmanager.h>
-
+#endif
 #include <presentation/presentation.h>
+#ifndef RAD_DREAMCAST
 #include <presentation/fmvplayer/fmvplayer.h>
-
+#endif
 #include <pddi/pddiext.hpp>
 #include <p3d/light.hpp>
 #include <p3d/view.hpp>
@@ -502,12 +504,13 @@ void RenderManager::ContextUpdate( unsigned int iElapsedTime )
     p3d::context->SwapBuffers();
     END_PROFILE( "Swap Buffers" );
 
+#ifndef RAD_DREAMCAST
 #if defined( RAD_XBOX ) || defined ( RAD_GAMECUBE ) || defined( RAD_WIN32 )
     LoadingManager* lm = GetLoadingManager();
     PresentationManager* pm = GetPresentationManager();
     p3d::display->SetForceVSync( lm && !lm->IsLoading(), !(pm && pm->GetFMVPlayer()->IsPlaying()));               
 #endif
-
+#endif 
 #ifdef LOAD_SYNC
     FlushDelList(); 
 #else
@@ -570,7 +573,9 @@ void RenderManager::ContextUpdate( unsigned int iElapsedTime )
 
     //HEAPSTACKS_RENDER();
 
+#ifndef RAD_DREAMCAST
     SOUNDDEBUG_RENDER();
+#endif
 
 #ifdef USE_BLUR
     ((pddiExtFramebufferEffects*)p3d::pddi->GetExtension( PDDI_EXT_FRAMEBUFFER_EFFECTS ))->EnableMotionBlur( mEnableMotionBlur || ENABLE_MOTION_BLUR, mBlurAlpha, BLUR_SCALE, false );

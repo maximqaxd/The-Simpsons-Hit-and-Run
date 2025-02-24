@@ -44,7 +44,9 @@
 #include <presentation/gui/ingame/guiscreenhud.h>
 #include <presentation/gui/ingame/guiscreenmissionload.h>
 #include <presentation/mouthflapper.h>
+#ifndef RAD_DREAMCAST
 #include <presentation/fmvplayer/fmvplayer.h>
+#endif
 
 #include <camera/supercammanager.h>
 #include <camera/supercamcentral.h>
@@ -181,13 +183,21 @@ PresentationManager::PresentationManager() :
     radMemoryAllocator current =  HeapManager::GetInstance()->GetCurrentAllocator();
     GameMemoryAllocator gmaCurrent = HeapManager::GetInstance()->GetCurrentHeap();
 
+#ifndef RAD_DREAMCAST
     mFMVPool            = new FMVEventPool( gmaCurrent, 10 );
+#else
+	mFMVPool            = NULL;
+#endif
     mNISPool            = new NISEventPool( gmaCurrent, 10 );
     mTransitionPool     = new TransitionEventPool( gmaCurrent, 10 );
     mpNISPlayer         = new NISPlayer();
     mpCameraPlayer      = new CameraPlayer();
     mpTransitionPlayer  = new TransitionPlayer();
+#ifdef RAD_DREAMCAST
+	mpFMVPlayer 		= NULL;
+#else
     mpFMVPlayer         = new( current ) FMVPlayer();
+#endif
     mpPlayerDrawable    = new PlayerDrawable();
     mpPlayerDrawable->AddRef();
     mOverlay            = new PresentationOverlay();
@@ -382,6 +392,7 @@ void PresentationManager::PlayFMV( const char* FileName,
                                    bool StopMusic,
                                    bool IsLocalized )
 {
+#ifndef RAD_DREAMCAST
     // this puts the FMV player in the "loading" state 
     // this is needed so that the gag system can tell when a gag has ended 
     // (without this the state right before and right after the fmc playes is the same
@@ -488,6 +499,7 @@ void PresentationManager::PlayFMV( const char* FileName,
         pEvent->KillMusic();
     }
     mpPlayCallback = pCallback;
+#endif
 }
 /*=============================================================================
 Description:    This is a callback when the event queued by PlayFMV.
@@ -575,14 +587,20 @@ void PresentationManager::OnProcessRequestsComplete( void* pUserData )
 // Return:      void 
 //
 //=============================================================================
+#ifdef RAD_DREAMCAST
+void PresentationManager::QueueFMV( void** pFMVEvent, PresentationEvent::PresentationEventCallBack* pCallback )
+#else
 void PresentationManager::QueueFMV( FMVEvent** pFMVEvent, PresentationEvent::PresentationEventCallBack* pCallback )
+#endif
 {
+#ifndef RAD_DREAMCAST
     (*pFMVEvent) = mFMVPool->AllocateFromPool();
     (*pFMVEvent)->Init();
 	(*pFMVEvent)->SetAllocator(GMA_LEVEL_MOVIE);
     (*pFMVEvent)->pCallback = pCallback;
 
     AddToQueue( *pFMVEvent );
+#endif
 }
 
 //=============================================================================
@@ -1175,10 +1193,12 @@ bool PresentationManager::InConversation() const
 //=============================================================================
 void PresentationManager::StopAll()
 {
+#ifndef RAD_DREAMCAST
 #ifdef RAD_WIN32
     mpFMVPlayer->ForceStop();
 #else
     mpFMVPlayer->Stop();
+#endif
 #endif
     mpNISPlayer->Stop();
     mpTransitionPlayer->Stop();

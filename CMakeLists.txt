@@ -5,6 +5,14 @@ project(SRR2)
 set(SRR2_TITLE "Simpsons Hit & Run")
 set(SRR2_VERSION "00.61")
 
+# Define DREAMCAST as a cache variable
+option(DREAMCAST "Build for Dreamcast" ON)
+
+# Check if the platform is Dreamcast and set DREAMCAST to TRUE
+if(CMAKE_SYSTEM_NAME STREQUAL "Dreamcast")
+    set(DREAMCAST TRUE CACHE BOOL "Build for Dreamcast" FORCE)
+endif()
+
 if(VITA)
 	include("${VITASDK}/share/vita.cmake" REQUIRED)
 
@@ -19,33 +27,47 @@ if(VITA)
 	set(VITA_VERSION ${SRR2_VERSION})
 endif()
 
+if(DREAMCAST)
+	add_compile_definitions(RAD_DREAMCAST)
+	include_directories("/opt/toolchains/dc/kos-ports/include/png")
+	link_directories(/opt/toolchains/dc/kos-ports/lib)
+	message(STATUS "Building for Sega Dreamcast")
+endif()
+
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif()
 
 find_package(SDL2 REQUIRED)
+if (NOT DREAMCAST)
 find_package(PNG REQUIRED)
+endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 set(SRR2_OPENAL_IMPL "OpenAL-Soft" CACHE STRING "OpenAL implementation")
 set_property(CACHE SRR2_OPENAL_IMPL PROPERTY STRINGS "OpenAL-Soft" "MojoAL")
 
-if (SRR2_OPENAL_IMPL STREQUAL "OpenAL-Soft")
-	find_package(OpenAL REQUIRED)
-	set(SRR2_OPENAL_TARGET OpenAL::OpenAL)
-else()
-	add_subdirectory(libs/sdks/mojoal SYSTEM)
-	set(SRR2_OPENAL_TARGET mojoal)
+if (SRR2_OPENAL_IMPL STREQUAL "OpenAL-Soft" AND NOT DREAMCAST)
+    find_package(OpenAL REQUIRED)
+    set(SRR2_OPENAL_TARGET OpenAL::OpenAL)
+elseif(NOT DREAMCAST)
+    add_subdirectory(libs/sdks/mojoal SYSTEM)
+    set(SRR2_OPENAL_TARGET mojoal)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(-fvisibility=hidden)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		add_compile_options(
-			-Werror
-			-ggdb
+#			-Werror
+#			-ggdb
+		)
+	endif()
+	if(DREAMCAST)
+		add_compile_options(
+		-Os -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto
 		)
 	endif()
 	if(VITA)
@@ -86,17 +108,19 @@ if(SRR2_REROUTE_ALL_HEAP_ALLOCATIONS)
 endif()
 
 option(SRR2_USE_BINK OFF)
-if(SRR2_USE_BINK)
-	add_compile_definitions(RAD_MOVIEPLAYER_USE_BINK)
+if(SRR2_USE_BINK AND NOT DREAMCAST)
+    add_compile_definitions(RAD_MOVIEPLAYER_USE_BINK)
 else()
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET
-			libavformat
-			libavcodec
-			libavutil
-			libswresample
-			libswscale
-	)
+    if(NOT DREAMCAST)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET
+            libavformat
+            libavcodec
+            libavutil
+            libswresample
+            libswscale
+        )
+    endif()
 endif()
 
 set(SRR2_P3D_PDDI "OpenGL" CACHE STRING "Pure3D PDDI implementation")
@@ -121,6 +145,79 @@ if(WIN32)
 endif()
 
 option(SRR2_BUILD_TESTS ON)
+
+set(SRR2_SOUND_SOURCES
+    "code/sound/avatar/avatarsoundplayer.cpp"
+    "code/sound/avatar/carsoundparameters.cpp"
+    "code/sound/avatar/soundavatar.cpp"
+    "code/sound/avatar/vehiclesounddebugpage.cpp"
+    "code/sound/avatar/vehiclesoundplayer.cpp"
+    "code/sound/dialog/conversation.cpp"
+    "code/sound/dialog/conversationmatcher.cpp"
+    "code/sound/dialog/dialogcoordinator.cpp"
+    "code/sound/dialog/dialogline.cpp"
+    "code/sound/dialog/dialoglist.cpp"
+    "code/sound/dialog/dialogpriorityqueue.cpp"
+    "code/sound/dialog/dialogqueueelement.cpp"
+    "code/sound/dialog/dialogselectiongroup.cpp"
+    "code/sound/dialog/dialogsounddebugpage.cpp"
+    "code/sound/dialog/playabledialog.cpp"
+    "code/sound/dialog/selectabledialog.cpp"
+    "code/sound/listener.cpp"
+    "code/sound/movingpositional/actorplayer.cpp"
+    "code/sound/movingpositional/aivehiclesoundplayer.cpp"
+    "code/sound/movingpositional/animobjsoundplayer.cpp"
+    "code/sound/movingpositional/avatarvehicleposnplayer.cpp"
+    "code/sound/movingpositional/movingsoundmanager.cpp"
+    "code/sound/movingpositional/platformsoundplayer.cpp"
+    "code/sound/movingpositional/trafficsoundplayer.cpp"
+    "code/sound/movingpositional/vehicleposnsoundplayer.cpp"
+    "code/sound/movingpositional/waspsoundplayer.cpp"
+    "code/sound/music/musicplayer.cpp"
+    "code/sound/nis/nissoundplayer.cpp"
+    "code/sound/positionalsoundplayer.cpp"
+    "code/sound/simpsonssoundplayer.cpp"
+    "code/sound/soundcluster.cpp"
+    "code/sound/sounddebug/sounddebugdisplay.cpp"
+    "code/sound/sounddebug/sounddebugpage.cpp"
+    "code/sound/soundfx/positionalsoundsettings.cpp"
+    "code/sound/soundfx/reverbcontroller.cpp"
+    "code/sound/soundfx/reverbsettings.cpp"
+    "code/sound/soundfx/soundeffectplayer.cpp"
+    "code/sound/soundfx/soundfxfrontendlogic.cpp"
+    "code/sound/soundfx/soundfxgameplaylogic.cpp"
+    "code/sound/soundfx/soundfxlogic.cpp"
+    "code/sound/soundfx/soundfxpauselogic.cpp"
+    "code/sound/soundfx/win32reverbcontroller.cpp"
+    "code/sound/soundloader.cpp"
+    "code/sound/soundmanager.cpp"
+    "code/sound/soundrenderercallback.cpp"
+    "code/sound/soundrenderer/dasoundplayer.cpp"
+    "code/sound/soundrenderer/fader.cpp"
+    "code/sound/soundrenderer/musicsoundplayer.cpp"
+    "code/sound/soundrenderer/playermanager.cpp"
+    "code/sound/soundrenderer/scripts/apu.cpp"
+    "code/sound/soundrenderer/scripts/bart.cpp"
+    "code/sound/soundrenderer/scripts/cars.cpp"
+    "code/sound/soundrenderer/scripts/effects.cpp"
+    "code/sound/soundrenderer/scripts/english.cpp"
+    "code/sound/soundrenderer/scripts/homer.cpp"
+    "code/sound/soundrenderer/scripts/levels.cpp"
+    "code/sound/soundrenderer/scripts/lisa.cpp"
+    "code/sound/soundrenderer/scripts/marge.cpp"
+    "code/sound/soundrenderer/scripts/tuning.cpp"
+    "code/sound/soundrenderer/soundallocatedresource.cpp"
+    "code/sound/soundrenderer/sounddynaload.cpp"
+    "code/sound/soundrenderer/soundnucleus.cpp"
+    "code/sound/soundrenderer/soundrenderingmanager.cpp"
+    "code/sound/soundrenderer/soundresource.cpp"
+    "code/sound/soundrenderer/soundresourcemanager.cpp"
+    "code/sound/soundrenderer/soundtuner.cpp"
+    "code/sound/soundrenderer/tunerdebugpage.cpp"
+    "code/sound/soundrenderer/wireplayers.cpp"
+    "code/sound/soundrenderer/wiresystem.cpp"
+    "code/sound/tuning/globalsettings.cpp"
+)
 
 set(SRR2_SOURCES
 	"code/ai/actionbuttonhandler.cpp"
@@ -353,8 +450,8 @@ set(SRR2_SOURCES
 	"code/presentation/animplayer.cpp"
 	"code/presentation/blinker.cpp"
 	"code/presentation/cameraplayer.cpp"
-	"code/presentation/fmvplayer/fmvplayer.cpp"
-	"code/presentation/fmvplayer/fmvuserinputhandler.cpp"
+#	"code/presentation/fmvplayer/fmvplayer.cpp"
+#	"code/presentation/fmvplayer/fmvuserinputhandler.cpp"
 	"code/presentation/gui/backend/guimanagerbackend.cpp"
 	"code/presentation/gui/backend/guiscreendemo.cpp"
 	"code/presentation/gui/backend/guiscreenloading.cpp"
@@ -455,7 +552,7 @@ set(SRR2_SOURCES
 	"code/presentation/playerdrawable.cpp"
 	"code/presentation/presentationanimator.cpp"
 	"code/presentation/presentation.cpp"
-	"code/presentation/presevents/fmvevent.cpp"
+#	"code/presentation/presevents/fmvevent.cpp"
 	"code/presentation/presevents/nisevent.cpp"
 	"code/presentation/presevents/presentationevent.cpp"
 	"code/presentation/presevents/transevent.cpp"
@@ -534,76 +631,6 @@ set(SRR2_SOURCES
 	"code/roads/roadsegment.cpp"
 	"code/roads/roadsegmentdata.cpp"
 	"code/roads/trafficcontrol.cpp"
-	"code/sound/avatar/avatarsoundplayer.cpp"
-	"code/sound/avatar/carsoundparameters.cpp"
-	"code/sound/avatar/soundavatar.cpp"
-	"code/sound/avatar/vehiclesounddebugpage.cpp"
-	"code/sound/avatar/vehiclesoundplayer.cpp"
-	"code/sound/dialog/conversation.cpp"
-	"code/sound/dialog/conversationmatcher.cpp"
-	"code/sound/dialog/dialogcoordinator.cpp"
-	"code/sound/dialog/dialogline.cpp"
-	"code/sound/dialog/dialoglist.cpp"
-	"code/sound/dialog/dialogpriorityqueue.cpp"
-	"code/sound/dialog/dialogqueueelement.cpp"
-	"code/sound/dialog/dialogselectiongroup.cpp"
-	"code/sound/dialog/dialogsounddebugpage.cpp"
-	"code/sound/dialog/playabledialog.cpp"
-	"code/sound/dialog/selectabledialog.cpp"
-	"code/sound/listener.cpp"
-	"code/sound/movingpositional/actorplayer.cpp"
-	"code/sound/movingpositional/aivehiclesoundplayer.cpp"
-	"code/sound/movingpositional/animobjsoundplayer.cpp"
-	"code/sound/movingpositional/avatarvehicleposnplayer.cpp"
-	"code/sound/movingpositional/movingsoundmanager.cpp"
-	"code/sound/movingpositional/platformsoundplayer.cpp"
-	"code/sound/movingpositional/trafficsoundplayer.cpp"
-	"code/sound/movingpositional/vehicleposnsoundplayer.cpp"
-	"code/sound/movingpositional/waspsoundplayer.cpp"
-	"code/sound/music/musicplayer.cpp"
-	"code/sound/nis/nissoundplayer.cpp"
-	"code/sound/positionalsoundplayer.cpp"
-	"code/sound/simpsonssoundplayer.cpp"
-	"code/sound/soundcluster.cpp"
-	"code/sound/sounddebug/sounddebugdisplay.cpp"
-	"code/sound/sounddebug/sounddebugpage.cpp"
-	"code/sound/soundfx/positionalsoundsettings.cpp"
-	"code/sound/soundfx/reverbcontroller.cpp"
-	"code/sound/soundfx/reverbsettings.cpp"
-	"code/sound/soundfx/soundeffectplayer.cpp"
-	"code/sound/soundfx/soundfxfrontendlogic.cpp"
-	"code/sound/soundfx/soundfxgameplaylogic.cpp"
-	"code/sound/soundfx/soundfxlogic.cpp"
-	"code/sound/soundfx/soundfxpauselogic.cpp"
-	"code/sound/soundfx/win32reverbcontroller.cpp"
-	"code/sound/soundloader.cpp"
-	"code/sound/soundmanager.cpp"
-	"code/sound/soundrenderercallback.cpp"
-	"code/sound/soundrenderer/dasoundplayer.cpp"
-	"code/sound/soundrenderer/fader.cpp"
-	"code/sound/soundrenderer/musicsoundplayer.cpp"
-	"code/sound/soundrenderer/playermanager.cpp"
-	"code/sound/soundrenderer/scripts/apu.cpp"
-	"code/sound/soundrenderer/scripts/bart.cpp"
-	"code/sound/soundrenderer/scripts/cars.cpp"
-	"code/sound/soundrenderer/scripts/effects.cpp"
-	"code/sound/soundrenderer/scripts/english.cpp"
-	"code/sound/soundrenderer/scripts/homer.cpp"
-	"code/sound/soundrenderer/scripts/levels.cpp"
-	"code/sound/soundrenderer/scripts/lisa.cpp"
-	"code/sound/soundrenderer/scripts/marge.cpp"
-	"code/sound/soundrenderer/scripts/tuning.cpp"
-	"code/sound/soundrenderer/soundallocatedresource.cpp"
-	"code/sound/soundrenderer/sounddynaload.cpp"
-	"code/sound/soundrenderer/soundnucleus.cpp"
-	"code/sound/soundrenderer/soundrenderingmanager.cpp"
-	"code/sound/soundrenderer/soundresource.cpp"
-	"code/sound/soundrenderer/soundresourcemanager.cpp"
-	"code/sound/soundrenderer/soundtuner.cpp"
-	"code/sound/soundrenderer/tunerdebugpage.cpp"
-	"code/sound/soundrenderer/wireplayers.cpp"
-	"code/sound/soundrenderer/wiresystem.cpp"
-	"code/sound/tuning/globalsettings.cpp"
 	"code/stateprop/stateprop.cpp"
 	"code/stateprop/statepropdata.cpp"
 	"code/supersprint/supersprintdata.cpp"
@@ -786,7 +813,7 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/cameraloader.cpp"
 	"libs/pure3d/p3d/chunkfile.cpp"
 	"libs/pure3d/p3d/context.cpp"
-	"libs/pure3d/p3d/debugdraw.cpp"
+#	"libs/pure3d/p3d/debugdraw.cpp"
 	"libs/pure3d/p3d/directionallight.cpp"
 	"libs/pure3d/p3d/displaylist.cpp"
 	"libs/pure3d/p3d/drawable.cpp"
@@ -1223,11 +1250,12 @@ target_include_directories(p3d
 	PRIVATE "libs/" # wtf
 )
 target_link_libraries(p3d
-	PNG::PNG
-	pddi
-	radcore
-	radcontent
-	radmath
+		z
+		png
+		pddi
+		radcore
+		radcontent
+		radmath
 )
 
 add_library(choreo STATIC ${CHOREO_SOURCES})
@@ -1259,99 +1287,100 @@ if(VITA)
 	target_link_libraries(radmath mathneon)
 endif()
 
-add_library(radmovie STATIC ${RADMOVIE_SOURCES})
-target_include_directories(radmovie
-	PUBLIC "libs/radmovie/inc/"
-	PRIVATE "libs/radmovie/src/pch/"
-)
-target_link_libraries(radmovie
-	p3d
-	radcore
-	radsound
-)
-if(SRR2_USE_BINK)
-	target_link_libraries(radmovie bink)
-else()
-	target_link_libraries(radmovie PkgConfig::FFmpeg)
-endif()
-if(SRR2_BUILD_TESTS)
-	add_executable(simplemovie "libs/radmovie/sample/src/main.cpp" "libs/radmovie/sample/src/util.cpp"
-		"code/main/tuidunaligned.cpp")
-	target_link_libraries(simplemovie
-		radmovie
-		SDL2::SDL2
+if(NOT DREAMCAST)
+	add_library(radmovie STATIC ${RADMOVIE_SOURCES})
+	target_include_directories(radmovie
+		PUBLIC "libs/radmovie/inc/"
+		PRIVATE "libs/radmovie/src/pch/"
+	)
+	target_link_libraries(radmovie
 		p3d
-		pddi
 		radcore
 		radsound
-		PkgConfig::FFmpeg
 	)
-	if(VITA)
-		if(SRR2_USE_VITAGL)
+	if(SRR2_USE_BINK)
+		target_link_libraries(radmovie bink)
+	else()
+		target_link_libraries(radmovie PkgConfig::FFmpeg)
+	endif()
+	if(SRR2_BUILD_TESTS)
+		add_executable(simplemovie "libs/radmovie/sample/src/main.cpp" "libs/radmovie/sample/src/util.cpp"
+			"code/main/tuidunaligned.cpp")
+		target_link_libraries(simplemovie
+			radmovie
+			SDL2::SDL2
+			p3d
+			pddi
+			radcore
+			radsound
+			PkgConfig::FFmpeg
+		)
+		if(VITA)
+			if(SRR2_USE_VITAGL)
+				target_link_libraries(simplemovie
+					vitaGL
+					vitashark
+				)
+			endif()
 			target_link_libraries(simplemovie
-				vitaGL
-				vitashark
+				SceLibKernel_stub
+				ScePvf_stub
+				mathneon
+				SceAudio_stub
+				SceAppMgr_stub
+				SceAppUtil_stub
+				ScePgf_stub
+				SceShaccCgExt
+				SceShaccCg_stub
+				SceCtrl_stub
+				taihen_stub
+				SceKernelDmacMgr_stub
 			)
 		endif()
-		target_link_libraries(simplemovie
-			SceLibKernel_stub
-			ScePvf_stub
-			mathneon
-			SceAudio_stub
-			SceAppMgr_stub
-			SceAppUtil_stub
-			ScePgf_stub
-			SceShaccCgExt
-			SceShaccCg_stub
-			SceCtrl_stub
-			taihen_stub
-			SceKernelDmacMgr_stub
-		)
+		file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
+			DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+		if(VITA)
+			vita_create_self(simplemovie.self simplemovie)
+		endif()
 	endif()
-	file(COPY "libs/radmovie/sample/bin/binkcd/sample_bink.rmv"
-        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-	if(VITA)
-		vita_create_self(simplemovie.self simplemovie)
-	endif()
-endif()
 
-add_library(radmusic STATIC ${RADMUSIC_SOURCES})
-target_include_directories(radmusic
-	PUBLIC "libs/radmusic/inc/"
-	PRIVATE "libs/radmusic/src/pch/"
-	PRIVATE "libs/radmusic/src/"
-)
-target_link_libraries(radmusic
-	radcore
-	radcontent
-	radsound
-)
-
-add_library(radsound STATIC ${RADSOUND_SOURCES})
-target_include_directories(radsound
-	PUBLIC "libs/radsound/inc/"
-	PRIVATE "libs/radsound/src/pch/"
-	PRIVATE "libs/radsound/src/common/"
-)
-target_link_libraries(radsound
-	${SRR2_OPENAL_TARGET}
-	radcore
-)
-if(SRR2_BUILD_TESTS)
-	add_executable(simplesound "libs/radsound/sample/simplesound/src/main.cpp")
-	target_link_libraries(simplesound
-		radsound
-		Threads::Threads
+	add_library(radmusic STATIC ${RADMUSIC_SOURCES})
+	target_include_directories(radmusic
+		PUBLIC "libs/radmusic/inc/"
+		PRIVATE "libs/radmusic/src/pch/"
+		PRIVATE "libs/radmusic/src/"
 	)
-	file(COPY "libs/radsound/sample/simplesound/bin/win/sample.rsd"
-        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-	file(COPY "libs/radsound/sample/simplesound/bin/win/stream.rsd"
-        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-	if(VITA)
-		vita_create_self(simplesound.self simplesound)
-	endif()
-endif()
+	target_link_libraries(radmusic
+		radcore
+		radcontent
+		radsound
+	)
 
+	add_library(radsound STATIC ${RADSOUND_SOURCES})
+	target_include_directories(radsound
+		PUBLIC "libs/radsound/inc/"
+		PRIVATE "libs/radsound/src/pch/"
+		PRIVATE "libs/radsound/src/common/"
+	)
+	target_link_libraries(radsound
+		${SRR2_OPENAL_TARGET}
+		radcore
+	)
+	if(SRR2_BUILD_TESTS)
+		add_executable(simplesound "libs/radsound/sample/simplesound/src/main.cpp")
+		target_link_libraries(simplesound
+			radsound
+			Threads::Threads
+		)
+		file(COPY "libs/radsound/sample/simplesound/bin/win/sample.rsd"
+			DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+		file(COPY "libs/radsound/sample/simplesound/bin/win/stream.rsd"
+			DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+		if(VITA)
+			vita_create_self(simplesound.self simplesound)
+		endif()
+	endif()
+endif() # NOT DREAMCAST
 add_library(radscript STATIC ${RADSCRIPT_SOURCES})
 target_include_directories(radscript
 	PUBLIC "libs/radscript/inc/"
@@ -1416,12 +1445,10 @@ target_link_libraries(${PROJECT_NAME}
 	radcore
 	radcontent
 	radmath
-	radmovie
-	radmusic
-	radsound
 	radscript
 	scrooby
 	sim
+	-l:libz.a
 	Threads::Threads
 )
 if(SRR2_MICROPROFILE AND WIN32)
@@ -1450,11 +1477,18 @@ if(VITA)
 		SceKernelDmacMgr_stub
 	)
 endif()
-if(SRR2_USE_BINK)
-	target_link_libraries(SRR2 bink)
-else()
-	target_link_libraries(SRR2 PkgConfig::FFmpeg)
+if (NOT DREAMCAST)
+	if(SRR2_USE_BINK)
+		target_link_libraries(SRR2 bink)
+	else()
+		target_link_libraries(SRR2 PkgConfig::FFmpeg)
+	endif()
 endif()
+
+if(DREAMCAST)
+    target_link_options(${PROJECT_NAME} PRIVATE -s)
+endif()
+
 target_compile_features(SRR2 PRIVATE cxx_std_17)
 
 option(SRR2_USE_PCH ON)

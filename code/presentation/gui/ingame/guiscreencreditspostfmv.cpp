@@ -169,8 +169,9 @@ void CGuiScreenCreditsPostFMV::InitIntro()
 
     this->ResetScrolling();
 
+#ifndef RAD_DREAMCAST
     GetSoundManager()->DuckForInGameCredits();
-
+#endif
     rAssert( m_creditsGroup != NULL );
     m_creditsGroup->SetVisible( false );
 

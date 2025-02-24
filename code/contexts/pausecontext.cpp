@@ -328,8 +328,10 @@ void PauseContext::OnStop( ContextEnum nextContext )
         //rReleaseString ("VehicleAIRender::Destroy()\n");
 
 #endif
+#ifndef RAD_DREAMCAST
         GetSoundManager()->OnGameplayEnd( nextContext == CONTEXT_FRONTEND );
         //rReleaseString ("GetSoundManager()->OnGameplayEnd ()\n");
+#endif
 
 
         PathManager::GetInstance()->Destroy();

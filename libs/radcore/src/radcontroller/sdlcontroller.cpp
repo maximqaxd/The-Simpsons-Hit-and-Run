@@ -280,7 +280,9 @@ class radControllerInputPointSDL
             }
             else
             {
+#ifndef RAD_DREAMCAST
                 rAssert( 0 );
+#endif
             }
         }
 

@@ -163,13 +163,14 @@ void CreateSingletons()
     CGuiSystem* pGuiSystem = CGuiSystem::CreateInstance();
     rAssert( pGuiSystem != NULL );
 
+#ifndef RAD_DREAMCAST
     SoundManager* pSoundManager = 
         SoundManager::CreateInstance( CommandLineOptions::Get( CLO_MUTE ),
                                       CommandLineOptions::Get( CLO_NO_MUSIC ),
                                       CommandLineOptions::Get( CLO_NO_EFFECTS ),
                                       CommandLineOptions::Get( CLO_NO_DIALOG ) );
     rAssert( pSoundManager != NULL );
-
+#endif
     MissionManager* pMM = MissionManager::CreateInstance();
     rAssert( pMM != NULL );
 
@@ -270,9 +271,9 @@ void DestroySingletons()
     //HeadToHeadManager::DestroyInstance();    
     
     MissionManager::DestroyInstance();
-    
+#ifndef RAD_DREAMCAST   
     SoundManager::DestroyInstance();
-    
+#endif
     CGuiSystem::DestroyInstance();
 
     PresentationManager::DestroyInstance();

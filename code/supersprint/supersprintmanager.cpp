@@ -1661,7 +1661,9 @@ void SuperSprintManager::SetUpCars()
         if( mVehicleSlots[ i ].mVehicle != NULL )
         {
             GetSuperCamManager()->GetSCC( i )->SetTarget( mVehicleSlots[ i ].mVehicle );
+#ifndef RAD_DREAMCAST
             GetSoundManager()->LoadCarSound( mVehicleSlots[ i ].mVehicle, false );
+#endif
         }
     }
 }

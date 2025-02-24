@@ -119,8 +119,9 @@ void LoadingSuperSprintContext::OnStart( ContextEnum previousContext )
     //
     // Queue the loading for level sounds
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->QueueLevelSoundLoads();
-
+#endif
     // Common to all loading contexts.
     //
     LoadingContext::OnStart( previousContext );

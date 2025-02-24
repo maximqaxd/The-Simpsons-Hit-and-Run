@@ -28,8 +28,9 @@
 #include <mission/rewards/rewardsmanager.h>
 #include <mission/charactersheet/charactersheetmanager.h>
 #include <mission/rewards/reward.h>
+#ifndef RAD_DREAMCAST
 #include <sound/soundmanager.h>
-
+#endif
 #include <worldsim/character/charactermanager.h>
 #include <worldsim/character/character.h>
 #include <worldsim/coins/coinmanager.h>
@@ -542,7 +543,9 @@ void CGuiScreenPurchaseRewards::InitIntro()
         // notify sound manager that game is paused, include dialogue in
         // ducking to kill gag sounds -- Esan
         //
+#ifndef RAD_DREAMCAST
         GetSoundManager()->DuckEverythingButMusicBegin( true );
+#endif
     }
     else
     {
@@ -551,7 +554,9 @@ void CGuiScreenPurchaseRewards::InitIntro()
         // notify sound manager that game is paused, don't duck dialogue
         // so we can still hear ol' Gil -- Esan
         //
+#ifndef RAD_DREAMCAST
         GetSoundManager()->OnStoreScreenStart( true );
+#endif
     }
 
     // enable/disable L/R arrows
@@ -607,6 +612,7 @@ void CGuiScreenPurchaseRewards::InitOutro()
 
     IGuiScreenRewards::InitOutro();
 
+#ifndef RAD_DREAMCAST
     if( m_currentType == Merchandise::SELLER_INTERIOR )
     {
         // notify sound manager that game is paused
@@ -617,6 +623,7 @@ void CGuiScreenPurchaseRewards::InitOutro()
     {
         GetSoundManager()->OnStoreScreenEnd();
     }
+#endif
 }
 
 void

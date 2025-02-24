@@ -226,8 +226,9 @@ void CGuiScreenMiniPause::InitIntro()
     rAssert( m_pMenu != NULL );
     m_pMenu->Reset(); // default to 'Continue'
 
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnPauseStart();
-
+#endif
 #ifdef RAD_PC
     GetInputManager()->GetFEMouse()->SetInGameMode( false );
 #endif
@@ -265,8 +266,9 @@ void CGuiScreenMiniPause::InitRunning()
 //===========================================================================
 void CGuiScreenMiniPause::InitOutro()
 {
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnPauseEnd();
-
+#endif
 #ifdef RAD_PC
     GetInputManager()->GetFEMouse()->SetInGameMode( true );
 #endif

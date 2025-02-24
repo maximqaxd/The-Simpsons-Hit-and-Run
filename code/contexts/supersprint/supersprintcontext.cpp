@@ -265,7 +265,9 @@ void SuperSprintContext::OnStart( ContextEnum previousContext )
     // of the car to be decided, which the sound system uses to determine 
     // which sounds to start playing.
     //
-    SoundManager::GetInstance()->OnGameplayStart();
+#ifndef RAD_DREAMCAST
+        SoundManager::GetInstance()->OnGameplayStart();
+#endif
 
     GetGuiSystem()->HandleMessage( GUI_MSG_RUN_MINIGAME,
                                    CGuiWindow::GUI_SCREEN_ID_MINI_HUD );
@@ -375,8 +377,9 @@ void SuperSprintContext::OnStop( ContextEnum nextContext )
     GetRenderManager()->DumpAllLoadedData();
     SkidMarkGenerator::ReleaseShaders();
 
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnGameplayEnd( true );
-
+#endif
     PathManager::GetInstance()->Destroy();
 
     //This does cleanup.

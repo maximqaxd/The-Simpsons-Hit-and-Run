@@ -336,7 +336,9 @@ void CGuiScreenTutorial::InitIntro()
     //
     // Inform the sound manager that it's time to turn the sound down a bit
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnMissionBriefingStart();
+#endif
 }
 
 //===========================================================================
@@ -372,7 +374,9 @@ void CGuiScreenTutorial::InitOutro()
     //
     // Turn the sound back up
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnMissionBriefingEnd();
+#endif
 }
 
 //---------------------------------------------------------------------

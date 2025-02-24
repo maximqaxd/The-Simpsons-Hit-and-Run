@@ -185,8 +185,9 @@ void FrontEndContext::OnStop( ContextEnum nextContext )
     //
     // Notify the sound system that the front end is stopping
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnFrontEndEnd();
-
+#endif
     GetInputManager()->SetGameState( Input::ACTIVE_ALL );
 
     HeapMgr()->PopHeap(GMA_LEVEL_FE);
@@ -321,6 +322,8 @@ void FrontEndContext::StartFrontEnd( unsigned int initialScreen )
     //
     // Notify the sound system that the front end is starting
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnFrontEndStart();
+#endif
 }
 

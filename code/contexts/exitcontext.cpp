@@ -135,8 +135,9 @@ void ExitContext::OnStart( ContextEnum previousContext )
 
     GetLoadingManager()->CancelPendingRequests();
     p3d::loadManager->CancelAll();
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnGameplayEnd( false );
+#endif
 }
 
 

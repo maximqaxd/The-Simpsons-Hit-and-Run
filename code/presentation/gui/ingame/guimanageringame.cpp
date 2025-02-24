@@ -790,9 +790,9 @@ void CGuiManagerInGame::HandleMessage
                 m_unloadMemcardInfoWhenLoaded = false;
                 GetMemoryCardManager()->LoadMemcardInfo( this );
             }
-
+#ifndef RAD_DREAMCAST
             GetSoundManager()->OnPauseStart();
-
+#endif
             m_enteringPauseMenu = true;
             GetGameplayContext()->PauseAllButPresentation( true );
 
@@ -809,9 +809,9 @@ void CGuiManagerInGame::HandleMessage
                 //
                 break;
             }
-
+#ifndef RAD_DREAMCAST
             GetSoundManager()->OnPauseEnd();
-
+#endif
             // if paused in sunday drive mode, unload memory card info
             //
             if( GetGameplayManager()->IsSundayDrive() )

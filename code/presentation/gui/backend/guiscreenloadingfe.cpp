@@ -488,8 +488,9 @@ void CGuiScreenLoadingFE::InitOutro()
     m_loadingText->SetIndex( 0 );
 
     m_elapsedFireTime = 0;
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->ResetDucking();
+#endif
 }
 
 

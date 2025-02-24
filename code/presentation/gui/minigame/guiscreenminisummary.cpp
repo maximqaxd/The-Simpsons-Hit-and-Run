@@ -258,9 +258,9 @@ void CGuiScreenMiniSummary::HandleMessage
                                           CLEAR_WINDOW_HISTORY );
 
                 GetSSM()->Reset();
-
+#ifndef RAD_DREAMCAST
                 GetSoundManager()->RestartSupersprintMusic();
-
+#endif
                 break;
             }
             case (CGuiMenuPrompt::RESPONSE_NO):
@@ -282,8 +282,9 @@ void CGuiScreenMiniSummary::HandleMessage
                 break;
             }
         }
-
+#ifndef RAD_DREAMCAST
         GetSoundManager()->OnStoreScreenEnd();
+#endif
     }
 
     if( m_state == GUI_WINDOW_STATE_RUNNING )
@@ -352,7 +353,9 @@ void CGuiScreenMiniSummary::InitIntro()
     //
     // This isn't a store, but it's a handy set of ducking values
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnStoreScreenStart( false );
+#endif
 }
 
 

@@ -541,10 +541,12 @@ void CGuiScreenLoading::InitIntro()
     // Sound ducking, but only for intra-mission stuff.  If we're coming
     // from the FE, we want to play the newspaper spin music.
     //
+#ifndef RAD_DREAMCAST
     if( GetGameFlow()->GetCurrentContext() != CONTEXT_FRONTEND )
     {
         GetSoundManager()->OnPauseStart();
     }
+#endif
 }
 
 
@@ -611,8 +613,9 @@ void CGuiScreenLoading::InitOutro()
     //
     m_elapsedTime = 0;
     m_elapsedFireTime = 0;
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->ResetDucking();
+#endif
     AnimatedCam::CheckPendingCameraSwitch();
     GetSuperCamManager()->GetSCC( 0 )->NoTransition();
 }

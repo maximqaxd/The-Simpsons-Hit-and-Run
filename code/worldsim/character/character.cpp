@@ -123,12 +123,14 @@ public:
         //
         // Send a couple of sound events for dialog.
         //
+#ifndef RAD_DREAMCAST
         if( SoundManager::IsFoodCharacter( mpCharacter ) )
         {
             GetEventManager()->TriggerEvent( EVENT_AMBIENT_ASKFOOD );
             GetEventManager()->TriggerEvent( EVENT_AMBIENT_FOODREPLY, mpCharacter );
         }
         else
+#endif
         {
             GetEventManager()->TriggerEvent( EVENT_AMBIENT_GREETING );
             GetEventManager()->TriggerEvent( EVENT_AMBIENT_RESPONSE, mpCharacter );

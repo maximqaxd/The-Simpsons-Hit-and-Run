@@ -339,13 +339,14 @@ void CommandLineOptions::HandleOption( const char* const optionIn )
         gFruitless = false;
         optionFound = false;        
     }
+#ifndef RAD_DREAMCAST
     else if ( strcmp( strupr( option ), "RADTUNER" ) == 0 )
     {
         extern bool gTuneSound;
         gTuneSound = true;
         optionFound = false;
     }
-
+#endif
     else
     {
         // special case for "l<N>" and "m<N>" commandline options

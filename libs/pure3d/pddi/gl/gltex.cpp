@@ -203,7 +203,7 @@ void pglTexture::SetGLState(void)
         glBindTexture(GL_TEXTURE_2D, gltexture);
     }
 
-#if !defined RAD_GLES && !defined RAD_VITAGL
+#if !defined RAD_GLES && !defined RAD_VITAGL && !defined RAD_DREAMCAST
     float fpriority = float(priority) / 31.0f;
     glPrioritizeTextures(1, &gltexture, &fpriority);
 #endif

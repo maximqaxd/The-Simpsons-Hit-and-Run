@@ -80,8 +80,9 @@
 #include <raddebugcommunication.hpp>
 #include <raddebugwatch.hpp>
 #include <radfile.hpp>
+#ifndef RAD_DREAMCAST
 #include <radmovie2.hpp>
-
+#endif
 //This is so we can get the name of the file that's failing.
 #include <../src/radfile/common/requests.hpp>
 
@@ -435,10 +436,12 @@ void Win32Platform::InitializeFoundation()
 
     ::radDriveMount( NULL, GMA_PERSISTENT);
 
+#ifndef RAD_DREAMCAST
     //
     // Initialize the new movie player
     //
     ::radMovieInitialize2( GMA_PERSISTENT );
+#endif
 
     HeapMgr()->PopHeap (GMA_PERSISTENT);
 }
@@ -589,8 +592,9 @@ void Win32Platform::LaunchDashboard()
 
         GetLoadingManager()->CancelPendingRequests();
            //TODO: Make sure sounds shut down too.
+#ifndef RAD_DREAMCAST
         GetSoundManager()->SetMasterVolume( 0.0f );
-
+#endif
        // DisplaySplashScreen( FadeToBlack );
 
         GetPresentationManager()->StopAll();
@@ -601,8 +605,9 @@ void Win32Platform::LaunchDashboard()
 
         p3d::loadManager->CancelAll();
 
+#ifndef RAD_DREAMCAST
         GetSoundManager()->StopForMovie();
-
+#endif
         //Shouldnt need the early destruction of this singleton either
         //SoundManager::DestroyInstance();
         
@@ -823,6 +828,21 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
             return true;
             break;
         }
+#ifdef RAD_DREAMCAST
+        case FileNotFound:
+        {
+            rAssert(pUserData != NULL);
+            radFileRequest* request = static_cast<radFileRequest*>(pUserData);
+            const char* fileName = request->GetFilename();
+            char errorString[256];
+            snprintf(errorString, sizeof(errorString), "%s:\nDrive: %s\nFile: %s", ERROR_STRINGS[error], pDriveName, fileName);
+            fprintf(stderr, "error: %s\n", errorString);
+            DisplaySplashScreen(Error, errorString, 1.0f, 0.0f, 0.0f, tColour(255, 255, 255), 0);
+            mErrorState = P_ERROR;
+            mPauseForError = true;
+            return true;
+        }
+#else
     case FileNotFound:
         {
             rAssert( pUserData != NULL );
@@ -863,6 +883,7 @@ bool Win32Platform::OnDriveError( radFileError error, const char* pDriveName, vo
 
             return true;
         }
+#endif
     case NoMedia:
     case MediaNotFormatted:
     case MediaCorrupt:
@@ -1293,7 +1314,9 @@ void Win32Platform::ShutdownFoundation()
     //
     // Shutdown the systems in the reverse order.
     //
+#ifndef RAD_DREAMCAST
     ::radMovieTerminate2();
+#endif
     ::radDriveUnmount( NULL );
     ::radLoadTerminate();
     ::radFileTerminate();

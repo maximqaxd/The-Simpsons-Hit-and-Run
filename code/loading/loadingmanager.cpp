@@ -295,13 +295,11 @@ void LoadingManager::OnLoadFileComplete( void* pUserData )
     rAssert( pUserData == &request );
     
     extern bool gLoadingSpew;
-    
-    if ( !(CommandLineOptions::Get( CLO_NO_LOADING_SPEW )) )
-    {
+
         rReleasePrintf( "<< END >> Async Loading: %s (%u msecs)\n", 
                     request.filename,
                     radTimeGetMilliseconds() - request.startTime );
-    }
+   
     
     // Continue onto the next request.
     mRequestHead = (mRequestHead + 1) % MAX_REQUESTS;
@@ -347,10 +345,9 @@ void LoadingManager::LoadSync
 
     unsigned int startTime = radTimeGetMilliseconds();
 
-    if ( !(CommandLineOptions::Get( CLO_NO_LOADING_SPEW )) )
-    {    
+ 
         rDebugPrintf( "<<START>> Sync Loading: %s\n", filename );
-    }
+
 
 
     HeapMgr()->PushHeap( GMA_TEMP );
@@ -606,11 +603,8 @@ void LoadingManager::ProcessNextRequest()
             LoadingRequest& request = mRequests[mRequestHead];
         
             if ( request.filename[0] != '\0' )
-            {
-                if ( !(CommandLineOptions::Get( CLO_NO_LOADING_SPEW )) )
-                {            
+            {         
                     rReleasePrintf( "<<START>> Async Loading: %s\n", request.filename );
-                }
 #ifdef RAD_WIN32
                 mRequestsProcessed++;
 #endif

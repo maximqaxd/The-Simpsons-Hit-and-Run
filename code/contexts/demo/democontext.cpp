@@ -279,11 +279,12 @@ void DemoContext::OnStart( ContextEnum previousContext )
     // character position in or out of the car to be decided, which the sound
     // system uses to determine which sounds to start playing.
     //
+#ifndef RAD_DREAMCAST
     SoundManager::GetInstance()->OnGameplayStart();
     /*
     GetPresentationManager()->OnGameplayStart();
     */
-
+#endif
     GetGuiSystem()->HandleMessage( GUI_MSG_RUN_INGAME );
     GetGuiSystem()->HandleMessage( GUI_MSG_RUN_DEMO ); // TC: must be called after GUI_MSG_RUN_INGAME
 
@@ -368,9 +369,9 @@ void DemoContext::OnStop( ContextEnum nextContext )
 	GetParticleManager()->ClearSystems();
 	GetRenderManager()->DumpAllLoadedData();
     SkidMarkGenerator::ReleaseShaders();
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnGameplayEnd( true );
-
+#endif
     PathManager::GetInstance()->Destroy();
 
 

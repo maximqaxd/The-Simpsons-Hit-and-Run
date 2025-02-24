@@ -9,9 +9,11 @@
 //
 //=============================================================================
 
-#ifdef RAD_RELEASE
-    #ifndef RAD_E3
-        #define SHOW_MOVIES
+#ifndef RAD_DREAMCAST
+    #ifdef RAD_RELEASE
+        #ifndef RAD_E3 
+            #define SHOW_MOVIES
+        #endif
     #endif
 #endif
 
@@ -21,7 +23,9 @@
 #include <raddebug.hpp>
 #include <radtime.hpp>
 #include <raddebugwatch.hpp>
+#ifndef RAD_DREAMCAST
 #include <radmovie2.hpp>
+#endif
 #include <p3d/utility.hpp>
 #include <p3d/context.hpp>
 #include <pddi/pddi.hpp>
@@ -180,6 +184,7 @@ void BootupContext::StartMovies()
     else
 #endif // !FINAL
     {
+#ifndef RAD_DREAMCAST
 #ifdef SHOW_MOVIES
         if( CommandLineOptions::Get( CLO_SKIP_MOVIE ) )
         {
@@ -224,15 +229,18 @@ void BootupContext::StartMovies()
         // Switch to frontend context.
         GetGameFlow()->SetContext( CONTEXT_FRONTEND );
 #endif
+#endif
     }
 }
 
 void
 BootupContext::StartLoadingSound()
 {
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnBootupStart();
 
     GetLoadingManager()->AddCallback( this, (void*)GetSoundManager() );
+#endif
 }
 
 #ifdef RAD_PC
@@ -478,6 +486,7 @@ void BootupContext::OnHandleEvent( EventEnum id, void* pEventData )
 //=============================================================================
 void BootupContext::OnProcessRequestsComplete( void* pUserData )
 {
+#ifndef RAD_DREAMCAST
     if( pUserData == GetSoundManager() )
     {
         // set flag indicating all sound loads have completed
@@ -506,6 +515,7 @@ void BootupContext::OnProcessRequestsComplete( void* pUserData )
 
         GetInputManager()->ToggleRumble( false );
     }
+#endif
 }
 
 //=============================================================================
@@ -549,6 +559,7 @@ void BootupContext::OnPresentationEventLoadComplete( PresentationEvent* pEvent )
 //=============================================================================
 void BootupContext::OnPresentationEventEnd( PresentationEvent* pEvent )
 {
+#ifndef RAD-DREAMCAST
     if( GetPresentationManager()->IsQueueEmpty() )
     {
         GetRenderManager()->mpLayer( RenderEnums::GUI )->Warm();
@@ -556,6 +567,7 @@ void BootupContext::OnPresentationEventEnd( PresentationEvent* pEvent )
         // Switch to frontend context.
         GetGameFlow()->SetContext( CONTEXT_FRONTEND );
     }
+#endif
 }
 
 //******************************************************************************

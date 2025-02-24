@@ -21,9 +21,10 @@
 #include <presentation/gui/utility/specialfx.h>
 
 #include <presentation/presentation.h>
+#ifndef RAD_DREAMCAST
 #include <presentation/fmvplayer/fmvplayer.h>
 #include <presentation/fmvplayer/fmvuserinputhandler.h>
-
+#endif
 #include <memory/srrmemory.h>
 #include <render/RenderManager/RenderManager.h>
 #include <render/RenderManager/RenderLayer.h>
@@ -35,8 +36,9 @@
 #include <p3d/view.hpp>
 
 #include <raddebug.hpp> // Foundation
+#ifndef RAD_DREAMCAST
 #include <radmovie2.hpp>
-
+#endif
 #include <sound/soundmanager.h>
 
 #include <input/inputmanager.h>
@@ -198,6 +200,7 @@ void CGuiScreenPlayMovie::HandleMessage
 void
 CGuiScreenPlayMovie::SetMovieToPlay( const char* movieName, bool IsSkippable, bool KillMusic, bool IsLocalized )
 {
+#ifndef RAD_DREAMCAST
     rAssert( movieName != NULL );
 
     FMVEvent* pEvent = NULL;
@@ -251,6 +254,7 @@ CGuiScreenPlayMovie::SetMovieToPlay( const char* movieName, bool IsSkippable, bo
     {
         pEvent->KillMusic();
     }
+#endif
 }
 
 
@@ -266,7 +270,9 @@ CGuiScreenPlayMovie::SetMovieToPlay( const char* movieName, bool IsSkippable, bo
 //=============================================================================
 void CGuiScreenPlayMovie::OnPresentationEventBegin( PresentationEvent* pEvent )
 {
+#ifndef RAD_DREAMCAST
     GetSoundManager()->StopForMovie();
+#endif
 }
 
 
@@ -299,8 +305,9 @@ void CGuiScreenPlayMovie::OnPresentationEventEnd( PresentationEvent* pEvent )
 {
     if( GetPresentationManager()->IsQueueEmpty() )
     {
+#ifndef RAD_DREAMCAST
         GetSoundManager()->ResumeAfterMovie();
-
+#endif
         if( m_ID == GUI_SCREEN_ID_PLAY_MOVIE_INTRO )
         {
             // finished playing intro movie, now go to main menu
@@ -386,6 +393,7 @@ void CGuiScreenPlayMovie::InitIntro()
 //===========================================================================
 void CGuiScreenPlayMovie::InitRunning()
 {
+#ifndef RAD_DREAMCAST
     if( m_ID == GUI_SCREEN_ID_PLAY_MOVIE_DEMO )
     {
         // disable screen clearing for GUI render layer
@@ -409,6 +417,7 @@ void CGuiScreenPlayMovie::InitRunning()
         userInputHandler->SetEnabled( false );
     }
 #endif
+#endif
 }
 
 
@@ -426,6 +435,7 @@ void CGuiScreenPlayMovie::InitRunning()
 //===========================================================================
 void CGuiScreenPlayMovie::InitOutro()
 {
+#ifndef RAD_DREAMCAST
     if( m_ID == GUI_SCREEN_ID_PLAY_MOVIE_DEMO )
     {
         // enable screen clearing
@@ -450,6 +460,7 @@ void CGuiScreenPlayMovie::InitOutro()
         rAssert( userInputHandler != NULL );
         userInputHandler->SetEnabled( true );
     }
+#endif
 #endif
 }
 

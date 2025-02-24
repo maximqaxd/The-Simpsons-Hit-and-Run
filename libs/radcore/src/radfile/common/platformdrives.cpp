@@ -69,7 +69,7 @@ void PlatformDrivesGetDefaultDrive( char* driveSpec )
 #elif defined RAD_VITA
     strcpy(driveSpec, "UX0:");
 #else
-    strcpy(driveSpec, "/");
+    strcpy(driveSpec, "/cd/");
 #endif // RAD_WIN32
 }
 
@@ -98,35 +98,6 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
     }
 
 #endif // RAD_WIN32
-
-#ifdef RAD_XBOX
-    if ( strcmp( driveSpec, "D:" ) == 0 || strcmp( driveSpec, "T:" ) == 0 ||
-         strcmp( driveSpec, "Z:" ) == 0 || strcmp( driveSpec, "W:" ) == 0 )
-    {
-        return true;
-    }
-    else if( strcmp( driveSpec, "U:" ) == 0 )
-    {
-        return true;
-    }
-    else if ( radStringMatchesWildCardPattern( driveSpec, s_XBOXMemcardDrive ) )
-    {
-        int port = ( int )( driveSpec[ XBOXMEMCARDDRIVE_PORT_LOC ] - '1' ); 
-        int slot = ( int )( driveSpec[ XBOXMEMCARDDRIVE_SLOT_LOC ] - 'A' );
-        if ( port < 0 || port > 3 || slot < 0 || slot > 1 )
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else
-    {
-        return false;
-    }
-#endif // RAD_XBOX
 
 #ifdef RAD_PS2
     
@@ -158,6 +129,35 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
 
 #endif // RAD_PS2
 
+#ifdef RAD_XBOX
+    if ( strcmp( driveSpec, "D:" ) == 0 || strcmp( driveSpec, "T:" ) == 0 ||
+         strcmp( driveSpec, "Z:" ) == 0 || strcmp( driveSpec, "W:" ) == 0 )
+    {
+        return true;
+    }
+    else if( strcmp( driveSpec, "U:" ) == 0 )
+    {
+        return true;
+    }
+    else if ( radStringMatchesWildCardPattern( driveSpec, s_XBOXMemcardDrive ) )
+    {
+        int port = ( int )( driveSpec[ XBOXMEMCARDDRIVE_PORT_LOC ] - '1' ); 
+        int slot = ( int )( driveSpec[ XBOXMEMCARDDRIVE_SLOT_LOC ] - 'A' );
+        if ( port < 0 || port > 3 || slot < 0 || slot > 1 )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+        return false;
+    }
+#endif // RAD_XBOX
+
 #ifdef RAD_GAMECUBE
     if ( strcmp( driveSpec, s_GCNDVDDriveName ) == 0 )
     {
@@ -186,7 +186,7 @@ bool PlatformDrivesValidateDriveName( const char* driveSpec )
 #elif defined __SWITCH__
     return strcmp( driveSpec, "/" ) == 0 || strcmp( driveSpec, "ROMFS:" ) == 0;
 #else
-    return strcmp(driveSpec, "/") == 0;
+    return strcmp( driveSpec, "/cd/") == 0;
 #endif
 }
 

@@ -693,9 +693,11 @@ void CGuiScreenPhoneBooth::InitIntro()
     //
     this->On3DModelSelectionChange( this->GetCurrentPreviewObject() );
 
+#ifndef RAD_DREAMCAST
     // notify sound manager that game is paused
     //
     GetSoundManager()->OnStoreScreenStart();
+#endif
 }
 
 //===========================================================================
@@ -754,9 +756,11 @@ void CGuiScreenPhoneBooth::InitOutro()
 
     IGuiScreenRewards::InitOutro();
 
+#ifndef RAD_DREAMCAST
     // notify sound manager that game is un-paused
     //
     GetSoundManager()->OnStoreScreenEnd();
+#endif
 }
 
 void

@@ -87,8 +87,10 @@ void SoundFileHandler::LoadFile( const char* filename,
     //
     // Pass the load request on to the sound system, giving it this object
     // for notification of completion
+#ifndef RAD_DREAMCAST
     //
     GetSoundManager()->LoadSoundFile( filename, this );
+#endif
 }
 
 //=============================================================================

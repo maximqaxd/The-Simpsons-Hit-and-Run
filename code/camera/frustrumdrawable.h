@@ -114,10 +114,11 @@ inline void FrustrumDrawable::Display()
         tShader* shader = new tShader("simple");
         shader->AddRef();
 
+#ifndef RAD_DREAMCAST
         #ifndef RAD_RELEASE
             P3DDrawSphere( mSphereScale, circlePos, *shader, tColour( 255, 0, 0 ) );
         #endif
-
+#endif
         if ( mSuperCam )
         {
             mSuperCam->Display();

@@ -15,8 +15,9 @@
 //========================================
 // Nested Includes
 //========================================
+#ifndef RAD_DREAMCAST
 #include <radsoundmath.hpp>
-
+#endif
 #include <sound/simpsonssoundplayer.h>
 
 //========================================
@@ -36,9 +37,10 @@ class PositionCarrier
     public:
         PositionCarrier();
         virtual ~PositionCarrier();
-
+#ifndef RAD_DREAMCAST
         virtual void GetPosition( radSoundVector& position ) = 0;
         virtual void GetVelocity( radSoundVector& velocity ) = 0;
+#endif
 
     protected:
     private:
@@ -61,9 +63,10 @@ class PositionalSoundPlayer : public SimpsonsSoundPlayer
 
         bool PlayResource( IDaSoundResource* resource,
                            SimpsonsSoundPlayerCallback* callback = NULL );
+#ifndef RAD_DREAMCAST
         void PlayQueuedSound( radSoundVector& position,
                               SimpsonsSoundPlayerCallback* callback = NULL );
-
+#endif
         void SetPositionCarrier( PositionCarrier& movingSound );
         void UnsetPositionCarrier();
 
@@ -94,9 +97,9 @@ class PositionalSoundPlayer : public SimpsonsSoundPlayer
 
         float m_minDist;
         float m_maxDist;
-
+#ifndef RAD_DREAMCAST
         radSoundVector m_position;
-
+#endif
         bool m_outOfRange;
 };
 

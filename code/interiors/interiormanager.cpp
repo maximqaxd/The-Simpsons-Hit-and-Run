@@ -40,7 +40,9 @@
 #include <meta/interiorentrancelocator.h>
 #include <meta/triggervolumetracker.h>
 #include <presentation/nisplayer.h>
+#ifndef RAD_DREAMCAST
 #include <presentation/fmvplayer/fmvplayer.h>
+#endif
 #include <presentation/gui/guisystem.h>
 #include <presentation/gui/ingame/guimanageringame.h>
 #include <presentation/gui/ingame/guiscreenhud.h>
@@ -252,11 +254,13 @@ public:
 
     void SoundLoad(void)
     {
+#ifndef RAD_DREAMCAST
         if( binding->soundID != 0 )
         {
             GetSoundManager()->LoadNISSound( binding->soundID );
             mSoundLoaded = true;
         }
+#endif
     }
 
     void Unload(void)
@@ -299,11 +303,13 @@ public:
 
     void SoundUnload(void)
     {
+#ifndef RAD_DREAMCAST
         if( binding->soundID != 0 )
         {
             GetSoundManager()->StopAndDumpNISSound( binding->soundID );
             mSoundLoaded = false;
         }
+#endif
     }
 
     // Used when the dialog finishes.
@@ -385,7 +391,11 @@ public:
             return;
         }
 
+#ifdef RAD_DREAMCAST	
+		bool finished = true;
+#else
         bool finished = (binding->gagFMVFileName[ 0 ] == 0) ? gagPlayer->IsFinished() : !GetPresentationManager()->GetFMVPlayer()->IsPlaying();
+#endif
         finished = finished && m_isNISSoundComplete;
 
         if(finished && playing)
@@ -598,6 +608,7 @@ protected:
             }
             gagPlayer->Play();
         }
+#ifndef RAD_DREAMCAST
         else
         {
             if( !mSoundLoaded )
@@ -621,7 +632,7 @@ protected:
                 GetPresentationManager()->PlayFMV( binding->gagFMVFileName, NULL, true, false, false );
             }
         }
-
+#endif
         if(trigger)
         {
             GetTriggerVolumeTracker()->RemoveTrigger(trigger);

@@ -116,7 +116,7 @@ void rDebugSetOutputHandler     ( radDebugOutputHandler * pOutputProc );
 #endif
 
 //#define rReleaseString( x )( rDebugString_Implementation( x ) )
-#define rReleaseString( x )( (void)0 )
+#define rReleaseString( x )( printf (x) )
 //
 // Always compile in release asserts.
 //

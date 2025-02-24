@@ -23,7 +23,9 @@
 #include <radthread.hpp>
 #include <raddebug.hpp>
 #include <radtextdisplay.hpp>
+#ifndef RAD_DREAMCAST
 #include <radsound_hal.hpp>
+#endif
 #include <p3d/utility.hpp>
 
 #include <string.h>
@@ -577,7 +579,7 @@ void PrintOutOfMemoryMessage( void* userData, radMemoryAllocator heap, const uns
     int yPos = 10;
     if ( textDisplay )
     {
-        //GetHeapMgr()->DumpHeapStats(true)
+        HeapMgr()->DumpHeapStats(true);
         textDisplay->SetBackgroundColor( 0 );
         textDisplay->SetTextColor( 0xffffffff );
         textDisplay->Clear();
@@ -1197,7 +1199,7 @@ void HeapManager::DumpHeapStats ( bool text )
         { GMA_MUSIC,      "Music",   GetHeapReference( GMA_MUSIC ),      0 },
         { GMA_AUDIO_PERSISTENT, "Audio Persistent", GetHeapReference( GMA_AUDIO_PERSISTENT ), 0 },
         { GMA_LEVEL_ZONE, "Zones",   GetHeapReference( GMA_LEVEL_ZONE ), 0 },
-        { GMA_SMALL_ALLOC, "Small Alloc", GetHeapReference( GMA_SMALL_ALLOC ),    0 },
+ //       { GMA_SMALL_ALLOC, "Small Alloc", GetHeapReference( GMA_SMALL_ALLOC ),    0 },
 #ifdef USE_CHAR_GAG_HEAP
         { GMA_CHARS_AND_GAGS, "Chars and Gags", GetHeapReference( GMA_CHARS_AND_GAGS ), 0 },
 #endif

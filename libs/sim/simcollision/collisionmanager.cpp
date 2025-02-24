@@ -52,8 +52,10 @@ void CollisionManager::SetNbArea(int nbArea)
     {
         return;
     }
+#ifndef RAD_DREAMCAST
     rAssertMsg( false, "Instead of calling this function, just set the default value correctly" );
     rAssert(nbArea > 0);
+#endif
     delete[] mAreaArray;
     radMemoryAllocator old = ::radMemorySetCurrentAllocator( RADMEMORY_ALLOC_TEMP );
     mAreaArray = new Area[nbArea];

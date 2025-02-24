@@ -16,9 +16,11 @@
 // Nested Includes
 //========================================
 
+#ifndef RAD_DREAMCAST
 #if !defined( RAD_RELEASE ) && !defined( WORLD_BUILDER ) && !defined( RAD_MW )
 #define PROFILER_ENABLED
 #endif // RAD_RELEASE
+#endif 
 
 
 #include "main/commandlineoptions.h"

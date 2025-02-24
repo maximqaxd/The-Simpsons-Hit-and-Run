@@ -236,8 +236,9 @@ void LoadingDemoContext::OnProcessRequestsComplete( void* pUserData )
     //
     // Queue the loading for level sounds
     //
+#ifndef RAD_DREAMCAST
     GetSoundManager()->QueueLevelSoundLoads();
-
+#endif
     // Common to all loading contexts.
     //
     LoadingContext::OnProcessRequestsComplete( pUserData );

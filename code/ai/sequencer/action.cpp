@@ -530,13 +530,13 @@ void InCarAction::Update( float timeins)
 {
     timeSinceLastBeat += timeins;
 
-    float beat;
-    
+    float beat = 0.0f;
+#ifndef RAD_DREAMCAST
     if( CommandLineOptions::Get( CLO_MUTE ) )
         beat = 0.0f;
     else
         beat = GetSoundManager()->GetBeatValue();
-    
+#endif
     if(int(beat) != int(lastBeatValue))
     {
         timeBetweenBeats = timeSinceLastBeat;

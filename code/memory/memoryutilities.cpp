@@ -584,6 +584,11 @@ size_t GetTotalMemoryUsed()
     return info.uordblks;
 #endif
 
+#if defined RAD_DREAMCAST
+    struct mallinfo info = mallinfo();
+    return info.uordblks;
+#endif
+
 #if defined RAD_GAMECUBE
     return 0;
 #endif

@@ -1777,7 +1777,7 @@ void GameplayManager::SetCurrentVehicle(Vehicle* vehicle)
                                                                               mCurrentVehicle );
         }
     }
-
+#ifndef RAD_DREAMCAST
     if ( vehicle )
     {
         //
@@ -1787,6 +1787,7 @@ void GameplayManager::SetCurrentVehicle(Vehicle* vehicle)
         //
         GetSoundManager()->LoadCarSound( vehicle, true );
     }
+#endif
 }
 
 //Call this to free memory taken up by player car if it was loaded with LoadDisposeable Car.

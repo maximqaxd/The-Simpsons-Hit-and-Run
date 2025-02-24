@@ -71,8 +71,9 @@ CGuiTextBible::SetCurrentLanguage( const Scrooby::XLLanguage language )
     Scrooby::App::GetInstance()->SetLocalizationLanguage( language );
 
     s_currentLanguage = language;
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->SetDialogueLanguage( language );
+#endif
 }
 
 Scrooby::XLLanguage

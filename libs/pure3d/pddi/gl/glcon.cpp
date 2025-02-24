@@ -117,7 +117,7 @@ void pglContext::BeginFrame()
         glCullFace(GL_FRONT);
         glColor4f(1,1,1,1);
 
-#if !defined RAD_GLES && !defined RAD_VITAGL
+#if !defined RAD_GLES && !defined RAD_VITAGL && !defined RAD_DREAMCAST
         glEnable(GL_DITHER);
 
         if(display->CheckExtension("GL_EXT_separate_specular_color"))
@@ -158,7 +158,9 @@ void pglContext::Clear(unsigned bufferMask)
                      float(state.viewState->clearColour.Green())/255.0f, 
                      float(state.viewState->clearColour.Blue())/255.0f,
                      float(state.viewState->clearColour.Alpha())/255.0f);
+#ifndef RAD_DREAMCAST
     glClearStencil(state.viewState->clearStencil);
+#endif
     glClear(myClearMask);
 }
 
@@ -736,6 +738,7 @@ void pglPrimBuffer::Display(void)
 {
     MICROPROFILE_SCOPEI("PDDI", "pglPrimBuffer::Display", MP_RED);
 
+#ifndef RAD_DREAMCAST
     if(!vertexBuffer)
     {
         glGenBuffers(1, &vertexBuffer);
@@ -814,7 +817,46 @@ void pglPrimBuffer::Display(void)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
         glDrawArrays(primTypeTable[primType], 0, total);
     }
+#else
+    if (!vertexType & PDDI_V_NORMAL && !vertexType & PDDI_V_COLOUR) {
+        // No vertices to draw, exit early
+        return;
+    }
 
+    glBegin(primTypeTable[primType]);
+
+    for (int i = 0; i < total; ++i) {
+        if (vertexType & PDDI_V_NORMAL) {
+            glNormal3f(coord[i * 12 + 0], coord[i * 12 + 4], coord[i * 12 + 8]);
+        }
+        if (vertexType & PDDI_V_COLOUR) {
+            glColor4ub(colour[i * 4 + 0], colour[i * 4 + 1], colour[i * 4 + 2], colour[i * 4 + 3]);
+        }
+
+        glVertex3f(coord[i * 12 + 0], coord[i * 12 + 4], coord[i * 12 + 8]);
+
+        if (vertexType & PDDI_V_TANGENT) {
+            glTexCoord2f(uv[i * 8 + 0], uv[i * 8 + 1]);
+        }
+    }
+
+    glEnd();
+
+    if (indexCount && indices) {
+        glBegin(GL_TRIANGLES);
+        for (int i = 0; i < indexCount; ++i) {
+            unsigned short idx = indices[i];
+            glVertex3f(coord[idx * 12 + 0], coord[idx * 12 + 4], coord[idx * 12 + 8]);
+        }
+        glEnd();
+    } else if (!indexCount && total > 1) {
+        glBegin(GL_TRIANGLES);
+        for (int i = 0; i < total - 2; ++i) {
+            glVertex3f(coord[i * 12 + 0], coord[i * 12 + 4], coord[i * 12 + 8]);
+        }
+        glEnd();
+    }
+#endif
     valid = true;
 }
 
@@ -853,6 +895,7 @@ int pglContext::GetMaxLights(void)
 
 void pglContext::SetupHardwareLight(int handle)
 {
+#ifndef RAD_DREAMCAST
     GLenum h = GLenum(GL_LIGHT0 + handle);
     
     if(state.lightingState->light[handle].enabled)
@@ -892,6 +935,7 @@ void pglContext::SetupHardwareLight(int handle)
             break;
     }
     glLightfv(h, GL_POSITION, dir);
+#endif
 }
 
 void pglContext::SetAmbientLight(pddiColour col)
@@ -1022,7 +1066,9 @@ void pglContext::SetStencilMask(unsigned mask)
 void pglContext::SetStencilWriteMask(unsigned mask)
 {
     pddiBaseContext::SetStencilWriteMask(mask);
+#ifndef RAD_DREAMCAST
     glStencilMask(mask);
+#endif
 }
 
 void pglContext::SetStencilOp(pddiStencilOp failOp, pddiStencilOp zFailOp, pddiStencilOp zPassOp)

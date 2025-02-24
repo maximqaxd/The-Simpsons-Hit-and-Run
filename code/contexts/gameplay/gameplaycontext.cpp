@@ -358,8 +358,9 @@ void GameplayContext::OnStart( ContextEnum previousContext )
         // character position in or out of the car to be decided, which the sound
         // system uses to determine which sounds to start playing.
         //
+#ifndef RAD_DREAMCAST
         SoundManager::GetInstance()->OnGameplayStart();
-
+#endif
         GetInteriorManager()->OnGameplayStart();
 
         GetHitnRunManager()->ResetState();

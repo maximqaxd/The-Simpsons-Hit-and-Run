@@ -24,6 +24,7 @@
 //=============================================================================
 #include "../common/drive.hpp"
 #include "../common/drivethread.hpp"
+#include <dirent.h>  
 
 //=============================================================================
 // Defines
@@ -77,6 +78,8 @@ public:
     unsigned int GetCapabilities( void );
 
     const char* GetDriveName( void );
+
+    void ListDirectoryContents(const std::string& path);
  
     CompletionStatus Initialize( void );
 

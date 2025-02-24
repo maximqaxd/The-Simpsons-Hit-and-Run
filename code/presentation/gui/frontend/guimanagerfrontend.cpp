@@ -51,9 +51,10 @@
 #include <presentation/gui/frontend/guiscreendisplay.h>
 
 #include <presentation/presentation.h>
+#ifndef RAD_DREAMCAST
 #include <presentation/fmvplayer/fmvplayer.h>
 #include <presentation/fmvplayer/fmvuserinputhandler.h>
-
+#endif
 #include <data/gamedatamanager.h>
 #include <events/eventmanager.h>
 #include <gameflow/gameflow.h>
@@ -454,6 +455,7 @@ CGuiManagerFrontEnd::OnControllerConnected( int controllerID )
 void
 CGuiManagerFrontEnd::OnControllerDisconnected( int controllerID )
 {
+#ifndef RAD_DREAMCAST
     if( !m_controllerPromptShown )
     {
         m_controllerPromptShown = true;
@@ -470,6 +472,7 @@ CGuiManagerFrontEnd::OnControllerDisconnected( int controllerID )
         CGuiScreenMessage::GetControllerDisconnectedMessage(controllerID, str_buffer,  255);
         GetGame()->GetPlatform()->OnControllerError(str_buffer);
     }
+#endif
 }
 
 //===========================================================================
@@ -641,8 +644,9 @@ void CGuiManagerFrontEnd::HandleMessage
             rAssert( GUI_FE_SCREEN_RUNNING == m_state );
 
             GetEventManager()->TriggerEvent( EVENT_FE_START_GAME_SELECTED );
+#ifndef RAD_DREAMCAST
             GetSoundManager()->DuckEverythingButMusicBegin();
-
+#endif
             // Set appropriate gameplay manager depending on number of players
             //
             switch( param1 )
@@ -733,6 +737,7 @@ void CGuiManagerFrontEnd::HandleMessage
 
         default:
         {
+#ifndef RAD_DREAMCAST
             if( message == GUI_MSG_UPDATE && m_isControllerReconnected )
             {
                 m_isControllerReconnected = false;
@@ -744,7 +749,7 @@ void CGuiManagerFrontEnd::HandleMessage
                 rAssert( userInputHandler != NULL );
                 userInputHandler->SetEnabled( m_wasFMVInputHandlerEnabled );
             }
-
+#endif
             if( m_controllerPromptShown )
             {
                 if (message==GUI_MSG_CONTROLLER_START)  // start trigger reconnection

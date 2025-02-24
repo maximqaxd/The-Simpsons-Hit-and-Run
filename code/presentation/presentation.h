@@ -117,10 +117,14 @@ class PresentationManager : public EventListener,
                       bool IsSkippable = true,
                       bool StopMusic = false,
                       bool IsLocalized = true );
-
+#ifdef RAD_DREAMCAST
         // Creates an event and passes it back.  Adds this event to the queue.
-        void QueueFMV( FMVEvent** pFMVEvent, 
+        void QueueFMV( void** pFMVEvent, 
                        PresentationEvent::PresentationEventCallBack* pCallback );
+#else
+		void QueueFMV( FMVEvent** pFMVEvent, 
+                       PresentationEvent::PresentationEventCallBack* pCallback );
+#endif
 
         // Creates an event and passes it back.  Adds this event to the queue.
 	    void QueueNIS( NISEvent** pNISEvent, 

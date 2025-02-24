@@ -22,7 +22,9 @@
 #include <radobject.hpp>
 #include <radlinkedclass.hpp>
 
+#ifndef RAD_DREAMCAST
 #include <radsound.hpp>
+#endif
 
 //=============================================================================
 // Namespace
@@ -70,7 +72,9 @@ public:
     // Create and destroy the region
     void Create
     (
+#ifndef RAD_DREAMCAST
         IRadSoundHalMemoryRegion* pMemRegion,
+#endif
         unsigned int sizeofslots,
         unsigned int numslots
     );
@@ -99,9 +103,9 @@ protected:
     bool SharedMemoryRegions( void );
 
     void PerformSwap( unsigned int slot );
-
+#ifndef RAD_DREAMCAST
     IRadSoundHalMemoryRegion* GetSlotMemoryRegion( unsigned int slot );
-
+#endif
     void SetSlotObject( unsigned int slot, daSoundFileInstance* pObject );
     daSoundFileInstance* GetSlotObject( unsigned int slot );
 
@@ -136,7 +140,9 @@ private:
     unsigned int                        m_SlotSize;
 
     // Allocated regions
+#ifndef RAD_DREAMCAST
     IRadSoundHalMemoryRegion**          m_ppSlot;
+#endif
     daSoundFileInstance**            m_ppSlotObjects;
     daSoundFileInstance**            m_ppPendingSwapObjects;
 
@@ -164,13 +170,17 @@ public:
 
     daSoundDynaLoadRegion* CreateRegion
     (
+#ifndef RAD_DREAMCAST
         IRadSoundHalMemoryRegion* pMemRegion,
+#endif
         unsigned int sizeofslots,
         unsigned int numslots
     );
     daSoundDynaLoadRegion* CreateRegionFromTotalSpace
     (
+#ifndef RAD_DREAMCAST
         IRadSoundHalMemoryRegion* pMemRegion,
+#endif
         unsigned int sizeofslots
     );
     void AddCompletionCallback

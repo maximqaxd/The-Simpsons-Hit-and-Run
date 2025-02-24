@@ -287,8 +287,9 @@ void GameFlow::OnTimerDone( unsigned int elapsedtime, void* pUserData )
     //
     // Run the once-per-frame sound update
     //
+#ifndef RAD_DREAMCAST
     SoundManager::GetInstance()->UpdateOncePerFrame( elapsedtime, mCurrentContext );
-
+#endif
     // Update the current context.
     mpContexts[mCurrentContext]->Update( elapsedtime );
 }

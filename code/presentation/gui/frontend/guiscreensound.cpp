@@ -260,6 +260,7 @@ void CGuiScreenSound::HandleMessage
 	unsigned int param2 
 )
 {
+#ifndef RAD_DREAMCAST
     if( m_state == GUI_WINDOW_STATE_RUNNING )
     {
         switch( message )
@@ -414,6 +415,7 @@ void CGuiScreenSound::HandleMessage
 	// Propogate the message up the hierarchy.
 	//
 	CGuiScreen::HandleMessage( message, param1, param2 );
+#endif
 }
 
 //===========================================================================
@@ -430,6 +432,7 @@ void CGuiScreenSound::HandleMessage
 //===========================================================================
 void CGuiScreenSound::InitIntro()
 {
+#ifndef RAD_DREAMCAST
     // Set slider values to current volume settings
     //
     GuiMenuItem* menuItem = NULL;
@@ -494,6 +497,7 @@ void CGuiScreenSound::InitIntro()
     {
         m_hasSliderValueChanged[ i ] = false;
     }
+#endif
 }
 
 

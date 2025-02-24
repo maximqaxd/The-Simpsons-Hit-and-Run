@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <fstream>
 #include <SDL.h>
+#include <unistd.h> // for access
 
 //=============================================================================
 // Public Functions 
@@ -90,6 +91,11 @@ radWin32Drive::radWin32Drive( const char* pdrivespec, radMemoryAllocator alloc )
     //
     // Copy the drivename
     //
+#ifdef RAD_DREAMCAST
+    strncpy(m_DriveName, "/cd/", radFileDrivenameMax);
+    m_DriveName[radFileDrivenameMax] = '\0';
+    m_DrivePath = SDL_strlwr(m_DriveName);
+#else
     radGetDefaultDrive( m_DriveName );
     if ( strcmp(m_DriveName, pdrivespec ) != 0 )
     {
@@ -98,6 +104,7 @@ radWin32Drive::radWin32Drive( const char* pdrivespec, radMemoryAllocator alloc )
         m_DrivePath = SDL_strlwr( m_DriveName );
         SDL_strupr( m_DriveName );
     }
+#endif
     m_Capabilities = ( radDriveEnumerable | radDriveWriteable | radDriveDirectory | radDriveFile );
 }
 
@@ -174,6 +181,18 @@ radDrive::CompletionStatus radWin32Drive::Initialize( void )
     return Complete;
 }
 
+void radWin32Drive::ListDirectoryContents(const std::string& path) {
+    DIR* dir;
+    struct dirent* ent;
+    if ((dir = opendir(path.c_str())) != nullptr) {
+        while ((ent = readdir(dir)) != nullptr) {
+        }
+        closedir(dir);
+    } else {
+        printf("Failed to open directory: %s\n", path.c_str());
+    }
+}
+
 //=============================================================================
 // Function:    radWin32Drive::OpenFile
 //=============================================================================
@@ -187,22 +206,32 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
     unsigned int*       pSize 
 )
 {
-    std::error_code error;
+    struct stat   buffer;   
+
     std::string tmp(fileName);
     std::replace(tmp.begin(), tmp.end(), '\\', '/');
-    std::filesystem::path path;
-    if( m_DrivePath.empty() )
-        path = std::filesystem::current_path() / tmp;
-    else
-        path = m_DrivePath.string() + tmp;
-    path.make_preferred();
-    if (std::filesystem::exists(path, error))
+
+    std::string fullPath = m_DrivePath.string() + tmp;
+
+    ListDirectoryContents(m_DrivePath.string());
+
+
+    // Check if the file exists
+    if (stat(fullPath.c_str(), &buffer) == 0)
     {
-        if (!error)
-            *pSize = std::filesystem::file_size(path, error);
-        if (error)
+
+        // Open the file to determine its size
+        FILE* file = fopen(fullPath.c_str(), "rb");
+        if (file)
         {
-            m_LastError = TranslateError(error);
+            fseek(file, 0, SEEK_END);
+            *pSize = ftell(file);
+            fclose(file);
+        }
+        else
+        {
+            *pSize = 0;
+            m_LastError = FileNotFound;
             return Error;
         }
     }
@@ -219,26 +248,36 @@ radDrive::CompletionStatus radWin32Drive::OpenFile
     //
     // Translate flags to stl
     //
-    std::ios_base::openmode mode = std::ios::binary | std::ios::in;
+    const char* mode = "rb";
     if (writeAccess)
-        mode |= std::ios::out;
-    if (flags == CreateAlways)
-        mode |= std::ios::trunc;
+    {
+        if (flags == OpenExisting)
+            mode = "r+b";
+        else if (flags == CreateAlways)
+            mode = "wb";
+    }
+
 
     //
-    // Right now using buffered reads, change it later for performance.
+    // Open the file
     //
-    *pHandle = new std::fstream(path, mode);
+    *pHandle = new std::fstream(fullPath, std::ios::binary | std::ios::in);
+    if (writeAccess)
+        (*pHandle)->open(fullPath, std::ios::binary | std::ios::in | std::ios::out);
+    if (flags == CreateAlways)
+        (*pHandle)->open(fullPath, std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
 
     if ( (*pHandle)->good() )
     {
         m_OpenFiles++;
         m_LastError = Success;
+        printf("File opened successfully: %s\n", fullPath.c_str());
         return Complete;
     }
     else
     {
         m_LastError = FileNotFound;
+        printf("Failed to open file: %s\n", fullPath.c_str());
         return Error;
     }
 }
@@ -468,9 +507,11 @@ radDrive::CompletionStatus radWin32Drive::DestroyDir( const char* pName )
 
     std::error_code error;
     std::filesystem::path path( pName );
+#ifndef RAD_DREAMCAST
     if( m_DrivePath.empty() )
         path = std::filesystem::current_path() / path;
     else
+#endif
         path = m_DrivePath / path;
     if (std::filesystem::is_directory(path, error) &&
         std::filesystem::remove(path, error))
@@ -499,9 +540,11 @@ radDrive::CompletionStatus radWin32Drive::DestroyFile( const char* filename )
 
     std::error_code error;
     std::filesystem::path path( filename );
+#ifndef RAD_DREAMCAST
     if( m_DrivePath.empty() )
         path = std::filesystem::current_path() / path;
     else
+#endif
         path = m_DrivePath / path;
     if (!std::filesystem::is_directory(path, error) &&
         std::filesystem::remove(path, error))

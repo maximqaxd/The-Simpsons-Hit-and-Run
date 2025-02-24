@@ -96,6 +96,7 @@ bool pglDisplay ::InitDisplay(int x, int y, int bpp)
     return InitDisplay(&displayInit);
 }
 
+#ifndef RAD_DREAMCAST
 #ifdef RAD_DEBUG
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -122,6 +123,7 @@ MessageCallback(GLenum source,
             break;
     }
 }
+#endif
 #endif
 
 bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
@@ -183,6 +185,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
         SDL_Log("SDL_GL_CreateContext() error: %s", SDL_GetError());
     PDDIASSERT(hRC);
 
+#ifndef RAD_DREAMCAST
 #ifdef RAD_GLES
     if (!gladLoadGLES1Loader( (GLADloadproc)SDL_GL_GetProcAddress ))
         return false;
@@ -190,7 +193,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
     if (!gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ))
         return false;
 #endif
-
+#endif
     char* glVendor   = (char*)glGetString(GL_VENDOR);
     char* glRenderer = (char*)glGetString(GL_RENDERER);
     char* glVersion  = (char*)glGetString(GL_VERSION);
@@ -226,7 +229,7 @@ bool pglDisplay ::InitDisplay(const pddiDisplayInit* init)
 
     SDL_Log("OpenGL - Vendor: %s, Renderer: %s, Version: %s",glVendor,glRenderer,glVersion);
 
-#if defined RAD_DEBUG && !defined RAD_VITA
+#if defined RAD_DEBUG && !defined RAD_VITA && !defined RAD_DREAMCAST
     glEnable(GL_DEBUG_OUTPUT_KHR);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
     glDebugMessageCallback(MessageCallback, NULL);

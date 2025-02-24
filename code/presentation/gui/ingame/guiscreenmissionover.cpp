@@ -296,8 +296,9 @@ void CGuiScreenMissionOver::InitIntro()
 #endif
 
     m_pMenu->SetMenuItemEnabled( 2, isSkipAllowed, true );
-
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnStoreScreenStart( false );
+#endif
 }
 
 
@@ -333,7 +334,9 @@ void CGuiScreenMissionOver::InitRunning()
 void CGuiScreenMissionOver::InitOutro()
 {
     GetEventManager()->TriggerEvent( EVENT_DIALOG_SHUTUP );
+#ifndef RAD_DREAMCAST
     GetSoundManager()->OnStoreScreenEnd();
+#endif
 }
 
 

@@ -453,10 +453,11 @@ void DrawOBBoxShape(OBBoxVolume* el)
     maxCorner.Scale(sDrawVolumeShapeScale);
     minCorner.Scale(sDrawVolumeShapeScale);
 
+#ifndef RAD_DREAMCAST
     #ifndef RAD_RELEASE
         P3DDrawOrientedBox(minCorner, maxCorner, *defaultShader, el->GetColour());
     #endif
-    
+#endif
     p3d::stack->Pop();
     
     defaultShader->Release();
@@ -467,11 +468,11 @@ void DrawSphereShape(SphereVolume* el)
 {
     tShader *defaultShader = new tShader;
     defaultShader->AddRef();
-    
+#ifndef RAD_DREAMCAST    
     #ifndef RAD_RELEASE
         P3DDrawSphere(el->GetRadius()*sDrawVolumeShapeScale, el->mPosition, *defaultShader, el->GetColour());
     #endif
-    
+#endif
     defaultShader->Release();
 }
 
@@ -488,7 +489,7 @@ void DrawCylinderShape(CylinderVolume* el)
     
     cylinderStartPoint.Sub(el->mPosition, length);
     cylinderEndPoint.Add(el->mPosition, length);
-    
+#ifndef RAD_DREAMCAST    
     if (el->mFlatEnd)
     {
         #ifndef RAD_RELEASE
@@ -509,7 +510,7 @@ void DrawCylinderShape(CylinderVolume* el)
             el->GetColour());
         #endif
     }
-    
+#endif
     defaultShader->Release();
 }
 

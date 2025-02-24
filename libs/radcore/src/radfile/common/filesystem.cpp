@@ -60,11 +60,13 @@ radFileSystem::DriveMapEntry    radFileSystem::s_DriveMap[ radFileDriveMax ];
 
 static void stringUpper( char* str )
 {
+#ifndef RAD_DREAMCAST
     while( *str != '\0' )
     {
         *str = (char) toupper( *str );
         str++;
     }
+#endif
 }
 
 //=============================================================================
@@ -308,14 +310,10 @@ void radFileSystem::ProcessFileName
     //
     strcpy( p, fname );
 
-    //
-    // Lets translate any / to the correct way \\.
-    //
-    while( *p && simpleName==false)
-    {
-        if( *p == '/' )
-        {
-            *p = '\\';
+    // Replace backslashes with forward slashes
+    while (*p) {
+        if (*p == '\\') {
+            *p = '/';
         }
         p++;
     }
