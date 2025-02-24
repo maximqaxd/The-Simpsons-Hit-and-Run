@@ -4,8 +4,12 @@ This is WIP a port of The Simpsons Hit & Run to the Sega Dreamcast based on Nint
 Please report any bugs or feature requests in the issues tab on this Github repository.
 
 # Build
+Requirements:
+SDL2 by GPFTroy
+GLdc by Kazade
+KallistiOS
 
-TODO
+to build run ./dreamcast.sh
 
 # Installation
 
