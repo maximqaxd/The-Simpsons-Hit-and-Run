@@ -24,7 +24,11 @@
 
 #include "pch.hpp"
 
+#if defined(RAD_DREAMCAST)
+#include <kos/mutex.h>
+#elif defined(RAD_WIN32)
 #include <SDL.h>
+#endif
 
 #include <raddebug.hpp>
 #include <radthread.hpp>
@@ -47,7 +51,11 @@ static bool g_SystemInitialized = false;
 //
 // Need an exclusion object for each of the various platforms.
 //
+#if defined(RAD_DREAMCAST)
+static mutex_t g_ExclusionObject;
+#else
 static SDL_mutex* g_ExclusionObject = nullptr;
+#endif
 
 //=============================================================================
 // Public Functions
@@ -74,7 +82,11 @@ void radThreadInitialize( unsigned int milliseconds )
     // To manage our threading objects we in a thread safe manner, we need 
     // OS exculision objects for our own use. Create them here.
     //
+#if defined(RAD_DREAMCAST)
+    mutex_init( &g_ExclusionObject, MUTEX_TYPE_NORMAL );
+#else
     g_ExclusionObject = SDL_CreateMutex();
+#endif
 
     g_SystemInitialized = true;
 
@@ -110,7 +122,11 @@ void radThreadTerminate( void )
     // Free up the exclusion object using the appropriate platform specific 
     // function.
     //
+#if defined(RAD_DREAMCAST)
+    mutex_destroy( &g_ExclusionObject );
+#else
     SDL_DestroyMutex(g_ExclusionObject);
+#endif
 
     g_SystemInitialized = false;
 }
@@ -134,7 +150,11 @@ void radThreadInternalLock( void )
     //
     // Just perform the OS specific implementation.
     //
+#if defined(RAD_DREAMCAST)
+    mutex_lock( &g_ExclusionObject );
+#else
     SDL_LockMutex(g_ExclusionObject);
+#endif
 }
 
 //=============================================================================
@@ -156,5 +176,9 @@ void radThreadInternalUnlock( void )
     //
     // Just perform the OS specific implementation.
     //
+#if defined(RAD_DREAMCAST)
+    mutex_unlock( &g_ExclusionObject );
+#else
     SDL_UnlockMutex(g_ExclusionObject);
+#endif
 }

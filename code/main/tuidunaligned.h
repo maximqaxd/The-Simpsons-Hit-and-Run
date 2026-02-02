@@ -21,13 +21,13 @@
 //
 #ifdef RAD_PS2
     typedef unsigned long radInt64;
-#elif defined( RAD_WIN32 ) || defined ( RAD_XBOX )
+#elif defined( RAD_WIN32 ) || defined ( RAD_XBOX ) || defined (RAD_DREAMCAST)
 #include <cstdint>
     typedef uint64_t radInt64;
 #elif defined(RAD_GAMECUBE)
     typedef unsigned long long radInt64;
 #else
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
 
 

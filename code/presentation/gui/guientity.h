@@ -44,6 +44,9 @@
 #if RAD_WIN32 // parallel the xbox for now.
     const int PLATFORM_TEXT_INDEX = 2;
 #endif
+#if RAD_DREAMCAST // parallel the xbox for now.
+    const int PLATFORM_TEXT_INDEX = 2;
+#endif
 #endif
 
 enum eGuiMessage

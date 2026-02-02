@@ -2,7 +2,9 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
+#if RAD_WIN32
 #include <SDL.h>
+#endif 
 
 #include <p3d/imagefactory.hpp>
 #include <p3d/context.hpp>
@@ -521,8 +523,11 @@ bool tImageHandler::CheckExtension(char* ext)
 
     if(len < handlerLen)
         return false;
-
+#if RAD_WIN32
     if(SDL_strcasecmp(handler, &ext[len-handlerLen]) == 0)
+#else
+    if(strcasecmp(handler, &ext[len-handlerLen]) == 0)
+#endif
         return true;
   
     return false;

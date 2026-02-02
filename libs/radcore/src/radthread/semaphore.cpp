@@ -94,7 +94,11 @@ radThreadSemaphore::radThreadSemaphore( unsigned int count )
 { 
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radThreadSemaphore" );
 
-    m_Semaphore = SDL_CreateSemaphore(0);
+#if defined(RAD_DREAMCAST)
+    sem_init( &m_Semaphore, (int) count );
+#else
+    m_Semaphore = SDL_CreateSemaphore( (int) count );
+#endif
 }
 
 //=============================================================================
@@ -112,7 +116,11 @@ radThreadSemaphore::radThreadSemaphore( unsigned int count )
 
 radThreadSemaphore::~radThreadSemaphore( void )
 {
+#if defined(RAD_DREAMCAST)
+    sem_destroy( &m_Semaphore );
+#else
     SDL_DestroySemaphore(m_Semaphore);
+#endif
 }
 
 //=============================================================================
@@ -129,8 +137,12 @@ radThreadSemaphore::~radThreadSemaphore( void )
 //------------------------------------------------------------------------------
 
 void radThreadSemaphore::Wait( void )
-{ 
+{
+#if defined(RAD_DREAMCAST)
+    sem_wait( &m_Semaphore );
+#else
     SDL_SemWait(m_Semaphore);
+#endif
 }
 
 //=============================================================================
@@ -146,8 +158,12 @@ void radThreadSemaphore::Wait( void )
 //------------------------------------------------------------------------------
 
 void radThreadSemaphore::Signal( void )
-{ 
+{
+#if defined(RAD_DREAMCAST)
+    sem_signal( &m_Semaphore );
+#else
     SDL_SemPost(m_Semaphore);
+#endif
 }
 
 //=============================================================================

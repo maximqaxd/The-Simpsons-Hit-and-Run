@@ -1269,7 +1269,7 @@ void CGuiSystem::OnInitBootUp()
 #ifdef RAD_XBOX
              "%s%slicenseX.p3d",
 #endif
-#ifdef RAD_WIN32
+#if defined( RAD_WIN32 ) || defined( RAD_DREAMCAST )
 #ifdef PAL
              "%s%slicenseP.p3d",
 #else

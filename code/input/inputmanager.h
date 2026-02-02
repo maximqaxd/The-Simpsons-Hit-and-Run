@@ -224,7 +224,43 @@ public:
         AnalogB,
         AnalogSquare = AnalogB
     };
-#endif
+#elif defined(RAD_DREAMCAST)
+    enum eButtonMap
+    {
+        DPadLeft,
+        DPadRight,
+        DPadDown,
+        DPadUp,
+        TriggerZ,
+        L3 = TriggerZ,
+        TriggerR,
+        AnalogR1 = TriggerR,
+        TriggerL,
+        AnalogL1 = TriggerL,
+        A,
+        X = A,
+        B,
+        Square = B,
+//        X,  //This one is conflicting with PS2
+        Circle, //This is X
+        Y,
+        Triangle = Y,
+        Menu,
+        Start = Menu,
+        LeftStickX,
+        LeftStickY,
+        RightStickX,
+        RightStickY,
+        AnalogTriggerL,
+        LeftTrigger = AnalogTriggerL,
+        AnalogTriggerR,
+        RightTrigger = AnalogTriggerR,
+        AnalogA,
+        AnalogueX = AnalogA,
+        AnalogB,
+        AnalogSquare = AnalogB
+    };
+#endif // RAD_DREAMCAST todo: map controllerp properly
 
     // Static Methods for accessing this singleton.
     static InputManager* CreateInstance( void );

@@ -2,8 +2,9 @@
 // Copyright (c) 2002 Radical Games Ltd.  All rights reserved.
 //=============================================================================
 
+#if RAD_WIN32
 #include <SDL.h>
-
+#endif 
 #include <p3d/loadmanager.hpp>
 #include <p3d/inventory.hpp>
 #include <p3d/chunkfile.hpp>
@@ -31,7 +32,7 @@
 
 #endif // P3D_TRACK_LOAD_STATS
 
-#ifdef LINUX
+#ifdef LINUX || defined (RAD_DREAMCAST)
 #define strcmpi strcasecmp
 #endif
 
@@ -142,14 +143,14 @@ bool tP3DFileHandler::CheckExtension(char* file)
         
         if(len >= extLen)
         {
-            if(SDL_strcasecmp(extensions[i], &file[len-extLen]) == 0)
+            if(strcasecmp(extensions[i], &file[len-extLen]) == 0)
                 return true;
         }
         if(len == extLen-1)
         {
           if(strcmp(&extensions[i][1], &file[len-extLen+1]) == 0)
               return true;
-          if(SDL_strcasecmp(&extensions[i][1], &file[len-extLen+1]) == 0)
+          if(strcasecmp(&extensions[i][1], &file[len-extLen+1]) == 0)
               return true;
         }
     }

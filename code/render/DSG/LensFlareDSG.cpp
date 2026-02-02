@@ -462,7 +462,7 @@ void LensFlareDSG::DrawVisibilityChecker()
 }
 #endif
 
-#if defined( RAD_XBOX ) || defined( RAD_WIN32 )
+#if defined( RAD_XBOX ) || defined( RAD_WIN32 ) || defined (RAD_DREAMCAST)
 
 void LensFlareDSG::DrawVisibilityChecker()
 {

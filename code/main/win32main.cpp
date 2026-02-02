@@ -31,6 +31,10 @@
 unsigned int sceLibcHeapSize = 16 * 1024 * 1024;
 #endif
 
+#ifdef RAD_DREAMCAST
+#include <kos.h>
+#endif
+
 //========================================
 // Project Includes
 //========================================
@@ -70,6 +74,9 @@ static void LogOutputFunction( void *userdata, int category, SDL_LogPriority pri
 // Returns:     win32 return.
 //
 //=============================================================================
+#if RAD_DREAMCAST
+KOS_INIT_FLAGS(INIT_DEFAULT | INIT_CDROM | INIT_CONTROLLER | INIT_KEYBOARD | INIT_MOUSE | INIT_VMU);
+#endif
 extern "C" int main( int argc, char *argv[] )
 {
 #ifdef __SWITCH__

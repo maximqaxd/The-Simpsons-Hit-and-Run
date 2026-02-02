@@ -375,6 +375,12 @@ void Win32Platform::InitializeFoundation()
     //
     //InitializeMemory();
 
+#ifdef RAD_DREAMCAST
+    // Dreamcast needs radMemoryInitialize() before PrepareHeapsStartup() so
+    // radMemoryCreateTrackingHeap etc. succeed (same order as Xbox/PS2/GC).
+    Win32Platform::InitializeMemory();
+#endif
+
     //
     // Register an out-of-memory display handler in case something goes bad
     // while allocating the heaps
@@ -1686,6 +1692,9 @@ void Win32Platform::TranslateResolution( Resolution res, int&x, int&y )
 #elif defined(RAD_VITA)
     x = 960;
     y = 544;
+#elif defined(RAD_DREAMCAST)
+    x = 640;
+    y = 480;
 #else
     switch( res )
     {

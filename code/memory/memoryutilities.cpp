@@ -341,7 +341,11 @@ size_t GetLargestFreeBlock()
     // Find out the largest block of memory I can grab
     //
     size_t lo = 0;
+#if defined(RAD_DREAMCAST)
+    size_t hi = 1024*1024*16;  // Dreamcast has 16MB RAM; don't probe 256MB
+#else
     size_t hi = 1024*1024*256; //this is just less than 256mb
+#endif
     int pivot;
     void* memory = NULL;
     do
@@ -474,6 +478,9 @@ size_t GetTotalMemoryFree()
         return free;
     #elif defined RAD_GAMECUBE
         return OSCheckHeap( gGCHeap );
+    #elif defined RAD_DREAMCAST
+        struct mallinfo info = mallinfo();
+        return ( info.fordblks > 0 ) ? (size_t)info.fordblks : 0;
     #else
         #pragma error( "CMemoryTracker::GetTotalMemoryFree - What platform is this then?");
     #endif

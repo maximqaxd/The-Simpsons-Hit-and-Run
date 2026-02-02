@@ -7,6 +7,7 @@
 // 15-June-98, NV
 // requires libpng.lib, and zlib.dll
 
+#include <cstring>
 #include <p3d/png.hpp>
 #include <p3d/image.hpp>
 #include <p3d/file.hpp>

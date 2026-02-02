@@ -16,9 +16,10 @@
 #include <string.h>
 // Foundation Tech
 #include <raddebug.hpp>
+#ifdef RAD_WIN32
 #include <SDL.h>
 #define strupr SDL_strupr
-
+#endif
 //========================================
 // Project Includes
 //========================================

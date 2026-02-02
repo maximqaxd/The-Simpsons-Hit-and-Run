@@ -9,7 +9,7 @@
 #include "platformdrives.hpp"
 #include "remotedrive.hpp"
 
-#ifdef RAD_WIN32
+#if defined( RAD_WIN32 ) || defined( RAD_DREAMCAST )
 #include "../win32/win32drive.hpp"
 #endif
 
@@ -205,7 +205,7 @@ void PlatformDrivesFactory( radDrive** ppDrive, const char* driveSpec, radMemory
         return;
     }
 
-#ifdef RAD_WIN32 
+#if defined( RAD_WIN32 ) || defined( RAD_DREAMCAST )
     radWin32DriveFactory( ppDrive, driveSpec, alloc );
 #endif
 

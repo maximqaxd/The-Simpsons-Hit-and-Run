@@ -15,7 +15,9 @@
 //===========================================================================
 // Includes
 //===========================================================================
+#if RAD_WIN32
 #include <SDL.h>
+#endif
 
 #include <presentation/gui/frontend/guiscreenskingallery.h>
 #include <presentation/gui/frontend/guiscreenscrapbookcontents.h>
@@ -643,7 +645,13 @@ CGuiScreenSkinGallery::OnMenuSelectionMade( int selection )
         strcpy( stringID, m_rewardSelections[ m_pMenu->GetSelection() ]->GetName() );
 
         UnicodeString unicodeString;
-        unicodeString.ReadUnicode( GetTextBibleString( SDL_strupr( stringID ) ) );
+        unicodeString.ReadUnicode( GetTextBibleString(
+#if defined(RAD_DREAMCAST)
+            strupr( stringID )
+#else
+            SDL_strupr( stringID )
+#endif
+        ) );
 
         rAssert( m_skinName != NULL );
         m_skinName->SetString( 0, unicodeString );

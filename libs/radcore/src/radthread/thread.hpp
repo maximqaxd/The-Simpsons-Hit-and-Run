@@ -23,8 +23,11 @@
 //=============================================================================
 // Include Files
 //=============================================================================
-
+#if defined(RAD_DREAMCAST)
+#include <kos/thread.h>
+#elif defined(RAD_WIN32)
 #include <SDL.h>
+#endif
 
 #include <radobject.hpp>
 #include <radmemory.hpp>
@@ -224,6 +227,9 @@ class radThread : public IRadThread,
     // These statics are the actual thread OS specific entry points.
     // 
     static int InternalThreadEntry( void* param );
+#if defined(RAD_DREAMCAST)
+    static void* KOSThreadEntry( void* param );
+#endif
 
     //
     // This member maintains the reference count of this object.
@@ -257,9 +263,15 @@ class radThread : public IRadThread,
     //
     // Platform specific information used to manage the thread.
     //
+#if defined(RAD_DREAMCAST)
+    tid_t           m_ThreadId;
+    kthread_t*      m_ThreadHandle;
+    static prio_t   s_PriorityMap[ PriorityHigh + 1 ];
+#else
     SDL_threadID    m_ThreadId;
     SDL_Thread*     m_ThreadHandle;
     static SDL_ThreadPriority s_PriorityMap[ PriorityHigh + 1 ];
+#endif
 
     //
     // Here we maintain the actual values used  by the thread local

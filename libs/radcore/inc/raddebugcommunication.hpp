@@ -29,8 +29,8 @@
 // Build Configuration Check
 //=============================================================================
 
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32)
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_DREAMCAST)
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
 
 //=============================================================================
@@ -63,7 +63,7 @@ const unsigned short radDbgComMaxProtocol = 0xEFFF;
 //
 enum radDbgComType
 {
-  #if defined (RAD_WIN32) || defined (RAD_XBOX)
+  #if defined (RAD_WIN32) || defined (RAD_XBOX) || defined (RAD_DREAMCAST)
     WinSocket,                          // Sockets
     FileSockets                         // Socket emulation using files (obsolete)
   #endif

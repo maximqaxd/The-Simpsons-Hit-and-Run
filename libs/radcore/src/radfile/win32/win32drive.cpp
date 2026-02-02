@@ -28,7 +28,9 @@
 #include "win32drive.hpp"
 #include <filesystem>
 #include <fstream>
+#ifdef RAD_WIN32
 #include <SDL.h>
+#endif
 #include <unistd.h> // for access
 
 //=============================================================================
@@ -94,7 +96,7 @@ radWin32Drive::radWin32Drive( const char* pdrivespec, radMemoryAllocator alloc )
 #ifdef RAD_DREAMCAST
     strncpy(m_DriveName, "/cd/", radFileDrivenameMax);
     m_DriveName[radFileDrivenameMax] = '\0';
-    m_DrivePath = SDL_strlwr(m_DriveName);
+    m_DrivePath = strlwr(m_DriveName);
 #else
     radGetDefaultDrive( m_DriveName );
     if ( strcmp(m_DriveName, pdrivespec ) != 0 )

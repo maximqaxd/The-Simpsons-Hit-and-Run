@@ -156,6 +156,36 @@ static float CAMERA_FOV[ RenderEnums::MAX_LEVEL - RenderEnums::numLevels ] =
 
 #endif
 
+#ifdef RAD_DREAMCAST
+static float CAMERA_VALUES[ RenderEnums::MAX_LEVEL - RenderEnums::numLevels ][ 3 ] = 
+{
+//    { 4.847f, 343.4719f, -244.00512f },
+    { 48.38f, 253.394f, -347.603f },
+    { 39.991f, 277.6909f, -331.487f },
+    { -13.377f, 196.149f, -306.219f },
+    { 13.81f, 276.968f, -327.466f },
+    { 43.636f, 198.81f, -314.173f },
+    { 27.499f, 233.753f, -377.58f },
+    { 79.005f, 239.61f, -354.552f }
+};
+
+//Theres a 1-1 bonus to main levels.
+static rmt::Vector* CAMERA_SETTINGS = (rmt::Vector*)(CAMERA_VALUES); 
+
+static float CAMERA_FOV[ RenderEnums::MAX_LEVEL - RenderEnums::numLevels ] =
+{
+//    0.2618f,
+    0.2618f,
+    0.2618f,
+    0.2618f,
+    0.2618f,
+    0.2618f,
+    0.2618f,
+    0.2618f
+};
+
+#endif
+
 
 //*****************************************************************************
 //

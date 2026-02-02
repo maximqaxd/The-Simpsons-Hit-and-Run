@@ -38,8 +38,8 @@
 // Build Configuration Check
 //=============================================================================
 
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32)
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_DREAMCAST)
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
 
 //=============================================================================
@@ -110,7 +110,7 @@ typedef unsigned long long radTime64;
 typedef unsigned __int64 radTime64;
 #endif
 
-#if defined ( RAD_WIN32 ) || defined ( RAD_LINUX )
+#if defined ( RAD_WIN32 ) || defined ( RAD_LINUX ) || defined (RAD_DREAMCAST)
 #include <cstdint>
 typedef uint64_t radTime64;
 #endif

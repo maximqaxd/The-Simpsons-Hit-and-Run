@@ -26,8 +26,9 @@
 #include <radobjectlist.hpp>
 #include <radstring.hpp>
 #include <raddebug.hpp>
+#ifdef RAD_WIN32
 #include <SDL.h>
-
+#endif 
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -56,7 +57,7 @@ int rDebugVsnPrintf( char *buffer, size_t count, const char *format, va_list arg
 {
     #if defined (RAD_XBOX)
         return _vsnprintf( buffer, count, format, argptr );
-    #elif defined (RAD_WIN32) || defined (RAD_GAMECUBE)
+    #elif defined (RAD_WIN32) || defined (RAD_GAMECUBE) || defined (RAD_DREAMCAST)
         return vsnprintf( buffer, count, format, argptr );
     #elif defined (RAD_PS2)
         return vsprintf( buffer, format, argptr );
@@ -405,7 +406,11 @@ void rDebuggerString_Implementation( const char* string )
     #elif defined(RAD_GAMECUBE)		
 
     OSReport( (char*)string );
-		
+
+    #elif defined (RAD_DREAMCAST)
+    
+    printf( "%s", string );
+
     #else
 
     SDL_Log( "%s", string );

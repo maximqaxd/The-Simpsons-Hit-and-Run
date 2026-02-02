@@ -33,8 +33,8 @@
 // Build Configuration Check
 //=============================================================================
 
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32)
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_DREAMCAST)
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
 
 //=============================================================================
@@ -256,6 +256,26 @@ struct IRadPlatform : public IRefCount
 };
 
 #endif // RAD_GAMECUBE
+
+//=============================================================================
+// Dreamcast Platform
+//=============================================================================
+
+#ifdef RAD_DREAMCAST
+
+//
+// Dreamcast initialization.
+//
+void radPlatformInitialize( radMemoryAllocator = RADMEMORY_ALLOC_DEFAULT );
+
+//
+// Dreamcast platform interface.
+//
+struct IRadPlatform : public IRefCount
+{
+};
+
+#endif // RAD_DREAMCAST
 
 #endif // RADPLATFORM_HPP
 

@@ -26,6 +26,9 @@
     #include <p3d/platform/win32/platform.hpp>
 #endif
 
+#ifdef RAD_DREAMCAST
+    #include <p3d/platform/dc/platform.hpp>
+#endif
 
 #endif
 

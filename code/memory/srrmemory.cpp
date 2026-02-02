@@ -72,6 +72,12 @@ void MemoryHackCallback() { INIT_MEM() };
 #define SHUTDOWN_MEM()  Win32Platform::ShutdownMemory();
 void MemoryHackCallback() { INIT_MEM() };
 #endif // RAD_WIN32
+#ifdef RAD_DREAMCAST
+#include <main/dcplatform.h>
+#define INIT_MEM()  Memory::InitializeMemoryUtilities();DCPlatform::InitializeMemory();
+#define SHUTDOWN_MEM()  DCPlatform::ShutdownMemory();
+void MemoryHackCallback() { INIT_MEM() };
+#endif // RAD_WIN32
 
 //******************************************************************************
 //
@@ -1684,6 +1690,35 @@ void HeapManager::DumpArtStats ()
     const float HS_DEBUG_FIREWIRE = 0.4f;
     const float HS_SPECIAL = 10.0f;
     #endif
+#elif defined (RAD_DREAMCAST)
+    // Dreamcast: 16MB total RAM. Keep fixed heaps small so DEFAULT can hold level data.
+    const float HS_DEFAULT              = 0.08f;
+    const float HS_TEMP                 = 0.25f;   // 256KB (was 0.3f)
+    const float HS_PERSISTENT           = 1.0f;     // 1MB (was 2.56f - too large for 16MB)
+    const float HS_MUSIC                = 0.2f;
+    const float HS_AUDIO_PERSISTENT     = 0.35f;    // 350KB (was 0.65f)
+    const float HS_LEVEL                = 10.0f;   // sub-heap overhead
+    //FE Only
+    const float HS_LEVEL_MOVIE          = 0.08f;
+    const float HS_LEVEL_AUDIO_FE       = 0.08f;
+    const float HS_LEVEL_FE             = 6.0f;
+    //In-game Only
+    const float HS_LEVEL_ZONE           = 4.0f;
+    const float HS_LEVEL_OTHER          = 2.0f;
+    const float HS_LEVEL_HUD            = 1.5f;
+    const float HS_LEVEL_AUDIO_INGAME   = 0.04f;
+    //Minigame Only
+    const float HS_MINIGAME_ZONE        = 2.0f;
+    const float HS_MINIGAME_OTHER       = 4.0f;
+    const float HS_MINIGAME_HUD         = 1.0f;
+    const float HS_MINIGAME_MISSION     = 1.0f;
+    const float HS_MINIGAME_AUDIO       = 0.4f;
+
+    #ifndef RAD_RELEASE
+    const float HS_DEBUG                = 1.0f;
+    const float HS_DEBUG_FIREWIRE       = 0.4f;
+    const float HS_SPECIAL              = 1.0f;
+    #endif
 
 #endif
 
@@ -1730,7 +1765,7 @@ void HeapManager::PrepareHeapsStartup ()
     // and persist throughout the game.  They aren't necessarily done
     // at start up, hence its own heap
     //
-#if defined( RAD_GAMECUBE ) || defined( RAD_PS2 )
+#if defined( RAD_GAMECUBE ) || defined( RAD_PS2 ) || defined( RAD_DREAMCAST )
     CreateHeap( GMA_AUDIO_PERSISTENT, static_cast< int >( HS_AUDIO_PERSISTENT * FUDGE * MB ) );
     IRadMemoryAllocator* audioHeap = GetAllocator( GMA_AUDIO_PERSISTENT );
     radMemoryRegisterAllocator( GMA_MUSIC,            RADMEMORY_ALLOC_DEFAULT, audioHeap );
@@ -1765,6 +1800,29 @@ void HeapManager::PrepareHeapsStartup ()
     radMemoryRegisterAllocator( GMA_SPECIAL,          RADMEMORY_ALLOC_DEFAULT, defaultHeap );
 //    radMemoryRegisterAllocator( GMA_MUSIC,            RADMEMORY_ALLOC_DEFAULT, defaultHeap );
 //    radMemoryRegisterAllocator( GMA_AUDIO_PERSISTENT, RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+#endif
+
+#ifdef RAD_DREAMCAST
+    // Dreamcast: create default heap with remaining RAM (16MB total). TEMP + PERSISTENT + AUDIO already created.
+    {
+        const unsigned int DC_RAM_MB = 16;
+        const unsigned int reserveK = 512;
+        unsigned int size = Memory::GetTotalMemoryFree();
+        if ( size > ( DC_RAM_MB * 1024 * 1024 - reserveK * 1024 ) )
+            size = DC_RAM_MB * 1024 * 1024 - reserveK * 1024;
+        if ( size > 8 * 1024 * 1024 )
+            size = 8 * 1024 * 1024;   // cap DEFAULT at 8MB (16MB RAM total)
+        CreateHeap( GMA_DEFAULT, size );
+        IRadMemoryAllocator* defaultHeap = GetAllocator( GMA_DEFAULT );
+        radMemoryRegisterAllocator( GMA_LEVEL_MOVIE,      RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_LEVEL_FE,         RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_LEVEL_ZONE,       RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_LEVEL_OTHER,      RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_LEVEL_MISSION,    RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_LEVEL_AUDIO,      RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_DEBUG,            RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+        radMemoryRegisterAllocator( GMA_SPECIAL,          RADMEMORY_ALLOC_DEFAULT, defaultHeap );
+    }
 #endif
 
 #if defined(RAD_PS2) && defined(ALL_DL_HEAPS) 
@@ -1821,12 +1879,11 @@ void HeapManager::PrepareHeapsStartup ()
 //    CreateHeap( GMA_MUSIC, static_cast< unsigned int >( HS_MUSIC * FUDGE ) );
 
     //
-    // The audio persistent heap.
-    // This heap holds allocations that audio makes that are done once
-    // and persist throughout the game.  They aren't necessarily done
-    // at start up, hence its own heap
+    // The audio persistent heap (actual CreateHeap is above for GC/PS2/DC; this was legacy printf only)
     //
+#ifndef RAD_DREAMCAST
     rReleasePrintf( "Creating Heap: AUDIO PERSISTENT (%f)\n", HS_AUDIO_PERSISTENT * FUDGE );
+#endif
     //s_pIRadMemoryHeapAudioPersistent = radMemoryCreateDougLeaHeap( static_cast<unsigned int>( HS_AUDIO_PERSISTENT * MB * FUDGE ), RADMEMORY_ALLOC_DEFAULT, "Audio Persistent" );
     //s_pIRadMemoryHeapAudioPersistent->AddRef();
     //radMemoryRegisterAllocator( GMA_AUDIO_PERSISTENT, RADMEMORY_ALLOC_DEFAULT, s_pIRadMemoryHeapAudioPersistent );

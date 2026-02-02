@@ -1,7 +1,7 @@
 #include <debug/section.h>
 #include <p3d/matrixstack.hpp>
 #include <p3d/utility.hpp>
-
+#include <cstring>
 Section::Section(tFont* pFont, const char* szName) :
 	_pDebugFont(pFont),
 	_pLineShader(NULL),

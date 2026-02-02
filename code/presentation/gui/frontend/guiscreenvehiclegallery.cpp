@@ -15,8 +15,9 @@
 //===========================================================================
 // Includes
 //===========================================================================
+#if RAD_WIN32
 #include <SDL.h>
-
+#endif
 #include <presentation/gui/frontend/guiscreenvehiclegallery.h>
 #include <presentation/gui/frontend/guiscreenscrapbookcontents.h>
 #include <presentation/gui/utility/specialfx.h>
@@ -640,7 +641,13 @@ CGuiScreenVehicleGallery::OnMenuSelectionMade( int selection )
         strcpy( stringID, m_rewardSelections[ m_pMenu->GetSelection() ]->GetName() );
 
         UnicodeString unicodeString;
-        unicodeString.ReadUnicode( GetTextBibleString( SDL_strupr( stringID ) ) );
+        unicodeString.ReadUnicode( GetTextBibleString(
+#if defined(RAD_DREAMCAST)
+            strupr( stringID )
+#else
+            SDL_strupr( stringID )
+#endif
+        ) );
 
         rAssert( m_vehicleName != NULL );
         m_vehicleName->SetString( 0, unicodeString );

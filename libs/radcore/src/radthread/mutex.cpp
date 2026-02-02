@@ -90,7 +90,11 @@ radThreadMutex::radThreadMutex( void )
     m_ReferenceCount( 1 )
 { 
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radThreadMutex" );
+#if defined(RAD_DREAMCAST)
+    mutex_init( &m_Mutex, MUTEX_TYPE_NORMAL );
+#else
     m_Mutex = SDL_CreateMutex();
+#endif
 }
 
 //=============================================================================
@@ -108,7 +112,11 @@ radThreadMutex::radThreadMutex( void )
 
 radThreadMutex::~radThreadMutex( void )
 {
+#if defined(RAD_DREAMCAST)
+    mutex_destroy( &m_Mutex );
+#else
     SDL_DestroyMutex(m_Mutex);
+#endif
 }
 
 //=============================================================================
@@ -126,8 +134,12 @@ radThreadMutex::~radThreadMutex( void )
 //------------------------------------------------------------------------------
 
 void radThreadMutex::Lock( void )
-{ 
+{
+#if defined(RAD_DREAMCAST)
+    mutex_lock( &m_Mutex );
+#else
     SDL_LockMutex(m_Mutex);
+#endif
 }
 
 //=============================================================================
@@ -143,8 +155,12 @@ void radThreadMutex::Lock( void )
 //------------------------------------------------------------------------------
 
 void radThreadMutex::Unlock( void )
-{ 
+{
+#if defined(RAD_DREAMCAST)
+    mutex_unlock( &m_Mutex );
+#else
     SDL_UnlockMutex(m_Mutex);
+#endif
 }
 
 //=============================================================================

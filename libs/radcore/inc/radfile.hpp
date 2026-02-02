@@ -25,8 +25,8 @@
 // Build Configuration Check
 //=============================================================================
  
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32)
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined (RAD_DREAMCAST)
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
  
 //=============================================================================
@@ -332,6 +332,18 @@ struct radMemcardInfo
 
 //
 // We don't have save games for win32.
+//
+struct radMemcardInfo
+{
+    char dummy;
+};
+
+#endif
+
+#ifdef RAD_DREAMCAST
+
+//
+// TODO: MemcardInfo for Dreamcast.
 //
 struct radMemcardInfo
 {

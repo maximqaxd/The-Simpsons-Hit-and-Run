@@ -247,6 +247,14 @@ private:
     };
 #endif
 
+#ifdef RAD_DREAMCAST
+    enum eMemcardInfoLoadState
+    {
+        MEMCARD_INFO_NOT_LOADED,
+        MEMCARD_INFO_LOAD_COMPLETED
+    };
+#endif
+
     radMemcardInfo* m_memcardInfo;
     unsigned int m_memcardInfoLoadState;
     IMemoryCardInfoLoadCallback* m_memcardInfoLoadCallback;

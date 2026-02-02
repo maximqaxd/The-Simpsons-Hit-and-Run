@@ -80,6 +80,13 @@ CGuiScreenLicense::CGuiScreenLicense
     tSprite* pSprite = p3d::find<tSprite>( "licensePC.png" );
 #endif
 #endif
+#ifdef RAD_DREAMCAST
+#ifdef PAL
+    tSprite* pSprite = p3d::find<tSprite>( "licenseP.png" );
+#else
+    tSprite* pSprite = p3d::find<tSprite>( "licensePC.png" );
+#endif
+#endif
     rAssert( pSprite != NULL );
 
     Scrooby::Sprite* licenseImage = pPage->GetSprite( "License" );

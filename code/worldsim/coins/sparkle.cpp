@@ -43,7 +43,7 @@
 // Global Data, Local Data, Local Classes
 //
 //******************************************************************************
-#if defined( RAD_XBOX ) || defined( RAD_WIN32 )
+#if defined( RAD_XBOX ) || defined( RAD_WIN32 ) || defined (RAD_DREAMCAST)
     #ifdef RAD_RELEASE
         static const float FRAME_RATE = 60.0f;
     #elif RAD_TUNE

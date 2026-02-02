@@ -39,7 +39,9 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif()
 
-find_package(SDL2 REQUIRED)
+if(NOT DREAMCAST)
+	find_package(SDL2 REQUIRED)
+endif()
 if (NOT DREAMCAST)
 find_package(PNG REQUIRED)
 endif()
@@ -67,7 +69,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 	if(DREAMCAST)
 		add_compile_options(
-		-Os -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto
+		-Os -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
 		)
 	endif()
 	if(VITA)
@@ -84,10 +86,10 @@ else()
 	add_compile_definitions(RAD_RELEASE)
 endif()
 
-add_compile_definitions(
-	RAD_CONSOLE
-	RAD_WIN32
-)
+add_compile_definitions(RAD_CONSOLE)
+if(NOT DREAMCAST)
+	add_compile_definitions(RAD_WIN32)
+endif()
 
 set(SRR2_FILENAME "Simpsons")
 set(SRR2_REGION "NTSC")
@@ -361,8 +363,6 @@ set(SRR2_SOURCES
 	"code/main/pchsrr2.cpp"
 	"code/main/singletons.cpp"
 	"code/main/tuidunaligned.cpp"
-	"code/main/win32main.cpp"
-	"code/main/win32platform.cpp"
 	"code/memory/classsizetracker.cpp"
 	"code/memory/createheap.cpp"
 	"code/memory/leakdetection.cpp"
@@ -681,6 +681,17 @@ set(SRR2_SOURCES
 	"code/worldsim/worldobject.cpp"
 	"code/worldsim/worldphysicsmanager.cpp"
 )
+if(DREAMCAST)
+	list(APPEND SRR2_SOURCES
+		"code/main/dcmain.cpp"
+		"code/main/dcplatform.cpp"
+	)
+else()
+	list(APPEND SRR2_SOURCES
+		"code/main/win32main.cpp"
+		"code/main/win32platform.cpp"
+	)
+endif()
 if(SRR2_PAL)
 	list(APPEND SRR2_SOURCES
 		"code/sound/soundrenderer/scripts/french.cpp"
@@ -693,7 +704,6 @@ set(RADCORE_SOURCES
 	#"libs/radcore/src/pch/pch.cpp"
 	#"libs/radcore/src/rad1394/win32lib/rad1394master.cpp"
 	#"libs/radcore/src/radcontroller/directinputcontroller.cpp"
-	"libs/radcore/src/radcontroller/sdlcontroller.cpp"
 	#"libs/radcore/src/raddebugcommunication/host1394socket.cpp"
 	#"libs/radcore/src/raddebugcommunication/hostchannel.cpp"
 	#"libs/radcore/src/raddebugcommunication/host.cpp"
@@ -760,6 +770,11 @@ set(RADCORE_SOURCES
 	"libs/radcore/src/radtime/stopwatch.cpp"
 	"libs/radcore/src/radtime/time.cpp"
 )
+if(DREAMCAST)
+	list(APPEND RADCORE_SOURCES "libs/radcore/src/radcontroller/dccontroller.cpp")
+else()
+	list(APPEND RADCORE_SOURCES "libs/radcore/src/radcontroller/sdlcontroller.cpp")
+endif()
 
 option(SRR2_MICROPROFILE OFF)
 if(SRR2_MICROPROFILE)
@@ -855,7 +870,6 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/memory.cpp"
 	"libs/pure3d/p3d/memorysection.cpp"
 	#"libs/pure3d/p3d/platform/linux/plat_filemap.cpp"
-	"libs/pure3d/p3d/platform/win32/platform.cpp"
 	"libs/pure3d/p3d/png.cpp"
 	"libs/pure3d/p3d/pointcamera.cpp"
 	"libs/pure3d/p3d/pointlight.cpp"
@@ -883,6 +897,11 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/vertexlist.cpp"
 	"libs/pure3d/p3d/view.cpp"
 )
+if(DREAMCAST)
+	list(APPEND P3D_SOURCES "libs/pure3d/p3d/platform/dc/platform.cpp")
+else()
+	list(APPEND P3D_SOURCES "libs/pure3d/p3d/platform/win32/platform.cpp")
+endif()
 if (WIN32)
 	list(APPEND P3D_SOURCES "libs/pure3d/p3d/platform/win32/plat_filemap.cpp")
 endif()
@@ -1174,7 +1193,17 @@ set(PDDI_SOURCES
 	"libs/pure3d/pddi/base/font.cpp"
 	"libs/pure3d/pddi/base/pddiobj.cpp"
 )
-if(SRR2_P3D_PDDI STREQUAL "GLES2")
+if(DREAMCAST)
+	# PVR backend 
+	list(APPEND PDDI_SOURCES
+		"libs/pure3d/pddi/pvr/pvrdev.cpp"
+		"libs/pure3d/pddi/pvr/pvrcon.cpp"
+		"libs/pure3d/pddi/pvr/pvrdisplay.cpp"
+		"libs/pure3d/pddi/pvr/pvrtex.cpp"
+		"libs/pure3d/pddi/pvr/pvrmat.cpp"
+		"libs/pure3d/pddi/gl/decompress.cpp"
+	)
+elseif(SRR2_P3D_PDDI STREQUAL "GLES2")
 	list(APPEND PDDI_SOURCES
 		"libs/pure3d/pddi/gles/glcon.cpp"
 		"libs/pure3d/pddi/gles/gldev.cpp"
@@ -1197,7 +1226,6 @@ else()
 		"libs/pure3d/pddi/gl/gldev.cpp"
 		"libs/pure3d/pddi/gl/glmat.cpp"
 		"libs/pure3d/pddi/gl/gltex.cpp"
-		"libs/pure3d/pddi/gl/glad/src/glad.c"
 	)
 	if(SRR2_P3D_PDDI STREQUAL "GLES1")
 		list(APPEND PDDI_SOURCES "libs/pure3d/pddi/gl/decompress.cpp")
@@ -1216,7 +1244,9 @@ target_include_directories(radcore
 	PUBLIC "code/" # wtf (radobject.hpp includes memory/classsizetracker.h)
 )
 target_compile_features(radcore PUBLIC cxx_std_17)
-target_link_libraries(radcore SDL2::SDL2)
+if(NOT DREAMCAST)
+	target_link_libraries(radcore SDL2::SDL2)
+endif()
 
 add_library(radcontent STATIC ${RADCONTENT_SOURCES})
 target_include_directories(radcontent
@@ -1234,14 +1264,15 @@ add_library(pddi STATIC ${PDDI_SOURCES})
 target_include_directories(pddi PUBLIC "libs/pure3d/")
 if(SRR2_P3D_PDDI STREQUAL GLES2)
 	target_include_directories(pddi PRIVATE "libs/pure3d/pddi/gles/glad/include/")
-else()
-	target_include_directories(pddi PRIVATE "libs/pure3d/pddi/gl/glad/include/")
 endif()
+# Dreamcast uses PVR backend; GL backend is not built for DREAMCAST
 target_link_libraries(pddi
-	SDL2::SDL2
 	radmath
 	radcore
 )
+if(NOT DREAMCAST)
+	target_link_libraries(pddi SDL2::SDL2)
+endif()
 
 add_library(p3d STATIC ${P3D_SOURCES})
 target_include_directories(p3d
@@ -1436,9 +1467,6 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SRR2_SOURCES})
 target_link_libraries(${PROJECT_NAME}
-	SDL2::SDL2
-	SDL2::SDL2main
-	choreo
 	p3d
 	pddi
 	poser
@@ -1451,6 +1479,11 @@ target_link_libraries(${PROJECT_NAME}
 	-l:libz.a
 	Threads::Threads
 )
+if(NOT DREAMCAST)
+	target_link_libraries(${PROJECT_NAME} SDL2::SDL2 SDL2::SDL2main choreo)
+else()
+	target_link_libraries(${PROJECT_NAME} choreo)
+endif()
 if(SRR2_MICROPROFILE AND WIN32)
 	# needed for microprofile
 	target_link_libraries(SRR2 wsock32)
@@ -1485,9 +1518,6 @@ if (NOT DREAMCAST)
 	endif()
 endif()
 
-if(DREAMCAST)
-    target_link_options(${PROJECT_NAME} PRIVATE -s)
-endif()
 
 target_compile_features(SRR2 PRIVATE cxx_std_17)
 

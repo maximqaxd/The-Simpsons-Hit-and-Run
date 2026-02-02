@@ -12,9 +12,9 @@
 //===========================================================================
 // Includes
 //===========================================================================
-
+#if RAD_WIN32
 #include <SDL.h>
-
+#endif 
 #include <p3d/chunkfile.hpp>
 #include <p3d/inventory.hpp>
 #include <constants/chunks.h>
@@ -697,18 +697,30 @@ FeText* FeProjectChunkHandler::LoadTextChunk( tChunkFile* file )
     // some text objects require different sized arrays - ugly hack
     //
 
-    if( 
+    if(
+#if defined(RAD_DREAMCAST)
+        ( strcasecmp( name , "Message" )             == 0 ) ||
+        ( strcasecmp( name , "MissionObjective" )    == 0 )
+#else
         ( SDL_strcasecmp( name , "Message" )             == 0 ) ||
         ( SDL_strcasecmp( name , "MissionObjective" )    == 0 )
+#endif
       )
     {
         returnMe->Resize( 512 );
     }
-    else if( 
+    else if(
+#if defined(RAD_DREAMCAST)
+        ( strcasecmp( name , "Car_Value" )           == 0 ) ||
+        ( strcasecmp( name , "MissionFailureHint" )  == 0 ) ||
+        ( strcasecmp( name , "MissionInfo" )         == 0 ) ||
+        ( strcasecmp( name , "MissionTitle" )        == 0 )
+#else
         ( SDL_strcasecmp( name , "Car_Value" )           == 0 ) ||
         ( SDL_strcasecmp( name , "MissionFailureHint" )  == 0 ) ||
         ( SDL_strcasecmp( name , "MissionInfo" )         == 0 ) ||
         ( SDL_strcasecmp( name , "MissionTitle" )        == 0 )
+#endif
         )
     {
         returnMe->Resize( 128 );

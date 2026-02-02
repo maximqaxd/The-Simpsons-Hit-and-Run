@@ -89,7 +89,8 @@ tContext::tContext(pddiDevice* dev, pddiDisplay* disp, pddiRenderContext* con)
     vertexProgram = (pddiExtVertexProgram*)RenderContext->GetExtension(PDDI_EXT_VERTEX_PROGRAM);
 
     pddiExtMemRegistration* reg = (pddiExtMemRegistration*)RenderContext->GetExtension(PDDI_EXT_MEM_REGISTRATION);
-    reg->Register(&s_memCallback);
+    if ( reg != NULL )
+        reg->Register(&s_memCallback);
 
     inFrame = false;
 

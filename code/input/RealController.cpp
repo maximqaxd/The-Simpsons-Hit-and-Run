@@ -6,7 +6,9 @@
 	History:
  *****************************************************************************/
 #include <input/RealController.h>
+#if RAD_WIN32
 #include <input/usercontrollerWin32.h>
+#endif
 #include <input/inputmanager.h>
 
 /******************************************************************************

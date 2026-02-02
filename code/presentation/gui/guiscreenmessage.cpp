@@ -290,7 +290,7 @@ CGuiScreenMessage::GetControllerDisconnectedMessage(int controller_id, char *str
     }
 #endif
 
-#ifdef RAD_WIN32
+#if defined(RAD_WIN32) || defined(RAD_DREAMCAST)
     P3D_UNICODE* uni_string = GetTextBibleString( "MSG_CONTROLLER_DISCONNECTED_(GC)" );
 #endif
 
@@ -305,7 +305,7 @@ CGuiScreenMessage::GetControllerDisconnectedMessage(int controller_id, char *str
 void
 CGuiScreenMessage::ConvertUnicodeToChar(char *str, P3D_UNICODE* uni_str, int max_char)
 {
-    const UnicodeChar CONTROLLER_PORT_WILDCARD_CHARACTER = 0xa5;// since > 0x7f, '¥' wont work;
+    const UnicodeChar CONTROLLER_PORT_WILDCARD_CHARACTER = 0xa5;// since > 0x7f, '?' wont work;
     const UnicodeChar NEWLINE_CHARACTER = 0x5c; //'\';
     int i = 0;
     while (*uni_str && i < max_char)
@@ -361,7 +361,7 @@ CGuiScreenMessage::FormatMessage( Scrooby::Text* pText,
 {
     const UnicodeChar SLOT_WILDCARD_CHARACTER = '$';
 	const UnicodeChar BLOCKS_WILDCARD_CHARACTER = '#';
-	const UnicodeChar CONTROLLER_PORT_WILDCARD_CHARACTER = 0xa5;// since > 0x7f, '¥' wont work;
+	const UnicodeChar CONTROLLER_PORT_WILDCARD_CHARACTER = 0xa5;// since > 0x7f, '?' wont work;
 
     rAssert( pText != NULL );
     UnicodeChar* stringBuffer = pText->GetStringBuffer();

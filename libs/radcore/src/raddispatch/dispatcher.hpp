@@ -25,9 +25,11 @@
 //=============================================================================
 // Include Files
 //=============================================================================
-
+#if defined(RAD_DREAMCAST)
+#include <kos/mutex.h>
+#elif defined(RAD_WIN32)
 #include <SDL.h>
-
+#endif
 
 #include <raddispatch.hpp>
 #include <radobject.hpp>
@@ -107,7 +109,11 @@ class radDispatcher : public IRadDispatcher,
     unsigned int        m_EventQueueTailIndex;
     unsigned int        m_EventsQueued;
 
-    SDL_mutex*		m_Mutex;
+#if defined(RAD_DREAMCAST)
+    mutex_t             m_Mutex;
+#else
+    SDL_mutex*          m_Mutex;
+#endif
 };
 
 #endif

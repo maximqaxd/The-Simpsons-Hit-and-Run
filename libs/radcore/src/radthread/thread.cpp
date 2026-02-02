@@ -54,9 +54,22 @@ radThread* radThread::s_ThreadTable[ MAX_RADTHREADS ];
 // The following table are provided to map our priorities to OS specific 
 // priorities.
 //
+#if defined(RAD_DREAMCAST)
+#include <kos/thread.h>
+#include <string.h>
+prio_t radThread::s_PriorityMap[ PriorityHigh + 1 ] =
+        { 5, 8, PRIO_DEFAULT, 12, 15 };  // Low, BelowNormal, Normal, AboveNormal, High
+
+void* radThread::KOSThreadEntry( void* param )
+{
+    int ret = radThread::InternalThreadEntry( param );
+    return (void*)(intptr_t)ret;
+}
+#else
 SDL_ThreadPriority radThread::s_PriorityMap[ PriorityHigh + 1 ] =
         { SDL_THREAD_PRIORITY_LOW, SDL_THREAD_PRIORITY_LOW, SDL_THREAD_PRIORITY_NORMAL,
           SDL_THREAD_PRIORITY_HIGH, SDL_THREAD_PRIORITY_HIGH };
+#endif
 
 //
 // This static is used to manage free thread local storgage objects. The
@@ -136,7 +149,11 @@ void radThreadSleep
     unsigned int milliseconds
 )
 {
+#if defined(RAD_DREAMCAST)
+    thd_sleep( milliseconds );
+#else
     SDL_Delay( milliseconds );
+#endif
 }
 
 //=============================================================================
@@ -481,7 +498,12 @@ radThread::radThread( void )
 {
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radThread" );
 
+#if defined(RAD_DREAMCAST)
+    m_ThreadHandle = thd_get_current( );
+    m_ThreadId = thd_get_id( m_ThreadHandle );
+#else
     m_ThreadId = SDL_ThreadID();
+#endif
 
     //
     // Add ourself as the first entry in the thread table. No protection
@@ -559,7 +581,16 @@ radThread::radThread
     // Create thread which then sets its own priority.
     //
     m_Priority = priority;
+#if defined(RAD_DREAMCAST)
+    {
+        kthread_attr_t attr;
+        memset( &attr, 0, sizeof(attr) );
+        attr.stack_size = stackSize * 1024;
+        m_ThreadHandle = thd_create_ex( &attr, KOSThreadEntry, this );
+    }
+#else
     m_ThreadHandle = SDL_CreateThreadWithStackSize(InternalThreadEntry, /*name*/nullptr, stackSize * 1024, this);
+#endif
 
     //
     // Release our protection.
@@ -684,7 +715,12 @@ radThread::~radThread( void )
         //
         radThreadInternalUnlock( );   
 
+#if defined(RAD_DREAMCAST)
+        if( m_ThreadHandle != NULL )
+            thd_join( m_ThreadHandle, nullptr );
+#else
         //SDL_WaitThread(m_ThreadHandle, nullptr);
+#endif
     }
 }
 
@@ -709,7 +745,12 @@ int radThread::InternalThreadEntry( void* param )
     // from callers function.   
     //
     radThread* pThread = (radThread*) param;
+#if defined(RAD_DREAMCAST)
+    pThread->m_ThreadHandle = thd_get_current( );
+    pThread->m_ThreadId = thd_get_id( pThread->m_ThreadHandle );
+#else
     pThread->m_ThreadId = SDL_ThreadID();
+#endif
 
     // In SDL, thread priority can only be set on the current thread, so we do it here.
     pThread->SetPriority(pThread->m_Priority);
@@ -728,7 +769,7 @@ int radThread::InternalThreadEntry( void* param )
     //
     pThread->m_IsRunning = false;
 
-    return 0;
+    return (int) pThread->m_ReturnCode;
 }
 
 //=============================================================================
@@ -751,7 +792,12 @@ void radThread::SetPriority( Priority priority )
     //
     m_Priority = priority;
 
+#if defined(RAD_DREAMCAST)
+    if( m_ThreadHandle != NULL )
+        thd_set_prio( m_ThreadHandle, s_PriorityMap[ priority ] );
+#else
     SDL_SetThreadPriority( s_PriorityMap[ priority ] );
+#endif
 }
 
 //=============================================================================
@@ -857,9 +903,16 @@ bool radThread::IsRunning
 
 unsigned int radThread::WaitForTermination( void )
 {
+#if defined(RAD_DREAMCAST)
+    void* ret = NULL;
+    if( m_ThreadHandle != NULL )
+        thd_join( m_ThreadHandle, &ret );
+    return (unsigned int)(intptr_t)ret;
+#else
     int ret;
     SDL_WaitThread(m_ThreadHandle, &ret);
     return ret;
+#endif
 }
 
 //=============================================================================
@@ -877,7 +930,11 @@ unsigned int radThread::WaitForTermination( void )
 
 bool radThread::IsActive( void )
 {
+#if defined(RAD_DREAMCAST)
+    return m_ThreadId == thd_get_id( thd_get_current( ) );
+#else
     return m_ThreadId == SDL_ThreadID();
+#endif
 }
 
 //=============================================================================

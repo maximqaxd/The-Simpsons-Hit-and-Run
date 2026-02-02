@@ -26,8 +26,8 @@
 // Build Configuration Check
 //=============================================================================
 
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32)
-    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, or RAD_WIN32'
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_DREAMCAST)
+    #error 'FTech requires definition of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_DREAMCAST'
 #endif
 
 //=============================================================================
@@ -86,6 +86,14 @@ struct IRadMemoryAllocator;
 #define STANDARD_ALIGNMENT  8
 #define UNCACHE_BIT         0x40000000
 #endif
+
+
+// TODO: Dreamcast fine-tune alignment
+#if defined RAD_DREAMCAST
+#define STANDARD_ALIGNMENT  4
+#define UNCACHE_BIT         0x00000000
+#endif
+
 
 //=============================================================================
 // L O C A L  M E M O R Y  F U N C T I O N S
@@ -305,6 +313,10 @@ enum radMemorySpace
 #endif
 #if defined (RAD_WIN32) || defined (RAD_XBOX)
     radMemorySpace_Main         // Win/Xbox main memory.
+#endif
+#ifdef RAD_DREAMCAST
+    radMemorySpace_Main,        // DC main memory.
+    radMemorySpace_Aram         // DC sound memory space.
 #endif
 };
 

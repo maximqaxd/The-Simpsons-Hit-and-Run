@@ -22,8 +22,8 @@
 #endif
 
 // check that we have a valid platform define
-#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_LINUX)
-#error No platform defined, define one of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_WIN32 or RAD_LINUX 
+#if !defined(RAD_GAMECUBE) && !defined(RAD_PS2) && !defined(RAD_XBOX) && !defined(RAD_WIN32) && !defined(RAD_LINUX) && !defined (RAD_DREAMCAST )
+#error No platform defined, define one of RAD_GAMECUBE, RAD_PS2, RAD_XBOX, RAD_DREAMCAST, RAD_WIN32 or RAD_LINUX 
 #endif
 
 #if !defined(RAD_PC) && !defined(RAD_CONSOLE) 

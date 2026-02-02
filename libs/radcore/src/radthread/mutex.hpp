@@ -23,8 +23,11 @@
 //=============================================================================
 // Include Files
 //=============================================================================
-
+#if defined(RAD_DREAMCAST)
+#include <kos/mutex.h>
+#elif defined(RAD_WIN32)
 #include <SDL.h>
+#endif
 #include <radobject.hpp>
 #include <radmemory.hpp>
 #include <radthread.hpp>
@@ -82,7 +85,11 @@ class radThreadMutex : public IRadThreadMutex,
     //
     unsigned int m_ReferenceCount;    
 
-    SDL_mutex* m_Mutex;
+#if defined(RAD_DREAMCAST)
+    mutex_t     m_Mutex;
+#else
+    SDL_mutex*  m_Mutex;
+#endif
 };
 
 #endif

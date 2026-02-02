@@ -16,6 +16,10 @@ namespace Input
     const static unsigned int MaxPorts = 4;
     const static unsigned int MaxSlots = 1;
     #endif
+    #ifdef RAD_DREAMCAST
+    const static unsigned int MaxPorts = 4;
+    const static unsigned int MaxSlots = 2;  
+    #endif
     #if defined( RAD_WIN32 )
     const static unsigned int MaxPorts = 4;
     const static unsigned int MaxSlots = 1;

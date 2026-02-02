@@ -12,7 +12,7 @@
 
     #include <malloc.h>
 
-#elif defined WIN32 || defined RAD_XBOX
+#elif defined WIN32 || defined RAD_XBOX || defined RAD_DREAMCAST
     
     #include <stdlib.h>
     #include <malloc.h>

@@ -118,4 +118,9 @@ public:
     #include <pddi/pddigc.hpp>
 #endif
 
+#ifdef RAD_DREAMCAST
+    #include <pddi/pddiwin32.hpp>
+#endif
+
+
 #endif /* _PDDITYPE_HPP */

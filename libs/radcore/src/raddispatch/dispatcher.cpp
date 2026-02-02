@@ -98,7 +98,11 @@ radDispatcher::radDispatcher
     //
     m_EventQueue = (Event*) radMemoryAlloc( alloc, sizeof(Event) * m_MaxEvents );
 
+#if defined(RAD_DREAMCAST)
+    mutex_init( &m_Mutex, MUTEX_TYPE_NORMAL );
+#else
     m_Mutex = SDL_CreateMutex();
+#endif
 }
 
 //=============================================================================
@@ -120,7 +124,11 @@ radDispatcher::~radDispatcher( void )
     //
     rAssert( m_EventsQueued == 0 );
    
+#if defined(RAD_DREAMCAST)
+    mutex_destroy( &m_Mutex );
+#else
     SDL_DestroyMutex(m_Mutex);
+#endif
 
     //
     // Free up the memory
@@ -219,7 +227,11 @@ void radDispatcher::QueueCallback
 
     //
     // Protect the addition of this record to the event list.
+#if defined(RAD_DREAMCAST)
+    mutex_lock( &m_Mutex );
+#else
     SDL_LockMutex(m_Mutex);
+#endif
 
     //
     // Assert that we have not exceeded the maximum number of events in the queue.
@@ -241,7 +253,11 @@ void radDispatcher::QueueCallback
     //
     // Remove protection
     //
+#if defined(RAD_DREAMCAST)
+    mutex_unlock( &m_Mutex );
+#else
     SDL_UnlockMutex(m_Mutex);
+#endif
 }
 
 
@@ -342,7 +358,11 @@ unsigned int radDispatcher::Service( void )
     // Protect the manilpulation of this record the event list. Platform specif locks
     // required.
     //
+#if defined(RAD_DREAMCAST)
+    mutex_lock( &m_Mutex );
+#else
     SDL_LockMutex(m_Mutex);
+#endif
 
     while( (m_EventsQueued != 0) && (eventsToDispatch != 0) )
     {
@@ -361,7 +381,11 @@ unsigned int radDispatcher::Service( void )
         //
         // Now remove lock and invoke event handler.
         //
+#if defined(RAD_DREAMCAST)
+        mutex_unlock( &m_Mutex );
+#else
         SDL_UnlockMutex(m_Mutex);
+#endif
 
         event.m_Callback->OnDispatchCallack( event.m_UserData );
 
@@ -378,10 +402,18 @@ unsigned int radDispatcher::Service( void )
         RotateThreadReadyQueue( threadInfo.currentPriority );
         #endif
 
+#if defined(RAD_DREAMCAST)
+        mutex_lock( &m_Mutex );
+#else
         SDL_LockMutex(m_Mutex);
+#endif
     }
 
+#if defined(RAD_DREAMCAST)
+    mutex_unlock( &m_Mutex );
+#else
     SDL_UnlockMutex(m_Mutex);
+#endif
 
     return( m_EventsQueued );
           

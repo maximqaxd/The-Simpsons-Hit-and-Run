@@ -72,7 +72,7 @@ const int PDDI_LIBID_VECTREX    = 12;
 #define PDDI_TEX_TOO_BIG      201
 #define PDDI_TEX_BADFORMAT    202
 
-#if defined( RAD_WIN32 ) || defined( RAD_LINUX )
+#if defined( RAD_WIN32 ) || defined( RAD_LINUX ) 
 // code used for library initialisation on a PC
 
 // video mode information

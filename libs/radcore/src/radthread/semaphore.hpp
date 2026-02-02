@@ -23,8 +23,11 @@
 //=============================================================================
 // Include Files
 //=============================================================================
-
+#if defined(RAD_DREAMCAST)
+#include <kos/sem.h>
+#elif defined(RAD_WIN32)
 #include <SDL.h>
+#endif
 
 #include <radobject.hpp>
 #include <radmemory.hpp>
@@ -83,7 +86,11 @@ class radThreadSemaphore : public IRadThreadSemaphore,
     //
     unsigned int m_ReferenceCount;    
 
-    SDL_sem* m_Semaphore;
+#if defined(RAD_DREAMCAST)
+    semaphore_t  m_Semaphore;
+#else
+    SDL_sem*     m_Semaphore;
+#endif
 };
 
 #endif

@@ -507,7 +507,29 @@ class radPlatform : public IRadPlatform
     }
 
 #endif // RAD_GAMECUBE
-    
+
+#ifdef RAD_DREAMCAST
+
+    //
+    // Dreamcast implementation 
+    //
+    void Initialize( radMemoryAllocator allocator )
+    {
+        rAssertMsg( !m_Initialized, "radPlatform already initialized");
+        radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radPlatform" );
+        m_ThisAllocator = allocator;
+        m_Initialized = true;
+    }
+
+    void Terminate( void )
+    {
+        rAssertMsg( m_Initialized, "radPlatform not initialized");
+        rAssertMsg( m_RefCount == 0, "radPlatorm still in use" );
+        m_Initialized = false;
+    }
+
+#endif // RAD_DREAMCAST
+
     //
     // Data members common to all plaforms.
     //
@@ -594,6 +616,18 @@ void radPlatformInitialize( void )
     pthePlatform->Initialize();
 }
 #endif // RAD_GAMECUBE
+
+#ifdef RAD_DREAMCAST
+//
+// Dreamcast initialization .
+//
+void radPlatformInitialize( radMemoryAllocator allocator )
+{
+    pthePlatform = new( thePlaftormSpace ) radPlatform( );
+    pthePlatform->Construct( allocator );
+    pthePlatform->Initialize( allocator );
+}
+#endif // RAD_DREAMCAST
 
 //=============================================================================
 // Function: radPlatformTerminate

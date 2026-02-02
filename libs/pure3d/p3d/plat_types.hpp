@@ -26,6 +26,8 @@
     #include <p3d/platform/win32/plat_types.hpp>
 #endif
 
-
+#ifdef RAD_DREAMCAST
+    #include <p3d/platform/dc/plat_types.hpp>
 #endif
 
+#endif
