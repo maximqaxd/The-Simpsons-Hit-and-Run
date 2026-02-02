@@ -67,6 +67,8 @@ void pvrContext::SetScissor(pddiRect* rect)
 
 }
 
+static pvrPrimStream s_pvrNoOpPrimStream;
+
 pddiPrimStream* pvrContext::BeginPrims(pddiShader* material, pddiPrimType primType, unsigned vertexType, int vertexCount, unsigned pass)
 {
     (void)material;
@@ -74,8 +76,8 @@ pddiPrimStream* pvrContext::BeginPrims(pddiShader* material, pddiPrimType primTy
     (void)vertexType;
     (void)vertexCount;
     (void)pass;
-    // PVR: pvr_list_begin(); pvr_dr_init(); return stream
-    return NULL;
+
+    return &s_pvrNoOpPrimStream;
 }
 
 void pvrContext::EndPrims(pddiPrimStream* stream)

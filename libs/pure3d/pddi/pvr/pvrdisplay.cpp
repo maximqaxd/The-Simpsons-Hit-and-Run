@@ -8,6 +8,15 @@
 #include <pddi/base/debug.hpp>
 #include <string.h>
 
+pvr_init_params_t params = {
+	{ PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_8 },
+	3072 * 256,    /* vertex buffer */
+	0,             /* dma disabled for TA  */
+	0,             /* fsaa off */
+	0,             /* keep PVR translucent autosort OFF  */
+	2            /* OPB count: start with 2*/
+};
+
 pvrDisplay::pvrDisplay()
 {
     mode = PDDI_DISPLAY_WINDOW;
@@ -32,7 +41,7 @@ bool pvrDisplay::InitDisplay(const pddiDisplayInit* init)
     winWidth = init->xsize;
     winHeight = init->ysize;
     winBitDepth = 16;  
-    // PVR: pvr_init_params_t, pvr_init() etc.
+    pvr_init( &params );
     return true;
 }
 

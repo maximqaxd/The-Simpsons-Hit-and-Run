@@ -9,10 +9,27 @@
 #define PVR_BUFFERED_VERTS 1024
 
 #include <pddi/pddi.hpp>
+#include <pddi/pddipc.hpp>
 #include <pddi/base/basecontext.hpp>
 
 class pvrDisplay;
 class pvrDevice;
+
+// stub primStream
+class pvrPrimStream : public pddiPrimStream
+{
+public:
+    void Coord(float x, float y, float z) { (void)x;(void)y;(void)z; }
+    void Normal(float x, float y, float z) { (void)x;(void)y;(void)z; }
+    void Colour(pddiColour colour, int channel = 0) { (void)colour;(void)channel; }
+    void UV(float u, float v, int channel = 0) { (void)u;(void)v;(void)channel; }
+    void Specular(pddiColour colour) { (void)colour; }
+    void Vertex(pddiVector* v, pddiColour c) { (void)v;(void)c; }
+    void Vertex(pddiVector* v, pddiVector* n) { (void)v;(void)n; }
+    void Vertex(pddiVector* v, pddiVector2* uv) { (void)v;(void)uv; }
+    void Vertex(pddiVector* v, pddiColour c, pddiVector2* uv) { (void)v;(void)c;(void)uv; }
+    void Vertex(pddiVector* v, pddiVector* n, pddiVector2* uv) { (void)v;(void)n;(void)uv; }
+};
 
 //--------------------------------------------------------------
 class pvrContext : public pddiBaseContext
