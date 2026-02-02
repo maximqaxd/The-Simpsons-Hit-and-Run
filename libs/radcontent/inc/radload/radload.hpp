@@ -169,7 +169,8 @@ extern radLoadManagerWrapper radLoad;
 struct radLoadInit
 {
     // Constructor to fill in the default variables
-    radLoadInit() : fileLoaderListSize( 64 ), dataLoaderListSize( 256 ), loadQueueSize( 32 ), loadThreadStackSize( 65536 ) {};
+    // loadThreadStackSize is in KB: radThreadCreateThread does stackSize*1024 bytes.
+    radLoadInit() : fileLoaderListSize( 64 ), dataLoaderListSize( 256 ), loadQueueSize( 32 ), loadThreadStackSize( 64 ) {};
 
     ///@{ Sets the loader list size limit.
     /// \attention Must be a power of two.
@@ -177,7 +178,7 @@ struct radLoadInit
     int dataLoaderListSize; //@}
     /// Max number of pending load requests.
     int loadQueueSize;
-    /// Sets the stack size that the load thread will have.  Only important for PS2
+    /// Stack size for the load thread, in KB (radThread uses this * 1024 bytes).
     int loadThreadStackSize;
 };
 
