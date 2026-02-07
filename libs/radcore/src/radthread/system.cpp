@@ -83,7 +83,7 @@ void radThreadInitialize( unsigned int milliseconds )
     // OS exculision objects for our own use. Create them here.
     //
 #if defined(RAD_DREAMCAST)
-    mutex_init( &g_ExclusionObject, MUTEX_TYPE_NORMAL );
+    mutex_init( &g_ExclusionObject, MUTEX_TYPE_RECURSIVE );
 #else
     g_ExclusionObject = SDL_CreateMutex();
 #endif

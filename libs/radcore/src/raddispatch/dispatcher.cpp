@@ -99,7 +99,7 @@ radDispatcher::radDispatcher
     m_EventQueue = (Event*) radMemoryAlloc( alloc, sizeof(Event) * m_MaxEvents );
 
 #if defined(RAD_DREAMCAST)
-    mutex_init( &m_Mutex, MUTEX_TYPE_NORMAL );
+    mutex_init( &m_Mutex, MUTEX_TYPE_RECURSIVE );
 #else
     m_Mutex = SDL_CreateMutex();
 #endif

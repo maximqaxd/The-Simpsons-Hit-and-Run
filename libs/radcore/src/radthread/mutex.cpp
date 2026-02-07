@@ -91,7 +91,7 @@ radThreadMutex::radThreadMutex( void )
 { 
     radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radThreadMutex" );
 #if defined(RAD_DREAMCAST)
-    mutex_init( &m_Mutex, MUTEX_TYPE_NORMAL );
+    mutex_init( &m_Mutex, MUTEX_TYPE_RECURSIVE );
 #else
     m_Mutex = SDL_CreateMutex();
 #endif
