@@ -8,6 +8,7 @@
 
 #include <pddi/pddi.hpp>
 #include <pddi/pdditype.hpp>
+#include <pddi/pvr/pvr.hpp>
 
 class pvrContext;
 
@@ -40,23 +41,30 @@ public:
     void SetPriority(int priority);
     int GetPriority();
 
+    // PVR accessors
+    pvr_ptr_t GetVramPtr() const { return vramPtr; }
+    int GetPvrTxrFormat() const { return pvrTxrFormat; }
+    int GetStridePixels() const { return stridePixels; }
+
 protected:
     pvrContext* context;
     unsigned contextID;
 
     int log2X, log2Y;
     int xSize, ySize;
+    int stridePixels; // for PVR_TXRFMT_*_STRIDE 
     pddiTextureType type;
     int nMipMap;
 
     bool valid;
-    // PVR: pvr_ptr_t vram_ptr or equivalent stub
-    void* vramPtr;
+    // PVR: VRAM pointer and format flags used by polygon contexts
+    pvr_ptr_t vramPtr;
+    int pvrTxrFormat;
     int priority;
 
     pddiLockInfo lock;
 
-    char** bits;
+    char** bits; // SH4-side staging buffers for each mip (currently mip0 only)
 };
 
 #endif /* _PVRTEX_HPP_ */

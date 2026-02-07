@@ -30,7 +30,10 @@ endif()
 if(DREAMCAST)
 	add_compile_definitions(RAD_DREAMCAST)
 	include_directories("/opt/toolchains/dc/kos-ports/include/png")
+	include_directories("/opt/toolchains/dc/kos-ports/include")
+	include_directories("/opt/toolchains/dc/kos-ports/sh4zam/inst/include")
 	link_directories(/opt/toolchains/dc/kos-ports/lib)
+	link_directories(/opt/toolchains/dc/kos-ports/sh4zam/inst/lib)
 	message(STATUS "Building for Sega Dreamcast")
 endif()
 
@@ -1243,7 +1246,7 @@ target_include_directories(radcore
 	PRIVATE "libs/radcore/src/pch/" # TODO
 	PUBLIC "code/" # wtf (radobject.hpp includes memory/classsizetracker.h)
 )
-target_compile_features(radcore PUBLIC cxx_std_17)
+target_compile_features(radcore PUBLIC cxx_std_20)
 if(NOT DREAMCAST)
 	target_link_libraries(radcore SDL2::SDL2)
 endif()
@@ -1270,6 +1273,9 @@ target_link_libraries(pddi
 	radmath
 	radcore
 )
+if(DREAMCAST)
+	target_link_libraries(pddi sh4zam)
+endif()
 if(NOT DREAMCAST)
 	target_link_libraries(pddi SDL2::SDL2)
 endif()
@@ -1519,7 +1525,7 @@ if (NOT DREAMCAST)
 endif()
 
 
-target_compile_features(SRR2 PRIVATE cxx_std_17)
+target_compile_features(SRR2 PRIVATE cxx_std_20)
 
 option(SRR2_USE_PCH ON)
 if (SRR2_USE_PCH)

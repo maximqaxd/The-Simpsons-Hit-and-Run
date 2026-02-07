@@ -19,7 +19,7 @@
 
 static pvrDevice gblDevice;
 
-static char libName[] = "PowerVR CLX2 (KallistiOS)";
+static char libName[] = "PowerVR CLX2";
 
 int pddiCreate(int versionMajor, int versionMinor, pddiDevice** device)
 {
@@ -51,7 +51,7 @@ void pvrDevice::GetLibraryInfo(pddiLibInfo* info)
     info->versionMajor = PDDI_VERSION_MAJOR;
     info->versionMinor = PDDI_VERSION_MINOR;
     info->versionBuild = PDDI_PVR_BUILD;
-    info->libID = PDDI_LIBID_OPENGL; // reuse or add PDDI_LIBID_PVR if needed
+    info->libID = PDDI_LIBID_OPENGL; 
     strcpy(info->description, libName);
 }
 

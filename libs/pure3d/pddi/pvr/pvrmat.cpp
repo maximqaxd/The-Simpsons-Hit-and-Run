@@ -51,6 +51,29 @@ pvrMat::pvrMat(pvrContext* c)
 {
     context->AddRef();
     memset(texEnv, 0, sizeof(texEnv));
+
+    // defaults
+    texEnv[0].enabled = false;
+    texEnv[0].texture = NULL;
+    texEnv[0].uvSet = 0;
+    texEnv[0].texGen = PDDI_TEXGEN_NONE;
+    texEnv[0].uvMode = PDDI_UV_TILE;
+    texEnv[0].filterMode = PDDI_FILTER_BILINEAR;
+
+    texEnv[0].alphaTest = false;
+    texEnv[0].alphaBlendMode = PDDI_BLEND_NONE;
+    texEnv[0].alphaCompareMode = PDDI_COMPARE_ALWAYS;
+    texEnv[0].alphaRef = 0.5f;
+
+    texEnv[0].lit = false;
+    texEnv[0].twoSided = false;
+    texEnv[0].shadeMode = PDDI_SHADE_GOURAUD;
+
+    texEnv[0].diffuse = pddiColour(255, 255, 255, 255);
+    texEnv[0].ambient = pddiColour(0, 0, 0, 255);
+    texEnv[0].emissive = pddiColour(0, 0, 0, 255);
+    texEnv[0].specular = pddiColour(0, 0, 0, 255);
+    texEnv[0].shininess = 0.0f;
 }
 
 pvrMat::~pvrMat()

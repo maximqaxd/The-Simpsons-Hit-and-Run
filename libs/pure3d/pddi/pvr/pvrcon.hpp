@@ -11,9 +11,13 @@
 #include <pddi/pddi.hpp>
 #include <pddi/pddipc.hpp>
 #include <pddi/base/basecontext.hpp>
+#include <pddi/pvr/pvr.hpp>
+#include <sh4zam/shz_sh4zam.h>
 
 class pvrDisplay;
 class pvrDevice;
+class pvrMat;
+struct pvrTextureEnv;
 
 // stub primStream
 class pvrPrimStream : public pddiPrimStream
@@ -95,8 +99,19 @@ public:
     bool VerifyExtension(unsigned extID);
 
     pvrDisplay* GetDisplay(void) { return display; }
+    pddiShader* GetDefaultShader(void) { return defaultShader; }
+    pvr_dr_state_t& GetDrState(void) { return drState; }
 
     unsigned contextID;
+
+    // Helper to build PVR poly header from texture environment
+    void BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHdr, pvr_list_t& outList) const;
+
+    friend bool TransformToScreen(const pvrContext* ctx, float x, float y, float z, float& sx, float& sy, float& sz);
+    friend void EnsureList(pvrContext* ctx, pvr_list_t list);
+    class pvrImmediatePrimStream;
+    friend class pvrImmediatePrimStream;
+    friend class pvrPrimBuffer;  
 
 protected:
     void LoadHardwareMatrix(pddiMatrixType id);
@@ -113,6 +128,18 @@ protected:
     pddiShader* defaultShader;
 
     int maxTexSize;
+
+    // PVR scene/list state
+    pvr_list_t currentList;
+    unsigned begunMask;
+    pvr_dr_state_t drState;
+
+    // Cached projection/viewport state 
+    shz_mat4x4_t modelViewM;
+    shz_mat4x4_t projectionM;
+    shz_mat4x4_t viewProjM;
+    int viewportX, viewportY, viewportW, viewportH; 
+    int displayW, displayH;
 };
 
 class pvrPrimBufferStream;
@@ -138,6 +165,7 @@ public:
     void SetMemImageParam(unsigned param, unsigned value) { (void)param; (void)value; }
 
     void Display(void);
+    void DisplayWithMaterial(pvrMat* mat, unsigned pass);
 
 protected:
     friend class pvrPrimBufferStream;
@@ -162,7 +190,6 @@ protected:
     unsigned indexCount;
 
     bool valid;
-    // PVR: use 0 as placeholder or add pvr_dr_state_t later
     unsigned mem;
 };
 

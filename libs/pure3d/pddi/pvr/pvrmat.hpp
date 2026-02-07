@@ -83,6 +83,8 @@ public:
     int CountDevPasses(void);
     void SetDevPass(unsigned);
 
+    const pvrTextureEnv& GetTextureEnv(int p = 0) const { return texEnv[p]; }
+
 private:
     pvrContext* context;
     int pass;
