@@ -105,6 +105,13 @@ void radMemoryPlatTerminate( void )
 // ::radMemoryPlatAlloc
 //============================================================================
 
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+#include <stdio.h>
+#define RAD_DC_BIG_ALLOC_BYTES (128 * 1024)
+static unsigned s_dcBigAllocs = 0;
+static unsigned s_dcBigAllocBytes = 0;
+#endif
+
 void * radMemoryPlatAlloc( unsigned int numberOfBytes )
 {
     void * pMemory;
@@ -117,7 +124,22 @@ void * radMemoryPlatAlloc( unsigned int numberOfBytes )
     }
 
     pMemory = malloc( numberOfBytes );
-    
+
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    if ( numberOfBytes >= RAD_DC_BIG_ALLOC_BYTES )
+    {
+        s_dcBigAllocs++;
+        s_dcBigAllocBytes += numberOfBytes;
+        printf( "   [big] %u bytes at %p (%u big allocs, %u KB total)%s\n",
+                numberOfBytes, pMemory, s_dcBigAllocs, s_dcBigAllocBytes / 1024,
+                pMemory ? "" : "  <-- FAILED" );
+        printf( "         from %p %p %p\n",
+                __builtin_return_address( 0 ),
+                __builtin_return_address( 1 ),
+                __builtin_return_address( 2 ) );
+    }
+#endif
+
     rWarningMsg( pMemory != NULL, "radMemory: Platform (malloc) allocator failed to allocate memory\n" );
     return pMemory;
 }

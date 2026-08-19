@@ -26,6 +26,7 @@
 //============================================================================
 
 #include "pch.hpp"
+#include <stdio.h>
 #include <stdlib.h>
 #include <raddebug.hpp>
 #include <radobject.hpp>
@@ -520,6 +521,18 @@ void * radMemoryAlloc( radMemoryAllocator allocator, unsigned int numberOfBytes 
     {
         return NULL;
     }
+
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    if ( numberOfBytes >= (128 * 1024) )
+    {
+        printf( "   [who] %u bytes, allocator %d, from %p %p %p %p\n",
+                numberOfBytes, (int)allocator,
+                __builtin_return_address( 0 ),
+                __builtin_return_address( 1 ),
+                __builtin_return_address( 2 ),
+                __builtin_return_address( 3 ) );
+    }
+#endif
 
     rAssert( g_Initialized == true );
     rAssert( allocator < ALLOCATOR_TABLE_SIZE || allocator == ALLOCATOR_SEARCH );

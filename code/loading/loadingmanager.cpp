@@ -34,6 +34,11 @@
 
 #include <mission/gameplaymanager.h>
 
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+#include <memory/memoryutilities.h>
+static size_t s_LoadStartUsed = 0;
+#endif
+
 //******************************************************************************
 //
 // Global Data, Local Data, Local Classes
@@ -296,9 +301,18 @@ void LoadingManager::OnLoadFileComplete( void* pUserData )
     
     extern bool gLoadingSpew;
 
-        rReleasePrintf( "<< END >> Async Loading: %s (%u msecs)\n", 
+        rReleasePrintf( "<< END >> Async Loading: %s (%u msecs)\n",
                     request.filename,
                     radTimeGetMilliseconds() - request.startTime );
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    {
+        const size_t used = Memory::GetTotalMemoryUsed();
+        rReleasePrintf( "   [mem] %s cost %ld KB, heap now %u KB\n",
+                        request.filename,
+                        ( (long)used - (long)s_LoadStartUsed ) / 1024,
+                        (unsigned)( used / 1024 ) );
+    }
+#endif
    
     
     // Continue onto the next request.
@@ -605,6 +619,9 @@ void LoadingManager::ProcessNextRequest()
             if ( request.filename[0] != '\0' )
             {         
                     rReleasePrintf( "<<START>> Async Loading: %s\n", request.filename );
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+                s_LoadStartUsed = Memory::GetTotalMemoryUsed();
+#endif
 #ifdef RAD_WIN32
                 mRequestsProcessed++;
 #endif
