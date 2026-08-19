@@ -20,6 +20,7 @@
 #include <p3d/png.hpp>
 #include <p3d/bmp.hpp>
 #include <p3d/dxtn.hpp>
+#include <p3d/dctex.hpp>
 #include <p3d/rawimage.hpp>
 
 #include <assert.h>
@@ -315,6 +316,11 @@ bool TextureBuilder::BeginImage(int width, int height, int bpp, tImageHandler::B
              (type == PDDI_TEXTYPE_GC_16BIT) || (type == PDDI_TEXTYPE_GC_32BIT) )
         {
             texture->Create(width, height, bpp, 8, nMip, type, usage);
+        }
+        else
+        if( type == PDDI_TEXTYPE_DC_DT )
+        {
+            texture->Create(width, height, 16, alphaDepth, 0, type, usage);
         }
     }
 
@@ -634,6 +640,9 @@ tImageFactory::tImageFactory() :
     AddHandler(new tBMPHandler);
     AddHandler(new tTargaHandler); 
     AddHandler(new tRawImageHandler);
+#ifdef RAD_DREAMCAST
+    AddHandler( new tDCTexHandler );
+#endif
 #if defined(RAD_WIN32) || defined(RAD_GAMECUBE) || defined(RAD_DREAMCAST)
     AddHandler( new tDXTNHandler );
 #endif

@@ -42,9 +42,11 @@ public:
     int GetPriority();
 
     // PVR accessors
-    pvr_ptr_t GetVramPtr() const { return vramPtr; }
+    pvr_ptr_t GetVramPtr() const { return vramTexPtr; }
+    bool HasMipMaps() const { return mipMapped; }
     char* DecodeToSurface(const char* blocks);
     void ReleaseStaging(int mipLevel);
+    bool UploadDreamcastTexture(int mipLevel);
     int GetPvrTxrFormat() const { return pvrTxrFormat; }
     int GetStridePixels() const { return stridePixels; }
 
@@ -64,11 +66,14 @@ protected:
     int pvrTxrFormat;
     int priority;
 
-    // The PVR cannot sample S3TC, so DXTn source data is staged compressed and
-    // decoded to 16bpp on upload.
+    pvr_ptr_t vramTexPtr;
+
     bool compressed;
-    int dxtBlockBytes;      // 8 for DXT1, 16 for DXT2..DXT5
-    size_t stagingBytes;    // allocation size of each bits[] entry
+    int dxtBlockBytes;
+    size_t stagingBytes;
+
+    bool preEncoded;
+    bool mipMapped;
 
     pddiLockInfo lock;
 

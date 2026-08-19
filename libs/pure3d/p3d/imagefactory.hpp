@@ -39,7 +39,8 @@ public:
         IMG_GC_8BIT,
         IMG_GC_16BIT,
         IMG_GC_32BIT,
-        IMG_GC_DXT1
+        IMG_GC_DXT1,
+        IMG_DC_DT
     };
 
     class Builder

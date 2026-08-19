@@ -34,6 +34,16 @@ if(DREAMCAST)
 	include_directories("/opt/toolchains/dc/kos-ports/sh4zam/inst/include")
 	link_directories(/opt/toolchains/dc/kos-ports/lib)
 	link_directories(/opt/toolchains/dc/kos-ports/sh4zam/inst/lib)
+	option(SRR2_DC_TRACE_VERTS "Log clip-space vertices from each draw path" OFF)
+	if(SRR2_DC_TRACE_VERTS)
+		add_compile_definitions(RAD_DC_TRACE_VERTS)
+	endif()
+	option(SRR2_DC_TRACE_BIG_ALLOCS "Log allocations of 128KB or more" OFF)
+	if(SRR2_DC_TRACE_BIG_ALLOCS)
+		add_compile_definitions(RAD_DC_TRACE_BIG_ALLOCS)
+		add_compile_options(-fno-omit-frame-pointer)
+		add_link_options(-fno-omit-frame-pointer)
+	endif()
 	message(STATUS "Building for Sega Dreamcast")
 endif()
 
@@ -74,9 +84,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		add_compile_options(
 		-Os -g0 -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
 		)
-		# The kos-ports libpng archive carries LTO IR built with debug info, and
-		# recompiling it during the LTO link ICEs the compiler in
-		# expand_debug_locations. Forcing -g0 on the link skips that pass.
 		add_link_options(-g0)
 	endif()
 	if(VITA)
@@ -840,6 +847,7 @@ set(P3D_SOURCES
 	"libs/pure3d/p3d/displaylist.cpp"
 	"libs/pure3d/p3d/drawable.cpp"
 	"libs/pure3d/p3d/dxtn.cpp"
+	"libs/pure3d/p3d/dctex.cpp"
 	"libs/pure3d/p3d/effects/effect.cpp"
 	"libs/pure3d/p3d/effects/optic.cpp"
 	"libs/pure3d/p3d/effects/opticlensflare.cpp"
