@@ -72,8 +72,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 	if(DREAMCAST)
 		add_compile_options(
-		-Os -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
+		-Os -g0 -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
 		)
+		# The kos-ports libpng archive carries LTO IR built with debug info, and
+		# recompiling it during the LTO link ICEs the compiler in
+		# expand_debug_locations. Forcing -g0 on the link skips that pass.
+		add_link_options(-g0)
 	endif()
 	if(VITA)
 		add_compile_options(
