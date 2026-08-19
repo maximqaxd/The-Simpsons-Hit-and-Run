@@ -7,10 +7,12 @@
 #include <pddi/pvr/pvrtex.hpp>
 #include <pddi/pvr/pvrcon.hpp>
 #include <pddi/pvr/pvrutil.hpp>
+#include <pddi/gl/decompress.h>
 #include <pddi/base/debug.hpp>
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static inline bool IsPow2U32(uint32_t v) { return v && ((v & (v - 1u)) == 0u); }
 static inline int AlignUp32Pixels(int w) { return (w + 31) & ~31; }
@@ -29,6 +31,9 @@ pvrTexture::pvrTexture(pvrContext* c)
     , vramPtr(0)
     , pvrTxrFormat(0)
     , priority(0)
+    , compressed(false)
+    , dxtBlockBytes(0)
+    , stagingBytes(0)
     , bits(NULL)
 {
     context->AddRef();
@@ -71,6 +76,21 @@ bool pvrTexture::Create(int xSize_, int ySize_, int bpp, int alphaDepth, int nMi
     pddiPixelFormat pf = PDDI_PIXEL_RGB565;
     int baseFmt = PVR_TXRFMT_RGB565;
 
+    // S3TC carries its own alpha, so the alphaDepth the caller passes for a DXT
+    // surface is meaningless (pddi hardcodes 0). Derive it from the block format.
+    switch (type_)
+    {
+        case PDDI_TEXTYPE_DXT1:
+            compressed = true; dxtBlockBytes = 8;  alphaDepth = 1; break;
+        case PDDI_TEXTYPE_DXT2:
+        case PDDI_TEXTYPE_DXT3:
+        case PDDI_TEXTYPE_DXT4:
+        case PDDI_TEXTYPE_DXT5:
+            compressed = true; dxtBlockBytes = 16; alphaDepth = 4; break;
+        default:
+            break;
+    }
+
     if (alphaDepth > 0)
     {
         // Punch-through alpha works best with ARGB1555; smooth alpha with ARGB4444.
@@ -104,6 +124,23 @@ bool pvrTexture::Create(int xSize_, int ySize_, int bpp, int alphaDepth, int nMi
 
     const uint32_t strideFlag = pow2W ? PVR_TXRFMT_POW2_STRIDE : PVR_TXRFMT_X32_STRIDE;
     pvrTxrFormat = baseFmt | PVR_TXRFMT_NONTWIDDLED | (int)strideFlag;
+
+    // The staging buffer holds whatever the loader hands us: compressed blocks for
+    // DXTn, 16bpp pixels otherwise. It is always at least as large as the surface
+    // we upload, since S3TC never expands.
+    const size_t surfaceBytes = (size_t)stridePixels * (size_t)ySize * 2u;
+    if (compressed)
+    {
+        const size_t blocksX = ((size_t)xSize + 3u) / 4u;
+        const size_t blocksY = ((size_t)ySize + 3u) / 4u;
+        stagingBytes = pvrutil::AlignUp32(blocksX * blocksY * (size_t)dxtBlockBytes);
+        lock.format = pf;
+        lock.pitch = (int)(blocksX * (size_t)dxtBlockBytes);
+    }
+    else
+    {
+        stagingBytes = pvrutil::AlignUp32(surfaceBytes);
+    }
 
     const int mipCount = nMipMap + 1;
     bits = new char*[mipCount];
@@ -175,11 +212,10 @@ pddiLockInfo* pvrTexture::Lock(int mipLevel, pddiRect* rect)
 
     if (!bits[mipLevel])
     {
-        const size_t sizeBytes = pvrutil::AlignUp32((size_t)stridePixels * (size_t)ySize * 2u);
-        bits[mipLevel] = (char*)memalign(32, sizeBytes);
+        bits[mipLevel] = (char*)memalign(32, stagingBytes);
         if (!bits[mipLevel])
             return NULL;
-        memset(bits[mipLevel], 0, sizeBytes);
+        memset(bits[mipLevel], 0, stagingBytes);
     }
 
     lock.bits = bits[mipLevel];
@@ -202,12 +238,79 @@ void pvrTexture::Unlock(int mipLevel)
     {
         vramPtr = pvr_mem_malloc(sizeBytes);
         if (!vramPtr)
+        {
+            printf("pvrTexture: out of VRAM for %dx%d (%u bytes free)\n",
+                   xSize, ySize, (unsigned)pvr_mem_available());
             return;
+        }
+    }
+
+    char* src = bits[mipLevel];
+    char* decoded = NULL;
+
+    if (compressed)
+    {
+        decoded = DecodeToSurface(src);
+        if (!decoded)
+            return;
+        src = decoded;
     }
 
     // Flush data cache and upload to VRAM.
-    dcache_flush_range((uintptr_t)bits[mipLevel], sizeBytes);
-    pvr_txr_load(bits[mipLevel], vramPtr, sizeBytes);
+    dcache_flush_range((uintptr_t)src, sizeBytes);
+    pvr_txr_load(src, vramPtr, sizeBytes);
+
+    if (decoded)
+        free(decoded);
+}
+
+// Decode a staged S3TC surface into a freshly allocated 16bpp buffer matching
+// lock.format. Caller owns the result.
+char* pvrTexture::DecodeToSurface(const char* blocks)
+{
+    const size_t pixels = (size_t)xSize * (size_t)ySize;
+    unsigned char* rgba = (unsigned char*)malloc(pixels * 4u);
+    if (!rgba)
+        return NULL;
+
+    switch (type)
+    {
+        case PDDI_TEXTYPE_DXT1:
+            BlockDecompressImageBC1(xSize, ySize, (const uint8_t*)blocks, rgba);
+            break;
+        case PDDI_TEXTYPE_DXT2:
+        case PDDI_TEXTYPE_DXT3:
+            BlockDecompressImageBC2(xSize, ySize, (const uint8_t*)blocks, rgba);
+            break;
+        default:
+            BlockDecompressImageBC3(xSize, ySize, (const uint8_t*)blocks, rgba);
+            break;
+    }
+
+    const size_t sizeBytes = pvrutil::AlignUp32((size_t)stridePixels * (size_t)ySize * 2u);
+    uint16_t* out = (uint16_t*)memalign(32, sizeBytes);
+    if (!out)
+    {
+        free(rgba);
+        return NULL;
+    }
+    memset(out, 0, sizeBytes);
+
+    // decompress.cpp packs each texel as R,G,B,A in ascending byte order.
+    const bool argb1555 = (lock.format == PDDI_PIXEL_ARGB1555);
+    for (int y = 0; y < ySize; y++)
+    {
+        const unsigned char* s = rgba + (size_t)y * (size_t)xSize * 4u;
+        uint16_t* d = out + (size_t)y * (size_t)stridePixels;
+        for (int x = 0; x < xSize; x++, s += 4)
+        {
+            const pddiColour c(s[0], s[1], s[2], s[3]);
+            *d++ = argb1555 ? pvrutil::PackARGB1555(c) : pvrutil::PackARGB4444(c);
+        }
+    }
+
+    free(rgba);
+    return (char*)out;
 }
 
 void pvrTexture::Prefetch(void)

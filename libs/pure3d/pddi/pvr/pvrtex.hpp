@@ -43,6 +43,7 @@ public:
 
     // PVR accessors
     pvr_ptr_t GetVramPtr() const { return vramPtr; }
+    char* DecodeToSurface(const char* blocks);
     int GetPvrTxrFormat() const { return pvrTxrFormat; }
     int GetStridePixels() const { return stridePixels; }
 
@@ -61,6 +62,12 @@ protected:
     pvr_ptr_t vramPtr;
     int pvrTxrFormat;
     int priority;
+
+    // The PVR cannot sample S3TC, so DXTn source data is staged compressed and
+    // decoded to 16bpp on upload.
+    bool compressed;
+    int dxtBlockBytes;      // 8 for DXT1, 16 for DXT2..DXT5
+    size_t stagingBytes;    // allocation size of each bits[] entry
 
     pddiLockInfo lock;
 
