@@ -335,18 +335,22 @@ void DCPlatform::InitializeFoundation()
     //
     // Initialize the debug communication system.
     //
+#ifndef RAD_DREAMCAST
     ::radDbgComTargetInitialize( WinSocket, 
         radDbgComDefaultPort, // Default
         NULL,                 // Default
         GMA_DEBUG );
+#endif
 
 
     //
     // Initialize the Watcher.
     //
+#ifndef RAD_DREAMCAST
     ::radDbgWatchInitialize( "SRR2",
                              32 * 16384, // 2 * Default
                              GMA_DEBUG );
+#endif
 
     //
     // Initialize the file system.
@@ -972,12 +976,16 @@ void DCPlatform::ShutdownFoundation()
     ::radDriveUnmount( NULL );
     ::radLoadTerminate();
     ::radFileTerminate();
+#ifndef RAD_DREAMCAST
     ::radDbgWatchTerminate();
+#endif
     if( CommandLineOptions::Get( CLO_MEMORY_MONITOR ) )
     {
         ::radMemoryMonitorTerminate();
     }
+#ifndef RAD_DREAMCAST
     ::radDbgComTargetTerminate();
+#endif
     ::radTimeTerminate();
     ::radPlatformTerminate();
 }
