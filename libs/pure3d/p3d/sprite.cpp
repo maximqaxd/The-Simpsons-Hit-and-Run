@@ -715,8 +715,6 @@ tEntity* tSpriteLoader::LoadObject(tChunkFile* f, tEntityStore* store)
     {
          if (count != imageCount)
          {
-             // A tile failed to load; the sprite cannot be assembled. Drop it rather
-             // than handing tSprite a partially populated array.
              P3DVERIFY(false, "Sprite is missing image tiles, ", name);
              for (int i = 0; i < count; i++)
                  images[i]->Release();
