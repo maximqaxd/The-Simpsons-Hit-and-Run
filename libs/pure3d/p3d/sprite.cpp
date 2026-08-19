@@ -14,6 +14,8 @@
 #include <constants/chunkids.hpp>
 #include <p3d/shader.hpp>
 #include <p3d/targa.hpp>
+#include <p3d/error.hpp>
+#include <string.h>
 
 static const int IMAGE_VERSION = 14000;
 
@@ -662,6 +664,7 @@ tEntity* tSpriteLoader::LoadObject(tChunkFile* f, tEntityStore* store)
     if ((imageCount>1) || blitBorder)
     {
          images = new tTexture*[imageCount];
+         memset(images, 0, sizeof(tTexture*) * imageCount);
     }
 
     while(f->ChunksRemaining())
@@ -675,11 +678,15 @@ tEntity* tSpriteLoader::LoadObject(tChunkFile* f, tEntityStore* store)
                 break;
             case Pure3D::Texture::IMAGE:
                  {
-                      if (images)
+                      if (images && count < imageCount)
                       {
-                            images[count] = LoadTexture(f,32);
-                            images[count]->AddRef();
-                            count++;
+                            tTexture* tile = LoadTexture(f,32);
+                            if (tile)
+                            {
+                                tile->AddRef();
+                                images[count] = tile;
+                                count++;
+                            }
                       }
                       else
                       {
@@ -706,6 +713,17 @@ tEntity* tSpriteLoader::LoadObject(tChunkFile* f, tEntityStore* store)
     }
     else if (images)
     {
+         if (count != imageCount)
+         {
+             // A tile failed to load; the sprite cannot be assembled. Drop it rather
+             // than handing tSprite a partially populated array.
+             P3DVERIFY(false, "Sprite is missing image tiles, ", name);
+             for (int i = 0; i < count; i++)
+                 images[i]->Release();
+             delete[] images;
+             return NULL;
+         }
+
          tShader* mat = p3d::find<tShader>(store, shader);
          tSprite* sprite = new tSprite(images, imageWidth, imageHeight, imageCount, mat, 1, nativeX, nativeY, converter);
          sprite->SetName(name);
