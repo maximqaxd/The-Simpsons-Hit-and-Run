@@ -562,6 +562,11 @@ size_t GetTotalMemoryUnavailable()
 //==============================================================================
 size_t GetTotalMemoryUsed()
 {
+#if defined RAD_DREAMCAST
+    struct mallinfo info = mallinfo();
+    return (size_t)info.uordblks;
+#endif
+
 #if defined WIN32
     #ifdef RAD_DEBUG
         _CrtMemState state;
@@ -587,11 +592,6 @@ size_t GetTotalMemoryUsed()
 #endif
 
 #if defined RAD_PS2
-    struct mallinfo info = mallinfo();
-    return info.uordblks;
-#endif
-
-#if defined RAD_DREAMCAST
     struct mallinfo info = mallinfo();
     return info.uordblks;
 #endif

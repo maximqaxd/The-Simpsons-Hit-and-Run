@@ -204,7 +204,7 @@ void ProcessCommandLineArgumentsFromFile()
     //Chuck: looking for additional command line args being passed in from a file
     //its for QA testing etc.
 
-    FILE* pfile = fopen( "command.txt", "r" );
+    FILE* pfile = fopen( "/cd/command.txt", "r" );
 
     if (pfile != NULL)
     {
