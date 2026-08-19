@@ -184,7 +184,6 @@ void BootupContext::StartMovies()
     else
 #endif // !FINAL
     {
-#ifndef RAD_DREAMCAST
 #ifdef SHOW_MOVIES
         if( CommandLineOptions::Get( CLO_SKIP_MOVIE ) )
         {
@@ -229,7 +228,6 @@ void BootupContext::StartMovies()
         // Switch to frontend context.
         GetGameFlow()->SetContext( CONTEXT_FRONTEND );
 #endif
-#endif
     }
 }
 
@@ -240,6 +238,8 @@ BootupContext::StartLoadingSound()
     GetSoundManager()->OnBootupStart();
 
     GetLoadingManager()->AddCallback( this, (void*)GetSoundManager() );
+#else
+    m_soundLoadCompleted = true;
 #endif
 }
 
@@ -494,12 +494,14 @@ void BootupContext::OnProcessRequestsComplete( void* pUserData )
         m_soundLoadCompleted = true;
     }
     else
+#endif
     {
         // set flag indicating all bootup loads (except for sound) have completed
         //
         m_bootupLoadCompleted = true;
     }
 
+#ifndef RAD_DREAMCAST
     //
     // Tell the sound manager to do some processing, now that the scripts
     // are sure to have been loaded.
