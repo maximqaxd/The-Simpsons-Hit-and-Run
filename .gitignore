@@ -6,3 +6,6 @@ romfs/
 module/
 art/
 CMakeSettings.json
+game/
+dcbuild/
+*.cdi
