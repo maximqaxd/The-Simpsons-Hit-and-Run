@@ -241,6 +241,7 @@ void pvrTexture::Unlock(int mipLevel)
         {
             printf("pvrTexture: out of VRAM for %dx%d (%u bytes free)\n",
                    xSize, ySize, (unsigned)pvr_mem_available());
+            ReleaseStaging(mipLevel);
             return;
         }
     }
@@ -252,7 +253,10 @@ void pvrTexture::Unlock(int mipLevel)
     {
         decoded = DecodeToSurface(src);
         if (!decoded)
+        {
+            ReleaseStaging(mipLevel);
             return;
+        }
         src = decoded;
     }
 
@@ -262,6 +266,20 @@ void pvrTexture::Unlock(int mipLevel)
 
     if (decoded)
         free(decoded);
+
+    // The pixels live in VRAM now. Holding the system-RAM copy would double the
+    // cost of every texture; Lock() reallocates on demand if it is needed again.
+    ReleaseStaging(mipLevel);
+}
+
+void pvrTexture::ReleaseStaging(int mipLevel)
+{
+    if (bits && bits[mipLevel])
+    {
+        free(bits[mipLevel]);
+        bits[mipLevel] = NULL;
+    }
+    lock.bits = NULL;
 }
 
 // Decode a staged S3TC surface into a freshly allocated 16bpp buffer matching

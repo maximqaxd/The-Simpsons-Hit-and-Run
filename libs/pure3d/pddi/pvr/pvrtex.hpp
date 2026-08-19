@@ -44,6 +44,7 @@ public:
     // PVR accessors
     pvr_ptr_t GetVramPtr() const { return vramPtr; }
     char* DecodeToSurface(const char* blocks);
+    void ReleaseStaging(int mipLevel);
     int GetPvrTxrFormat() const { return pvrTxrFormat; }
     int GetStridePixels() const { return stridePixels; }
 
