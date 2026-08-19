@@ -100,7 +100,6 @@ public:
 
     pvrDisplay* GetDisplay(void) { return display; }
     pddiShader* GetDefaultShader(void) { return defaultShader; }
-    pvr_dr_state_t& GetDrState(void) { return drState; }
 
     unsigned contextID;
 
@@ -132,7 +131,6 @@ protected:
     // PVR scene/list state
     pvr_list_t currentList;
     unsigned begunMask;
-    pvr_dr_state_t drState;
 
     // Cached projection/viewport state 
     shz_mat4x4_t modelViewM;

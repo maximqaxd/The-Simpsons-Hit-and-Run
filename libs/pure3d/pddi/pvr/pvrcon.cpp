@@ -38,7 +38,7 @@ pvrContext::pvrContext(pvrDevice* dev, pvrDisplay* disp)
 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
-    memset(&drState, 0, sizeof(drState));
+
 
     shz_mat4x4_init_identity(&modelViewM);
     shz_mat4x4_init_identity(&projectionM);
@@ -105,16 +105,16 @@ static inline unsigned ListBit(pvr_list_t list)
     }
 }
 
-static inline int MapFilter(pddiFilterMode m)
+static inline pvr_filter_mode_t MapFilter(pddiFilterMode m)
 {
     switch (m)
     {
-        case PDDI_FILTER_NONE: return PVR_FILTER_NONE;
+        case PDDI_FILTER_NONE: return PVR_FILTER_NEAREST;
         default: return PVR_FILTER_BILINEAR;
     }
 }
 
-static inline int MapCull(pddiCullMode m)
+static inline pvr_cull_mode_t MapCull(pddiCullMode m)
 {
     switch (m)
     {
@@ -138,7 +138,7 @@ static inline float GetUStrideScale(pvrTexture* tex)
     return 1.0f;
 }
 
-static inline int MapDepthCompareInvW(pddiCompareMode m)
+static inline pvr_depthcmp_mode_t MapDepthCompareInvW(pddiCompareMode m)
 {
     // We submit Z as invW (i.e. 1/clip.w). This flips depth ordering compared
     // to regular "smaller Z = closer" conventions.
@@ -280,7 +280,7 @@ static inline pvr_list_t ChooseList(const pvrTextureEnv& env)
     return PVR_LIST_OP_POLY;
 }
 
-static inline void MapBlend(const pvrTextureEnv& env, int& src, int& dst, bool& enable)
+static inline void MapBlend(const pvrTextureEnv& env, pvr_blend_mode_t& src, pvr_blend_mode_t& dst, bool& enable)
 {
     enable = false;
     src = PVR_BLEND_ONE;
@@ -349,7 +349,6 @@ inline void EnsureList(pvrContext* ctx, pvr_list_t list)
     {
         if (pvr_list_begin(list) < 0)
             return;
-        pvr_dr_init(&ctx->drState);
         ctx->currentList = list;
         ctx->begunMask |= bit;
     }
@@ -362,7 +361,7 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     pvr_poly_cxt_t cxt;
     if (env.enabled && env.texture && env.texture->GetVramPtr())
     {
-        const int clamp = (env.uvMode == PDDI_UV_CLAMP) ? PVR_UVCLAMP_UV : PVR_UVCLAMP_NONE;
+        const pvr_uv_clamp_t clamp = (env.uvMode == PDDI_UV_CLAMP) ? PVR_UVCLAMP_UV : PVR_UVCLAMP_NONE;
         pvr_poly_cxt_txr(&cxt, outList,
                          env.texture->GetPvrTxrFormat(),
                          env.texture->GetWidth(), env.texture->GetHeight(),
@@ -373,7 +372,8 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
         // The PVR hardware treats V origin differently, so flip V in the texture context.
         cxt.txr.uv_flip = PVR_UVFLIP_NONE;
         cxt.txr.env = (outList == PVR_LIST_TR_POLY) ? PVR_TXRENV_MODULATEALPHA : PVR_TXRENV_MODULATE;
-        cxt.txr.alpha = PVR_TXRALPHA_ENABLE;
+        // txr.alpha is inverted: true disables the texture alpha channel.
+        cxt.txr.alpha = false;
     }
     else
     {
@@ -383,22 +383,23 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     cxt.gen.culling = MapCull(state.renderState->cullMode);
     cxt.gen.fog_type = PVR_FOG_DISABLE;
 
-    // Depth.
+    // depth.write is a plain bool: true writes depth. Do not use the
+    // PVR_DEPTHWRITE_* macros here, they carry the opposite polarity.
     if (state.renderState->zEnabled)
     {
         cxt.depth.comparison = MapDepthCompareInvW(state.renderState->zCompare);
-        cxt.depth.write = (outList == PVR_LIST_TR_POLY) ? PVR_DEPTHWRITE_DISABLE :
-                          (state.renderState->zWrite ? PVR_DEPTHWRITE_ENABLE : PVR_DEPTHWRITE_DISABLE);
+        cxt.depth.write = (outList == PVR_LIST_TR_POLY) ? false
+                                                        : (state.renderState->zWrite != 0);
     }
     else
     {
         cxt.depth.comparison = PVR_DEPTHCMP_ALWAYS;
-        cxt.depth.write = PVR_DEPTHWRITE_DISABLE;
+        cxt.depth.write = false;
     }
 
     // Blend.
     bool blendEnable = false;
-    int src = PVR_BLEND_ONE, dst = PVR_BLEND_ZERO;
+    pvr_blend_mode_t src = PVR_BLEND_ONE, dst = PVR_BLEND_ZERO;
     MapBlend(env, src, dst, blendEnable);
     if (outList == PVR_LIST_TR_POLY && blendEnable)
     {
@@ -410,6 +411,8 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
         cxt.blend.src = PVR_BLEND_ONE;
         cxt.blend.dst = PVR_BLEND_ZERO;
     }
+    cxt.blend.src_enable = false;
+    cxt.blend.dst_enable = false;
 
     pvr_poly_compile(&outHdr, &cxt);
 }
@@ -487,13 +490,12 @@ public:
         ctx->BuildPolyHeader(env, hdr, list);
         EnsureList(ctx, list);
 
-        pvr_dr_state_t& drStateRef = ctx->GetDrState();
         const float uScale = GetUStrideScale(env.texture);
         const bool flipV = true;
 
 
         {
-            pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target(drStateRef);
+            pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
             *h = hdr;
             pvr_dr_commit(h);
         }
@@ -506,7 +508,7 @@ public:
             if (!TransformToScreen(ctx, coords[i1].x, coords[i1].y, coords[i1].z, sx1, sy1, sz1)) return;
             if (!TransformToScreen(ctx, coords[i2].x, coords[i2].y, coords[i2].z, sx2, sy2, sz2)) return;
 
-            pvr_vertex_t* v = pvr_dr_target(drStateRef);
+            pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
             v->flags = PVR_CMD_VERTEX;
             v->x = sx0; v->y = sy0; v->z = sz0;
             v->u = uvs[i0].u * uScale;
@@ -515,7 +517,7 @@ public:
             v->oargb = 0;
             pvr_dr_commit(v);
 
-            v = pvr_dr_target(drStateRef);
+            v = (pvr_vertex_t*)pvr_dr_target();
             v->flags = PVR_CMD_VERTEX;
             v->x = sx1; v->y = sy1; v->z = sz1;
             v->u = uvs[i1].u * uScale;
@@ -524,7 +526,7 @@ public:
             v->oargb = 0;
             pvr_dr_commit(v);
 
-            v = pvr_dr_target(drStateRef);
+            v = (pvr_vertex_t*)pvr_dr_target();
             v->flags = PVR_CMD_VERTEX_EOL;
             v->x = sx2; v->y = sy2; v->z = sz2;
             v->u = uvs[i2].u * uScale;
@@ -555,7 +557,7 @@ public:
             // Lines/points not supported by PVR backend directly yet.
         }
 
-        pvr_dr_finish();
+
     }
 
 private:
@@ -924,12 +926,12 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     pvr_list_t list;
     context->BuildPolyHeader(env, hdr, list);
     EnsureList(context, list);
-    pvr_dr_state_t& drStateRef = context->GetDrState();
+
     const float uScale = GetUStrideScale(env.texture);
     const bool flipV = true;
 
     {
-        pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target(drStateRef);
+        pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
         *h = hdr;
         pvr_dr_commit(h);
     }
@@ -952,7 +954,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
         for (int k = 0; k < 3; k++)
         {
             const int vi = idxs[k];
-            pvr_vertex_t* v = pvr_dr_target(drStateRef);
+            pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
             v->flags = (k == 2) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX;
             v->x = sx[k]; v->y = sy[k]; v->z = sz[k];
             if (uv)
@@ -1016,5 +1018,5 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
         }
     }
 
-    pvr_dr_finish();
+
 }
