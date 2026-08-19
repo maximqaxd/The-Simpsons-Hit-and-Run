@@ -1469,7 +1469,6 @@ tEntity* tAnimationLoader::LoadObject(tChunkFile* f, tEntityStore* store)
                     unsigned int ps2Size = f->GetLong();
                     unsigned int xboxSize = f->GetLong();
                     unsigned int gcSize = f->GetLong();
-                    unsigned int dcSize = f->GetLong();
 
 #ifdef RAD_WIN32
                     unsigned int animSize = pcSize;
@@ -1483,7 +1482,10 @@ tEntity* tAnimationLoader::LoadObject(tChunkFile* f, tEntityStore* store)
 #ifdef RAD_GAMECUBE
                     unsigned int animSize = gcSize;
 #else
-                    unsigned int animSize = dcSize;
+                    unsigned int animSize = pcSize;
+                    if( ps2Size > animSize )  animSize = ps2Size;
+                    if( xboxSize > animSize ) animSize = xboxSize;
+                    if( gcSize > animSize )   animSize = gcSize;
 #endif
 #endif
 #endif
