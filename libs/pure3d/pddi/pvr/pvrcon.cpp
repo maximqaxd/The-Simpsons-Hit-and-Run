@@ -18,6 +18,28 @@
 
 #include <vector>
 
+#ifdef RAD_DC_TRACE_VERTS
+#include <stdio.h>
+static int s_traceFrame = 0;
+static int s_traceBudget = 0;
+static void TraceTri(const char* tag, const shz_vec4_t* clip,
+                     const float* u, const float* v, float vpOy, float vpHh)
+{
+    if (s_traceBudget <= 0)
+        return;
+    s_traceBudget--;
+    printf("   [tri] %s\n", tag);
+    for (int k = 0; k < 3; k++)
+    {
+        const float invw = (clip[k].w != 0.0f) ? (1.0f / clip[k].w) : 0.0f;
+        const float ndcY = clip[k].y * invw;
+        printf("         v%d clipY=%7.4f w=%6.3f ndcY=%7.4f scrY=%6.1f  uv=(%5.3f,%5.3f)\n",
+               k, clip[k].y, clip[k].w, ndcY, vpOy + vpHh * (1.0f - ndcY), u[k], v[k]);
+    }
+}
+#endif
+
+
 //--------------------------------------------------------------
 pvrContext::pvrContext(pvrDevice* dev, pvrDisplay* disp)
     : pddiBaseContext((pddiDisplay*)disp, (pddiDevice*)dev)
@@ -69,6 +91,11 @@ void pvrContext::BeginFrame()
     // Reset per-frame list state. 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
+#ifdef RAD_DC_TRACE_VERTS
+    s_traceFrame++;
+    if ((s_traceFrame % 100) == 0)
+        s_traceBudget = 2;
+#endif
 }
 
 void pvrContext::EndFrame()
@@ -156,13 +183,15 @@ static inline pvr_depthcmp_mode_t MapDepthCompareInvW(pddiCompareMode m)
     }
 }
 
-// Copy rmt::Matrix (column-major m[col][row]) into shz_mat4x4_t with GL->PVR Z flip.
 static inline void CopyRmtToShzWithFlip(shz_mat4x4_t* out, const rmt::Matrix& in)
 {
-    // rmt is column-major in memory; load as-is then negate Z column via scale.
-    shz_xmtrx_load_unaligned_4x4(&in.m[0][0]);
-    shz_xmtrx_apply_scale(1.0f, 1.0f, -1.0f);
-    shz_xmtrx_store_4x4(out);
+    for (int col = 0; col < 4; col++)
+    {
+        out->elem2D[col][0] =  in.m[col][0];
+        out->elem2D[col][1] =  in.m[col][1];
+        out->elem2D[col][2] = -in.m[col][2];
+        out->elem2D[col][3] =  in.m[col][3];
+    }
 }
 
 void pvrContext::LoadHardwareMatrix(pddiMatrixType id)
@@ -235,7 +264,8 @@ void pvrContext::SetupHardwareProjection(void)
             const float fov_rad = state.viewState->camera.fov;
             const float aspect = state.viewState->camera.aspect;
             const float nearPlane = state.viewState->camera.nearPlane;
-            BuildPerspective(projectionM, fov_rad, aspect, nearPlane);
+            const float fov_vertical = 2.0f * atanf(tanf(fov_rad * 0.5f) / aspect);
+            BuildPerspective(projectionM, fov_vertical, aspect, nearPlane);
             viewportX = int(state.viewState->viewWindow.left * displayW);
             viewportY = int((1.0f - state.viewState->viewWindow.bottom) * displayH);
             viewportW = int((state.viewState->viewWindow.right - state.viewState->viewWindow.left) * displayW);
@@ -248,10 +278,56 @@ void pvrContext::SetupHardwareProjection(void)
     shz_mat4x4_mult(&viewProjM, &projectionM, &modelViewM);
 }
 
+struct pvrClipVert
+{
+    shz_vec4_t pos;
+    float u, v;
+    uint32_t argb;
+};
+
+static const float PVR_NEAR_CLIP_EPSILON = 1e-4f;
+
+static inline bool ClipVertVisible(const pvrClipVert& v)
+{
+    return v.pos.w >= v.pos.z + PVR_NEAR_CLIP_EPSILON;
+}
+
+static inline float LerpF(float a, float b, float t) { return a + (b - a) * t; }
+
+static inline uint32_t LerpARGB(uint32_t c1, uint32_t c2, int ti)
+{
+    const uint32_t rb = ((((c2 & 0x00FF00FFu) - (c1 & 0x00FF00FFu)) * ti) >> 8) + (c1 & 0x00FF00FFu);
+    const uint32_t g  = ((((c2 & 0x0000FF00u) - (c1 & 0x0000FF00u)) * ti) >> 8) + (c1 & 0x0000FF00u);
+    const uint32_t a  = ((((c2 >> 24) - (c1 >> 24)) * ti) >> 8) + (c1 >> 24);
+    return (a << 24) | (rb & 0x00FF00FFu) | (g & 0x0000FF00u);
+}
+
+static inline void ClipEdge(const pvrClipVert& v1, const pvrClipVert& v2, pvrClipVert& out)
+{
+    const float d0 = v1.pos.w - v1.pos.z - PVR_NEAR_CLIP_EPSILON;
+    const float d1 = v2.pos.w - v2.pos.z - PVR_NEAR_CLIP_EPSILON;
+    const float denom = d0 - d1;
+
+    float t = (fabsf(denom) < 1e-8f) ? 0.0f : (d0 / denom);
+    if (t < 0.0f) t = 0.0f;
+    if (t > 1.0f) t = 1.0f;
+
+    out.pos.x = LerpF(v1.pos.x, v2.pos.x, t);
+    out.pos.y = LerpF(v1.pos.y, v2.pos.y, t);
+    out.pos.z = LerpF(v1.pos.z, v2.pos.z, t);
+    out.pos.w = LerpF(v1.pos.w, v2.pos.w, t);
+    out.u = LerpF(v1.u, v2.u, t);
+    out.v = LerpF(v1.v, v2.v, t);
+
+    int ti = (int)(t * 255.0f);
+    if (ti < 0) ti = 0;
+    if (ti > 255) ti = 255;
+    out.argb = LerpARGB(v1.argb, v2.argb, ti);
+}
+
 inline bool TransformToScreen(const pvrContext* ctx, float x, float y, float z,
                               float& sx, float& sy, float& sz)
 {
-    shz_xmtrx_load_4x4(&ctx->viewProjM);
     shz_vec4_t v = shz_vec4_init(x, y, z, 1.0f);
     shz_vec4_t out = shz_xmtrx_transform_vec4(v);
     if (out.w == 0.0f)
@@ -269,6 +345,98 @@ inline bool TransformToScreen(const pvrContext* ctx, float x, float y, float z,
     sy = float(ctx->displayH) - winY;
     sz = invW;
     return true;
+}
+
+struct pvrViewportMap
+{
+    float ox, oy;   // viewport origin in pixels
+    float hw, hh;   // half extents, for the NDC -> pixel scale
+};
+
+static inline void SubmitClipVert(const pvrViewportMap& vp, const pvrClipVert& cv, unsigned flags)
+{
+    const float invw = 1.0f / cv.pos.w;
+    pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
+
+    vert->flags = flags;
+    vert->x = vp.ox + vp.hw * (1.0f + cv.pos.x * invw);
+    vert->y = vp.oy + vp.hh * (1.0f - cv.pos.y * invw);
+    vert->z = invw;
+    vert->u = cv.u;
+    vert->v = cv.v;
+    vert->argb = cv.argb;
+    vert->oargb = 0;
+    pvr_dr_commit(vert);
+}
+
+static void ClipAndSubmitTriangle(const pvrViewportMap& vp, pvrClipVert* verts)
+{
+    unsigned mask = 0;
+    if (ClipVertVisible(verts[0])) mask |= 1;
+    if (ClipVertVisible(verts[1])) mask |= 2;
+    if (ClipVertVisible(verts[2])) mask |= 4;
+
+    if (mask == 0)
+        return;
+
+    if (mask == 7)
+    {
+        SubmitClipVert(vp, verts[0], PVR_CMD_VERTEX);
+        SubmitClipVert(vp, verts[1], PVR_CMD_VERTEX);
+        SubmitClipVert(vp, verts[2], PVR_CMD_VERTEX_EOL);
+        return;
+    }
+
+    pvrClipVert v[4];
+    v[0] = verts[0]; v[1] = verts[1]; v[2] = verts[2];
+    unsigned count = 3;
+
+    switch (mask)
+    {
+        case 1:
+            ClipEdge(v[0], v[1], v[1]);
+            ClipEdge(v[0], v[2], v[2]);
+            break;
+        case 2:
+            ClipEdge(v[1], v[0], v[0]);
+            ClipEdge(v[1], v[2], v[2]);
+            break;
+        case 3:
+            count = 4;
+            ClipEdge(v[1], v[2], v[3]);
+            ClipEdge(v[0], v[2], v[2]);
+            break;
+        case 4:
+            ClipEdge(v[2], v[0], v[0]);
+            ClipEdge(v[2], v[1], v[1]);
+            break;
+        case 5:
+            count = 4;
+            ClipEdge(v[1], v[2], v[3]);
+            ClipEdge(v[0], v[1], v[1]);
+            break;
+        case 6:
+            count = 4;
+            v[3] = v[2];
+            ClipEdge(v[0], v[2], v[2]);
+            ClipEdge(v[0], v[1], v[0]);
+            break;
+        default:
+            return;
+    }
+
+    for (unsigned i = 0; i < count; i++)
+        SubmitClipVert(vp, v[i], (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+}
+
+pvrViewportMap pvrContext::GetViewportMap() const
+{
+    pvrViewportMap vp;
+    vp.ox = float(viewportX);
+    vp.oy = float(viewportY);
+    vp.hw = float(viewportW) * 0.5f;
+    vp.hh = float(viewportH) * 0.5f;
+    return vp;
 }
 
 static inline pvr_list_t ChooseList(const pvrTextureEnv& env)
@@ -371,8 +539,8 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
         // Pure3D content/UVs are authored with GL-style V (origin bottom-left).
         // The PVR hardware treats V origin differently, so flip V in the texture context.
         cxt.txr.uv_flip = PVR_UVFLIP_NONE;
+        cxt.txr.mipmap = env.texture->HasMipMaps();
         cxt.txr.env = (outList == PVR_LIST_TR_POLY) ? PVR_TXRENV_MODULATEALPHA : PVR_TXRENV_MODULATE;
-        // txr.alpha is inverted: true disables the texture alpha channel.
         cxt.txr.alpha = false;
     }
     else
@@ -383,8 +551,6 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     cxt.gen.culling = MapCull(state.renderState->cullMode);
     cxt.gen.fog_type = PVR_FOG_DISABLE;
 
-    // depth.write is a plain bool: true writes depth. Do not use the
-    // PVR_DEPTHWRITE_* macros here, they carry the opposite polarity.
     if (state.renderState->zEnabled)
     {
         cxt.depth.comparison = MapDepthCompareInvW(state.renderState->zCompare);
@@ -499,41 +665,33 @@ public:
             *h = hdr;
             pvr_dr_commit(h);
         }
+        ctx->LoadTransformToXmtrx();
+        const pvrViewportMap vp = ctx->GetViewportMap();
+
+        auto fetch = [&](int i, pvrClipVert& out)
+        {
+            out.pos = shz_xmtrx_transform_vec4(
+                shz_vec4_init(coords[i].x, coords[i].y, coords[i].z, 1.0f));
+            out.u = uvs[i].u * uScale;
+            out.v = flipV ? (1.0f - uvs[i].v) : uvs[i].v;
+            out.argb = (uint32_t)(unsigned)colours[i];
+        };
+
         auto submitTri = [&](int i0, int i1, int i2)
         {
-            float sx0, sy0, sz0;
-            float sx1, sy1, sz1;
-            float sx2, sy2, sz2;
-            if (!TransformToScreen(ctx, coords[i0].x, coords[i0].y, coords[i0].z, sx0, sy0, sz0)) return;
-            if (!TransformToScreen(ctx, coords[i1].x, coords[i1].y, coords[i1].z, sx1, sy1, sz1)) return;
-            if (!TransformToScreen(ctx, coords[i2].x, coords[i2].y, coords[i2].z, sx2, sy2, sz2)) return;
-
-            pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
-            v->flags = PVR_CMD_VERTEX;
-            v->x = sx0; v->y = sy0; v->z = sz0;
-            v->u = uvs[i0].u * uScale;
-            v->v = flipV ? (1.0f - uvs[i0].v) : uvs[i0].v;
-            v->argb = (uint32_t)(unsigned)colours[i0];
-            v->oargb = 0;
-            pvr_dr_commit(v);
-
-            v = (pvr_vertex_t*)pvr_dr_target();
-            v->flags = PVR_CMD_VERTEX;
-            v->x = sx1; v->y = sy1; v->z = sz1;
-            v->u = uvs[i1].u * uScale;
-            v->v = flipV ? (1.0f - uvs[i1].v) : uvs[i1].v;
-            v->argb = (uint32_t)(unsigned)colours[i1];
-            v->oargb = 0;
-            pvr_dr_commit(v);
-
-            v = (pvr_vertex_t*)pvr_dr_target();
-            v->flags = PVR_CMD_VERTEX_EOL;
-            v->x = sx2; v->y = sy2; v->z = sz2;
-            v->u = uvs[i2].u * uScale;
-            v->v = flipV ? (1.0f - uvs[i2].v) : uvs[i2].v;
-            v->argb = (uint32_t)(unsigned)colours[i2];
-            v->oargb = 0;
-            pvr_dr_commit(v);
+            pvrClipVert tri[3];
+            fetch(i0, tri[0]);
+            fetch(i1, tri[1]);
+            fetch(i2, tri[2]);
+#ifdef RAD_DC_TRACE_VERTS
+            {
+                const shz_vec4_t c[3] = { tri[0].pos, tri[1].pos, tri[2].pos };
+                const float uu[3] = { tri[0].u, tri[1].u, tri[2].u };
+                const float vv[3] = { tri[0].v, tri[1].v, tri[2].v };
+                TraceTri("IM", c, uu, vv, vp.oy, vp.hh);
+            }
+#endif
+            ClipAndSubmitTriangle(vp, tri);
         };
 
         if (primType == PDDI_PRIM_TRIANGLES)
@@ -936,50 +1094,52 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
         pvr_dr_commit(h);
     }
 
+    context->LoadTransformToXmtrx();
+    const pvrViewportMap vp = context->GetViewportMap();
+
     auto submitTriIdx = [&](int i0, int i1, int i2)
     {
-        float sx[3], sy[3], sz[3];
-        const int idxsPre[3] = { i0, i1, i2 };
-        for (int k = 0; k < 3; k++)
-        {
-            const int vi = idxsPre[k];
-            const float px = coord[vi * 3 + 0];
-            const float py = coord[vi * 3 + 1];
-            const float pz = coord[vi * 3 + 2];
-            if (!TransformToScreen(context, px, py, pz, sx[k], sy[k], sz[k]))
-                return;
-        }
-
         const int idxs[3] = { i0, i1, i2 };
+        pvrClipVert tri[3];
+
         for (int k = 0; k < 3; k++)
         {
             const int vi = idxs[k];
-            pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
-            v->flags = (k == 2) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX;
-            v->x = sx[k]; v->y = sy[k]; v->z = sz[k];
+            tri[k].pos = shz_xmtrx_transform_vec4(
+                shz_vec4_init(coord[vi * 3 + 0], coord[vi * 3 + 1], coord[vi * 3 + 2], 1.0f));
+
             if (uv)
             {
-                v->u = uv[vi * 2 + 0] * uScale;
-                v->v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
+                tri[k].u = uv[vi * 2 + 0] * uScale;
+                tri[k].v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
             }
             else
             {
-                v->u = 0.0f;
-                v->v = 0.0f;
+                tri[k].u = 0.0f;
+                tri[k].v = 0.0f;
             }
 
             if (colour)
             {
                 const unsigned char* c = &colour[vi * 4];
-                v->argb = ((uint32_t)c[3] << 24) | ((uint32_t)c[0] << 16) | ((uint32_t)c[1] << 8) | (uint32_t)c[2];
+                tri[k].argb = ((uint32_t)c[3] << 24) | ((uint32_t)c[0] << 16)
+                            | ((uint32_t)c[1] << 8) | (uint32_t)c[2];
             }
             else
             {
-                v->argb = (uint32_t)(unsigned)env.diffuse;
+                tri[k].argb = (uint32_t)(unsigned)env.diffuse;
             }
-            v->oargb = 0;
-            pvr_dr_commit(v);
         }
+
+#ifdef RAD_DC_TRACE_VERTS
+        {
+            const shz_vec4_t c[3] = { tri[0].pos, tri[1].pos, tri[2].pos };
+            const float uu[3] = { tri[0].u, tri[1].u, tri[2].u };
+            const float vv[3] = { tri[0].v, tri[1].v, tri[2].v };
+            TraceTri("PB", c, uu, vv, vp.oy, vp.hh);
+        }
+#endif
+        ClipAndSubmitTriangle(vp, tri);
     };
 
     if (indexCount && indices)

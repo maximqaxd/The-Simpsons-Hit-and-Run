@@ -99,6 +99,8 @@ public:
     bool VerifyExtension(unsigned extID);
 
     pvrDisplay* GetDisplay(void) { return display; }
+    void LoadTransformToXmtrx() const { shz_xmtrx_load_4x4(&viewProjM); }
+    struct pvrViewportMap GetViewportMap() const;
     pddiShader* GetDefaultShader(void) { return defaultShader; }
 
     unsigned contextID;
