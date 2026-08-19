@@ -31,7 +31,8 @@ class radDriveThread : public IRefCount,
 {
 public:
 
-    radDriveThread( IRadThreadMutex* pMutex, radMemoryAllocator alloc, unsigned int stackSize = 4096 );
+    // stackSize is in KB (radThreadCreateThread multiplies by 1024)
+    radDriveThread( IRadThreadMutex* pMutex, radMemoryAllocator alloc, unsigned int stackSize = 32 );
     virtual ~radDriveThread( );
 
     IMPLEMENT_SAFEREFCOUNTED;
