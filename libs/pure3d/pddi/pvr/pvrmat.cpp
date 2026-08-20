@@ -78,6 +78,14 @@ pvrMat::pvrMat(pvrContext* c)
 
 pvrMat::~pvrMat()
 {
+    for (int i = 0; i < pvrMaxPasses; i++)
+    {
+        if (texEnv[i].texture)
+        {
+            texEnv[i].texture->Release();
+            texEnv[i].texture = NULL;
+        }
+    }
     context->Release();
 }
 
@@ -98,7 +106,17 @@ void pvrMat::SetPass(int p)
 
 void pvrMat::SetTexture(pddiTexture* t)
 {
+    if ((pvrTexture*)t == texEnv[pass].texture)
+        return;
+
+    if (texEnv[pass].texture)
+        texEnv[pass].texture->Release();
+
     texEnv[pass].texture = (pvrTexture*)t;
+
+    if (texEnv[pass].texture)
+        texEnv[pass].texture->AddRef();
+
     texEnv[pass].enabled = (t != NULL);
 }
 
