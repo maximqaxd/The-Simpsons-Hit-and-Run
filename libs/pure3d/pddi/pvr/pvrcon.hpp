@@ -100,6 +100,7 @@ public:
 
     pvrDisplay* GetDisplay(void) { return display; }
     void LoadTransformToXmtrx() const { shz_xmtrx_load_4x4(&viewProjM); }
+    void LoadTransformToXmtrx(const float* scale, const float* bias) const;
     struct pvrViewportMap GetViewportMap() const;
     pddiShader* GetDefaultShader(void) { return defaultShader; }
 
@@ -178,9 +179,25 @@ protected:
     int nStrips;
     int* strips;
 
+    void QuantiseCoords();
+    void RestoreCoords();
+    void QuantiseUVs();
+    void RestoreUVs();
+
     float* coord;
+    short* coordQ;
+    float qScale[3];
+    float qBias[3];
+    bool coordWritten;
+    unsigned coordQCount;
+
     float* normal;
     float* uv;
+    short* uvQ;
+    float uvScale[2];
+    float uvBias[2];
+    bool uvWritten;
+    unsigned uvQCount;
     unsigned char* colour;
 
     unsigned allocated;

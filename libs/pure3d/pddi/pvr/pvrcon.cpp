@@ -903,9 +903,14 @@ public:
 
     void Position(float x, float y, float z) override
     {
+        if (!buffer->coord)
+            buffer->RestoreCoords();
+        if (!buffer->coord)
+            return;
         buffer->coord[cur * 3 + 0] = x;
         buffer->coord[cur * 3 + 1] = y;
         buffer->coord[cur * 3 + 2] = z;
+        buffer->coordWritten = true;
         Next();
     }
 
@@ -930,10 +935,13 @@ public:
     void TexCoord1(float s, int channel = 0) override { (void)s; (void)channel; }
     void TexCoord2(float s, float t, int channel = 0) override
     {
-        if (!buffer->uv) return;
         if (channel != 0) return;
+        if (!buffer->uv)
+            buffer->RestoreUVs();
+        if (!buffer->uv) return;
         buffer->uv[cur * 2 + 0] = s;
         buffer->uv[cur * 2 + 1] = t;
+        buffer->uvWritten = true;
     }
 
     void TexCoord3(float s, float t, float u, int channel = 0) override { (void)s; (void)t; (void)u; (void)channel; }
@@ -956,6 +964,12 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , nStrips(0)
     , strips(NULL)
     , coord(NULL)
+    , coordQ(NULL)
+    , coordWritten(false)
+    , coordQCount(0)
+    , uvQ(NULL)
+    , uvWritten(false)
+    , uvQCount(0)
     , normal(NULL)
     , uv(NULL)
     , colour(NULL)
@@ -973,7 +987,9 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     mem = 0;
 
     coord = new float[3 * (size_t)allocated];
-    mem += 12;
+    qScale[0] = qScale[1] = qScale[2] = 1.0f;
+    qBias[0] = qBias[1] = qBias[2] = 0.0f;
+    mem += 6;
 
     if (vertexFormat & PDDI_V_NORMAL)
     {
@@ -984,7 +1000,9 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     if (vertexFormat & 0xf)
     {
         uv = new float[2 * (size_t)allocated];
-        mem += 8;
+        uvScale[0] = uvScale[1] = 1.0f;
+        uvBias[0] = uvBias[1] = 0.0f;
+        mem += 4;
     }
 
     if (vertexFormat & PDDI_V_COLOUR)
@@ -1005,10 +1023,14 @@ pvrPrimBuffer::~pvrPrimBuffer()
         delete[] strips;
     if (coord)
         delete[] coord;
+    if (coordQ)
+        delete[] coordQ;
     if (normal)
         delete[] normal;
     if (uv)
         delete[] uv;
+    if (uvQ)
+        delete[] uvQ;
     if (colour)
         delete[] colour;
     if (indices)
@@ -1018,9 +1040,162 @@ pvrPrimBuffer::~pvrPrimBuffer()
     context->Release();
 }
 
+void pvrContext::LoadTransformToXmtrx(const float* scale, const float* bias) const
+{
+    shz_mat4x4_t m;
+
+    for (int row = 0; row < 4; row++)
+    {
+        const float c0 = viewProjM.elem2D[0][row];
+        const float c1 = viewProjM.elem2D[1][row];
+        const float c2 = viewProjM.elem2D[2][row];
+
+        m.elem2D[0][row] = c0 * scale[0];
+        m.elem2D[1][row] = c1 * scale[1];
+        m.elem2D[2][row] = c2 * scale[2];
+        m.elem2D[3][row] = c0 * bias[0] + c1 * bias[1] + c2 * bias[2]
+                         + viewProjM.elem2D[3][row];
+    }
+
+    shz_xmtrx_load_4x4(&m);
+}
+
+void pvrPrimBuffer::QuantiseCoords()
+{
+    if (!coord || !coordWritten || total == 0)
+        return;
+
+    float mn[3], mx[3];
+    for (int a = 0; a < 3; a++)
+    {
+        mn[a] = mx[a] = coord[a];
+    }
+    for (unsigned v = 1; v < total; v++)
+    {
+        for (int a = 0; a < 3; a++)
+        {
+            const float f = coord[v * 3 + a];
+            if (f < mn[a]) mn[a] = f;
+            if (f > mx[a]) mx[a] = f;
+        }
+    }
+
+    for (int a = 0; a < 3; a++)
+    {
+        const float half = 0.5f * (mx[a] - mn[a]);
+        qBias[a] = 0.5f * (mx[a] + mn[a]);
+        qScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+    }
+
+    if (!coordQ)
+    {
+        coordQ = new short[3 * (size_t)allocated];
+        if (!coordQ)
+            return;
+    }
+
+    for (unsigned v = 0; v < total; v++)
+    {
+        for (int a = 0; a < 3; a++)
+        {
+            float q = (coord[v * 3 + a] - qBias[a]) / qScale[a];
+            if (q > 32767.0f) q = 32767.0f;
+            if (q < -32767.0f) q = -32767.0f;
+            coordQ[v * 3 + a] = (short)(q >= 0.0f ? (q + 0.5f) : (q - 0.5f));
+        }
+    }
+
+    coordQCount = total;
+    delete[] coord;
+    coord = NULL;
+}
+
+void pvrPrimBuffer::QuantiseUVs()
+{
+    if (!uv || !uvWritten || total == 0)
+        return;
+
+    float mn[2], mx[2];
+    mn[0] = mx[0] = uv[0];
+    mn[1] = mx[1] = uv[1];
+
+    for (unsigned v = 1; v < total; v++)
+    {
+        for (int a = 0; a < 2; a++)
+        {
+            const float f = uv[v * 2 + a];
+            if (f < mn[a]) mn[a] = f;
+            if (f > mx[a]) mx[a] = f;
+        }
+    }
+
+    for (int a = 0; a < 2; a++)
+    {
+        const float half = 0.5f * (mx[a] - mn[a]);
+        uvBias[a] = 0.5f * (mx[a] + mn[a]);
+        uvScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+    }
+
+    if (!uvQ)
+    {
+        uvQ = new short[2 * (size_t)allocated];
+        if (!uvQ)
+            return;
+    }
+
+    for (unsigned v = 0; v < total; v++)
+    {
+        for (int a = 0; a < 2; a++)
+        {
+            float q = (uv[v * 2 + a] - uvBias[a]) / uvScale[a];
+            if (q > 32767.0f) q = 32767.0f;
+            if (q < -32767.0f) q = -32767.0f;
+            uvQ[v * 2 + a] = (short)(q >= 0.0f ? (q + 0.5f) : (q - 0.5f));
+        }
+    }
+
+    uvQCount = total;
+    delete[] uv;
+    uv = NULL;
+}
+
+void pvrPrimBuffer::RestoreUVs()
+{
+    if (uv || !uvQ)
+        return;
+
+    uv = new float[2 * (size_t)allocated];
+    if (!uv)
+        return;
+
+    for (unsigned v = 0; v < uvQCount; v++)
+    {
+        for (int a = 0; a < 2; a++)
+            uv[v * 2 + a] = (float)uvQ[v * 2 + a] * uvScale[a] + uvBias[a];
+    }
+}
+
+void pvrPrimBuffer::RestoreCoords()
+{
+    if (coord || !coordQ)
+        return;
+
+    coord = new float[3 * (size_t)allocated];
+    if (!coord)
+        return;
+
+    for (unsigned v = 0; v < coordQCount; v++)
+    {
+        for (int a = 0; a < 3; a++)
+            coord[v * 3 + a] = (float)coordQ[v * 3 + a] * qScale[a] + qBias[a];
+    }
+}
+
 pddiPrimBufferStream* pvrPrimBuffer::Lock()
 {
     total = 0;
+    coordWritten = false;
+    uvWritten = false;
     if (stream) stream->cur = 0;
     return stream;
 }
@@ -1028,6 +1203,10 @@ pddiPrimBufferStream* pvrPrimBuffer::Lock()
 void pvrPrimBuffer::Unlock(pddiPrimBufferStream* s)
 {
     (void)s;
+    if (coordWritten)
+        QuantiseCoords();
+    if (uvWritten)
+        QuantiseUVs();
     valid = true;
 }
 
@@ -1081,7 +1260,16 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
         pvr_dr_commit(h);
     }
 
-    context->LoadTransformToXmtrx();
+    if (coordQ && !coord)
+        context->LoadTransformToXmtrx(qScale, qBias);
+    else
+        context->LoadTransformToXmtrx();
+
+    const float uMul = uvScale[0] * uScale;
+    const float uAdd = uvBias[0] * uScale;
+    const float vMul = flipV ? -uvScale[1] : uvScale[1];
+    const float vAdd = flipV ? (1.0f - uvBias[1]) : uvBias[1];
+
     const pvrViewportMap vp = context->GetViewportMap();
 
     auto submitTriIdx = [&](int i0, int i1, int i2)
@@ -1092,13 +1280,22 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
         for (int k = 0; k < 3; k++)
         {
             const int vi = idxs[k];
-            tri[k].pos = shz_xmtrx_transform_vec4(
-                shz_vec4_init(coord[vi * 3 + 0], coord[vi * 3 + 1], coord[vi * 3 + 2], 1.0f));
+            tri[k].pos = coord
+                ? shz_xmtrx_transform_vec4(
+                      shz_vec4_init(coord[vi * 3 + 0], coord[vi * 3 + 1], coord[vi * 3 + 2], 1.0f))
+                : shz_xmtrx_transform_vec4(
+                      shz_vec4_init((float)coordQ[vi * 3 + 0], (float)coordQ[vi * 3 + 1],
+                                    (float)coordQ[vi * 3 + 2], 1.0f));
 
             if (uv)
             {
                 tri[k].u = uv[vi * 2 + 0] * uScale;
                 tri[k].v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
+            }
+            else if (uvQ)
+            {
+                tri[k].u = (float)uvQ[vi * 2 + 0] * uMul + uAdd;
+                tri[k].v = (float)uvQ[vi * 2 + 1] * vMul + vAdd;
             }
             else
             {
