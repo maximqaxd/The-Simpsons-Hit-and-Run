@@ -18,6 +18,20 @@
 
 #include <vector>
 
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+#include <kos/timer.h>
+#include <stdio.h>
+#endif
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+static unsigned s_recPB = 0;
+static unsigned s_recIM = 0;
+static unsigned s_beginFrames = 0;
+static uint64_t s_waitUs = 0;
+static uint64_t s_submitUs = 0;
+static uint64_t s_frameStartUs = 0;
+static unsigned s_tris = 0;
+#endif
+
 #ifdef RAD_DC_TRACE_VERTS
 #include <stdio.h>
 static int s_traceFrame = 0;
@@ -87,13 +101,21 @@ static void pvrRunDeferredLists();
 void pvrContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
-    // Start a new PVR scene.
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    const uint64_t waitStart = timer_us_gettime64();
+#endif
     pvr_wait_ready();
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_waitUs = timer_us_gettime64() - waitStart;
+#endif
     pvr_scene_begin();
 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
     pvrResetDeferredLists();
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_beginFrames++;
+#endif
 #ifdef RAD_DC_TRACE_VERTS
     s_traceFrame++;
     if ((s_traceFrame % 100) == 0)
@@ -103,7 +125,13 @@ void pvrContext::BeginFrame()
 
 void pvrContext::FlushDeferredLists()
 {
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    const uint64_t submitStart = timer_us_gettime64();
+#endif
     pvrRunDeferredLists();
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_submitUs = timer_us_gettime64() - submitStart;
+#endif
     currentList = (pvr_list_t)-1;
 }
 
@@ -703,6 +731,9 @@ public:
         }
 
         s_drawCmds[slot].push_back(cmd);
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+        s_recIM++;
+#endif
     }
 
     static void SubmitDeferred(const pvrDrawCmd& cmd)
@@ -806,14 +837,35 @@ static void pvrRunDeferredLists()
 #if defined RAD_DC_TRACE_BIG_ALLOCS
     {
         static unsigned frame = 0;
-        if ((frame++ % 60) == 0)
-        {
-            printf("[lists] op %u tr %u pt %u, imm verts %u\n",
-                   (unsigned)s_drawCmds[0].size(),
-                   (unsigned)s_drawCmds[1].size(),
-                   (unsigned)s_drawCmds[2].size(),
-                   (unsigned)s_immVerts.size());
-        }
+        static uint64_t lastMs = 0;
+
+        const uint64_t now = timer_ms_gettime64();
+        const unsigned span = (unsigned)(now - lastMs);
+        lastMs = now;
+        frame++;
+
+        const unsigned totalUs = (unsigned)(now * 1000u - s_frameStartUs);
+        s_frameStartUs = now * 1000u;
+
+        pvr_stats_t st;
+        pvr_get_stats(&st);
+
+        printf("[perf] %u ms | wait %u us | submit %u us | rest %u us | draws %u tris %u"
+               " | vbuf %u/%u KB gpu %u us\n",
+               frame > 1 ? span : 0,
+               (unsigned)s_waitUs,
+               (unsigned)s_submitUs,
+               (frame > 1 && totalUs > (unsigned)(s_waitUs + s_submitUs))
+                   ? totalUs - (unsigned)(s_waitUs + s_submitUs) : 0,
+               (unsigned)(s_drawCmds[0].size() + s_drawCmds[1].size() + s_drawCmds[2].size()),
+               s_tris,
+               (unsigned)(st.vtx_buffer_used / 1024),
+               (unsigned)(st.vtx_buffer_used_max / 1024),
+               (unsigned)(st.rnd_last_time / 1000));
+
+        s_recPB = 0;
+        s_recIM = 0;
+        s_tris = 0;
     }
 #endif
 
@@ -1392,6 +1444,9 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     cmd.uScale = GetUStrideScale(env.texture);
 
     s_drawCmds[slot].push_back(cmd);
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_recPB++;
+#endif
 }
 
 void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
@@ -1464,6 +1519,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             const float vv[3] = { tri[0].v, tri[1].v, tri[2].v };
             TraceTri("PB", c, uu, vv, vp.oy, vp.hh);
         }
+#endif
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+        s_tris++;
 #endif
         ClipAndSubmitTriangle(vp, tri);
     };
