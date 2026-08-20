@@ -344,7 +344,7 @@ void tInventory::DeleteAllSections()
     currentSection = 0;
 }
 
-#if !defined(RAD_RELEASE) || defined(RAD_DC_TRACE_BIG_ALLOCS)
+#ifndef RAD_RELEASE
 void tInventory::Dump (bool detail)
 {
     rReleasePrintf ("[inv] --- inventory dump ---\n");

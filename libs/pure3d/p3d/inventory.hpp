@@ -87,7 +87,7 @@ public:
     void SetAutoRepack(bool enable);
     bool GetAutoRepack();
 
-#if !defined(RAD_RELEASE) || defined(RAD_DC_TRACE_BIG_ALLOCS)
+#ifndef RAD_RELEASE
     void Dump (bool detail);
 #endif
 
