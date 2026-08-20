@@ -18,19 +18,6 @@
 
 #include <vector>
 
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-#include <kos/timer.h>
-#include <stdio.h>
-#endif
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-static unsigned s_recPB = 0;
-static unsigned s_recIM = 0;
-static unsigned s_beginFrames = 0;
-static uint64_t s_waitUs = 0;
-static uint64_t s_submitUs = 0;
-static uint64_t s_frameStartUs = 0;
-static unsigned s_tris = 0;
-#endif
 
 #ifdef RAD_DC_TRACE_VERTS
 #include <stdio.h>
@@ -101,21 +88,12 @@ static void pvrRunDeferredLists();
 void pvrContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    const uint64_t waitStart = timer_us_gettime64();
-#endif
     pvr_wait_ready();
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    s_waitUs = timer_us_gettime64() - waitStart;
-#endif
     pvr_scene_begin();
 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
     pvrResetDeferredLists();
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    s_beginFrames++;
-#endif
 #ifdef RAD_DC_TRACE_VERTS
     s_traceFrame++;
     if ((s_traceFrame % 100) == 0)
@@ -125,13 +103,7 @@ void pvrContext::BeginFrame()
 
 void pvrContext::FlushDeferredLists()
 {
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    const uint64_t submitStart = timer_us_gettime64();
-#endif
     pvrRunDeferredLists();
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    s_submitUs = timer_us_gettime64() - submitStart;
-#endif
     currentList = (pvr_list_t)-1;
 }
 
@@ -483,7 +455,36 @@ struct pvrDrawCmd
     pddiPrimType    immPrim;
     unsigned        argb;
     float           uScale;
+    pvr_cull_mode_t cull;
 };
+
+struct pvrCacheVert
+{
+    shz_vec4_t pos;
+    float      sx, sy, sz;
+    float      u, v;
+    unsigned   argb;
+    unsigned   vis;
+};
+
+enum { kVtxCacheMax = 1024 };
+static const float kBackfaceSign = 1.0f;
+static pvrCacheVert s_vtxCache[kVtxCacheMax];
+
+static inline void SubmitScreenVert(const pvrCacheVert& cv, unsigned flags)
+{
+    pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
+
+    vert->flags = flags;
+    vert->x = cv.sx;
+    vert->y = cv.sy;
+    vert->z = cv.sz;
+    vert->u = cv.u;
+    vert->v = cv.v;
+    vert->argb = cv.argb;
+    vert->oargb = 0;
+    pvr_dr_commit(vert);
+}
 
 struct pvrImmVert
 {
@@ -717,6 +718,7 @@ public:
         cmd.immPrim = primType;
         cmd.argb = 0xffffffffu;
         cmd.uScale = uScale;
+        cmd.cull = PVR_CULLING_NONE;
 
         for (size_t i = 0; i < coords.size(); i++)
         {
@@ -731,9 +733,6 @@ public:
         }
 
         s_drawCmds[slot].push_back(cmd);
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-        s_recIM++;
-#endif
     }
 
     static void SubmitDeferred(const pvrDrawCmd& cmd)
@@ -793,9 +792,63 @@ public:
                 submitTri(i0, odd ? i2 : i1, odd ? i1 : i2);
             }
         }
-        else
+        else if (primType == PDDI_PRIM_LINES || primType == PDDI_PRIM_LINESTRIP)
         {
-            // Lines/points not supported by PVR backend directly yet.
+            auto submitLine = [&](int i0, int i1)
+            {
+                pvrClipVert a, b;
+                fetch(i0, a);
+                fetch(i1, b);
+
+                const bool visA = ClipVertVisible(a);
+                const bool visB = ClipVertVisible(b);
+                if (!visA && !visB)
+                    return;
+                if (!visA)
+                    ClipEdge(b, a, a);
+                else if (!visB)
+                    ClipEdge(a, b, b);
+
+                const float invwA = 1.0f / a.pos.w;
+                const float invwB = 1.0f / b.pos.w;
+                const float ax = vp.ox + vp.hw * (1.0f + a.pos.x * invwA);
+                const float ay = vp.oy + vp.hh * (1.0f - a.pos.y * invwA);
+                const float bx = vp.ox + vp.hw * (1.0f + b.pos.x * invwB);
+                const float by = vp.oy + vp.hh * (1.0f - b.pos.y * invwB);
+
+                const float dx = bx - ax;
+                const float dy = by - ay;
+                const float len = sqrtf(dx * dx + dy * dy);
+                if (len < 1e-3f)
+                    return;
+
+                const float nx = (-dy / len) * 0.5f;
+                const float ny = ( dx / len) * 0.5f;
+
+                pvrCacheVert q[4];
+                q[0].sx = ax + nx; q[0].sy = ay + ny; q[0].sz = invwA; q[0].argb = a.argb;
+                q[1].sx = ax - nx; q[1].sy = ay - ny; q[1].sz = invwA; q[1].argb = a.argb;
+                q[2].sx = bx + nx; q[2].sy = by + ny; q[2].sz = invwB; q[2].argb = b.argb;
+                q[3].sx = bx - nx; q[3].sy = by - ny; q[3].sz = invwB; q[3].argb = b.argb;
+
+                for (int k = 0; k < 4; k++)
+                {
+                    q[k].u = 0.0f;
+                    q[k].v = 0.0f;
+                    SubmitScreenVert(q[k], (k == 3) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                }
+            };
+
+            if (primType == PDDI_PRIM_LINES)
+            {
+                for (size_t i = 0; i + 1 < count; i += 2)
+                    submitLine((int)i, (int)i + 1);
+            }
+            else
+            {
+                for (size_t i = 0; i + 1 < count; ++i)
+                    submitLine((int)i, (int)i + 1);
+            }
         }
 
 
@@ -834,40 +887,6 @@ static void pvrResetDeferredLists()
 
 static void pvrRunDeferredLists()
 {
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    {
-        static unsigned frame = 0;
-        static uint64_t lastMs = 0;
-
-        const uint64_t now = timer_ms_gettime64();
-        const unsigned span = (unsigned)(now - lastMs);
-        lastMs = now;
-        frame++;
-
-        const unsigned totalUs = (unsigned)(now * 1000u - s_frameStartUs);
-        s_frameStartUs = now * 1000u;
-
-        pvr_stats_t st;
-        pvr_get_stats(&st);
-
-        printf("[perf] %u ms | wait %u us | submit %u us | rest %u us | draws %u tris %u"
-               " | vbuf %u/%u KB gpu %u us\n",
-               frame > 1 ? span : 0,
-               (unsigned)s_waitUs,
-               (unsigned)s_submitUs,
-               (frame > 1 && totalUs > (unsigned)(s_waitUs + s_submitUs))
-                   ? totalUs - (unsigned)(s_waitUs + s_submitUs) : 0,
-               (unsigned)(s_drawCmds[0].size() + s_drawCmds[1].size() + s_drawCmds[2].size()),
-               s_tris,
-               (unsigned)(st.vtx_buffer_used / 1024),
-               (unsigned)(st.vtx_buffer_used_max / 1024),
-               (unsigned)(st.rnd_last_time / 1000));
-
-        s_recPB = 0;
-        s_recIM = 0;
-        s_tris = 0;
-    }
-#endif
 
     for (int i = 0; i < 3; i++)
     {
@@ -1209,6 +1228,11 @@ pvrPrimBuffer::~pvrPrimBuffer()
     context->Release();
 }
 
+pvr_cull_mode_t pvrContext::GetCurrentCull() const
+{
+    return MapCull(state.renderState->cullMode);
+}
+
 void pvrContext::BuildTransform(const float* scale, const float* bias, shz_mat4x4_t* out) const
 {
     shz_mat4x4_t& m = *out;
@@ -1442,11 +1466,9 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     cmd.immPrim = primType;
     cmd.argb = (unsigned)env.diffuse;
     cmd.uScale = GetUStrideScale(env.texture);
+    cmd.cull = context->GetCurrentCull();
 
     s_drawCmds[slot].push_back(cmd);
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-    s_recPB++;
-#endif
 }
 
 void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
@@ -1468,6 +1490,133 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     const float vAdd = flipV ? (1.0f - uvBias[1]) : uvBias[1];
 
     const pvrViewportMap vp = cmd.vp;
+
+    unsigned vcount = coordQ ? coordQCount : total;
+    if (vcount == 0)
+        vcount = allocated;
+
+    if (vcount > 0 && vcount <= (unsigned)kVtxCacheMax)
+    {
+        for (unsigned i = 0; i < vcount; i++)
+        {
+            pvrCacheVert& c = s_vtxCache[i];
+
+            c.pos = coord
+                ? shz_xmtrx_transform_vec4(
+                      shz_vec4_init(coord[i * 3 + 0], coord[i * 3 + 1], coord[i * 3 + 2], 1.0f))
+                : shz_xmtrx_transform_vec4(
+                      shz_vec4_init((float)coordQ[i * 3 + 0], (float)coordQ[i * 3 + 1],
+                                    (float)coordQ[i * 3 + 2], 1.0f));
+
+            c.vis = (c.pos.w >= c.pos.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+            if (c.vis)
+            {
+                const float invw = 1.0f / c.pos.w;
+                c.sx = vp.ox + vp.hw * (1.0f + c.pos.x * invw);
+                c.sy = vp.oy + vp.hh * (1.0f - c.pos.y * invw);
+                c.sz = invw;
+            }
+
+            if (uv)
+            {
+                c.u = uv[i * 2 + 0] * uScale;
+                c.v = flipV ? (1.0f - uv[i * 2 + 1]) : uv[i * 2 + 1];
+            }
+            else if (uvQ)
+            {
+                c.u = (float)uvQ[i * 2 + 0] * uMul + uAdd;
+                c.v = (float)uvQ[i * 2 + 1] * vMul + vAdd;
+            }
+            else
+            {
+                c.u = 0.0f;
+                c.v = 0.0f;
+            }
+
+            if (colour)
+            {
+                const unsigned char* cc = &colour[i * 4];
+                c.argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
+                       | ((uint32_t)cc[1] << 8) | (uint32_t)cc[2];
+            }
+            else
+            {
+                c.argb = cmd.argb;
+            }
+        }
+
+        const unsigned short* idx = (indexCount && indices) ? indices : NULL;
+        const unsigned n = idx ? indexCount : vcount;
+
+        unsigned allVis = 1;
+        for (unsigned i = 0; i < n; i++)
+        {
+            if (!s_vtxCache[idx ? idx[i] : i].vis) { allVis = 0; break; }
+        }
+
+        if (primType == PDDI_PRIM_TRISTRIP && allVis && n >= 3)
+        {
+            for (unsigned i = 0; i < n; i++)
+            {
+                SubmitScreenVert(s_vtxCache[idx ? idx[i] : i],
+                                 (i == n - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+            }
+            return;
+        }
+
+        auto emitTri = [&](unsigned a, unsigned b, unsigned c)
+        {
+            const pvrCacheVert& va = s_vtxCache[a];
+            const pvrCacheVert& vb = s_vtxCache[b];
+            const pvrCacheVert& vc = s_vtxCache[c];
+
+            if (va.vis && vb.vis && vc.vis)
+            {
+                if (cmd.cull != PVR_CULLING_NONE)
+                {
+                    const float area = (vb.sx - va.sx) * (vc.sy - va.sy)
+                                     - (vc.sx - va.sx) * (vb.sy - va.sy);
+                    if (cmd.cull == PVR_CULLING_CCW)
+                    {
+                        if (area * kBackfaceSign > 0.0f) return;
+                    }
+                    else if (cmd.cull == PVR_CULLING_CW)
+                    {
+                        if (area * kBackfaceSign < 0.0f) return;
+                    }
+                }
+
+                SubmitScreenVert(va, PVR_CMD_VERTEX);
+                SubmitScreenVert(vb, PVR_CMD_VERTEX);
+                SubmitScreenVert(vc, PVR_CMD_VERTEX_EOL);
+                return;
+            }
+
+            pvrClipVert tri[3];
+            tri[0].pos = va.pos; tri[0].u = va.u; tri[0].v = va.v; tri[0].argb = va.argb;
+            tri[1].pos = vb.pos; tri[1].u = vb.u; tri[1].v = vb.v; tri[1].argb = vb.argb;
+            tri[2].pos = vc.pos; tri[2].u = vc.u; tri[2].v = vc.v; tri[2].argb = vc.argb;
+            ClipAndSubmitTriangle(vp, tri);
+        };
+
+        if (primType == PDDI_PRIM_TRIANGLES)
+        {
+            for (unsigned i = 0; i + 2 < n; i += 3)
+                emitTri(idx ? idx[i] : i, idx ? idx[i + 1] : i + 1, idx ? idx[i + 2] : i + 2);
+        }
+        else if (primType == PDDI_PRIM_TRISTRIP)
+        {
+            for (unsigned i = 0; i + 2 < n; ++i)
+            {
+                const unsigned a = idx ? idx[i] : i;
+                const unsigned b = idx ? idx[i + 1] : i + 1;
+                const unsigned c = idx ? idx[i + 2] : i + 2;
+                const bool odd = (i & 1u) != 0;
+                emitTri(a, odd ? c : b, odd ? b : c);
+            }
+        }
+        return;
+    }
 
     auto submitTriIdx = [&](int i0, int i1, int i2)
     {
@@ -1519,9 +1668,6 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             const float vv[3] = { tri[0].v, tri[1].v, tri[2].v };
             TraceTri("PB", c, uu, vv, vp.oy, vp.hh);
         }
-#endif
-#if defined RAD_DC_TRACE_BIG_ALLOCS
-        s_tris++;
 #endif
         ClipAndSubmitTriangle(vp, tri);
     };

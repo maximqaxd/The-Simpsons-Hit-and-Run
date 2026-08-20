@@ -104,6 +104,7 @@ public:
     void BuildTransform(const float* scale, const float* bias, shz_mat4x4_t* out) const;
     const shz_mat4x4_t& GetViewProj() const { return viewProjM; }
     void FlushDeferredLists();
+    pvr_cull_mode_t GetCurrentCull() const;
     struct pvrViewportMap GetViewportMap() const;
     pddiShader* GetDefaultShader(void) { return defaultShader; }
 
