@@ -34,7 +34,7 @@ done
 
 # Build CDI if requested
 if [ "$BUILD_CDI" = true ] || [ "$RUN_EMU" = true ]; then
-    cd .. && mkdcdisc -e dcbuild/SRR2.elf -D ./game -o ./SRR2.cdi
+    cd .. && mkdcdisc -e dcbuild/SRR2.elf -D ./game-dc -o ./SRR2.cdi
     echo "Dreamcast CDI complete!"
 fi
 
