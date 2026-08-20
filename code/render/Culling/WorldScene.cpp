@@ -134,6 +134,12 @@ bool gTestShader( IEntityDSG* arg1, IEntityDSG* arg2 )
 #endif
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
+#ifdef RAD_DREAMCAST
+static const float SRR_DRAW_DIST = 100.0f;
+#else
+static const float SRR_DRAW_DIST = 200.0f;
+#endif
+
 WorldScene::WorldScene() 
 : 
     mEpsilonOffset(0.01f,0.01f,0.01f),
@@ -141,7 +147,7 @@ WorldScene::WorldScene()
     mpStaticTree(NULL)
 {
     GetEventManager()->AddListener(this,(EventEnum)(EVENT_LOCATOR+LocatorEvent::FAR_PLANE));
-    mDrawDist = 200.0f;
+    mDrawDist = SRR_DRAW_DIST;
 
     mpZSorts.reserve(5000);
     rTuneAssert( mpZSorts.capacity() == 5000 );
@@ -344,10 +350,14 @@ void WorldScene::HandleEvent( EventEnum id, void* pEventData )
             if(((EventLocator*)pEventData)->GetPlayerEntered())
             {
                 mDrawDist = rmt::LtoF(newDrawDist);
+                if( mDrawDist > SRR_DRAW_DIST )
+                {
+                    mDrawDist = SRR_DRAW_DIST;
+                }
             }
             else //exit 
             {
-                mDrawDist = 200.0f;
+                mDrawDist = SRR_DRAW_DIST;
             }
         }
         return;
