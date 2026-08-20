@@ -10,3 +10,5 @@ game/
 dcbuild/
 *.cdi
 game-dc/
+game-dc-lod/
+__pycache__/
