@@ -81,6 +81,9 @@ pvrContext::~pvrContext()
     device->Release();
 }
 
+static void pvrResetDeferredLists();
+static void pvrRunDeferredLists();
+
 void pvrContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
@@ -88,9 +91,9 @@ void pvrContext::BeginFrame()
     pvr_wait_ready();
     pvr_scene_begin();
 
-    // Reset per-frame list state. 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
+    pvrResetDeferredLists();
 #ifdef RAD_DC_TRACE_VERTS
     s_traceFrame++;
     if ((s_traceFrame % 100) == 0)
@@ -98,14 +101,16 @@ void pvrContext::BeginFrame()
 #endif
 }
 
+void pvrContext::FlushDeferredLists()
+{
+    pvrRunDeferredLists();
+    currentList = (pvr_list_t)-1;
+}
+
 void pvrContext::EndFrame()
 {
     pddiBaseContext::EndFrame();
-    if (currentList != (pvr_list_t)-1)
-    {
-        pvr_list_finish();
-        currentList = (pvr_list_t)-1;
-    }
+    FlushDeferredLists();
     pvr_scene_finish();
 }
 
@@ -439,7 +444,44 @@ pvrViewportMap pvrContext::GetViewportMap() const
     return vp;
 }
 
-static const pvr_list_t kSubmitList = PVR_LIST_TR_POLY;
+struct pvrDrawCmd
+{
+    pvr_poly_hdr_t  hdr;
+    shz_mat4x4_t    xform;
+    pvrViewportMap  vp;
+    pvrPrimBuffer*  buffer;
+    unsigned        immFirst;
+    unsigned        immCount;
+    pddiPrimType    immPrim;
+    unsigned        argb;
+    float           uScale;
+};
+
+struct pvrImmVert
+{
+    float    x, y, z;
+    float    u, v;
+    unsigned argb;
+};
+
+static std::vector<pvrDrawCmd>  s_drawCmds[3];
+static std::vector<pvrImmVert>  s_immVerts;
+
+static inline int ListSlot(pvr_list_t list)
+{
+    switch (list)
+    {
+        case PVR_LIST_OP_POLY: return 0;
+        case PVR_LIST_TR_POLY: return 1;
+        case PVR_LIST_PT_POLY: return 2;
+        default: return -1;
+    }
+}
+
+static const pvr_list_t kListOrder[3] =
+{
+    PVR_LIST_OP_POLY, PVR_LIST_TR_POLY, PVR_LIST_PT_POLY
+};
 
 static inline pvr_list_t ChooseList(const pvrTextureEnv& env)
 {
@@ -495,26 +537,10 @@ void pvrContext::SetScissor(pddiRect* rect)
     (void)rect;
 }
 
-inline void EnsureList(pvrContext* ctx, pvr_list_t list)
-{
-    if (ctx->currentList == list)
-        return;
-
-    const unsigned bit = ListBit(list);
-    if (!bit || (ctx->begunMask & bit))
-        return;
-
-    if (pvr_list_begin(list) < 0)
-        return;
-
-    ctx->currentList = list;
-    ctx->begunMask |= bit;
-}
-
 void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHdr, pvr_list_t& outList) const
 {
     const pvr_list_t logical = ChooseList(env);
-    outList = kSubmitList;
+    outList = logical;
 
     pvr_poly_cxt_t cxt;
     if (env.enabled && env.texture && env.texture->GetVramPtr())
@@ -641,27 +667,62 @@ public:
         pvr_poly_hdr_t hdr;
         pvr_list_t list;
         ctx->BuildPolyHeader(env, hdr, list);
-        EnsureList(ctx, list);
+
+        const int slot = ListSlot(list);
+        if (slot < 0)
+            return;
 
         const float uScale = GetUStrideScale(env.texture);
         const bool flipV = true;
 
+        pvrDrawCmd cmd;
+        cmd.hdr = hdr;
+        cmd.xform = ctx->GetViewProj();
+        cmd.vp = ctx->GetViewportMap();
+        cmd.buffer = NULL;
+        cmd.immFirst = (unsigned)s_immVerts.size();
+        cmd.immCount = (unsigned)coords.size();
+        cmd.immPrim = primType;
+        cmd.argb = 0xffffffffu;
+        cmd.uScale = uScale;
 
+        for (size_t i = 0; i < coords.size(); i++)
+        {
+            pvrImmVert iv;
+            iv.x = coords[i].x;
+            iv.y = coords[i].y;
+            iv.z = coords[i].z;
+            iv.u = uvs[i].u * uScale;
+            iv.v = flipV ? (1.0f - uvs[i].v) : uvs[i].v;
+            iv.argb = (uint32_t)(unsigned)colours[i];
+            s_immVerts.push_back(iv);
+        }
+
+        s_drawCmds[slot].push_back(cmd);
+    }
+
+    static void SubmitDeferred(const pvrDrawCmd& cmd)
+    {
         {
             pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
-            *h = hdr;
+            *h = cmd.hdr;
             pvr_dr_commit(h);
         }
-        ctx->LoadTransformToXmtrx();
-        const pvrViewportMap vp = ctx->GetViewportMap();
+
+        shz_xmtrx_load_4x4(&cmd.xform);
+
+        const pvrViewportMap vp = cmd.vp;
+        const pddiPrimType primType = cmd.immPrim;
+        const pvrImmVert* verts = &s_immVerts[cmd.immFirst];
+        const size_t count = cmd.immCount;
 
         auto fetch = [&](int i, pvrClipVert& out)
         {
             out.pos = shz_xmtrx_transform_vec4(
-                shz_vec4_init(coords[i].x, coords[i].y, coords[i].z, 1.0f));
-            out.u = uvs[i].u * uScale;
-            out.v = flipV ? (1.0f - uvs[i].v) : uvs[i].v;
-            out.argb = (uint32_t)(unsigned)colours[i];
+                shz_vec4_init(verts[i].x, verts[i].y, verts[i].z, 1.0f));
+            out.u = verts[i].u;
+            out.v = verts[i].v;
+            out.argb = verts[i].argb;
         };
 
         auto submitTri = [&](int i0, int i1, int i2)
@@ -683,12 +744,12 @@ public:
 
         if (primType == PDDI_PRIM_TRIANGLES)
         {
-            for (size_t i = 0; i + 2 < coords.size(); i += 3)
+            for (size_t i = 0; i + 2 < count; i += 3)
                 submitTri((int)i, (int)i + 1, (int)i + 2);
         }
         else if (primType == PDDI_PRIM_TRISTRIP)
         {
-            for (size_t i = 0; i + 2 < coords.size(); ++i)
+            for (size_t i = 0; i + 2 < count; ++i)
             {
                 const bool odd = (i & 1u) != 0;
                 const int i0 = (int)i;
@@ -721,6 +782,58 @@ private:
 };
 
 static pvrImmediatePrimStream g_imStream;
+
+static void pvrResetDeferredLists()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (size_t c = 0; c < s_drawCmds[i].size(); c++)
+        {
+            if (s_drawCmds[i][c].buffer)
+                s_drawCmds[i][c].buffer->Release();
+        }
+        s_drawCmds[i].clear();
+    }
+    s_immVerts.clear();
+}
+
+static void pvrRunDeferredLists()
+{
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    {
+        static unsigned frame = 0;
+        if ((frame++ % 60) == 0)
+        {
+            printf("[lists] op %u tr %u pt %u, imm verts %u\n",
+                   (unsigned)s_drawCmds[0].size(),
+                   (unsigned)s_drawCmds[1].size(),
+                   (unsigned)s_drawCmds[2].size(),
+                   (unsigned)s_immVerts.size());
+        }
+    }
+#endif
+
+    for (int i = 0; i < 3; i++)
+    {
+        const std::vector<pvrDrawCmd>& cmds = s_drawCmds[i];
+        if (cmds.empty())
+            continue;
+
+        if (pvr_list_begin(kListOrder[i]) < 0)
+            continue;
+
+        for (size_t c = 0; c < cmds.size(); c++)
+        {
+            const pvrDrawCmd& cmd = cmds[c];
+            if (cmd.buffer)
+                cmd.buffer->SubmitDeferred(cmd);
+            else
+                pvrImmediatePrimStream::SubmitDeferred(cmd);
+        }
+
+        pvr_list_finish();
+    }
+}
 
 pddiPrimStream* pvrContext::BeginPrims(pddiShader* material, pddiPrimType primType, unsigned vertexType, int vertexCount, unsigned pass)
 {
@@ -1040,9 +1153,9 @@ pvrPrimBuffer::~pvrPrimBuffer()
     context->Release();
 }
 
-void pvrContext::LoadTransformToXmtrx(const float* scale, const float* bias) const
+void pvrContext::BuildTransform(const float* scale, const float* bias, shz_mat4x4_t* out) const
 {
-    shz_mat4x4_t m;
+    shz_mat4x4_t& m = *out;
 
     for (int row = 0; row < 4; row++)
     {
@@ -1056,7 +1169,12 @@ void pvrContext::LoadTransformToXmtrx(const float* scale, const float* bias) con
         m.elem2D[3][row] = c0 * bias[0] + c1 * bias[1] + c2 * bias[2]
                          + viewProjM.elem2D[3][row];
     }
+}
 
+void pvrContext::LoadTransformToXmtrx(const float* scale, const float* bias) const
+{
+    shz_mat4x4_t m;
+    BuildTransform(scale, bias, &m);
     shz_xmtrx_load_4x4(&m);
 }
 
@@ -1249,28 +1367,48 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     pvr_poly_hdr_t hdr;
     pvr_list_t list;
     context->BuildPolyHeader(env, hdr, list);
-    EnsureList(context, list);
 
-    const float uScale = GetUStrideScale(env.texture);
+    const int slot = ListSlot(list);
+    if (slot < 0)
+        return;
+
+    pvrDrawCmd cmd;
+    cmd.hdr = hdr;
+    if (coordQ && !coord)
+        context->BuildTransform(qScale, qBias, &cmd.xform);
+    else
+        cmd.xform = context->GetViewProj();
+    cmd.vp = context->GetViewportMap();
+    cmd.buffer = this;
+    AddRef();
+    cmd.immFirst = 0;
+    cmd.immCount = 0;
+    cmd.immPrim = primType;
+    cmd.argb = (unsigned)env.diffuse;
+    cmd.uScale = GetUStrideScale(env.texture);
+
+    s_drawCmds[slot].push_back(cmd);
+}
+
+void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
+{
+    const float uScale = cmd.uScale;
     const bool flipV = true;
 
     {
         pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
-        *h = hdr;
+        *h = cmd.hdr;
         pvr_dr_commit(h);
     }
 
-    if (coordQ && !coord)
-        context->LoadTransformToXmtrx(qScale, qBias);
-    else
-        context->LoadTransformToXmtrx();
+    shz_xmtrx_load_4x4(&cmd.xform);
 
     const float uMul = uvScale[0] * uScale;
     const float uAdd = uvBias[0] * uScale;
     const float vMul = flipV ? -uvScale[1] : uvScale[1];
     const float vAdd = flipV ? (1.0f - uvBias[1]) : uvBias[1];
 
-    const pvrViewportMap vp = context->GetViewportMap();
+    const pvrViewportMap vp = cmd.vp;
 
     auto submitTriIdx = [&](int i0, int i1, int i2)
     {
@@ -1311,7 +1449,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
             }
             else
             {
-                tri[k].argb = (uint32_t)(unsigned)env.diffuse;
+                tri[k].argb = cmd.argb;
             }
         }
 

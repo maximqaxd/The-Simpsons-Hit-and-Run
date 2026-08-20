@@ -101,6 +101,9 @@ public:
     pvrDisplay* GetDisplay(void) { return display; }
     void LoadTransformToXmtrx() const { shz_xmtrx_load_4x4(&viewProjM); }
     void LoadTransformToXmtrx(const float* scale, const float* bias) const;
+    void BuildTransform(const float* scale, const float* bias, shz_mat4x4_t* out) const;
+    const shz_mat4x4_t& GetViewProj() const { return viewProjM; }
+    void FlushDeferredLists();
     struct pvrViewportMap GetViewportMap() const;
     pddiShader* GetDefaultShader(void) { return defaultShader; }
 
@@ -167,6 +170,7 @@ public:
 
     void Display(void);
     void DisplayWithMaterial(pvrMat* mat, unsigned pass);
+    void SubmitDeferred(const struct pvrDrawCmd& cmd);
 
 protected:
     friend class pvrPrimBufferStream;
