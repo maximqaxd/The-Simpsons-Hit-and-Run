@@ -439,6 +439,8 @@ pvrViewportMap pvrContext::GetViewportMap() const
     return vp;
 }
 
+static const pvr_list_t kSubmitList = PVR_LIST_TR_POLY;
+
 static inline pvr_list_t ChooseList(const pvrTextureEnv& env)
 {
     if (env.alphaTest)
@@ -498,33 +500,21 @@ inline void EnsureList(pvrContext* ctx, pvr_list_t list)
     if (ctx->currentList == list)
         return;
 
-    // Close any currently open list.
-    if (ctx->currentList != (pvr_list_t)-1)
-    {
-        pvr_list_finish();
-        ctx->currentList = (pvr_list_t)-1;
-    }
-
     const unsigned bit = ListBit(list);
-    if (!bit)
+    if (!bit || (ctx->begunMask & bit))
         return;
 
-    const bool canReopen = (list == PVR_LIST_PT_POLY);
-    if ((ctx->begunMask & bit) && !canReopen)
+    if (pvr_list_begin(list) < 0)
         return;
 
-    if (!(ctx->begunMask & bit) || canReopen)
-    {
-        if (pvr_list_begin(list) < 0)
-            return;
-        ctx->currentList = list;
-        ctx->begunMask |= bit;
-    }
+    ctx->currentList = list;
+    ctx->begunMask |= bit;
 }
 
 void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHdr, pvr_list_t& outList) const
 {
-    outList = ChooseList(env);
+    const pvr_list_t logical = ChooseList(env);
+    outList = kSubmitList;
 
     pvr_poly_cxt_t cxt;
     if (env.enabled && env.texture && env.texture->GetVramPtr())
@@ -536,11 +526,9 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
                          env.texture->GetVramPtr(),
                          MapFilter(env.filterMode));
         cxt.txr.uv_clamp = clamp;
-        // Pure3D content/UVs are authored with GL-style V (origin bottom-left).
-        // The PVR hardware treats V origin differently, so flip V in the texture context.
         cxt.txr.uv_flip = PVR_UVFLIP_NONE;
         cxt.txr.mipmap = env.texture->HasMipMaps();
-        cxt.txr.env = (outList == PVR_LIST_TR_POLY) ? PVR_TXRENV_MODULATEALPHA : PVR_TXRENV_MODULATE;
+        cxt.txr.env = (logical == PVR_LIST_TR_POLY) ? PVR_TXRENV_MODULATEALPHA : PVR_TXRENV_MODULATE;
         cxt.txr.alpha = false;
     }
     else
@@ -554,8 +542,8 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     if (state.renderState->zEnabled)
     {
         cxt.depth.comparison = MapDepthCompareInvW(state.renderState->zCompare);
-        cxt.depth.write = (outList == PVR_LIST_TR_POLY) ? false
-                                                        : (state.renderState->zWrite != 0);
+        cxt.depth.write = (logical == PVR_LIST_TR_POLY) ? false
+                                                         : (state.renderState->zWrite != 0);
     }
     else
     {
@@ -563,11 +551,10 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
         cxt.depth.write = false;
     }
 
-    // Blend.
     bool blendEnable = false;
     pvr_blend_mode_t src = PVR_BLEND_ONE, dst = PVR_BLEND_ZERO;
     MapBlend(env, src, dst, blendEnable);
-    if (outList == PVR_LIST_TR_POLY && blendEnable)
+    if (logical == PVR_LIST_TR_POLY && blendEnable)
     {
         cxt.blend.src = src;
         cxt.blend.dst = dst;
