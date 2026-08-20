@@ -625,7 +625,9 @@ void RenderManager::ContextUpdate( unsigned int iElapsedTime )
         GetGame()->SetTime( time );
     }
 
+   BEGIN_PROFILE( "End Frame" );
    p3d::context->EndFrame( false );
+   END_PROFILE( "End Frame" );
 
 
 #ifdef DEBUGWATCH

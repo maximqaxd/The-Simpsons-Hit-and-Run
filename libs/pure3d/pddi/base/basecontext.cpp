@@ -606,7 +606,7 @@ void pddiBaseContext::DrawPrimBuffer(pddiShader* material, pddiPrimBuffer* buffe
 
 void pddiBaseContext::DrawString(const char* s, int x, int y, pddiColour colour)
 {
-#ifndef RAD_RELEASE
+#if !defined( RAD_RELEASE ) || defined( SRR2_DC_PROFILER )
     supressPrimTally = true;
 
     pddiRect oldScissor;

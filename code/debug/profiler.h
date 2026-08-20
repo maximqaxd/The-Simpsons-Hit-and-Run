@@ -16,11 +16,15 @@
 // Nested Includes
 //========================================
 
+#ifdef SRR2_DC_PROFILER
+#define PROFILER_ENABLED
+#else
 #ifndef RAD_DREAMCAST
 #if !defined( RAD_RELEASE ) && !defined( WORLD_BUILDER ) && !defined( RAD_MW )
 #define PROFILER_ENABLED
 #endif // RAD_RELEASE
-#endif 
+#endif
+#endif
 
 
 #include "main/commandlineoptions.h"
