@@ -344,14 +344,14 @@ void tInventory::DeleteAllSections()
     currentSection = 0;
 }
 
-#ifndef RAD_RELEASE
+#if !defined(RAD_RELEASE) || defined(RAD_DC_TRACE_BIG_ALLOCS)
 void tInventory::Dump (bool detail)
 {
-    rDebugString ("\nInventory Dump:\n");
+    rReleasePrintf ("[inv] --- inventory dump ---\n");
     for (unsigned i = 0; i < nSection; i++)
     {
         tEntityTable* table = section[i];
-        rDebugPrintf ("Section %zu: %d elements\n", (radInt64)table->GetUID(), table->GetElementCount ()); 
+        rReleasePrintf ("[inv] uid %08x  %d elements\n", (unsigned)table->GetUID(), table->GetElementCount ()); 
 
         if (detail)
         {
@@ -361,11 +361,10 @@ void tInventory::Dump (bool detail)
             tEntity* entity;
             for (entity = iterator.First(); entity; entity = iterator.Next ())
             {
-                rDebugPrintf ("    %p %s\n", entity, entity->GetName ());
+                rReleasePrintf ("    %p %s\n", entity, entity->GetName ());
             }
         }
     }
-    rDebugString ("\n");
 }
 #endif
 //-------------------------------------------------------------------

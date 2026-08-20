@@ -27,6 +27,10 @@
 //
 #include <input/inputmanager.h>
 
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+#include <memory/memoryutilities.h>
+#endif
+
 //******************************************************************************
 //
 // Global Data, Local Data, Local Classes
@@ -68,6 +72,9 @@ void Context::DestroyInstance()
 //==============================================================================
 void Context::Start( ContextEnum previousContext )
 {
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    rReleasePrintf( "[ctx] start from %d, heap %u KB\n", (int)previousContext, (unsigned)( Memory::GetTotalMemoryUsed() / 1024 ) );
+#endif
     this->OnStart( previousContext );
 }
 
@@ -86,6 +93,9 @@ void Context::Start( ContextEnum previousContext )
 void Context::Stop( ContextEnum nextContext )
 {
     this->OnStop( nextContext );
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    rReleasePrintf( "[ctx] stop to %d, heap %u KB\n", (int)nextContext, (unsigned)( Memory::GetTotalMemoryUsed() / 1024 ) );
+#endif
 }
 
 

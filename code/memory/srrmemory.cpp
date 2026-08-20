@@ -27,6 +27,13 @@
 #include <radsound_hal.hpp>
 #endif
 #include <p3d/utility.hpp>
+#include <p3d/inventory.hpp>
+
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+extern "C" unsigned pvrLiveTextureCount( void );
+extern "C" unsigned pvrVramAvailable( void );
+#endif
+
 
 #include <string.h>
 
@@ -530,6 +537,12 @@ void PrintOutOfMemoryMessage( void* userData, radMemoryAllocator heap, const uns
     // Print out memory information to the TTY first
     //
     Memory::PrintMemoryStatsToTty();
+
+#if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
+    rReleasePrintf( "[free] at OOM: %u textures, vram free %u KB\n",
+                    pvrLiveTextureCount(), pvrVramAvailable() / 1024 );
+    p3d::inventory->Dump( false );
+#endif
 
     //Disable this while we're here...
     ::radMemorySetOutOfMemoryCallback( NULL, NULL );

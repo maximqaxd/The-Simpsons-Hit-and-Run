@@ -133,10 +133,6 @@ void * radMemoryPlatAlloc( unsigned int numberOfBytes )
         printf( "   [big] %u bytes at %p (%u big allocs, %u KB total)%s\n",
                 numberOfBytes, pMemory, s_dcBigAllocs, s_dcBigAllocBytes / 1024,
                 pMemory ? "" : "  <-- FAILED" );
-        printf( "         from %p %p %p\n",
-                __builtin_return_address( 0 ),
-                __builtin_return_address( 1 ),
-                __builtin_return_address( 2 ) );
     }
 #endif
 

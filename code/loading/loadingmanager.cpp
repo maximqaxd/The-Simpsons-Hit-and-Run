@@ -37,6 +37,10 @@
 #if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
 #include <memory/memoryutilities.h>
 static size_t s_LoadStartUsed = 0;
+static unsigned s_LoadStartTextures = 0;
+
+extern "C" unsigned pvrLiveTextureCount( void );
+extern "C" unsigned pvrLiveStagingBytes( void );
 #endif
 
 //******************************************************************************
@@ -307,10 +311,13 @@ void LoadingManager::OnLoadFileComplete( void* pUserData )
 #if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
     {
         const size_t used = Memory::GetTotalMemoryUsed();
-        rReleasePrintf( "   [mem] %s cost %ld KB, heap now %u KB\n",
+        rReleasePrintf( "   [mem] %s cost %ld KB, heap now %u KB, %u textures (+%d), staging %u KB\n",
                         request.filename,
                         ( (long)used - (long)s_LoadStartUsed ) / 1024,
-                        (unsigned)( used / 1024 ) );
+                        (unsigned)( used / 1024 ),
+                        pvrLiveTextureCount(),
+                        (int)pvrLiveTextureCount() - (int)s_LoadStartTextures,
+                        pvrLiveStagingBytes() / 1024 );
     }
 #endif
    
@@ -621,6 +628,7 @@ void LoadingManager::ProcessNextRequest()
                     rReleasePrintf( "<<START>> Async Loading: %s\n", request.filename );
 #if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
                 s_LoadStartUsed = Memory::GetTotalMemoryUsed();
+                s_LoadStartTextures = pvrLiveTextureCount();
 #endif
 #ifdef RAD_WIN32
                 mRequestsProcessed++;
