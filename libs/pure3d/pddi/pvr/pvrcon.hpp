@@ -205,6 +205,7 @@ protected:
     unsigned uvQCount;
     unsigned char* colour;
 
+
     unsigned allocated;
     unsigned total;
 

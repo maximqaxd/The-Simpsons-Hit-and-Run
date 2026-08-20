@@ -15,8 +15,28 @@
 #include <pddi/base/debug.hpp>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <vector>
+#if defined SRR2_DC_PROFILER
+#include <kos/timer.h>
+#include <stdio.h>
+static uint64_t s_replayUs = 0;
+static uint64_t s_finishUs = 0;
+static uint64_t s_waitUs = 0;
+static uint64_t s_frameUs = 0;
+static unsigned s_vtxXform = 0;
+static unsigned s_vtxEmit = 0;
+static unsigned s_vtxEmitIM = 0;
+static unsigned s_boxCulled = 0;
+static unsigned s_fusedDraws = 0;
+static unsigned s_rollDraws = 0;
+static bool     s_skipScene = false;
+
+extern "C" void pvrSetSkipScene( int on ) { s_skipScene = (on != 0); }
+static uint64_t s_replayImUs = 0;
+static unsigned s_tris = 0;
+#endif
 
 
 #ifdef RAD_DC_TRACE_VERTS
@@ -85,10 +105,30 @@ pvrContext::~pvrContext()
 static void pvrResetDeferredLists();
 static void pvrRunDeferredLists();
 
+static unsigned s_lastDraws = 0;
+static unsigned s_lastVtxBytes = 0;
+
+extern "C" unsigned pvrLastDrawCount( void )   { return s_lastDraws; }
+extern "C" unsigned pvrLastVertexCount( void ) { return s_lastVtxBytes / 32u; }
+
 void pvrContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
+#if defined SRR2_DC_PROFILER
+    const uint64_t waitStart = timer_us_gettime64();
+#endif
     pvr_wait_ready();
+#if defined SRR2_DC_PROFILER
+    s_waitUs = timer_us_gettime64() - waitStart;
+    s_vtxXform = 0;
+    s_vtxEmit = 0;
+    s_vtxEmitIM = 0;
+    s_boxCulled = 0;
+    s_fusedDraws = 0;
+    s_rollDraws = 0;
+    s_replayImUs = 0;
+    s_tris = 0;
+#endif
     pvr_scene_begin();
 
     currentList = (pvr_list_t)-1;
@@ -111,7 +151,32 @@ void pvrContext::EndFrame()
 {
     pddiBaseContext::EndFrame();
     FlushDeferredLists();
+#if defined SRR2_DC_PROFILER
+    const uint64_t finishStart = timer_us_gettime64();
+#endif
     pvr_scene_finish();
+#if defined SRR2_DC_PROFILER
+    {
+        const uint64_t now = timer_us_gettime64();
+        s_finishUs = now - finishStart;
+
+        printf("[perf] %u ms | replay %u (ov %u) | draws %u (fus %u roll %u cull %u)"
+               " | xform %u emit %u (ov %u) tris %u\n",
+               (unsigned)((now - s_frameUs) / 1000u),
+               (unsigned)s_replayUs,
+               (unsigned)s_replayImUs,
+               s_lastDraws,
+               s_fusedDraws,
+               s_rollDraws,
+               s_boxCulled,
+               s_vtxXform,
+               s_vtxEmit,
+               s_vtxEmitIM,
+               s_tris);
+
+        s_frameUs = now;
+    }
+#endif
 }
 
 void pvrContext::Clear(unsigned bufferMask)
@@ -360,12 +425,16 @@ struct pvrViewportMap
 
 static inline void SubmitClipVert(const pvrViewportMap& vp, const pvrClipVert& cv, unsigned flags)
 {
+    (void)vp;
+#if defined SRR2_DC_PROFILER
+    s_vtxEmit++;
+#endif
     const float invw = 1.0f / cv.pos.w;
     pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
 
     vert->flags = flags;
-    vert->x = vp.ox + vp.hw * (1.0f + cv.pos.x * invw);
-    vert->y = vp.oy + vp.hh * (1.0f - cv.pos.y * invw);
+    vert->x = cv.pos.x * invw;
+    vert->y = cv.pos.y * invw;
     vert->z = invw;
     vert->u = cv.u;
     vert->v = cv.v;
@@ -434,6 +503,22 @@ static void ClipAndSubmitTriangle(const pvrViewportMap& vp, pvrClipVert* verts)
         SubmitClipVert(vp, v[i], (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
 }
 
+static void pvrFoldViewport(shz_mat4x4_t& m, const pvrViewportMap& vp)
+{
+    const float ax = vp.ox + vp.hw;
+    const float ay = vp.oy + vp.hh;
+
+    for (int c = 0; c < 4; c++)
+    {
+        const float r0 = m.elem2D[c][0];
+        const float r1 = m.elem2D[c][1];
+        const float r3 = m.elem2D[c][3];
+
+        m.elem2D[c][0] =  vp.hw * r0 + ax * r3;
+        m.elem2D[c][1] = -vp.hh * r1 + ay * r3;
+    }
+}
+
 pvrViewportMap pvrContext::GetViewportMap() const
 {
     pvrViewportMap vp;
@@ -458,21 +543,103 @@ struct pvrDrawCmd
     pvr_cull_mode_t cull;
 };
 
+static_assert(alignof(pvrDrawCmd) >= alignof(shz_mat4x4_t),
+              "pvrDrawCmd must meet shz_mat4x4_t alignment for fmov.d");
+static_assert((sizeof(pvrDrawCmd) % alignof(shz_mat4x4_t)) == 0,
+              "pvrDrawCmd stride must keep every xform aligned");
+
 struct pvrCacheVert
 {
-    shz_vec4_t pos;
     float      sx, sy, sz;
     float      u, v;
     unsigned   argb;
     unsigned   vis;
 };
 
-enum { kVtxCacheMax = 1024 };
 static const float kBackfaceSign = 1.0f;
-static pvrCacheVert s_vtxCache[kVtxCacheMax];
+static pvrCacheVert* s_vtxCache = NULL;
+static unsigned      s_vtxCacheMax = 0;
+
+enum pvrBoxClass { kBoxCulled, kBoxClipped, kBoxInFront };
+
+// Classify the quantised AABB (corners at +/-32767) against the near plane and
+// the screen edges, using the caller's already-loaded transform. The half-space
+// tests are affine in model space, so a box corner attains each extremum.
+static float s_minScreenArea = 6.0f;
+
+static pvrBoxClass pvrClassifyQuantBox(const pvrViewportMap& vp, float* areaOut)
+{
+    const float x0 = vp.ox;
+    const float x1 = vp.ox + vp.hw * 2.0f;
+    const float y0 = vp.oy;
+    const float y1 = vp.oy + vp.hh * 2.0f;
+
+    unsigned behind = 0, left = 0, right = 0, above = 0, below = 0;
+
+    float minX =  1e30f, maxX = -1e30f;
+    float minY =  1e30f, maxY = -1e30f;
+
+    for (int c = 0; c < 8; c++)
+    {
+        const shz_vec4_t p = shz_xmtrx_transform_vec4(
+            shz_vec4_init((c & 1) ? 32767.0f : -32767.0f,
+                          (c & 2) ? 32767.0f : -32767.0f,
+                          (c & 4) ? 32767.0f : -32767.0f, 1.0f));
+
+        if (p.w < p.z + PVR_NEAR_CLIP_EPSILON)
+        {
+            behind++;
+            continue;
+        }
+
+        if (p.x < x0 * p.w) left++;
+        if (p.x > x1 * p.w) right++;
+        if (p.y < y0 * p.w) above++;
+        if (p.y > y1 * p.w) below++;
+
+        const float iw = shz_invf_fsrra(p.w);
+        const float sx = p.x * iw;
+        const float sy = p.y * iw;
+        if (sx < minX) minX = sx;
+        if (sx > maxX) maxX = sx;
+        if (sy < minY) minY = sy;
+        if (sy > maxY) maxY = sy;
+    }
+
+    *areaOut = (behind == 0) ? ((maxX - minX) * (maxY - minY)) : 1e30f;
+
+    if (behind == 8)
+        return kBoxCulled;
+
+    if (behind == 0 && (left == 8 || right == 8 || above == 8 || below == 8))
+        return kBoxCulled;
+
+    return behind ? kBoxClipped : kBoxInFront;
+}
+
+static bool pvrReserveVtxCache(unsigned count)
+{
+    if (count <= s_vtxCacheMax)
+        return true;
+
+    unsigned want = s_vtxCacheMax ? s_vtxCacheMax : 256;
+    while (want < count)
+        want *= 2;
+
+    pvrCacheVert* grown = (pvrCacheVert*)realloc(s_vtxCache, want * sizeof(pvrCacheVert));
+    if (!grown)
+        return false;
+
+    s_vtxCache = grown;
+    s_vtxCacheMax = want;
+    return true;
+}
 
 static inline void SubmitScreenVert(const pvrCacheVert& cv, unsigned flags)
 {
+#if defined SRR2_DC_PROFILER
+    s_vtxEmit++;
+#endif
     pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
 
     vert->flags = flags;
@@ -640,13 +807,11 @@ public:
         vertexFormat = vf;
         passIndex = pass;
 
-        coords.clear();
-        colours.clear();
-        uvs.clear();
-
-        coords.reserve((size_t)(reserveVerts > 0 ? reserveVerts : 0));
-        colours.reserve((size_t)(reserveVerts > 0 ? reserveVerts : 0));
-        uvs.reserve((size_t)(reserveVerts > 0 ? reserveVerts : 0));
+        // Write straight into the shared vertex array; no per-stream staging
+        // vectors and no second copy at flush time.
+        immFirst = (unsigned)s_immVerts.size();
+        if (reserveVerts > 0)
+            s_immVerts.reserve(s_immVerts.size() + (size_t)reserveVerts);
 
         curColour = pddiColour(255, 255, 255, 255);
         curUV.u = 0.0f; curUV.v = 0.0f;
@@ -654,11 +819,11 @@ public:
 
     void Coord(float x, float y, float z) override
     {
-        pddiVector v;
-        v.x = x; v.y = y; v.z = z;
-        coords.push_back(v);
-        colours.push_back(curColour);
-        uvs.push_back(curUV);
+        pvrImmVert iv;
+        iv.x = x; iv.y = y; iv.z = z;
+        iv.u = curUV.u; iv.v = curUV.v;
+        iv.argb = (uint32_t)(unsigned)curColour;
+        s_immVerts.push_back(iv);
     }
 
     void Normal(float x, float y, float z) override { (void)x; (void)y; (void)z; }
@@ -688,7 +853,9 @@ public:
 
     void Flush()
     {
-        if (!ctx || coords.empty())
+        const unsigned immCount = (unsigned)s_immVerts.size() - immFirst;
+
+        if (!ctx || immCount == 0)
             return;
 
         pddiShader* useMat = mat ? mat : ctx->GetDefaultShader();
@@ -703,34 +870,23 @@ public:
 
         const int slot = ListSlot(list);
         if (slot < 0)
+        {
+            s_immVerts.resize(immFirst);
             return;
-
-        const float uScale = GetUStrideScale(env.texture);
-        const bool flipV = true;
+        }
 
         pvrDrawCmd cmd;
         cmd.hdr = hdr;
         cmd.xform = ctx->GetViewProj();
         cmd.vp = ctx->GetViewportMap();
         cmd.buffer = NULL;
-        cmd.immFirst = (unsigned)s_immVerts.size();
-        cmd.immCount = (unsigned)coords.size();
+        cmd.immFirst = immFirst;
+        cmd.immCount = immCount;
         cmd.immPrim = primType;
         cmd.argb = 0xffffffffu;
-        cmd.uScale = uScale;
+        cmd.uScale = GetUStrideScale(env.texture);
         cmd.cull = PVR_CULLING_NONE;
-
-        for (size_t i = 0; i < coords.size(); i++)
-        {
-            pvrImmVert iv;
-            iv.x = coords[i].x;
-            iv.y = coords[i].y;
-            iv.z = coords[i].z;
-            iv.u = uvs[i].u * uScale;
-            iv.v = flipV ? (1.0f - uvs[i].v) : uvs[i].v;
-            iv.argb = (uint32_t)(unsigned)colours[i];
-            s_immVerts.push_back(iv);
-        }
+        pvrFoldViewport(cmd.xform, cmd.vp);
 
         s_drawCmds[slot].push_back(cmd);
     }
@@ -754,8 +910,8 @@ public:
         {
             out.pos = shz_xmtrx_transform_vec4(
                 shz_vec4_init(verts[i].x, verts[i].y, verts[i].z, 1.0f));
-            out.u = verts[i].u;
-            out.v = verts[i].v;
+            out.u = verts[i].u * cmd.uScale;
+            out.v = 1.0f - verts[i].v;
             out.argb = verts[i].argb;
         };
 
@@ -775,6 +931,61 @@ public:
 #endif
             ClipAndSubmitTriangle(vp, tri);
         };
+
+        // The HUD and front end are device-projection 2D, so nothing can cross
+        // the near plane: transform once, then emit native strips instead of
+        // routing every triangle through the clipper at three vertices each.
+        if (count >= 3
+            && (primType == PDDI_PRIM_TRIANGLES || primType == PDDI_PRIM_TRISTRIP)
+            && pvrReserveVtxCache((unsigned)count))
+        {
+            unsigned allVis = 1;
+
+            for (size_t i = 0; i < count; i++)
+            {
+                pvrCacheVert& c = s_vtxCache[i];
+
+                const shz_vec4_t p = shz_xmtrx_transform_vec4(
+                    shz_vec4_init(verts[i].x, verts[i].y, verts[i].z, 1.0f));
+
+                c.vis = (p.w >= p.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+                allVis &= c.vis;
+
+                if (c.vis)
+                {
+                    const float iw = shz_invf_fsrra(p.w);
+                    c.sx = p.x * iw;
+                    c.sy = p.y * iw;
+                    c.sz = iw;
+                }
+
+                c.u = verts[i].u * cmd.uScale;
+                c.v = 1.0f - verts[i].v;
+                c.argb = verts[i].argb;
+            }
+
+            if (allVis)
+            {
+                if (primType == PDDI_PRIM_TRISTRIP)
+                {
+                    for (size_t i = 0; i < count; i++)
+                    {
+                        SubmitScreenVert(s_vtxCache[i],
+                                         (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                    }
+                }
+                else
+                {
+                    for (size_t i = 0; i + 2 < count; i += 3)
+                    {
+                        SubmitScreenVert(s_vtxCache[i], PVR_CMD_VERTEX);
+                        SubmitScreenVert(s_vtxCache[i + 1], PVR_CMD_VERTEX);
+                        SubmitScreenVert(s_vtxCache[i + 2], PVR_CMD_VERTEX_EOL);
+                    }
+                }
+                return;
+            }
+        }
 
         if (primType == PDDI_PRIM_TRIANGLES)
         {
@@ -811,10 +1022,10 @@ public:
 
                 const float invwA = 1.0f / a.pos.w;
                 const float invwB = 1.0f / b.pos.w;
-                const float ax = vp.ox + vp.hw * (1.0f + a.pos.x * invwA);
-                const float ay = vp.oy + vp.hh * (1.0f - a.pos.y * invwA);
-                const float bx = vp.ox + vp.hw * (1.0f + b.pos.x * invwB);
-                const float by = vp.oy + vp.hh * (1.0f - b.pos.y * invwB);
+                const float ax = a.pos.x * invwA;
+                const float ay = a.pos.y * invwA;
+                const float bx = b.pos.x * invwB;
+                const float by = b.pos.y * invwB;
 
                 const float dx = bx - ax;
                 const float dy = by - ay;
@@ -864,9 +1075,7 @@ private:
     pddiColour curColour;
     pddiVector2 curUV;
 
-    std::vector<pddiVector> coords;
-    std::vector<pddiColour> colours;
-    std::vector<pddiVector2> uvs;
+    unsigned immFirst = 0;
 };
 
 static pvrImmediatePrimStream g_imStream;
@@ -887,6 +1096,10 @@ static void pvrResetDeferredLists()
 
 static void pvrRunDeferredLists()
 {
+    s_lastDraws = (unsigned)(s_drawCmds[0].size() + s_drawCmds[1].size() + s_drawCmds[2].size());
+#if defined SRR2_DC_PROFILER
+    const uint64_t replayStart = timer_us_gettime64();
+#endif
 
     for (int i = 0; i < 3; i++)
     {
@@ -901,13 +1114,32 @@ static void pvrRunDeferredLists()
         {
             const pvrDrawCmd& cmd = cmds[c];
             if (cmd.buffer)
+            {
+#if defined SRR2_DC_PROFILER
+                if (s_skipScene)
+                    continue;
+#endif
                 cmd.buffer->SubmitDeferred(cmd);
+            }
             else
+            {
+#if defined SRR2_DC_PROFILER
+                const unsigned emitBefore = s_vtxEmit;
+                const uint64_t imStart = timer_us_gettime64();
+#endif
                 pvrImmediatePrimStream::SubmitDeferred(cmd);
+#if defined SRR2_DC_PROFILER
+                s_replayImUs += timer_us_gettime64() - imStart;
+                s_vtxEmitIM += s_vtxEmit - emitBefore;
+#endif
+            }
         }
 
         pvr_list_finish();
     }
+#if defined SRR2_DC_PROFILER
+    s_replayUs = timer_us_gettime64() - replayStart;
+#endif
 }
 
 pddiPrimStream* pvrContext::BeginPrims(pddiShader* material, pddiPrimType primType, unsigned vertexType, int vertexCount, unsigned pass)
@@ -1155,6 +1387,7 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , coordQ(NULL)
     , coordWritten(false)
     , coordQCount(0)
+
     , uvQ(NULL)
     , uvWritten(false)
     , uvQCount(0)
@@ -1467,6 +1700,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     cmd.argb = (unsigned)env.diffuse;
     cmd.uScale = GetUStrideScale(env.texture);
     cmd.cull = context->GetCurrentCull();
+    pvrFoldViewport(cmd.xform, cmd.vp);
 
     s_drawCmds[slot].push_back(cmd);
 }
@@ -1495,26 +1729,151 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     if (vcount == 0)
         vcount = allocated;
 
-    if (vcount > 0 && vcount <= (unsigned)kVtxCacheMax)
+    auto clipPos = [&](unsigned i) -> shz_vec4_t
     {
+        return coord
+            ? shz_xmtrx_transform_vec4(
+                  shz_vec4_init(coord[i * 3 + 0], coord[i * 3 + 1], coord[i * 3 + 2], 1.0f))
+            : shz_xmtrx_transform_vec4(
+                  shz_vec4_init((float)coordQ[i * 3 + 0], (float)coordQ[i * 3 + 1],
+                                (float)coordQ[i * 3 + 2], 1.0f));
+    };
+
+    if (coordQ && !coord)
+    {
+        float boxArea = 0.0f;
+        const pvrBoxClass box = pvrClassifyQuantBox(vp, &boxArea);
+
+        if (box == kBoxCulled || boxArea < s_minScreenArea)
+        {
+#if defined SRR2_DC_PROFILER
+            s_boxCulled++;
+#endif
+            return;
+        }
+
+        // Fully in front of the near plane and a strip: transform straight into
+        // the TA, one pass, no vertex cache. Strips reference each vertex about
+        // once, so the cache saved no transforms and cost a 28-byte write plus a
+        // random 28-byte read per vertex.
+        if (box == kBoxInFront && primType == PDDI_PRIM_TRISTRIP && indexCount && indices && indexCount >= 3)
+        {
+            const unsigned n = indexCount;
+#if defined SRR2_DC_PROFILER
+            s_fusedDraws++;
+#endif
+
+            auto emitVert = [&](unsigned vi, unsigned flags)
+            {
+                const shz_vec4_t p = shz_xmtrx_transform_vec4(
+                    shz_vec4_init((float)coordQ[vi * 3 + 0], (float)coordQ[vi * 3 + 1],
+                                  (float)coordQ[vi * 3 + 2], 1.0f));
+                const float iw = shz_invf_fsrra(p.w);
+
+#if defined SRR2_DC_PROFILER
+                s_vtxXform++;
+                s_vtxEmit++;
+#endif
+                pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
+                vert->flags = flags;
+                vert->x = p.x * iw;
+                vert->y = p.y * iw;
+                vert->z = iw;
+
+                if (uvQ)
+                {
+                    vert->u = (float)uvQ[vi * 2 + 0] * uMul + uAdd;
+                    vert->v = (float)uvQ[vi * 2 + 1] * vMul + vAdd;
+                }
+                else if (uv)
+                {
+                    vert->u = uv[vi * 2 + 0] * uScale;
+                    vert->v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
+                }
+                else
+                {
+                    vert->u = 0.0f;
+                    vert->v = 0.0f;
+                }
+
+                if (colour)
+                {
+                    const unsigned char* cc = &colour[vi * 4];
+                    vert->argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
+                               | ((uint32_t)cc[1] << 8) | (uint32_t)cc[2];
+                }
+                else
+                {
+                    vert->argb = cmd.argb;
+                }
+
+                vert->oargb = 0;
+                pvr_dr_commit(vert);
+            };
+
+            // The exporter joined many short strips into one index list with
+            // degenerate triangles. The TA ends a strip on a per-vertex EOL
+            // flag, so those joins can be dropped instead of submitted: emit
+            // each non-degenerate run as its own strip. A run starting on odd
+            // parity gets a duplicated leading vertex to keep the winding.
+            unsigned i = 0;
+            while (i + 2 < n)
+            {
+                const unsigned a = indices[i], b = indices[i + 1], c = indices[i + 2];
+                if (a == b || b == c || a == c)
+                {
+                    i++;
+                    continue;
+                }
+
+                unsigned j = i;
+                while (j + 2 < n)
+                {
+                    const unsigned x = indices[j], y = indices[j + 1], z = indices[j + 2];
+                    if (x == y || y == z || x == z)
+                        break;
+                    j++;
+                }
+
+                const unsigned last = j + 1;
+
+                if (i & 1u)
+                    emitVert(indices[i], PVR_CMD_VERTEX);
+
+                for (unsigned k = i; k <= last; k++)
+                    emitVert(indices[k], (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+
+#if defined SRR2_DC_PROFILER
+                s_tris += j - i;
+#endif
+                i = j;
+            }
+            return;
+        }
+
+    }
+
+    if (vcount > 0 && (coord || coordQ) && pvrReserveVtxCache(vcount))
+    {
+        unsigned visAll = 1;
+#if defined SRR2_DC_PROFILER
+        s_vtxXform += vcount;
+#endif
+
         for (unsigned i = 0; i < vcount; i++)
         {
             pvrCacheVert& c = s_vtxCache[i];
 
-            c.pos = coord
-                ? shz_xmtrx_transform_vec4(
-                      shz_vec4_init(coord[i * 3 + 0], coord[i * 3 + 1], coord[i * 3 + 2], 1.0f))
-                : shz_xmtrx_transform_vec4(
-                      shz_vec4_init((float)coordQ[i * 3 + 0], (float)coordQ[i * 3 + 1],
-                                    (float)coordQ[i * 3 + 2], 1.0f));
+            const shz_vec4_t pos = clipPos(i);
 
-            c.vis = (c.pos.w >= c.pos.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+            c.vis = (pos.w >= pos.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+            visAll &= c.vis;
             if (c.vis)
             {
-                const float invw = 1.0f / c.pos.w;
-                c.sx = vp.ox + vp.hw * (1.0f + c.pos.x * invw);
-                c.sy = vp.oy + vp.hh * (1.0f - c.pos.y * invw);
-                c.sz = invw;
+                const float iw = shz_invf_fsrra(pos.w);
+                c.sx = pos.x * iw;
+                c.sy = pos.y * iw;
+                c.sz = iw;
             }
 
             if (uv)
@@ -1548,18 +1907,50 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         const unsigned short* idx = (indexCount && indices) ? indices : NULL;
         const unsigned n = idx ? indexCount : vcount;
 
-        unsigned allVis = 1;
-        for (unsigned i = 0; i < n; i++)
-        {
-            if (!s_vtxCache[idx ? idx[i] : i].vis) { allVis = 0; break; }
-        }
+        const unsigned allVis = visAll;
 
         if (primType == PDDI_PRIM_TRISTRIP && allVis && n >= 3)
         {
-            for (unsigned i = 0; i < n; i++)
+            // Same EOL run-splitting as the fused path: drop the exporter's
+            // degenerate joins rather than feeding them to the TA.
+            unsigned i = 0;
+            while (i + 2 < n)
             {
-                SubmitScreenVert(s_vtxCache[idx ? idx[i] : i],
-                                 (i == n - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                const unsigned a = idx ? idx[i] : i;
+                const unsigned b = idx ? idx[i + 1] : i + 1;
+                const unsigned c = idx ? idx[i + 2] : i + 2;
+                if (a == b || b == c || a == c)
+                {
+                    i++;
+                    continue;
+                }
+
+                unsigned j = i;
+                while (j + 2 < n)
+                {
+                    const unsigned x = idx ? idx[j] : j;
+                    const unsigned y = idx ? idx[j + 1] : j + 1;
+                    const unsigned z = idx ? idx[j + 2] : j + 2;
+                    if (x == y || y == z || x == z)
+                        break;
+                    j++;
+                }
+
+                const unsigned last = j + 1;
+
+                if (i & 1u)
+                    SubmitScreenVert(s_vtxCache[idx ? idx[i] : i], PVR_CMD_VERTEX);
+
+                for (unsigned k = i; k <= last; k++)
+                {
+                    SubmitScreenVert(s_vtxCache[idx ? idx[k] : k],
+                                     (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                }
+
+#if defined SRR2_DC_PROFILER
+                s_tris += j - i;
+#endif
+                i = j;
             }
             return;
         }
@@ -1569,6 +1960,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             const pvrCacheVert& va = s_vtxCache[a];
             const pvrCacheVert& vb = s_vtxCache[b];
             const pvrCacheVert& vc = s_vtxCache[c];
+#if defined SRR2_DC_PROFILER
+            s_tris++;
+#endif
 
             if (va.vis && vb.vis && vc.vis)
             {
@@ -1593,9 +1987,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             }
 
             pvrClipVert tri[3];
-            tri[0].pos = va.pos; tri[0].u = va.u; tri[0].v = va.v; tri[0].argb = va.argb;
-            tri[1].pos = vb.pos; tri[1].u = vb.u; tri[1].v = vb.v; tri[1].argb = vb.argb;
-            tri[2].pos = vc.pos; tri[2].u = vc.u; tri[2].v = vc.v; tri[2].argb = vc.argb;
+            tri[0].pos = clipPos(a); tri[0].u = va.u; tri[0].v = va.v; tri[0].argb = va.argb;
+            tri[1].pos = clipPos(b); tri[1].u = vb.u; tri[1].v = vb.v; tri[1].argb = vb.argb;
+            tri[2].pos = clipPos(c); tri[2].u = vc.u; tri[2].v = vc.v; tri[2].argb = vc.argb;
             ClipAndSubmitTriangle(vp, tri);
         };
 
