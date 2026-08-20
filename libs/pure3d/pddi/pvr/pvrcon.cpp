@@ -467,21 +467,24 @@ struct pvrImmVert
 static std::vector<pvrDrawCmd>  s_drawCmds[3];
 static std::vector<pvrImmVert>  s_immVerts;
 
+
 static inline int ListSlot(pvr_list_t list)
 {
     switch (list)
     {
         case PVR_LIST_OP_POLY: return 0;
-        case PVR_LIST_TR_POLY: return 1;
-        case PVR_LIST_PT_POLY: return 2;
+        case PVR_LIST_PT_POLY: return 1;
+        case PVR_LIST_TR_POLY: return 2;
         default: return -1;
     }
 }
 
 static const pvr_list_t kListOrder[3] =
 {
-    PVR_LIST_OP_POLY, PVR_LIST_TR_POLY, PVR_LIST_PT_POLY
+    PVR_LIST_OP_POLY, PVR_LIST_PT_POLY, PVR_LIST_TR_POLY
 };
+
+static const pvr_list_t kSubmitList = PVR_LIST_TR_POLY;
 
 static inline pvr_list_t ChooseList(const pvrTextureEnv& env)
 {
@@ -568,13 +571,14 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     if (state.renderState->zEnabled)
     {
         cxt.depth.comparison = MapDepthCompareInvW(state.renderState->zCompare);
-        cxt.depth.write = (logical == PVR_LIST_TR_POLY) ? false
-                                                         : (state.renderState->zWrite != 0);
+        cxt.depth.write = (logical != PVR_LIST_TR_POLY && state.renderState->zWrite)
+                              ? PVR_DEPTHWRITE_ENABLE
+                              : PVR_DEPTHWRITE_DISABLE;
     }
     else
     {
         cxt.depth.comparison = PVR_DEPTHCMP_ALWAYS;
-        cxt.depth.write = false;
+        cxt.depth.write = PVR_DEPTHWRITE_DISABLE;
     }
 
     bool blendEnable = false;
