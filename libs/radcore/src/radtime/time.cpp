@@ -25,6 +25,9 @@
 
 #include <cstdint>
 #include <chrono>
+#ifdef RAD_DREAMCAST
+#include <kos/timer.h>
+#endif
 
 #include <radtime.hpp>
 #include <radobject.hpp>
@@ -51,7 +54,16 @@ static unsigned int s_InitializedCount = 0;
 //
 static unsigned int MonthToDay[] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
+#ifdef RAD_DREAMCAST
+static uint64_t s_StartTime;
+
+static inline uint64_t radTimeNowUs( void )
+{
+    return timer_us_gettime64() - s_StartTime;
+}
+#else
 static std::chrono::time_point<std::chrono::high_resolution_clock> s_StartTime;
+#endif
 
 //=============================================================================
 // Public Functions
@@ -77,7 +89,11 @@ void radTimeInitialize(  )
 
     if( s_InitializedCount == 1 )
     {
+#ifdef RAD_DREAMCAST
+        s_StartTime = timer_us_gettime64();
+#else
         s_StartTime = std::chrono::high_resolution_clock::now();
+#endif
     }
 }
 
@@ -116,8 +132,12 @@ void radTimeTerminate(  )
 unsigned int radTimeGetMicroseconds( void )
 {
     rAssert( s_InitializedCount != 0 );
+#ifdef RAD_DREAMCAST
+    return (unsigned int)radTimeNowUs();
+#else
     auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
     return (unsigned int)std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+#endif
 }
 
 
@@ -135,8 +155,12 @@ unsigned int radTimeGetMicroseconds( void )
 radTime64 radTimeGetMicroseconds64( void )
 {
     rAssert( s_InitializedCount != 0 );
+#ifdef RAD_DREAMCAST
+    return (radTime64)radTimeNowUs();
+#else
     auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
     return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+#endif
 }
 
 
@@ -154,8 +178,12 @@ radTime64 radTimeGetMicroseconds64( void )
 unsigned int radTimeGetMilliseconds( void )
 {
     rAssert( s_InitializedCount != 0 );
+#ifdef RAD_DREAMCAST
+    return (unsigned int)( radTimeNowUs() / 1000u );
+#else
     auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
     return (unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+#endif
 }
 
 //=============================================================================
@@ -172,8 +200,12 @@ unsigned int radTimeGetMilliseconds( void )
 unsigned int radTimeGetSeconds( void )
 {
     rAssert( s_InitializedCount != 0 );
+#ifdef RAD_DREAMCAST
+    return (unsigned int)( radTimeNowUs() / 1000000u );
+#else
     auto duration = std::chrono::high_resolution_clock::now() - s_StartTime;
     return (unsigned int)std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+#endif
 }
 
 //=============================================================================
