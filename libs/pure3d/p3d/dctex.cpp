@@ -9,6 +9,7 @@
 #include <pddi/pdditype.hpp>
 
 #include <string.h>
+#include <malloc.h>
 
 bool tDCTexHandler::CheckFormat(Format f)
 {
@@ -33,9 +34,6 @@ void tDCTexHandler::CreateImage(tFile* file, tImageHandler::Builder* builder)
         return;
     }
 
-    // The texture is uploaded exactly as it sits on disc, so the whole file --
-    // header and all -- is handed to the pddi texture, which reads pvrType out
-    // of it at upload time.
     builder->SetTextureType(PDDI_TEXTYPE_DC_DT);
     if (!builder->BeginImage(header.width, header.height, 16,
                              tImageHandler::Builder::TOP, NULL))
@@ -43,18 +41,22 @@ void tDCTexHandler::CreateImage(tFile* file, tImageHandler::Builder* builder)
         return;
     }
 
-    unsigned char* dest = (unsigned char*)builder->GetMemoryImagePtr();
-    if (dest == NULL)
+    char* payload = (char*)memalign(32, header.chunkSize);
+    if (payload == NULL)
     {
+        builder->EndImage();
         return;
     }
 
-    memcpy(dest, &header, sizeof(header));
+    memcpy(payload, &header, sizeof(header));
     const int remaining = (int)header.chunkSize - (int)sizeof(header);
     if (remaining > 0)
     {
-        file->GetData(dest + sizeof(header), remaining, tFile::BYTE);
+        file->GetData(payload + sizeof(header), remaining, tFile::BYTE);
     }
+
+    builder->SetCompressedData(0, payload, (int)header.chunkSize);
+    free(payload);
 
     builder->EndImage();
 }

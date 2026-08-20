@@ -500,7 +500,14 @@ void TextureBuilder::DirectCopy( unsigned char *data, int len )
 //===========================================================================
 void TextureBuilder::SetCompressedData( int mipmap, char* data, int len )
 {
-     pddiTexture* texture = this->texture->GetTexture();
+    if (this->texture == NULL)
+        return;
+
+    pddiTexture* texture = this->texture->GetTexture();
+    if (texture != NULL)
+    {
+        texture->SetCompressedData( mipmap, data, len );
+    }
 }
 
 

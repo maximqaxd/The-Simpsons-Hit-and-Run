@@ -35,6 +35,7 @@ public:
 
     pddiLockInfo* Lock(int mipLevel, pddiRect* rect = 0);
     void Unlock(int mipLevel);
+    void SetCompressedData(int mipLevel, const char* const data, int len);
 
     void Prefetch(void);
     void Discard(void);
@@ -46,7 +47,7 @@ public:
     bool HasMipMaps() const { return mipMapped; }
     char* DecodeToSurface(const char* blocks);
     void ReleaseStaging(int mipLevel);
-    bool UploadDreamcastTexture(int mipLevel);
+    bool UploadDreamcastTexture(const unsigned char* raw, size_t len);
     int GetPvrTxrFormat() const { return pvrTxrFormat; }
     int GetStridePixels() const { return stridePixels; }
 

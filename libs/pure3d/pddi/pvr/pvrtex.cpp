@@ -17,6 +17,15 @@
 static inline bool IsPow2U32(uint32_t v) { return v && ((v & (v - 1u)) == 0u); }
 static inline int AlignUp32Pixels(int w) { return (w + 31) & ~31; }
 
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+static unsigned s_pvrTextureCount = 0;
+static unsigned s_pvrStagingLive = 0;
+
+extern "C" unsigned pvrLiveTextureCount( void )   { return s_pvrTextureCount; }
+extern "C" unsigned pvrLiveStagingBytes( void )   { return s_pvrStagingLive; }
+extern "C" unsigned pvrVramAvailable( void )      { return (unsigned)pvr_mem_available(); }
+#endif
+
 pvrTexture::pvrTexture(pvrContext* c)
     : context(c)
     , contextID(0)
@@ -41,6 +50,9 @@ pvrTexture::pvrTexture(pvrContext* c)
 {
     context->AddRef();
     memset(&lock, 0, sizeof(lock));
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_pvrTextureCount++;
+#endif
 }
 
 pvrTexture::~pvrTexture()
@@ -59,6 +71,9 @@ pvrTexture::~pvrTexture()
         vramPtr = 0;
     }
     context->Release();
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+    s_pvrTextureCount--;
+#endif
 }
 
 bool pvrTexture::Create(int xSize_, int ySize_, int bpp, int alphaDepth, int nMip,
@@ -80,8 +95,7 @@ bool pvrTexture::Create(int xSize_, int ySize_, int bpp, int alphaDepth, int nMi
         preEncoded = true;
         nMipMap = 0;
         stridePixels = xSize;
-        stagingBytes = pvrutil::AlignUp32(
-            ((size_t)xSize * (size_t)ySize * 2u * 4u) / 3u + 4096u);
+        stagingBytes = 0;
 
         lock = pddiLockInfo();
         lock.width = xSize;
@@ -232,12 +246,21 @@ pddiLockInfo* pvrTexture::Lock(int mipLevel, pddiRect* rect)
     if (!bits || mipLevel < 0 || mipLevel > nMipMap)
         return NULL;
 
+    if (preEncoded)
+    {
+        lock.bits = NULL;
+        return &lock;
+    }
+
     if (!bits[mipLevel])
     {
         bits[mipLevel] = (char*)memalign(32, stagingBytes);
         if (!bits[mipLevel])
             return NULL;
         memset(bits[mipLevel], 0, stagingBytes);
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+        s_pvrStagingLive += stagingBytes;
+#endif
     }
 
     lock.bits = bits[mipLevel];
@@ -251,15 +274,11 @@ void pvrTexture::Unlock(int mipLevel)
     if (!bits || mipLevel < 0 || mipLevel > nMipMap)
         return;
 
-    if (!bits[mipLevel])
+    if (preEncoded)
         return;
 
-    if (preEncoded)
-    {
-        UploadDreamcastTexture(mipLevel);
-        ReleaseStaging(mipLevel);
+    if (!bits[mipLevel])
         return;
-    }
 
     const size_t sizeBytes = pvrutil::AlignUp32((size_t)stridePixels * (size_t)ySize * 2u);
 
@@ -300,9 +319,20 @@ void pvrTexture::Unlock(int mipLevel)
     ReleaseStaging(mipLevel);
 }
 
-bool pvrTexture::UploadDreamcastTexture(int mipLevel)
+void pvrTexture::SetCompressedData(int mipLevel, const char* const data, int len)
 {
-    const unsigned char* raw = (const unsigned char*)bits[mipLevel];
+    (void)mipLevel;
+
+    if (!preEncoded || !data || len <= 0)
+        return;
+
+    UploadDreamcastTexture((const unsigned char*)data, (size_t)len);
+}
+
+bool pvrTexture::UploadDreamcastTexture(const unsigned char* raw, size_t len)
+{
+    if (len < 32u)
+        return false;
 
     if (memcmp(raw, "DcTx", 4) != 0)
     {
@@ -319,7 +349,7 @@ bool pvrTexture::UploadDreamcastTexture(int mipLevel)
     const unsigned headerBytes = ((unsigned)raw[9] + 1u) * 32u;
     const unsigned codebookBytes = ((unsigned)raw[10] + 1u) * 8u;
 
-    if (chunkSize <= headerBytes || chunkSize > stagingBytes)
+    if (chunkSize <= headerBytes || chunkSize > len)
     {
         printf("pvrTexture: .DT texture has an implausible size (%u)\n",
                (unsigned)chunkSize);
@@ -374,6 +404,9 @@ void pvrTexture::ReleaseStaging(int mipLevel)
     {
         free(bits[mipLevel]);
         bits[mipLevel] = NULL;
+#if defined RAD_DC_TRACE_BIG_ALLOCS
+        s_pvrStagingLive -= stagingBytes;
+#endif
     }
     lock.bits = NULL;
 }
