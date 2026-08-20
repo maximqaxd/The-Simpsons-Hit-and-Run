@@ -16,7 +16,7 @@
 class tEntityTable : public radLoadHashedStore
 {
 public:
-    tEntityTable() : m_Name( "" )
+    tEntityTable() : radLoadHashedStore( 64 ), m_Name( "" )
     {
         //
     }
