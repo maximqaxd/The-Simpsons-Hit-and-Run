@@ -29,6 +29,12 @@
 // Project Includes
 //========================================
 #include <debug/profiler.h>
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+extern "C" unsigned pvrLastDrawCount( void );
+extern "C" void pvrSetSkipScene( int on );
+#endif
 #include <memory/srrmemory.h>
 
 
@@ -50,7 +56,7 @@ int Profiler::sPage = 0;
 int Profiler::sLeftOffset = 0;
 int Profiler::sTopOffset = 0;
 bool Profiler::sDisplay = true;
-bool Profiler::sDumpToOutput = true;
+bool Profiler::sDumpToOutput = false;
 bool Profiler::sEnableCollection = true;
 
 
@@ -377,7 +383,7 @@ void Profiler::EndProfile( const char* name )
     mOpenStackTop--;
 
     // Only update the parent if there is one
-    if (mOpenStackTop > 0)
+    if (mOpenStackTop >= 0)
     {
         unsigned int parentIndex = mOpenStack[mOpenStackTop];
         mSamples[parentIndex].fChildrenSampleTime += duration;
@@ -401,6 +407,44 @@ void Profiler::Render(void)
 {
     const int LEFT = 10;
     const int TOP = 45;
+
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+    {
+        static bool pageArmed = false;
+
+        maple_device_t* pad = maple_enum_type( 0, MAPLE_FUNC_CONTROLLER );
+        cont_state_t* st = pad ? (cont_state_t*)maple_dev_status( pad ) : NULL;
+
+        const bool left  = st && ( st->ltrig > 128 );
+        const bool right = st && ( st->rtrig > 128 );
+
+        // Y toggles the overlay: it costs real frame time, so a true
+        // baseline needs it off.
+        static bool hideArmed = false;
+        const bool hide = st && ( st->buttons & CONT_Y );
+        if( hide && !hideArmed )
+        {
+            sDisplay = !sDisplay;
+        }
+        hideArmed = hide;
+
+        // Hold X to drop all scene geometry and leave everything else running:
+        // isolates how much of the frame is actually vertex submission.
+        pvrSetSkipScene( st && ( st->buttons & CONT_X ) );
+
+        if( ( left || right ) && !pageArmed )
+        {
+            const int pages = 1 + ( ( (int)mNextSampleAllocIndex - 1 ) / NUM_VISIBLE_LINES );
+
+            sPage += right ? 1 : -1;
+
+            if( sPage >= pages ) sPage = 0;
+            if( sPage < 0 ) sPage = pages - 1;
+        }
+
+        pageArmed = left || right;
+    }
+#endif
     
     if( !sDisplay )
     {
@@ -423,7 +467,11 @@ void Profiler::Render(void)
     // Display header info.
     //
     char fps[256];    
-    sprintf(fps,"Game Time: %3.1f(fps) : %3.1f(ms)  Adjusted Time: %3.1f(fps) : %3.1f(ms)", 1/(mFrameRate/1000), mFrameRate, 1/(mFrameRateAdjusted/1000), mFrameRateAdjusted);
+    #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+    sprintf(fps,"Page %d/%d  %3.1f(ms) %3.1f(fps)  %u draws", sPage + 1, 1 + ((int)mNextSampleAllocIndex - 1) / NUM_VISIBLE_LINES, mFrameRate, 1/(mFrameRate/1000), pvrLastDrawCount());
+#else
+    sprintf(fps,"Page %d/%d  Game Time: %3.1f(fps) : %3.1f(ms)  Adjusted: %3.1f(ms)", sPage + 1, 1 + ((int)mNextSampleAllocIndex - 1) / NUM_VISIBLE_LINES, 1/(mFrameRate/1000), mFrameRate, mFrameRateAdjusted);
+#endif
 
 //    const int SHADOW_OFFSET = 1;
 //    tColour SHADOW_COLOUR(0,0,0);

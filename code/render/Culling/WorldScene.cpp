@@ -134,6 +134,17 @@ bool gTestShader( IEntityDSG* arg1, IEntityDSG* arg2 )
 #endif
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+#include <stdio.h>
+static unsigned s_cullTested = 0;
+static unsigned s_cullRejected = 0;
+#define SRR_CULL_TESTED()   s_cullTested++
+#define SRR_CULL_REJECTED() s_cullRejected++
+#else
+#define SRR_CULL_TESTED()
+#define SRR_CULL_REJECTED()
+#endif
+
 #ifdef RAD_DREAMCAST
 static const float SRR_DRAW_DIST = 100.0f;
 #else
@@ -1102,8 +1113,12 @@ BEGIN_PROFILE("list construction")
         {
 #ifdef ZSORT_RENDER
             mStaticTreeWalker.rCurrent().mSEntityElems[i]->GetBoundingSphere(&ObjectSphere);
+            SRR_CULL_TESTED();
             if(!IsSphereInCone(ObjectSphere.centre, ObjectSphere.radius))
+            {
+                SRR_CULL_REJECTED();
                 continue;
+            }
 
             //mStaticTreeWalker.rCurrent().mSEntityElems[i]->SetShader(mpTempShader,0);
             switch(3)//mStaticTreeWalker.rCurrent().mSEntityElems[i]->CastsShadow())
@@ -1163,8 +1178,12 @@ BEGIN_PROFILE("list construction")
         {
 #ifdef ZSORT_RENDER
             mStaticTreeWalker.rCurrent().mAnimCollElems[i]->GetBoundingSphere(&ObjectSphere);
+            SRR_CULL_TESTED();
             if(!IsSphereInCone(ObjectSphere.centre, ObjectSphere.radius))
+            {
+                SRR_CULL_REJECTED();
                 continue;
+            }
 
             switch(3)//mStaticTreeWalker.rCurrent().mAnimCollElems[i]->CastsShadow())
             {
@@ -1225,8 +1244,12 @@ BEGIN_PROFILE("list construction")
          //       rReleasePrintf("n");
 
             mStaticTreeWalker.rCurrent().mAnimElems[i]->GetBoundingSphere(&ObjectSphere);
+            SRR_CULL_TESTED();
             if(!IsSphereInCone(ObjectSphere.centre, ObjectSphere.radius))
+            {
+                SRR_CULL_REJECTED();
                 continue;
+            }
 
             switch(3)//mStaticTreeWalker.rCurrent().mAnimElems[i]->CastsShadow())
             {
@@ -1287,8 +1310,12 @@ BEGIN_PROFILE("list construction")
       //      unsigned int dbwt=radTimeGetMicroseconds();
 #endif
             mStaticTreeWalker.rCurrent().mDPhysElems[i]->GetBoundingSphere(&ObjectSphere);
+            SRR_CULL_TESTED();
             if(!IsSphereInCone(ObjectSphere.centre, ObjectSphere.radius))
+            {
+                SRR_CULL_REJECTED();
                 continue;
+            }
 
             switch(mStaticTreeWalker.rCurrent().mDPhysElems[i]->CastsShadow())
             {
@@ -1363,8 +1390,12 @@ BEGIN_PROFILE("list construction")
     //        unsigned int dbwt=radTimeGetMicroseconds();
 #endif
             mStaticTreeWalker.rCurrent().mSPhysElems[i]->GetBoundingSphere(&ObjectSphere);
+            SRR_CULL_TESTED();
             if(!IsSphereInCone(ObjectSphere.centre, ObjectSphere.radius))
+            {
+                SRR_CULL_REJECTED();
                 continue;
+            }
 
             switch(3)//mStaticTreeWalker.rCurrent().mSPhysElems[i]->CastsShadow())
             {
@@ -1451,6 +1482,18 @@ BEGIN_PROFILE("list construction")
 
 //    rAssert(DebugRenderNodeCount<1000);
 END_PROFILE("list construction")
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+    printf( "[cull] nodes %d | tested %u rejected %u drawn %u | zsort %u pass2 %u shadow %u\n",
+            DebugRenderNodeCount,
+            s_cullTested,
+            s_cullRejected,
+            s_cullTested - s_cullRejected,
+            (unsigned)mpZSorts.size(),
+            (unsigned)mpZSortsPass2.size(),
+            (unsigned)mpZSortsPassShadowCasters.size() );
+    s_cullTested = 0;
+    s_cullRejected = 0;
+#endif
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 #ifdef ZSORT_RENDER
