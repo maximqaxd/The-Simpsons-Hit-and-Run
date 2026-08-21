@@ -1684,10 +1684,23 @@ public:
 
     void Normal(float x, float y, float z) override
     {
-        if (!buffer->normal) return;
-        buffer->normal[cur * 3 + 0] = x;
-        buffer->normal[cur * 3 + 1] = y;
-        buffer->normal[cur * 3 + 2] = z;
+        if (!buffer->normalQ) return;
+
+        const float lsq = x * x + y * y + z * z;
+        if (lsq > 1e-12f)
+        {
+            const float inv = shz_inv_sqrtf_fsrra(lsq);
+            x *= inv; y *= inv; z *= inv;
+        }
+        else
+        {
+            x = 0.0f; y = 0.0f; z = 1.0f;
+        }
+
+        signed char* d = &buffer->normalQ[cur * 3];
+        d[0] = (signed char)(x * 127.0f);
+        d[1] = (signed char)(y * 127.0f);
+        d[2] = (signed char)(z * 127.0f);
     }
 
     void Colour(pddiColour c, int channel = 0) override
@@ -1741,6 +1754,7 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , uvWritten(false)
     , uvQCount(0)
     , normal(NULL)
+    , normalQ(NULL)
     , uv(NULL)
     , colour(NULL)
     , runs(NULL)
@@ -1749,6 +1763,7 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , interCount(0)
     , interUV(false)
     , interColour(false)
+    , interNormal(false)
     , allocated((unsigned)nVertex)
     , total(0)
     , indices(NULL)
@@ -1767,9 +1782,15 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     qBias[0] = qBias[1] = qBias[2] = 0.0f;
     mem += 6;
 
-    // Normals are never read back: this backend has no hardware lighting, so
-    // the stream's Normal() writes went into 12 bytes a vertex of dead weight.
+    // Kept as three signed bytes rather than three floats. A group that has
+    // normals has no baked colours, so this array and the colour array are
+    // never both live.
     (void)normal;
+    if (vertexFormat & PDDI_V_NORMAL)
+    {
+        normalQ = new signed char[3 * (size_t)allocated];
+        mem += 3;
+    }
 
     if (vertexFormat & 0xf)
     {
@@ -1801,6 +1822,8 @@ pvrPrimBuffer::~pvrPrimBuffer()
         delete[] coordQ;
     if (normal)
         delete[] normal;
+    if (normalQ)
+        delete[] normalQ;
     if (uv)
         delete[] uv;
     if (uvQ)
@@ -1997,6 +2020,7 @@ void pvrPrimBuffer::BuildInterleaved()
 
     const bool haveUV  = uvQ && uvQCount >= n;
     const bool haveCol = colour != NULL;
+    const bool haveNrm = !haveCol && normalQ != NULL;
 
     for (unsigned i = 0; i < n; i++)
     {
@@ -2013,6 +2037,14 @@ void pvrPrimBuffer::BuildInterleaved()
             p[i].argb = ((unsigned)cc[3] << 24) | ((unsigned)cc[0] << 16)
                       | ((unsigned)cc[1] << 8) | (unsigned)cc[2];
         }
+        else if (haveNrm)
+        {
+            const signed char* nn = &normalQ[i * 3];
+            p[i].n[0] = nn[0];
+            p[i].n[1] = nn[1];
+            p[i].n[2] = nn[2];
+            p[i].n[3] = 0;
+        }
         else
         {
             p[i].argb = 0xFFFFFFFFu;
@@ -2023,10 +2055,12 @@ void pvrPrimBuffer::BuildInterleaved()
     interCount = n;
     interUV = haveUV;
     interColour = haveCol;
+    interNormal = haveNrm;
 
-    delete[] coordQ; coordQ = NULL;
-    delete[] uvQ;    uvQ = NULL;
-    delete[] colour; colour = NULL;
+    delete[] coordQ;  coordQ = NULL;
+    delete[] uvQ;     uvQ = NULL;
+    delete[] colour;  colour = NULL;
+    delete[] normalQ; normalQ = NULL;
 }
 
 // Hand the split arrays back. The stream writers call the Restore paths when

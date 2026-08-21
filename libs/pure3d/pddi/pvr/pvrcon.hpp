@@ -156,7 +156,13 @@ struct pvrInterVert
     short    x, y, z;
     short    u, v;
     short    pad;
-    unsigned argb;
+    // A prim group carries baked colours or normals, never both, so the two
+    // share these four bytes. interNormal on the buffer says which.
+    union
+    {
+        unsigned    argb;
+        signed char n[4];
+    };
 };
 
 class pvrPrimBufferStream;
@@ -220,6 +226,10 @@ protected:
     unsigned coordQCount;
 
     float* normal;
+    // Packed at write time rather than kept as floats: lighting only needs
+    // 8 bits a component, and the float array was 12 bytes a vertex of spike
+    // between loading a mesh and first drawing it.
+    signed char* normalQ;
     float* uv;
     short* uvQ;
     float uvScale[2];
@@ -234,6 +244,7 @@ protected:
     unsigned interCount;
     bool interUV;
     bool interColour;
+    bool interNormal;
 
 
     unsigned allocated;
