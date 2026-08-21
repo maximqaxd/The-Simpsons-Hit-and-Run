@@ -38,6 +38,7 @@ extern "C" unsigned pvrLastDrawCount( void );
 extern "C" unsigned pvrLastBoxCulled( void );
 extern "C" unsigned pvrLastFusedDraws( void );
 extern "C" unsigned pvrLastVertexEstimate( void );
+extern "C" unsigned pvrLastVertexEmitted( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -451,6 +452,7 @@ void Profiler::DumpToSerial()
     printf( "[prof] draw: %u submitted, %u boxculled, %u fast path\n",
             pvrLastDrawCount(), pvrLastBoxCulled(), pvrLastFusedDraws() );
     printf( "[prof] fast-path vertices: %u\n", pvrLastVertexEstimate() );
+    printf( "[prof] vertices to ta: %u\n", pvrLastVertexEmitted() );
 
 #ifdef RAD_DREAMCAST
     {

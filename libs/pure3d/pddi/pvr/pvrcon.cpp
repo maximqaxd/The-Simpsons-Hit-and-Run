@@ -118,6 +118,12 @@ static unsigned s_lastFusedDraws = 0;
 static unsigned s_vtxPerFrame = 0;
 static unsigned s_lastVtxPerFrame = 0;
 extern "C" unsigned pvrLastVertexEstimate( void ) { return s_lastVtxPerFrame; }
+// Every packet that actually reaches the TA, whichever path emitted it. The
+// hardware counter behind pvr_get_stats() is not emulated, so this is the only
+// figure that holds on both.
+static unsigned s_vtxEmitted = 0;
+static unsigned s_lastVtxEmitted = 0;
+extern "C" unsigned pvrLastVertexEmitted( void ) { return s_lastVtxEmitted; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #endif
@@ -447,6 +453,9 @@ static inline void SubmitClipVert(const pvrViewportMap& vp, const pvrClipVert& c
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
 #endif
+#if defined SRR2_DC_PROFILER
+    s_vtxEmitted++;
+#endif
     const float invw = 1.0f / cv.pos.w;
     pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
 
@@ -686,6 +695,9 @@ static __attribute__((always_inline)) inline void SubmitPacket(const pvr_vertex_
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
 #endif
+#if defined SRR2_DC_PROFILER
+    s_vtxEmitted++;
+#endif
     pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
     *v = src;
     v->flags = flags;
@@ -698,6 +710,9 @@ static __attribute__((always_inline)) inline void SubmitOix(pvr_vertex_t* v, uns
 {
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
+#endif
+#if defined SRR2_DC_PROFILER
+    s_vtxEmitted++;
 #endif
     v->flags = flags;
     __asm__ __volatile__("ocbwb @%0" : : "r" (v) : "memory");
@@ -715,6 +730,9 @@ static __attribute__((always_inline)) inline void SubmitScreenVert(const pvrCach
 {
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
+#endif
+#if defined SRR2_DC_PROFILER
+    s_vtxEmitted++;
 #endif
     pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
 
@@ -1265,6 +1283,8 @@ static void pvrRunDeferredLists()
     s_lastBoxCulled = s_boxCulled;
     s_lastFusedDraws = s_fusedDraws;
     s_lastVtxPerFrame = s_vtxPerFrame;
+    s_lastVtxEmitted = s_vtxEmitted;
+    s_vtxEmitted = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
