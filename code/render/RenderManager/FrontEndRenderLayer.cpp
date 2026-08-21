@@ -128,7 +128,9 @@ void FrontEndRenderLayer::Render()
 
     for( unsigned int view = 0; view < mNumViews; view++ )
     {
+        BEGIN_PROFILE( "FE Begin Render" );
         mpView[ view ]->BeginRender();
+        END_PROFILE( "FE Begin Render" );
 
         rAssert(!IsDead());
 
@@ -138,7 +140,9 @@ void FrontEndRenderLayer::Render()
             DrawCoinObject();
         // display Scrooby screen (and updates all Pure3d objects)
         //
+        BEGIN_PROFILE( "Scrooby DrawFrame" );
         mpScroobyApp->DrawFrame( static_cast<float>( g_scroobySimulationTime ) );
+        END_PROFILE( "Scrooby DrawFrame" );
 #ifdef RAD_PC
         // Update the frontend cursor.
         GetInputManager()->GetFEMouse()->Update();
@@ -151,7 +155,9 @@ void FrontEndRenderLayer::Render()
 
 //        GetBillboardQuadManager()->DisplayAll();
 
+        BEGIN_PROFILE( "FE End Render" );
         mpView[ view ]->EndRender();
+        END_PROFILE( "FE End Render" );
     }
 
 #ifdef DEBUGWATCH

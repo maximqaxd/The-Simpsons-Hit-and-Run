@@ -42,6 +42,7 @@
 #include <render/RenderManager/RenderLayer.h>
 
 #include <p3d/view.hpp>
+#include <p3d/utility.hpp>
 #include <p3d/unicode.hpp>
 #include <raddebug.hpp>     // Foundation
 #include <raddebugwatch.hpp>
@@ -1375,6 +1376,16 @@ void CGuiSystem::OnReleaseBootUp()
     //
     rAssert( m_pTextBible != NULL );
     m_pTextBible->SetTextBible( TEXT_BIBLE_NAME );
+
+#ifdef RAD_DREAMCAST
+    //
+    // Unloading the projects above drops the Scrooby side, but the license
+    // image and the bootup art were loaded into their own inventory section
+    // and nothing ever deleted it -- roughly 1MB of boot splash stayed
+    // resident for the whole game.
+    //
+    p3d::inventory->DeleteSection( SCROOBY_INVENTORY_BOOTUP );
+#endif
 
     HeapMgr()->PopHeap(GMA_LEVEL_FE);
 

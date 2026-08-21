@@ -270,7 +270,9 @@ void WorldRenderLayer::Render()
             //p3d::inventory->PushSection();
             //p3d::inventory->SelectSection("Default");
 
+            BEGIN_PROFILE( "Render Opaque" );
             mpWorldScene->RenderOpaque();
+            END_PROFILE( "Render Opaque" );
 
             BEGIN_PROFILE( "Render coins" );
             GetCoinManager()->Render();
@@ -287,7 +289,9 @@ void WorldRenderLayer::Render()
 		    mpShadowGenerator->End();
             END_PROFILE( "Render Shadows" );
             */
+            BEGIN_PROFILE( "Render Footprints" );
             GetFootprintManager()->Render();
+            END_PROFILE( "Render Footprints" );
             BEGIN_PROFILE( "Render Simple Shadows" );
             mpWorldScene->RenderSimpleShadows();
             END_PROFILE( "Render Simple Shadows" );
