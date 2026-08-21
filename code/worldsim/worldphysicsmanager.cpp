@@ -1210,11 +1210,25 @@ void WorldPhysicsManager::Update(unsigned int timeDeltaMilliSeconds)
     float dt = static_cast<float>(timeDeltaMilliSeconds) * 0.001f;
 
     // cap
+#ifdef RAD_DREAMCAST
+    //
+    // Substep count is derived from the last frame time, so a slow frame asks
+    // for more substeps, which makes the next frame slower again. At ~9fps
+    // that loop cost ~19ms a frame in WorldSimSubstepGuts alone. Cap it hard:
+    // physics integrates on a coarser step and the world runs slightly slow,
+    // which beats feeding the spiral.
+    //
+    if(numSubsteps > 2)
+    {
+        numSubsteps = 2;
+    }
+#else
     if(numSubsteps > 10)
     {
         rReleasePrintf("\nhit 10 substeps!\n");
         numSubsteps = 10;
     }
+#endif
    
     
     mLoopTime = dt;
