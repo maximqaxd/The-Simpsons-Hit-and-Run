@@ -146,12 +146,23 @@ def _strip_to_triangles(indices):
     return tris
 
 
+def _tri_windings(t):
+    a, b, c = t
+    return ((a, b, c), (b, c, a), (c, a, b))
+
+
 def _triangles_to_strips(tris):
-    """Greedy strip builder: extend a strip while a neighbouring triangle
-    shares the trailing edge, otherwise start a new one."""
+    """Greedy strip builder that preserves each triangle's winding.
+
+    A strip renders triangle k as (v[k], v[k+1], v[k+2]) for even k and
+    (v[k], v[k+2], v[k+1]) for odd k, so a triangle may only extend a strip
+    when one of its rotations is the winding that position demands. Ignoring
+    that silently flips faces, which the hardware cull then eats.
+    """
     remaining = list(tris)
     by_edge = {}
-    for idx, (a, b, c) in enumerate(remaining):
+    for idx, t in enumerate(remaining):
+        a, b, c = t
         for e in ((a, b), (b, c), (c, a)):
             by_edge.setdefault(frozenset(e), []).append(idx)
 
@@ -162,27 +173,85 @@ def _triangles_to_strips(tris):
         if used[seed]:
             continue
         used[seed] = True
-        a, b, c = remaining[seed]
-        strip = [a, b, c]
+        strip = list(remaining[seed])
 
         while True:
-            tail = frozenset((strip[-2], strip[-1]))
-            nxt = None
-            for cand in by_edge.get(tail, ()):
-                if not used[cand]:
-                    nxt = cand
+            p, q = strip[-2], strip[-1]
+            k = len(strip) - 2
+            nxt = apex = None
+
+            for cand in by_edge.get(frozenset((p, q)), ()):
+                if used[cand]:
+                    continue
+                t = remaining[cand]
+                rest = [v for v in t if v != p and v != q]
+                if len(rest) != 1:
+                    continue
+                d = rest[0]
+                want = (p, q, d) if (k % 2 == 0) else (p, d, q)
+                if want in _tri_windings(t):
+                    nxt, apex = cand, d
                     break
+
             if nxt is None:
                 break
             used[nxt] = True
-            tri = remaining[nxt]
-            apex = [v for v in tri if v not in (strip[-2], strip[-1])]
-            if len(apex) != 1:
-                break
-            strip.append(apex[0])
+            strip.append(apex)
+
         strips.append(strip)
 
     return strips
+
+
+def restrip_group(Chunk, group):
+    """Rebuild a triangle-list group as strips.
+
+    Only the index list changes, so every per-vertex array -- including skin
+    weights and matrix palettes -- is carried through untouched. That is what
+    lets this run on the skinned groups split_group refuses.
+    """
+    header = PrimGroupHeader(group.data)
+    if header.prim_type != PRIM_TRIANGLES:
+        return None
+
+    indices = None
+    passthrough = []
+    for c in group.children:
+        if c.id == INDEXLIST:
+            count, = struct.unpack_from("<I", c.data, 0)
+            indices = list(struct.unpack_from("<%dI" % count, c.data, 4))
+        else:
+            passthrough.append(c)
+
+    if indices is None or len(indices) < 3:
+        return None
+
+    tris = [tuple(indices[i:i + 3]) for i in range(0, len(indices) - 2, 3)]
+    tris = [t for t in tris if t[0] != t[1] and t[1] != t[2] and t[0] != t[2]]
+    if not tris:
+        return None
+
+    strips = _triangles_to_strips(tris)
+    new_indices, runs = _stitch_runs(strips)
+
+    # What matters is packets submitted, not the length of the stitched list:
+    # the backend walks the run list and never touches the joins. A run of N
+    # triangles sends N+2 vertices where a triangle list sends 3N.
+    submitted = sum(n for _, n in runs if n >= 3)
+    if len(new_indices) < 3 or submitted >= len(indices):
+        return None
+
+    kids = [Chunk(c.id, c.data, list(c.children)) for c in passthrough]
+    kids.append(Chunk(INDEXLIST,
+                      struct.pack("<I", len(new_indices))
+                      + struct.pack("<%dI" % len(new_indices), *new_indices)))
+    chunk = _runs_chunk(Chunk, runs)
+    if chunk is not None:
+        kids.append(chunk)
+
+    return Chunk(PRIMGROUP,
+                 header.pack(header.vertex_count, len(new_indices), PRIM_TRISTRIP),
+                 kids)
 
 
 def _stitch(strips):
@@ -429,13 +498,26 @@ def split_mesh(Chunk, mesh, max_verts, stats):
             stats["pieces"] += len(pieces)
             changed = True
         else:
-            annotated = annotate_group(Chunk, c)
-            if annotated is not None:
-                rebuilt.append(annotated)
-                stats["annotated"] += 1
+            # Triangle lists cost three packets per triangle at submit time.
+            # Restripping only rewrites indices, so it works on the skinned
+            # groups split_group will not touch.
+            try:
+                stripped = restrip_group(Chunk, c)
+            except Exception:
+                stripped = None
+
+            if stripped is not None:
+                rebuilt.append(stripped)
+                stats["restripped"] += 1
                 changed = True
             else:
-                rebuilt.append(c)
+                annotated = annotate_group(Chunk, c)
+                if annotated is not None:
+                    rebuilt.append(annotated)
+                    stats["annotated"] += 1
+                    changed = True
+                else:
+                    rebuilt.append(c)
             stats["kept"] += 1
 
     if not changed:
