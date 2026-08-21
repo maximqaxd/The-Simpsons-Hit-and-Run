@@ -50,6 +50,7 @@ if(DREAMCAST)
 	add_compile_definitions(SRR_DC_DRAW_DIST=${SRR2_DC_DRAW_DIST}.0f)
 	set(SRR2_DC_MIN_DRAW_AREA "6" CACHE STRING "Reject draws smaller than this many screen pixels")
 	add_compile_definitions(SRR_DC_MIN_DRAW_AREA=${SRR2_DC_MIN_DRAW_AREA}.0f)
+	option(SRR2_DC_SPEED "Build the hot libraries for speed" ON)
 	set(SRR2_DC_OPB_OP "8" CACHE STRING "Opaque list object pointer block size, in words")
 	add_compile_definitions(SRR_DC_OPB_OP=${SRR2_DC_OPB_OP})
 	set(SRR2_DC_OPB_OVERFLOW "3" CACHE STRING "Extra object pointer blocks the TA may spill into")
@@ -97,8 +98,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		)
 	endif()
 	if(DREAMCAST)
+		# Size by default -- most of this binary is cold and RAM is the tighter
+		# budget. The libraries that actually show up in a frame are raised to
+		# -O3 after the targets exist, where target options land after these.
+		add_compile_options(-Os)
 		add_compile_options(
-		-Os -g0 -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
+		-g0 -fno-common -fno-strict-aliasing -fno-stack-protector -mrelax -ffunction-sections -fdata-sections -fno-exceptions -freorder-blocks-algorithm=simple -flto=auto -ffat-lto-objects -fuse-linker-plugin
 		)
 		add_link_options(-g0)
 	endif()
@@ -1501,6 +1506,33 @@ if(SRR2_USE_BINK)
 endif()
 
 add_executable(${PROJECT_NAME} ${SRR2_SOURCES})
+
+if(DREAMCAST AND SRR2_DC_SPEED)
+	# Everything that shows up in a profiler dump: the PVR backend and the
+	# scene graph feeding it, the vector maths under both, physics, and the
+	# game code driving all of it. Target options come after the directory
+	# wide -Os, so these win.
+	foreach(hot pddi p3d radmath sim scrooby choreo poser ${PROJECT_NAME})
+		if(TARGET ${hot})
+			target_compile_options(${hot} PRIVATE -O3)
+		endif()
+	endforeach()
+
+	# Files that cannot take -O3. Source options come after target options,
+	# so each of these caps just itself.
+	#   followcam: sh-elf-gcc 15.2 ICEs in gen_reg_rtx.
+	#   the FMV users: fmvevent.cpp is out of the build because it needs
+	#   radmovie, which is not built here, so FMVEvent has no destructor to
+	#   link against. -Os never emitted a reference to it; -O3 does.
+	set_source_files_properties("code/camera/followcam.cpp"
+		PROPERTIES COMPILE_OPTIONS "-O2")
+	set_source_files_properties(
+		"code/presentation/presentation.cpp"
+		"code/contexts/bootupcontext.cpp"
+		"code/presentation/gui/frontend/guiscreenplaymovie.cpp"
+		PROPERTIES COMPILE_OPTIONS "-Os")
+endif()
+
 target_link_libraries(${PROJECT_NAME}
 	p3d
 	pddi

@@ -8,6 +8,9 @@
 
 #include <radmath/buildconfig.hpp>
 #include <cmath>
+#ifdef RAD_DREAMCAST
+#include <sh4zam/shz_sh4zam.h>
+#endif
 #include <float.h>
      
 namespace RadicalMathLibrary
@@ -249,7 +252,14 @@ inline int Pow2Log2(const int x)
 }
 
 // inverse, square root, inverse square root, ceil, floor, exponential
+#ifdef RAD_DREAMCAST
+// fsrra reaches a reciprocal in about two cycles where fdiv takes twenty-odd.
+// Its relative error is around 2^-21, which is the same trade the PS2 build
+// already makes below with rsqrt.s.
+inline float Inverse(const float a)                {  return shz_invf_fsrra(a); }
+#else
 inline float Inverse(const float a)                {  return 1.0f/a; }
+#endif
 
 #ifndef RAD_PS2 
 inline float Sqrt( const float a)            {  return sqrtf(a); } 
@@ -285,6 +295,11 @@ inline float ISqrt(const float a)
 
     return res;
 }
+
+#elif defined(RAD_DREAMCAST)
+
+// One fsrra, against an fsqrt and an fdiv.
+inline float ISqrt(const float a)                  {  return shz_inv_sqrtf_fsrra(a); }
 
 #else
 inline float ISqrt(const float a)                  {  return 1.0f/sqrtf(a); }

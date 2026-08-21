@@ -57,7 +57,11 @@ void Vector::CrossProduct(const Vector& vect1, const Vector& vect2)
 // create a unit vector
 void Vector::Normalize(void)
 {
+#ifdef RAD_DREAMCAST
+    const float mag = ISqrt(x * x + y * y + z * z);
+#else
     float mag = 1.0f / Magnitude();
+#endif
     x = (x * mag);
     y = (y * mag);
     z = (z * mag);
@@ -66,7 +70,11 @@ void Vector::Normalize(void)
 
 void Vector::Normalize(const Vector& vect)
 {
+#ifdef RAD_DREAMCAST
+    const float mag = ISqrt(vect.x * vect.x + vect.y * vect.y + vect.z * vect.z);
+#else
     float mag = 1.0f / vect.Magnitude();
+#endif
     x = (vect.x * mag);
     y = (vect.y * mag);
     z = (vect.z * mag);

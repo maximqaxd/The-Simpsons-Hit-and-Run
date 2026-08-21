@@ -210,8 +210,16 @@ public:
         float mag = DotProduct(*this);
         if (mag > smallValue)
         {
+#ifdef RAD_DREAMCAST
+            // One fsrra covers both the scale and the length: mag2 * rsqrt(mag2)
+            // is the magnitude, so the fsqrt and the fdiv both go.
+            const float inv = ISqrt(mag);
+            Scale(inv);
+            mag = mag * inv;
+#else
             mag = Sqrt(mag);
             Scale(1.0f/mag);
+#endif
         }
         else
         {
