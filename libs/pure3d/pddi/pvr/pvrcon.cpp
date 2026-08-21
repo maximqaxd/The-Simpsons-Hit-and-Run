@@ -1659,6 +1659,8 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , normal(NULL)
     , uv(NULL)
     , colour(NULL)
+    , runs(NULL)
+    , runCount(0)
     , inter(NULL)
     , interCount(0)
     , interUV(false)
@@ -1723,6 +1725,8 @@ pvrPrimBuffer::~pvrPrimBuffer()
         delete[] colour;
     if (inter)
         delete[] inter;
+    if (runs)
+        delete[] runs;
     if (indices)
         delete[] indices;
     if (stream)
@@ -2058,6 +2062,23 @@ void pvrPrimBuffer::UnlockIndexBuffer(int count)
     indexCount = count;
 }
 
+void pvrPrimBuffer::SetRunList(const unsigned short* src, int count)
+{
+    delete[] runs;
+    runs = NULL;
+    runCount = 0;
+
+    if (!src || count <= 0)
+        return;
+
+    runs = new unsigned short[2 * (size_t)count];
+    if (!runs)
+        return;
+
+    memcpy(runs, src, (size_t)count * 2 * sizeof(unsigned short));
+    runCount = (unsigned)count;
+}
+
 void pvrPrimBuffer::SetIndices(unsigned short* idx, int count)
 {
     PDDIASSERT(count <= (int)indexCount);
@@ -2181,6 +2202,98 @@ static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
     }
 
     *visAll = all;
+}
+
+// The converter knows where each strip begins and ends, so when it has told
+// us there is nothing to hunt for: no degenerate tests, and the last index of
+// a run is known rather than discovered.
+template <bool CheckVis, typename ClipPosFn>
+static void EmitRunList(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
+                        const unsigned short* indices, const unsigned short* runs,
+                        unsigned runCount, const pvrViewportMap& vp, ClipPosFn clipPos)
+{
+    for (unsigned r = 0; r < runCount; r++)
+    {
+        const unsigned first = runs[r * 2 + 0];
+        const unsigned count = runs[r * 2 + 1];
+
+        if (count < 3)
+            continue;
+
+        const unsigned end = first + count - 2;   // one past the last triangle
+
+        unsigned i = first;
+        while (i < end)
+        {
+            if (CheckVis)
+            {
+                const unsigned a = indices[i], b = indices[i + 1], c = indices[i + 2];
+
+                if (!(vis[a] && vis[b] && vis[c]))
+                {
+                    if (vis[a] || vis[b] || vis[c])
+                    {
+#if defined SRR2_DC_PROFILER
+                        s_clipTris++;
+#endif
+                        const unsigned odd = i & 1u;
+                        const unsigned ix[3] = { a, odd ? c : b, odd ? b : c };
+
+                        pvrClipVert tri[3];
+                        for (int k = 0; k < 3; k++)
+                        {
+                            tri[k].pos  = clipPos(ix[k]);
+                            tri[k].u    = pkt[ix[k]].u;
+                            tri[k].v    = pkt[ix[k]].v;
+                            tri[k].argb = pkt[ix[k]].argb;
+                        }
+                        ClipAndSubmitTriangle(vp, tri);
+                    }
+#if defined SRR2_DC_PROFILER
+                    else
+                    {
+                        s_deadTris++;
+                    }
+#endif
+                    i++;
+                    continue;
+                }
+            }
+
+            unsigned j = i + 1;
+            if (CheckVis)
+            {
+                while (j < end)
+                {
+                    const unsigned x = indices[j], y = indices[j + 1], z = indices[j + 2];
+                    if (!(vis[x] && vis[y] && vis[z]))
+                        break;
+                    j++;
+                }
+            }
+            else
+            {
+                j = end;
+            }
+
+            const unsigned last = j + 1;
+
+            if (i & 1u)
+                SubmitVert(oix, &pkt[indices[i]], PVR_CMD_VERTEX);
+
+            for (unsigned k = i; k <= last; k++)
+            {
+                SubmitVert(oix, &pkt[indices[k]],
+                           (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+            }
+
+#if defined SRR2_DC_PROFILER
+            if (CheckVis)
+                s_stripTris += j - i;
+#endif
+            i = j;
+        }
+    }
 }
 
 template <bool CheckVis, bool HasIdx, typename ClipPosFn>
@@ -2468,7 +2581,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
             if (visAll)
             {
-                EmitStripRuns<false, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
+                if (runs)
+                    EmitRunList<false>(oix, pkt, s_vtxVis, indices, runs, runCount, vp, clipPos);
+                else
+                    EmitStripRuns<false, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
                 PH_MARK(s_phEmit);
                 return;
             }
@@ -2479,7 +2595,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #if defined SRR2_DC_PROFILER
             s_clipDrawsFast++;
 #endif
-            EmitStripRuns<true, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
+            if (runs)
+                EmitRunList<true>(oix, pkt, s_vtxVis, indices, runs, runCount, vp, clipPos);
+            else
+                EmitStripRuns<true, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
             PH_MARK(s_phClip);
             return;
         }

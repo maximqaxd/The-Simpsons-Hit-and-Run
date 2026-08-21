@@ -380,6 +380,10 @@ public:
 
     PDDI_INTERFACE void SetIndices(unsigned short* indices, int count) PDDI_PURE;
 
+    // Start/length pairs naming the real strips inside the index list, so a
+    // backend need not rediscover them by hunting for degenerate joins.
+    PDDI_INTERFACE void SetRunList(const unsigned short* runs, int count) { (void)runs; (void)count; }
+
     PDDI_INTERFACE bool CheckMemImageVersion(int version) PDDI_PURE;
     PDDI_INTERFACE void* LockMemImage(unsigned memImageLength) PDDI_PURE;
     PDDI_INTERFACE void UnlockMemImage() PDDI_PURE;

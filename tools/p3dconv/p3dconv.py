@@ -432,7 +432,7 @@ class Stats:
         self.bytes_raw16 = self.bytes_dt = 0
         self.anim_done = self.anim_skipped = 0
         self.anim_before = self.anim_after = 0
-        self.split = self.pieces = self.kept = 0
+        self.split = self.pieces = self.kept = self.annotated = 0
         self.size_in = self.size_out = 0
         self.notes = []
 
@@ -486,11 +486,12 @@ def convert_file(src, dst, encoder, opts):
         convert_anims(root, st)
 
     if opts.split_verts:
-        mstats = {"split": 0, "pieces": 0, "kept": 0}
+        mstats = {"split": 0, "pieces": 0, "kept": 0, "annotated": 0}
         meshsplit.split_file(Chunk, root, opts.split_verts, mstats)
         st.split += mstats["split"]
         st.pieces += mstats["pieces"]
         st.kept += mstats["kept"]
+        st.annotated += mstats["annotated"]
 
     out = serialise_p3d(root)
     st.size_out = len(out)
@@ -644,7 +645,7 @@ def main(argv=None):
                   f"  ->  {mib(total.bytes_dt)}  ({pct:.0f}%, saves {mib(saved)})")
     if opts.split_verts:
         print(f"meshlets   {total.split} groups -> {total.pieces} pieces"
-              f", {total.kept} left alone")
+              f", {total.kept} left alone, {total.annotated} run lists")
     if not opts.no_anim:
         print(f"anims      {total.anim_done} rotation channels"
               + (f", {total.anim_skipped} skipped" if total.anim_skipped else ""))

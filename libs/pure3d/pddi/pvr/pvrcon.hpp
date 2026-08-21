@@ -174,6 +174,7 @@ public:
     void UnlockIndexBuffer(int count);
 
     void SetIndices(unsigned short* indices, int count);
+    void SetRunList(const unsigned short* runs, int count);
 
     bool CheckMemImageVersion(int version) { return false; }
     void* LockMemImage(unsigned) { return NULL; }
@@ -240,6 +241,11 @@ protected:
 
     unsigned short* indices;
     unsigned indexCount;
+
+    // Pairs of (first index, index count). NULL means the strips have to be
+    // found the hard way.
+    unsigned short* runs;
+    unsigned runCount;
 
     bool valid;
     unsigned mem;

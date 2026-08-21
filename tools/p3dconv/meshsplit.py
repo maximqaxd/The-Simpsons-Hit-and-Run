@@ -26,6 +26,11 @@ VERTEXSHADER = 0x00010011
 TANGENTLIST = 0x00010015
 BINORMALLIST = 0x00010016
 
+# Custom: start/length pairs naming the real strips inside the stitched index
+# list. Loaders that do not know it skip it; the PVR backend uses it instead of
+# rediscovering the strips by hunting for degenerate joins every frame.
+DC_RUNLIST = 0x44435253
+
 PRIM_TRIANGLES = 0
 PRIM_TRISTRIP = 1
 
@@ -182,16 +187,26 @@ def _triangles_to_strips(tris):
 
 def _stitch(strips):
     """Join strips with degenerate triangles so a cell stays one draw call."""
-    if not strips:
-        return []
-    out = list(strips[0])
-    for s in strips[1:]:
-        out.append(out[-1])
-        out.append(s[0])
-        if len(out) % 2:
+    return _stitch_runs(strips)[0]
+
+
+def _stitch_runs(strips):
+    """As _stitch, but also report where each strip landed, as (first, count).
+
+    The joins are what the backend would otherwise have to detect at runtime,
+    once per frame, forever.
+    """
+    out = []
+    runs = []
+    for s in strips:
+        if out:
+            out.append(out[-1])
             out.append(s[0])
+            if len(out) % 2:
+                out.append(s[0])
+        runs.append((len(out), len(s)))
         out.extend(s)
-    return out
+    return out, runs
 
 
 def _strip_runs(indices):
@@ -263,6 +278,67 @@ def _pack_meshlets(runs, max_verts):
     return out
 
 
+
+def _scan_runs(indices):
+    """Maximal degenerate-free spans of an existing index list, as
+    (first, count). Mirrors the walk the backend would otherwise do at runtime.
+    """
+    runs = []
+    n = len(indices)
+    i = 0
+    while i + 2 < n:
+        a, b, c = indices[i], indices[i + 1], indices[i + 2]
+        if a == b or b == c or a == c:
+            i += 1
+            continue
+        j = i
+        while j + 2 < n:
+            x, y, z = indices[j], indices[j + 1], indices[j + 2]
+            if x == y or y == z or x == z:
+                break
+            j += 1
+        runs.append((i, (j + 2) - i))
+        i = j
+    return runs
+
+
+def _runs_chunk(Chunk, runs):
+    runs = [(a, n) for a, n in runs if n >= 3]
+    if not runs:
+        return None
+    body = struct.pack("<I", len(runs))
+    for first, count in runs:
+        body += struct.pack("<II", first, count)
+    return Chunk(DC_RUNLIST, body)
+
+
+def annotate_group(Chunk, group):
+    """Attach a run list to a group that is being kept as-is. Returns a
+    replacement group, or None to leave it alone."""
+    header = PrimGroupHeader(group.data)
+    if header.prim_type != PRIM_TRISTRIP:
+        return None
+    for c in group.children:
+        if c.id == DC_RUNLIST:
+            return None
+
+    indices = None
+    for c in group.children:
+        if c.id == INDEXLIST:
+            count, = struct.unpack_from("<I", c.data, 0)
+            indices = list(struct.unpack_from("<%dI" % count, c.data, 4))
+    if not indices:
+        return None
+
+    chunk = _runs_chunk(Chunk, _scan_runs(indices))
+    if chunk is None:
+        return None
+
+    kids = [Chunk(c.id, c.data, list(c.children)) for c in group.children]
+    kids.append(chunk)
+    return Chunk(PRIMGROUP, group.data, kids)
+
+
 def split_group(Chunk, group, max_verts):
     """Return a list of replacement prim groups, or None to keep as-is."""
     header = PrimGroupHeader(group.data)
@@ -303,8 +379,9 @@ def split_group(Chunk, group, max_verts):
 
         local = [[remap[v] for v in r] for r in chosen]
 
+        runs = None
         if header.prim_type == PRIM_TRISTRIP:
-            new_indices = _stitch(local)
+            new_indices, runs = _stitch_runs(local)
             prim = PRIM_TRISTRIP
         else:
             new_indices = [v for r in local for v in r]
@@ -313,9 +390,16 @@ def split_group(Chunk, group, max_verts):
         if len(new_indices) < 3:
             continue
 
+        children = _encode_lists(Chunk, verts, new_indices, keep)
+
+        if runs:
+            chunk = _runs_chunk(Chunk, runs)
+            if chunk is not None:
+                children.append(chunk)
+
         out.append(Chunk(PRIMGROUP,
                          header.pack(len(keep), len(new_indices), prim),
-                         _encode_lists(Chunk, verts, new_indices, keep)
+                         children
                          + [Chunk(e.id, e.data, list(e.children)) for e in extra]))
 
     return out if len(out) > 1 else None
@@ -345,7 +429,13 @@ def split_mesh(Chunk, mesh, max_verts, stats):
             stats["pieces"] += len(pieces)
             changed = True
         else:
-            rebuilt.append(c)
+            annotated = annotate_group(Chunk, c)
+            if annotated is not None:
+                rebuilt.append(annotated)
+                stats["annotated"] += 1
+                changed = True
+            else:
+                rebuilt.append(c)
             stats["kept"] += 1
 
     if not changed:

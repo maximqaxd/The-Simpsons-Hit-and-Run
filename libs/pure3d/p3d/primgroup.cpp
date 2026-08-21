@@ -4,6 +4,9 @@
 
 
 #include <p3d/primgroup.hpp>
+
+// Custom chunk carrying strip boundaries; see tools/p3dconv/meshsplit.py.
+#define P3D_DC_RUNLIST 0x44435253
 #include <p3d/utility.hpp>
 #include <p3d/shader.hpp>
 #include <p3d/vertexlist.hpp>
@@ -1279,6 +1282,22 @@ tPrimGroup* tPrimGroupLoader::LoadPCSkin(tChunkFile* f, tEntityStore* store, rmt
             }
             break;
 
+            // Written by tools/p3dconv. Other loaders fall through to the
+            // default case and skip it.
+            case P3D_DC_RUNLIST:
+            {
+                P3DASSERT(primBufferInitialized);
+                int count = f->GetLong();
+                unsigned short* tempRuns = (unsigned short *)p3d::MallocTemp(sizeof(unsigned short) * 2 * count);
+                for (int a = 0; a < count * 2; a++)
+                {
+                    tempRuns[a] = (unsigned short)f->GetLong();
+                }
+                primBuffer->SetRunList(tempRuns, count);
+                p3d::FreeTemp(tempRuns);
+            }
+            break;
+
             case Pure3D::Mesh::WEIGHTLIST:
             {
                 P3DASSERT(primBufferInitialized);
@@ -1860,6 +1879,22 @@ tPrimGroup*  tPrimGroupLoader::Load(tChunkFile *f, tEntityStore *store, rmt::Mat
                 }
                 primBuffer->SetIndices(tempIndexList, count);
                 p3d::FreeTemp(tempIndexList);
+            }
+            break;
+
+            // Written by tools/p3dconv. Other loaders fall through to the
+            // default case and skip it.
+            case P3D_DC_RUNLIST:
+            {
+                P3DASSERT(primBufferInitialized);
+                int count = f->GetLong();
+                unsigned short* tempRuns = (unsigned short *)p3d::MallocTemp(sizeof(unsigned short) * 2 * count);
+                for (int a = 0; a < count * 2; a++)
+                {
+                    tempRuns[a] = (unsigned short)f->GetLong();
+                }
+                primBuffer->SetRunList(tempRuns, count);
+                p3d::FreeTemp(tempRuns);
             }
             break;
 
