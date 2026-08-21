@@ -107,6 +107,11 @@ void pvrOixInit( void )
     void (*enter)( void ) = (void (*)(void))pvrOixP2((void*)&pvrOixEnter_);
     int  (*probe)( void ) = (int  (*)(void))pvrOixP2((void*)&pvrOixProbe_);
 
+#ifndef SRR_DC_OIX
+    (void)enter; (void)probe;
+    printf( "[pvr] operand cache TA window: disabled at build time\n" );
+    return;
+#else
     if (probe())
     {
         pvrOixWindow = (unsigned char*)PVR_OIX_ADDR;
@@ -116,4 +121,5 @@ void pvrOixInit( void )
     printf( "[pvr] operand cache TA window: %s (%u vertices)\n",
             pvrOixWindow ? "on" : "unavailable",
             pvrOixWindow ? PVR_OIX_VERTS : 0u );
+#endif
 }

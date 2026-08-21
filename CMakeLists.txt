@@ -50,6 +50,13 @@ if(DREAMCAST)
 	add_compile_definitions(SRR_DC_DRAW_DIST=${SRR2_DC_DRAW_DIST}.0f)
 	set(SRR2_DC_MIN_DRAW_AREA "6" CACHE STRING "Reject draws smaller than this many screen pixels")
 	add_compile_definitions(SRR_DC_MIN_DRAW_AREA=${SRR2_DC_MIN_DRAW_AREA}.0f)
+	# The operand cache window onto the TA FIFO. Submission gets cheaper, but
+	# holding OIX leaves ordinary data with 8 KB of operand cache instead of
+	# 16, which every cache bound system pays for. Off to A/B it.
+	option(SRR2_DC_OIX "Submit vertices through the operand cache window" ON)
+	if(SRR2_DC_OIX)
+		add_compile_definitions(SRR_DC_OIX)
+	endif()
 	option(SRR2_DC_SPEED "Build the hot libraries for speed" ON)
 	# Entry zero of the residency list is the initial level load, so a budget
 	# of three admits the start zone and two more. Zero disables the cap.
