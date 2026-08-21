@@ -81,7 +81,7 @@ const ControlMap GUI_CONTROL_MAP[] =
     
 #endif
 
-#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
+#if defined(RAD_XBOX) || defined(RAD_DREAMCAST) || (defined(RAD_CONSOLE) && defined(RAD_WIN32))
     { "LeftStickX",     GuiInput::XAxis },
     { "LeftStickY",     GuiInput::YAxis },
     { "RightStickX",    GuiInput::XAxisRight },

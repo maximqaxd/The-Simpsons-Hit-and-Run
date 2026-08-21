@@ -3,10 +3,10 @@
 //=============================================================================
 //
 // File:        dccontroller.cpp
-// Subsystem:  Foundation Technologies - Controller System (Dreamcast stub)
-// Description: Stub implementation for Dreamcast. no actual input.
-//              Exposes same radController API so the game links. Replace with
-//              Maple/KOS input when ready.
+// Subsystem:  Foundation Technologies - Controller System (Dreamcast)
+// Description: Maple-backed controller. Input point names follow the Xbox
+//              naming the game's console control maps already use, so the
+//              standard pad maps onto them directly.
 //=============================================================================
 
 #include "pch.hpp"
@@ -22,6 +22,93 @@
 #include <radtime.hpp>
 #include <radmemorymonitor.hpp>
 #include "radcontrollerbuffer.hpp"
+
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+
+//
+// One shared snapshot per port, refreshed once per poll so every input point
+// on a controller reads a consistent frame of state.
+//
+enum { DC_MAX_PADS = 4 };
+
+struct DCPadState
+{
+    bool     connected;
+    uint32_t buttons;
+    int      joyx, joyy;
+    int      ltrig, rtrig;
+};
+
+static DCPadState g_DCPads[ DC_MAX_PADS ];
+
+static void DCReadPad( int port, DCPadState& out )
+{
+    out.connected = false;
+    out.buttons = 0;
+    out.joyx = out.joyy = 0;
+    out.ltrig = out.rtrig = 0;
+
+    maple_device_t* dev = maple_enum_type( port, MAPLE_FUNC_CONTROLLER );
+    if ( dev == NULL )
+        return;
+
+    cont_state_t* st = (cont_state_t*)maple_dev_status( dev );
+    if ( st == NULL )
+        return;
+
+    out.connected = true;
+    out.buttons = st->buttons;
+    out.joyx = st->joyx;
+    out.joyy = st->joyy;
+    out.ltrig = st->ltrig;
+    out.rtrig = st->rtrig;
+}
+
+//
+// Identifiers match g_DCPoints below. Every value is normalised to 0..1 --
+// GetCurrentValue() rescales it into the range the game asked for, so an axis
+// must sit at 0.5 when centred. Returning 0.0 for a centred axis reads as full
+// deflection.
+//
+static float DCInputValue( const DCPadState& pad, int id )
+{
+    switch ( id )
+    {
+        case 0:  return ( pad.buttons & CONT_DPAD_UP )    ? 1.0f : 0.0f;
+        case 1:  return ( pad.buttons & CONT_DPAD_DOWN )  ? 1.0f : 0.0f;
+        case 2:  return ( pad.buttons & CONT_DPAD_LEFT )  ? 1.0f : 0.0f;
+        case 3:  return ( pad.buttons & CONT_DPAD_RIGHT ) ? 1.0f : 0.0f;
+        case 4:  return ( pad.buttons & CONT_START )      ? 1.0f : 0.0f;
+
+        // The pad has no Back button: the game uses it to leave menus, so
+        // borrow the second D-pad's Up when present, otherwise leave it clear.
+        case 5:  return ( pad.buttons & CONT_DPAD2_UP )   ? 1.0f : 0.0f;
+
+        case 6:  return ( pad.buttons & CONT_A ) ? 1.0f : 0.0f;
+        case 7:  return ( pad.buttons & CONT_B ) ? 1.0f : 0.0f;
+        case 8:  return ( pad.buttons & CONT_X ) ? 1.0f : 0.0f;
+        case 9:  return ( pad.buttons & CONT_Y ) ? 1.0f : 0.0f;
+
+        // No Black/White on a Dreamcast pad.
+        case 10: return 0.0f;
+        case 11: return 0.0f;
+
+        case 12: return (float)pad.ltrig / 255.0f;
+        case 13: return (float)pad.rtrig / 255.0f;
+
+        case 14: return ( ( (float)pad.joyx / 128.0f ) + 1.0f ) * 0.5f;
+
+        // Maple's Y is down-positive; the game expects up-positive.
+        case 15: return ( ( (float)-pad.joyy / 128.0f ) + 1.0f ) * 0.5f;
+
+        // No second stick: report centred, not zero.
+        case 16: return 0.5f;
+        case 17: return 0.5f;
+
+        default: return 0.0f;
+    }
+}
 
 //============================================================================
 // Internal Interfaces 
@@ -110,10 +197,42 @@ public:
     }
     virtual void iVirtualTimeChanged( unsigned int virtualTime )
     {
-        (void)virtualTime;
-        m_TimeInState++;
+        const float newValue = CalculateNewValue();
+
+        if ( ( newValue != m_Value ) && ( fabsf( newValue - m_Value ) >= m_Tolerance ) )
+        {
+            m_Value = newValue;
+            m_TimeOfStateChange = virtualTime;
+            m_TimeInState = 0;
+
+            AddRef();   // callbacks may release us
+
+            m_xIOl_Callbacks->Reset();
+            IRadWeakCallbackWrapper* pIWcr;
+            while ( (pIWcr = reinterpret_cast<IRadWeakCallbackWrapper*>( m_xIOl_Callbacks->GetNext() )) )
+            {
+                IRadControllerInputPointCallback* pCallback =
+                    (IRadControllerInputPointCallback*)pIWcr->GetWeakInterface();
+                if ( pCallback != NULL )
+                {
+                    pCallback->OnControllerInputPointChange(
+                        (unsigned int)(uintptr_t)pIWcr->GetUserData(), m_Value );
+                }
+            }
+
+            Release();
+        }
+        else
+        {
+            m_TimeInState = virtualTime - m_TimeOfStateChange;
+        }
     }
-    float CalculateNewValue( void ) { return 0.0f; }  // stub: no hardware
+    float CalculateNewValue( void )
+    {
+        if ( m_Port < 0 || m_Port >= DC_MAX_PADS )
+            return 0.0f;
+        return DCInputValue( g_DCPads[ m_Port ], m_Identifier );
+    }
     virtual void iInitialize( void ) { m_Value = CalculateNewValue(); }
     virtual const char* GetName( void ) { return m_pName; }
     virtual const char* GetType( void ) { return m_pType; }
@@ -153,9 +272,10 @@ public:
         if ( pMin != NULL ) *pMin = m_MinRange;
         if ( pMax != NULL ) *pMax = m_MaxRange;
     }
-    radControllerInputPointDC( const char* pType, const char* pName, int id )
+    radControllerInputPointDC( const char* pType, const char* pName, int id, int port = 0 )
         : radRefCount(0), m_Value(0.0f), m_MinRange(0.0f), m_MaxRange(1.0f), m_Tolerance(0.0f),
-          m_TimeInState(0), m_TimeOfStateChange(0), m_pType(pType), m_pName(pName), m_Identifier(id)
+          m_TimeInState(0), m_TimeOfStateChange(0), m_pType(pType), m_pName(pName),
+          m_Identifier(id), m_Port(port)
     {
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radControllerInputPointDC" );
         ::radObjectListCreate( &m_xIOl_Callbacks, g_ControllerSystemAllocator );
@@ -169,6 +289,7 @@ public:
     const char* m_pType;
     const char* m_pName;
     int m_Identifier;
+    int m_Port;
     ref< IRadObjectList > m_xIOl_Callbacks;
 };
 
@@ -182,7 +303,12 @@ class radControllerDC
 {
 public:
     IMPLEMENT_REFCOUNTED( "radControllerDC" )
-    virtual void iPoll( unsigned int virtualTime ) { (void)virtualTime; }
+    virtual void iPoll( unsigned int virtualTime )
+    {
+        (void)virtualTime;
+        if ( m_Port >= 0 && m_Port < DC_MAX_PADS )
+            DCReadPad( m_Port, g_DCPads[ m_Port ] );
+    }
     virtual void iVirtualTimeReMapped( unsigned int virtualTime )
     {
         m_xIOl_InputPoints->Reset();
@@ -201,7 +327,10 @@ public:
         }
     }
     virtual void iSetBufferTime( unsigned int milliseconds, unsigned int pollingRate ) { (void)milliseconds; (void)pollingRate; }
-    virtual bool IsConnected( void ) { return true; }
+    virtual bool IsConnected( void )
+    {
+        return ( m_Port >= 0 && m_Port < DC_MAX_PADS ) ? g_DCPads[ m_Port ].connected : false;
+    }
     virtual const char* GetType( void ) { return "DCStandard"; }
     virtual const char* GetClassification( void ) { return "Joystick"; }
     virtual unsigned int GetNumberOfInputPointsOfType( const char* pType )
@@ -264,8 +393,8 @@ public:
         return reinterpret_cast<IRadControllerOutputPoint*>( m_xIOl_OutputPoints->GetAt( index ) );
     }
     virtual const char* GetLocation( void ) { return m_xIString_Location->GetChars(); }
-    radControllerDC( unsigned int thisAllocator, unsigned int virtualTime, unsigned int bufferTime, unsigned int pollingRate )
-        : radRefCount(0)
+    radControllerDC( unsigned int thisAllocator, unsigned int virtualTime, unsigned int bufferTime, unsigned int pollingRate, int port = 0 )
+        : radRefCount(0), m_Port(port)
     {
         radMemoryMonitorIdentifyAllocation( this, g_nameFTech, "radControllerDC" );
         (void)thisAllocator; (void)bufferTime; (void)pollingRate;
@@ -274,12 +403,12 @@ public:
         ::radStringCreate( &m_xIString_Location, g_ControllerSystemAllocator );
         m_xIString_Location->SetSize( 12 );
         m_xIString_Location->Append( "Port" );
-        m_xIString_Location->Append( (unsigned int)0 );
+        m_xIString_Location->Append( (unsigned int)port );
         m_xIString_Location->Append( "\\Slot0" );
         for ( unsigned int i = 0; i < g_NumDCPoints; i++ )
         {
             ref< radControllerInputPointDC > pInputPoint = new( g_ControllerSystemAllocator ) radControllerInputPointDC
-                ( g_DCPoints[i].m_pType, g_DCPoints[i].m_pName, (int)g_DCPoints[i].m_Id );
+                ( g_DCPoints[i].m_pType, g_DCPoints[i].m_pName, (int)g_DCPoints[i].m_Id, port );
             m_xIOl_InputPoints->AddObject( pInputPoint );
             pInputPoint->iInitialize();
         }
@@ -291,6 +420,7 @@ public:
         iVirtualTimeReMapped( virtualTime );
     }
     ~radControllerDC( void ) {}
+    int m_Port;
     ref< IRadObjectList > m_xIOl_InputPoints;
     ref< IRadObjectList > m_xIOl_OutputPoints;
     ref< IRadString >    m_xIString_Location;
@@ -396,9 +526,12 @@ public:
         ::radObjectListCreate( &m_xIOl_Callbacks, g_ControllerSystemAllocator );
         m_DefaultConnectionChangeCallback = pConnectionChangeCallback;
         if ( pConnectionChangeCallback ) RegisterConnectionChangeCallback( pConnectionChangeCallback );
-        // One stub controller so game sees a controller (all inputs 0)
+        // Port 0 only: the game drives a single player and enumerating empty
+        // ports would just add controllers that never report anything.
+        DCReadPad( 0, g_DCPads[ 0 ] );
+
         ref< IRadController > xIController2 = new ( g_ControllerSystemAllocator ) radControllerDC
-            ( g_ControllerSystemAllocator, radTimeGetMilliseconds() + m_VirtualTimeAdjust, m_EventBufferTime, 10 );
+            ( g_ControllerSystemAllocator, radTimeGetMilliseconds() + m_VirtualTimeAdjust, m_EventBufferTime, 10, 0 );
         m_xIOl_Controllers->AddObject( xIController2 );
         m_xIOl_Callbacks->Reset();
         IRadWeakInterfaceWrapper* pIWir;

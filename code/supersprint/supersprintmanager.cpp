@@ -1417,7 +1417,7 @@ void SuperSprintManager::LoadControllerMappings( unsigned int controllerId )
 {
     if ( GetInputManager()->GetController( controllerId )->IsConnected() )
     {
-#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
+#if defined(RAD_XBOX) || defined(RAD_DREAMCAST) || (defined(RAD_CONSOLE) && defined(RAD_WIN32))
         ClearMap(0);
         Map( "Start", Start, 0, controllerId );
         Map( "A", Select, 0, controllerId );

@@ -108,7 +108,7 @@ void CharacterMappable::OnButtonDown( int controllerId, int buttonId, const IBut
 //
 void CharacterMappable::LoadControllerMappings( unsigned int controllerId )
 {
-#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
+#if defined(RAD_XBOX) || defined(RAD_DREAMCAST) || (defined(RAD_CONSOLE) && defined(RAD_WIN32))
 	ClearMap( 0 );
 	Map( "LeftStickX", CharacterController::LeftStickX, 0, controllerId );
     Map( "LeftStickY", CharacterController::LeftStickY, 0, controllerId );

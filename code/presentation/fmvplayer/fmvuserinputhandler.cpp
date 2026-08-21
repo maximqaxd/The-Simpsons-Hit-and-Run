@@ -93,7 +93,7 @@ const ControlMap FMV_CONTROL_MAP[] =
     #endif
 #endif // RAD_PS2
 
-#if defined(RAD_XBOX) || defined(RAD_CONSOLE) && defined(RAD_WIN32)
+#if defined(RAD_XBOX) || defined(RAD_DREAMCAST) || (defined(RAD_CONSOLE) && defined(RAD_WIN32))
     { "A",              FMVInput::Skip },
     { "Start",          FMVInput::Start},
     #ifdef ANY_BUTTON_SKIP
