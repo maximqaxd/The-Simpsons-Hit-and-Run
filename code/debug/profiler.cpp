@@ -54,6 +54,10 @@ extern "C" unsigned pvrLastClipIters( void );
 extern "C" unsigned pvrClipTriUs( void );
 extern "C" unsigned pvrLastGenIters( void );
 extern "C" unsigned pvrGenWalkUs( void );
+extern "C" unsigned pvrHdrSubmitted( void );
+extern "C" unsigned pvrHdrSkipped( void );
+extern "C" unsigned pvrXformLoaded( void );
+extern "C" unsigned pvrXformSkipped( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -480,6 +484,9 @@ void Profiler::DumpToSerial()
             pvrLastClipIters(), pvrClipTriUs() );
     printf( "[prof] of which generic: %u iterations, %u us\n",
             pvrLastGenIters(), pvrGenWalkUs() );
+    printf( "[prof] headers %u sent, %u skipped; xmtrx %u loaded, %u skipped\n",
+            pvrHdrSubmitted(), pvrHdrSkipped(),
+            pvrXformLoaded(), pvrXformSkipped() );
 
 #ifdef RAD_DREAMCAST
     {

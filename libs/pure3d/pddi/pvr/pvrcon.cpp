@@ -20,6 +20,7 @@
 #include <malloc.h>
 
 #include <vector>
+#include <algorithm>
 #include <kos/timer.h>
 #include <arch/cache.h>
 #if defined SRR2_DC_PVR_TRACE
@@ -169,6 +170,15 @@ static unsigned s_genIters = 0, s_lastGenIters = 0;
 static uint64_t s_phGenWalk = 0, s_lastGenWalkUs = 0;
 extern "C" unsigned pvrLastGenIters( void )  { return s_lastGenIters; }
 extern "C" unsigned pvrGenWalkUs( void )     { return (unsigned)s_lastGenWalkUs; }
+// How much of the per-draw header and matrix traffic is actually redundant.
+static unsigned s_hdrSubmitted = 0, s_hdrSkipped = 0;
+static unsigned s_xformLoaded = 0, s_xformSkipped = 0;
+static unsigned s_lastHdrSubmitted = 0, s_lastHdrSkipped = 0;
+static unsigned s_lastXformLoaded = 0, s_lastXformSkipped = 0;
+extern "C" unsigned pvrHdrSubmitted( void )  { return s_lastHdrSubmitted; }
+extern "C" unsigned pvrHdrSkipped( void )    { return s_lastHdrSkipped; }
+extern "C" unsigned pvrXformLoaded( void )   { return s_lastXformLoaded; }
+extern "C" unsigned pvrXformSkipped( void )  { return s_lastXformSkipped; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -619,7 +629,68 @@ struct pvrDrawCmd
     unsigned        argb;
     float           uScale;
     pvr_cull_mode_t cull;
+    // Sort key only. Collisions cost a redundant header, never a wrong one:
+    // the skip below compares the header words themselves.
+    unsigned        hdrKey;
 };
+
+static inline unsigned pvrHdrSortKey(const pvr_poly_hdr_t& h)
+{
+    return h.cmd ^ (h.mode1 * 3u) ^ (h.mode2 * 5u) ^ (h.mode3 * 7u);
+}
+
+// State carried across the draws of one list, reset when a list opens.
+static pvr_poly_hdr_t s_lastHdr;
+static bool           s_haveLastHdr = false;
+static shz_mat4x4_t   s_loadedXform;
+static bool           s_haveLastXform = false;
+
+static inline void pvrResetSubmitState( void )
+{
+    s_haveLastHdr = false;
+    s_haveLastXform = false;
+}
+
+static inline void pvrSubmitHeader(const pvr_poly_hdr_t& h)
+{
+    if (s_haveLastHdr
+        && s_lastHdr.cmd == h.cmd && s_lastHdr.mode1 == h.mode1
+        && s_lastHdr.mode2 == h.mode2 && s_lastHdr.mode3 == h.mode3)
+    {
+#if defined SRR2_DC_PROFILER
+        s_hdrSkipped++;
+#endif
+        return;
+    }
+
+    pvr_poly_hdr_t* dst = (pvr_poly_hdr_t*)pvr_dr_target();
+    *dst = h;
+    pvr_dr_commit(dst);
+
+    s_lastHdr = h;
+    s_haveLastHdr = true;
+#if defined SRR2_DC_PROFILER
+    s_hdrSubmitted++;
+#endif
+}
+
+static inline void pvrLoadXform(const shz_mat4x4_t& m)
+{
+    if (s_haveLastXform && memcmp(&s_loadedXform, &m, sizeof(shz_mat4x4_t)) == 0)
+    {
+#if defined SRR2_DC_PROFILER
+        s_xformSkipped++;
+#endif
+        return;
+    }
+
+    shz_xmtrx_load_4x4(&m);
+    s_loadedXform = m;
+    s_haveLastXform = true;
+#if defined SRR2_DC_PROFILER
+    s_xformLoaded++;
+#endif
+}
 
 static_assert(alignof(pvrDrawCmd) >= alignof(shz_mat4x4_t),
               "pvrDrawCmd must meet shz_mat4x4_t alignment for fmov.d");
@@ -1105,6 +1176,7 @@ public:
 
         pvrDrawCmd cmd;
         cmd.hdr = hdr;
+        cmd.hdrKey = pvrHdrSortKey(hdr);
         cmd.xform = ctx->GetViewProj();
         cmd.vp = ctx->GetViewportMap();
         cmd.buffer = NULL;
@@ -1121,13 +1193,9 @@ public:
 
     static void SubmitDeferred(const pvrDrawCmd& cmd)
     {
-        {
-            pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
-            *h = cmd.hdr;
-            pvr_dr_commit(h);
-        }
+        pvrSubmitHeader(cmd.hdr);
 
-        shz_xmtrx_load_4x4(&cmd.xform);
+        pvrLoadXform(cmd.xform);
 
         const pvrViewportMap vp = cmd.vp;
         const pddiPrimType primType = cmd.immPrim;
@@ -1351,6 +1419,10 @@ static void pvrRunDeferredLists()
     s_lastClipTriUs = s_phClipTri; s_phClipTri = 0;
     s_lastGenIters  = s_genIters;  s_genIters  = 0;
     s_lastGenWalkUs = s_phGenWalk; s_phGenWalk = 0;
+    s_lastHdrSubmitted = s_hdrSubmitted; s_hdrSubmitted = 0;
+    s_lastHdrSkipped   = s_hdrSkipped;   s_hdrSkipped   = 0;
+    s_lastXformLoaded  = s_xformLoaded;  s_xformLoaded  = 0;
+    s_lastXformSkipped = s_xformSkipped; s_xformSkipped = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -1367,8 +1439,20 @@ static void pvrRunDeferredLists()
         if (cmds.empty())
             continue;
 
+        // Opaque and punch-through are depth tested, so grouping them by
+        // material only changes how many headers the TA sees. Translucent is
+        // depth sorted by the engine and must keep the order it was given.
+        if (i != 2)
+        {
+            std::stable_sort(s_drawCmds[i].begin(), s_drawCmds[i].end(),
+                             [](const pvrDrawCmd& a, const pvrDrawCmd& b)
+                             { return a.hdrKey < b.hdrKey; });
+        }
+
         if (pvr_list_begin(kListOrder[i]) < 0)
             continue;
+
+        pvrResetSubmitState();
 
         for (size_t c = 0; c < cmds.size(); c++)
         {
@@ -2115,6 +2199,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 
     pvrDrawCmd cmd;
     cmd.hdr = hdr;
+    cmd.hdrKey = pvrHdrSortKey(hdr);
     if ((coordQ || inter) && !coord)
         context->BuildTransform(qScale, qBias, &cmd.xform);
     else
@@ -2402,13 +2487,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     const float uScale = cmd.uScale;
     const bool flipV = true;
 
-    {
-        pvr_poly_hdr_t* h = (pvr_poly_hdr_t*)pvr_dr_target();
-        *h = cmd.hdr;
-        pvr_dr_commit(h);
-    }
+    pvrSubmitHeader(cmd.hdr);
 
-    shz_xmtrx_load_4x4(&cmd.xform);
+    pvrLoadXform(cmd.xform);
 
     const float uMul = uvScale[0] * uScale;
     const float uAdd = uvBias[0] * uScale;
