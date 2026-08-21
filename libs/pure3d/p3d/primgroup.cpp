@@ -7,6 +7,32 @@
 
 // Custom chunk carrying strip boundaries; see tools/p3dconv/meshsplit.py.
 #define P3D_DC_RUNLIST 0x44435253
+
+#ifdef RAD_DREAMCAST
+#include <sh4zam/shz_sh4zam.h>
+
+// rmt::Matrix is row major m[row][col]; shz_mat4x4_t is elem2D[col][row], so
+// reading one as the other is the transpose -- which is the convention the
+// skinning below already uses. ftrv then gives the position with w=1 and the
+// rotated normal with w=0, replacing a dozen multiplies each.
+//
+// Only the single bone case, which is the common one: a blended vertex needs a
+// different matrix per weight, and reloading XMTRX four times a vertex costs
+// more than the scalar path it would replace. The load is skipped while
+// consecutive vertices share a bone.
+// rmt::Matrix is alignas(8), so the pair-wise load applies. The check costs
+// one test per bone change, not per vertex, and an unaligned fmov.d raises an
+// address error on hardware that an emulator will not reproduce.
+static inline void dcSkinLoad(const rmt::Matrix* m)
+{
+    const float* f = &m->m[0][0];
+    if (((uintptr_t)f & 7u) == 0)
+        shz_xmtrx_load_4x4((const shz_mat4x4_t*)f);
+    else
+        shz_xmtrx_load_unaligned_4x4(f);
+}
+#define DC_SKIN_LOAD(m) dcSkinLoad(m)
+#endif
 #include <p3d/utility.hpp>
 #include <p3d/shader.hpp>
 #include <p3d/vertexlist.hpp>
@@ -520,10 +546,30 @@ void tPrimGroupSkinnedPC::Display(void)
 
 		stream = mBuffer->Lock( );
 
+#ifdef RAD_DREAMCAST
+		const Matrix* dcLoaded = NULL;
+#endif
         for(int i = 0; i < count; i++){
             // fetch first bone index			
             Matrix* m = matrixPalette[verts[i].indices[0]];
 
+#ifdef RAD_DREAMCAST
+            if(verts[i].weights[0] == 1.0f)
+            {
+                if(m != dcLoaded) { DC_SKIN_LOAD(m); dcLoaded = m; }
+
+                const Vector* sv = &verts[i].position;
+                const shz_vec4_t p = shz_xmtrx_transform_vec4(
+                    shz_vec4_init(sv->x, sv->y, sv->z, 1.0f));
+                const shz_vec4_t nn = shz_xmtrx_transform_vec4(
+                    shz_vec4_init(verts[i].normal.x, verts[i].normal.y,
+                                  verts[i].normal.z, 0.0f));
+
+                stream->Normal( nn.x, nn.y, nn.z );
+                stream->Position( p.x, p.y, p.z );
+                continue;
+            }
+#endif
             // compute normal
             // note that we only use the first bone index - normals aren't weighted
             Vector normal;
@@ -571,10 +617,26 @@ void tPrimGroupSkinnedPC::Display(void)
 	else{			//no normal blend the position only
 
 		stream = mBuffer->Lock( );
+#ifdef RAD_DREAMCAST
+		const Matrix* dcLoaded = NULL;
+#endif
 		for(int i = 0; i < count; i++){
 			// fetch first bone index
 			Matrix* m = matrixPalette[verts[i].indices[0]];
 
+#ifdef RAD_DREAMCAST
+			if(verts[i].weights[0] == 1.0f)
+			{
+				if(m != dcLoaded) { DC_SKIN_LOAD(m); dcLoaded = m; }
+
+				const Vector* sv = &verts[i].position;
+				const shz_vec4_t p = shz_xmtrx_transform_vec4(
+					shz_vec4_init(sv->x, sv->y, sv->z, 1.0f));
+
+				stream->Position( p.x, p.y, p.z );
+				continue;
+			}
+#endif
 			// compute weighted skin co-ordinate
 			Vector vertex;
 			Vector* sv = &verts[i].position;

@@ -15,8 +15,15 @@ namespace RadicalMathLibrary
 {
 
 // 4x4 matrix
+#ifdef RAD_DREAMCAST
+// Eight byte aligned so it can be handed straight to the SH4 matrix load,
+// which moves the sixteen floats as fmov.d pairs.
+class alignas(8) Matrix
+{
+#else
 class Matrix
 {
+#endif
 public:
     friend class Vector;
     friend class Vector4;
