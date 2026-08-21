@@ -58,6 +58,9 @@ extern "C" unsigned pvrHdrSubmitted( void );
 extern "C" unsigned pvrHdrSkipped( void );
 extern "C" unsigned pvrXformLoaded( void );
 extern "C" unsigned pvrXformSkipped( void );
+extern "C" unsigned pvrLitDraws( void );
+extern "C" unsigned pvrLitVerts( void );
+extern "C" unsigned pvrLightCount( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -487,6 +490,8 @@ void Profiler::DumpToSerial()
     printf( "[prof] headers %u sent, %u skipped; xmtrx %u loaded, %u skipped\n",
             pvrHdrSubmitted(), pvrHdrSkipped(),
             pvrXformLoaded(), pvrXformSkipped() );
+    printf( "[prof] lighting: %u draws, %u vertices, %u lights\n",
+            pvrLitDraws(), pvrLitVerts(), pvrLightCount() );
 
 #ifdef RAD_DREAMCAST
     {

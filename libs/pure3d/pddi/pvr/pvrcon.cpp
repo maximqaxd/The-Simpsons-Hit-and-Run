@@ -179,6 +179,12 @@ extern "C" unsigned pvrHdrSubmitted( void )  { return s_lastHdrSubmitted; }
 extern "C" unsigned pvrHdrSkipped( void )    { return s_lastHdrSkipped; }
 extern "C" unsigned pvrXformLoaded( void )   { return s_lastXformLoaded; }
 extern "C" unsigned pvrXformSkipped( void )  { return s_lastXformSkipped; }
+// Whether the light pass is running at all, and on how much.
+static unsigned s_litVerts = 0, s_litDraws = 0, s_lightCount = 0;
+static unsigned s_lastLitVerts = 0, s_lastLitDraws = 0, s_lastLightCount = 0;
+extern "C" unsigned pvrLitVerts( void )   { return s_lastLitVerts; }
+extern "C" unsigned pvrLitDraws( void )   { return s_lastLitDraws; }
+extern "C" unsigned pvrLightCount( void ) { return s_lastLightCount; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1452,6 +1458,9 @@ static void pvrRunDeferredLists()
     s_lastHdrSkipped   = s_hdrSkipped;   s_hdrSkipped   = 0;
     s_lastXformLoaded  = s_xformLoaded;  s_xformLoaded  = 0;
     s_lastXformSkipped = s_xformSkipped; s_xformSkipped = 0;
+    s_lastLitVerts = s_litVerts;   s_litVerts = 0;
+    s_lastLitDraws = s_litDraws;   s_litDraws = 0;
+    s_lastLightCount = s_lightCount;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2394,6 +2403,54 @@ static void LightInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src,
     }
 }
 
+template <unsigned Lights>
+static void LightPacked(pvr_vertex_t* pkt, const signed char* nrm,
+                        unsigned n, const pvrLightSet& ls, unsigned alpha)
+{
+    const float sc = 1.0f / 127.0f;
+
+    for (unsigned i = 0; i < n; i++)
+    {
+        const shz_vec4_t d = shz_xmtrx_transform_vec4(
+            shz_vec4_init((float)nrm[i * 3 + 0] * sc,
+                          (float)nrm[i * 3 + 1] * sc,
+                          (float)nrm[i * 3 + 2] * sc, 0.0f));
+
+        float r = ls.ambR, g = ls.ambG, b = ls.ambB;
+
+        if (Lights > 0 && d.x > 0.0f) { r += d.x * ls.r[0]; g += d.x * ls.g[0]; b += d.x * ls.b[0]; }
+        if (Lights > 1 && d.y > 0.0f) { r += d.y * ls.r[1]; g += d.y * ls.g[1]; b += d.y * ls.b[1]; }
+        if (Lights > 2 && d.z > 0.0f) { r += d.z * ls.r[2]; g += d.z * ls.g[2]; b += d.z * ls.b[2]; }
+        if (Lights > 3 && d.w > 0.0f) { r += d.w * ls.r[3]; g += d.w * ls.g[3]; b += d.w * ls.b[3]; }
+
+        if (r > 255.0f) r = 255.0f;
+        if (g > 255.0f) g = 255.0f;
+        if (b > 255.0f) b = 255.0f;
+
+        pkt[i].argb = alpha
+                    | ((unsigned)(int)r << 16)
+                    | ((unsigned)(int)g << 8)
+                    |  (unsigned)(int)b;
+    }
+}
+
+static void RunLightPassPacked(pvr_vertex_t* pkt, const signed char* nrm, unsigned n,
+                               const pvrLightSet& ls, unsigned argb)
+{
+    const unsigned alpha = argb & 0xFF000000u;
+
+    shz_xmtrx_load_4x4(&ls.dir);
+
+    switch (ls.count)
+    {
+        case 0:  LightPacked<0>(pkt, nrm, n, ls, alpha); break;
+        case 1:  LightPacked<1>(pkt, nrm, n, ls, alpha); break;
+        case 2:  LightPacked<2>(pkt, nrm, n, ls, alpha); break;
+        case 3:  LightPacked<3>(pkt, nrm, n, ls, alpha); break;
+        default: LightPacked<4>(pkt, nrm, n, ls, alpha); break;
+    }
+}
+
 static void RunLightPass(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
                          const pvrLightSet& ls, unsigned argb)
 {
@@ -2757,8 +2814,14 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             {
                 int argbMode = interColour ? 1 : 0;
 
-                if (interNormal && cmd.lightSet < s_lightSets.size())
+                if (interNormal && cmd.lightSet < s_lightSets.size()
+                    && s_lightSets[cmd.lightSet].count > 0)
                 {
+#if defined SRR2_DC_PROFILER
+                    s_litVerts += vcount;
+                    s_litDraws++;
+                    s_lightCount = s_lightSets[cmd.lightSet].count;
+#endif
                     RunLightPass(pkt, inter, vcount, s_lightSets[cmd.lightSet], cmd.argb);
                     pvrInvalidateXform();
                     pvrLoadXform(cmd.xform);
@@ -2779,6 +2842,22 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 }
             }
             else
+            {
+            bool lit = false;
+            if (!inter && normalQ && cmd.lightSet < s_lightSets.size()
+                && s_lightSets[cmd.lightSet].count > 0)
+            {
+#if defined SRR2_DC_PROFILER
+                s_litVerts += vcount;
+                s_litDraws++;
+                s_lightCount = s_lightSets[cmd.lightSet].count;
+#endif
+                RunLightPassPacked(pkt, normalQ, vcount, s_lightSets[cmd.lightSet], cmd.argb);
+                pvrInvalidateXform();
+                pvrLoadXform(cmd.xform);
+                lit = true;
+            }
+
             for (unsigned i = 0; i < vcount; i++)
             {
                 const shz_vec4_t p = clipPos(i);
@@ -2822,7 +2901,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     v.v = 0.0f;
                 }
 
-                if (inter)
+                if (lit)
+                {
+                    // already written by the light pass
+                }
+                else if (inter)
                 {
                     v.argb = interColour ? inter[i].argb : cmd.argb;
                 }
@@ -2838,6 +2921,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 }
 
                 v.oargb = 0;
+            }
             }
 
             PH_MARK(s_phXform);
