@@ -47,6 +47,9 @@ extern "C" unsigned pvrPhaseImmUs( void );
 extern "C" unsigned pvrClipDrawsFast( void );
 extern "C" unsigned pvrClipDrawsGeneric( void );
 extern "C" unsigned pvrLastVertexXformed( void );
+extern "C" unsigned pvrLastStripTris( void );
+extern "C" unsigned pvrLastClipTris( void );
+extern "C" unsigned pvrLastDeadTris( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -467,6 +470,8 @@ void Profiler::DumpToSerial()
     printf( "[prof] clip draws: %u fastpath straddling, %u never fastpath\n",
             pvrClipDrawsFast(), pvrClipDrawsGeneric() );
     printf( "[prof] vertices transformed: %u\n", pvrLastVertexXformed() );
+    printf( "[prof] clipped draws: %u tris in strips, %u clipped, %u dropped\n",
+            pvrLastStripTris(), pvrLastClipTris(), pvrLastDeadTris() );
 
 #ifdef RAD_DREAMCAST
     {

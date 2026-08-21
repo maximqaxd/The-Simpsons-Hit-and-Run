@@ -147,6 +147,14 @@ extern "C" unsigned pvrClipDrawsGeneric( void ) { return s_lastClipGeneric; }
 // which is not the same as the indices the strips reference.
 static unsigned s_vtxXformed = 0, s_lastVtxXformed = 0;
 extern "C" unsigned pvrLastVertexXformed( void ) { return s_lastVtxXformed; }
+// Inside a clipped draw, how much is strip work and how much actually reaches
+// the clipper. Decides whether keeping the strip alive through a partial
+// triangle is worth a state machine.
+static unsigned s_stripTris = 0, s_clipTris = 0, s_deadTris = 0;
+static unsigned s_lastStripTris = 0, s_lastClipTris = 0, s_lastDeadTris = 0;
+extern "C" unsigned pvrLastStripTris( void ) { return s_lastStripTris; }
+extern "C" unsigned pvrLastClipTris( void )  { return s_lastClipTris;  }
+extern "C" unsigned pvrLastDeadTris( void )  { return s_lastDeadTris;  }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1322,6 +1330,9 @@ static void pvrRunDeferredLists()
     s_lastClipFast = s_clipDrawsFast;       s_clipDrawsFast = 0;
     s_lastClipGeneric = s_clipDrawsGeneric; s_clipDrawsGeneric = 0;
     s_lastVtxXformed = s_vtxXformed;        s_vtxXformed = 0;
+    s_lastStripTris = s_stripTris; s_stripTris = 0;
+    s_lastClipTris  = s_clipTris;  s_clipTris  = 0;
+    s_lastDeadTris  = s_deadTris;  s_deadTris  = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2179,6 +2190,9 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
             // the clipper on its own, and the strip picks up after it.
             if (vis[a] || vis[b] || vis[c])
             {
+#if defined SRR2_DC_PROFILER
+                s_clipTris++;
+#endif
                 const unsigned odd = i & 1u;
                 const unsigned ix[3] = { a, odd ? c : b, odd ? b : c };
 
@@ -2192,6 +2206,12 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
                 }
                 ClipAndSubmitTriangle(vp, tri);
             }
+#if defined SRR2_DC_PROFILER
+            else
+            {
+                s_deadTris++;
+            }
+#endif
             i++;
             continue;
         }
@@ -2223,6 +2243,10 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
 
 #if defined SRR2_DC_PVR_TRACE
         s_tris += j - i;
+#endif
+#if defined SRR2_DC_PROFILER
+        if (CheckVis)
+            s_stripTris += j - i;
 #endif
         i = j;
     }
