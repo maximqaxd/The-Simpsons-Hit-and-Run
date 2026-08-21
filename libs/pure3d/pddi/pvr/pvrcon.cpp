@@ -1587,6 +1587,10 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , normal(NULL)
     , uv(NULL)
     , colour(NULL)
+    , inter(NULL)
+    , interCount(0)
+    , interUV(false)
+    , interColour(false)
     , allocated((unsigned)nVertex)
     , total(0)
     , indices(NULL)
@@ -1645,6 +1649,8 @@ pvrPrimBuffer::~pvrPrimBuffer()
         delete[] uvQ;
     if (colour)
         delete[] colour;
+    if (inter)
+        delete[] inter;
     if (indices)
         delete[] indices;
     if (stream)
@@ -1787,6 +1793,7 @@ void pvrPrimBuffer::QuantiseUVs()
 
 void pvrPrimBuffer::RestoreUVs()
 {
+    DropInterleaved();
     if (uv || !uvQ)
         return;
 
@@ -1803,6 +1810,7 @@ void pvrPrimBuffer::RestoreUVs()
 
 void pvrPrimBuffer::RestoreCoords()
 {
+    DropInterleaved();
     if (coord || !coordQ)
         return;
 
@@ -1817,8 +1825,112 @@ void pvrPrimBuffer::RestoreCoords()
     }
 }
 
+void pvrPrimBuffer::BuildInterleaved()
+{
+    if (inter || !coordQ || coordQCount == 0)
+        return;
+
+    const unsigned n = coordQCount;
+    pvrInterVert* p = new pvrInterVert[n];
+    if (!p)
+        return;
+
+    const bool haveUV  = uvQ && uvQCount >= n;
+    const bool haveCol = colour != NULL;
+
+    for (unsigned i = 0; i < n; i++)
+    {
+        p[i].x = coordQ[i * 3 + 0];
+        p[i].y = coordQ[i * 3 + 1];
+        p[i].z = coordQ[i * 3 + 2];
+        p[i].u = haveUV ? uvQ[i * 2 + 0] : (short)0;
+        p[i].v = haveUV ? uvQ[i * 2 + 1] : (short)0;
+        p[i].pad = 0;
+
+        if (haveCol)
+        {
+            const unsigned char* cc = &colour[i * 4];
+            p[i].argb = ((unsigned)cc[3] << 24) | ((unsigned)cc[0] << 16)
+                      | ((unsigned)cc[1] << 8) | (unsigned)cc[2];
+        }
+        else
+        {
+            p[i].argb = 0xFFFFFFFFu;
+        }
+    }
+
+    inter = p;
+    interCount = n;
+    interUV = haveUV;
+    interColour = haveCol;
+
+    delete[] coordQ; coordQ = NULL;
+    delete[] uvQ;    uvQ = NULL;
+    delete[] colour; colour = NULL;
+}
+
+// Hand the split arrays back. The stream writers call the Restore paths when
+// the engine rewrites a buffer, and those want the layout they were built for.
+void pvrPrimBuffer::DropInterleaved()
+{
+    if (!inter)
+        return;
+
+    if (!coordQ)
+    {
+        coordQ = new short[3 * (size_t)allocated];
+        if (coordQ)
+        {
+            for (unsigned i = 0; i < interCount; i++)
+            {
+                coordQ[i * 3 + 0] = inter[i].x;
+                coordQ[i * 3 + 1] = inter[i].y;
+                coordQ[i * 3 + 2] = inter[i].z;
+            }
+            coordQCount = interCount;
+        }
+    }
+
+    if (!uvQ && interUV)
+    {
+        uvQ = new short[2 * (size_t)allocated];
+        if (uvQ)
+        {
+            for (unsigned i = 0; i < interCount; i++)
+            {
+                uvQ[i * 2 + 0] = inter[i].u;
+                uvQ[i * 2 + 1] = inter[i].v;
+            }
+            uvQCount = interCount;
+        }
+    }
+
+    if (!colour && interColour)
+    {
+        colour = new unsigned char[4 * (size_t)allocated];
+        if (colour)
+        {
+            for (unsigned i = 0; i < interCount; i++)
+            {
+                const unsigned a = inter[i].argb;
+                colour[i * 4 + 0] = (unsigned char)(a >> 16);
+                colour[i * 4 + 1] = (unsigned char)(a >> 8);
+                colour[i * 4 + 2] = (unsigned char)a;
+                colour[i * 4 + 3] = (unsigned char)(a >> 24);
+            }
+        }
+    }
+
+    delete[] inter;
+    inter = NULL;
+    interCount = 0;
+    interUV = false;
+    interColour = false;
+}
+
 pddiPrimBufferStream* pvrPrimBuffer::Lock()
 {
+    DropInterleaved();
     total = 0;
     coordWritten = false;
     uvWritten = false;
@@ -1910,7 +2022,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 
     pvrDrawCmd cmd;
     cmd.hdr = hdr;
-    if (coordQ && !coord)
+    if ((coordQ || inter) && !coord)
         context->BuildTransform(qScale, qBias, &cmd.xform);
     else
         cmd.xform = context->GetViewProj();
@@ -1930,6 +2042,8 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 
 void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 {
+    BuildInterleaved();
+
     const float uScale = cmd.uScale;
     const bool flipV = true;
 
@@ -1948,12 +2062,16 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
     const pvrViewportMap vp = cmd.vp;
 
-    unsigned vcount = coordQ ? coordQCount : total;
+    unsigned vcount = inter ? interCount : (coordQ ? coordQCount : total);
     if (vcount == 0)
         vcount = allocated;
 
     auto clipPos = [&](unsigned i) -> shz_vec4_t
     {
+        if (inter)
+            return shz_xmtrx_transform_vec4(
+                shz_vec4_init((float)inter[i].x, (float)inter[i].y,
+                              (float)inter[i].z, 1.0f));
         return coord
             ? shz_xmtrx_transform_vec4(
                   shz_vec4_init(coord[i * 3 + 0], coord[i * 3 + 1], coord[i * 3 + 2], 1.0f))
@@ -1965,11 +2083,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     // Culling and the packet path only need positions and a bounding box --
     // neither cares whether the positions were quantised. Skinned characters
     // and vehicles keep float coords, and used to get neither.
-    if (bbValid && (coordQ || coord))
+    if (bbValid && (inter || coordQ || coord))
     {
         float lo[3], hi[3];
 
-        if (coordQ && !coord)
+        if ((coordQ || inter) && !coord)
         {
             // BuildTransform folded the dequantisation into cmd.xform, so in
             // that space the box corners are the int16 limits.
@@ -2037,7 +2155,12 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     v.z = iw;
                 }
 
-                if (uvQ)
+                if (inter)
+                {
+                    v.u = (float)inter[i].u * uMul + uAdd;
+                    v.v = (float)inter[i].v * vMul + vAdd;
+                }
+                else if (uvQ)
                 {
                     v.u = (float)uvQ[i * 2 + 0] * uMul + uAdd;
                     v.v = (float)uvQ[i * 2 + 1] * vMul + vAdd;
@@ -2053,7 +2176,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     v.v = 0.0f;
                 }
 
-                if (colour)
+                if (inter)
+                {
+                    v.argb = interColour ? inter[i].argb : cmd.argb;
+                }
+                else if (colour)
                 {
                     const unsigned char* cc = &colour[i * 4];
                     v.argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
@@ -2163,7 +2290,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
     }
 
-    if (vcount > 0 && (coord || coordQ) && pvrReserveVtxCache(vcount))
+    if (vcount > 0 && (coord || coordQ || inter) && pvrReserveVtxCache(vcount))
     {
         unsigned visAll = 1;
 #if defined SRR2_DC_PVR_TRACE
@@ -2196,6 +2323,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 c.u = uv[i * 2 + 0] * uScale;
                 c.v = flipV ? (1.0f - uv[i * 2 + 1]) : uv[i * 2 + 1];
             }
+            else if (inter)
+            {
+                c.u = (float)inter[i].u * uMul + uAdd;
+                c.v = (float)inter[i].v * vMul + vAdd;
+            }
             else if (uvQ)
             {
                 c.u = (float)uvQ[i * 2 + 0] * uMul + uAdd;
@@ -2207,7 +2339,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 c.v = 0.0f;
             }
 
-            if (colour)
+            if (inter)
+            {
+                c.argb = interColour ? inter[i].argb : cmd.argb;
+            }
+            else if (colour)
             {
                 const unsigned char* cc = &colour[i * 4];
                 c.argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
@@ -2338,6 +2474,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             tri[k].pos = coord
                 ? shz_xmtrx_transform_vec4(
                       shz_vec4_init(coord[vi * 3 + 0], coord[vi * 3 + 1], coord[vi * 3 + 2], 1.0f))
+                : inter
+                ? shz_xmtrx_transform_vec4(
+                      shz_vec4_init((float)inter[vi].x, (float)inter[vi].y,
+                                    (float)inter[vi].z, 1.0f))
                 : shz_xmtrx_transform_vec4(
                       shz_vec4_init((float)coordQ[vi * 3 + 0], (float)coordQ[vi * 3 + 1],
                                     (float)coordQ[vi * 3 + 2], 1.0f));
@@ -2346,6 +2486,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             {
                 tri[k].u = uv[vi * 2 + 0] * uScale;
                 tri[k].v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
+            }
+            else if (inter)
+            {
+                tri[k].u = (float)inter[vi].u * uMul + uAdd;
+                tri[k].v = (float)inter[vi].v * vMul + vAdd;
             }
             else if (uvQ)
             {
@@ -2358,7 +2503,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 tri[k].v = 0.0f;
             }
 
-            if (colour)
+            if (inter)
+            {
+                tri[k].argb = interColour ? inter[vi].argb : cmd.argb;
+            }
+            else if (colour)
             {
                 const unsigned char* c = &colour[vi * 4];
                 tri[k].argb = ((uint32_t)c[3] << 24) | ((uint32_t)c[0] << 16)

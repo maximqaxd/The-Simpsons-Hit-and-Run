@@ -147,6 +147,18 @@ protected:
     int displayW, displayH;
 };
 
+// One record per vertex instead of three parallel arrays. The submit loop
+// reads position, uv and colour for the same vertex back to back, so keeping
+// them together turns three streams into one and halves a cache line per two
+// vertices. 16 bytes against the 14 the split arrays cost.
+struct pvrInterVert
+{
+    short    x, y, z;
+    short    u, v;
+    short    pad;
+    unsigned argb;
+};
+
 class pvrPrimBufferStream;
 
 class pvrPrimBuffer : public pddiPrimBuffer
@@ -184,6 +196,9 @@ protected:
     int nStrips;
     int* strips;
 
+    void BuildInterleaved();
+    void DropInterleaved();
+
     void QuantiseCoords();
     void ComputeBounds();
     void RestoreCoords();
@@ -211,6 +226,13 @@ protected:
     bool uvWritten;
     unsigned uvQCount;
     unsigned char* colour;
+
+    // Built on first draw, once every chunk has been written; the three
+    // source arrays are released to it. NULL means float coords were kept.
+    pvrInterVert* inter;
+    unsigned interCount;
+    bool interUV;
+    bool interColour;
 
 
     unsigned allocated;
