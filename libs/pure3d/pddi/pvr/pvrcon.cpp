@@ -2173,7 +2173,7 @@ static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
     *visAll = all;
 }
 
-template <bool CheckVis, typename ClipPosFn>
+template <bool CheckVis, bool HasIdx, typename ClipPosFn>
 static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
                           const unsigned short* indices, unsigned n,
                           const pvrViewportMap& vp, ClipPosFn clipPos)
@@ -2186,9 +2186,9 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
         if (CheckVis)
             s_clipIters++;
 #endif
-        const unsigned a = indices ? indices[i]     : i;
-        const unsigned b = indices ? indices[i + 1] : i + 1;
-        const unsigned c = indices ? indices[i + 2] : i + 2;
+        const unsigned a = HasIdx ? indices[i]     : i;
+        const unsigned b = HasIdx ? indices[i + 1] : i + 1;
+        const unsigned c = HasIdx ? indices[i + 2] : i + 2;
 
         if (a == b || b == c || a == c)
         {
@@ -2234,12 +2234,12 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
             continue;
         }
 
-        unsigned j = i;
+        unsigned j = i + 1;
         while (j + 2 < n)
         {
-            const unsigned x = indices ? indices[j]     : j;
-            const unsigned y = indices ? indices[j + 1] : j + 1;
-            const unsigned z = indices ? indices[j + 2] : j + 2;
+            const unsigned x = HasIdx ? indices[j]     : j;
+            const unsigned y = HasIdx ? indices[j + 1] : j + 1;
+            const unsigned z = HasIdx ? indices[j + 2] : j + 2;
 
             if (x == y || y == z || x == z)
                 break;
@@ -2251,11 +2251,11 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
         const unsigned last = j + 1;
 
         if (i & 1u)
-            SubmitVert(oix, &pkt[indices ? indices[i] : i], PVR_CMD_VERTEX);
+            SubmitVert(oix, &pkt[HasIdx ? indices[i] : i], PVR_CMD_VERTEX);
 
         for (unsigned k = i; k <= last; k++)
         {
-            SubmitVert(oix, &pkt[indices ? indices[k] : k],
+            SubmitVert(oix, &pkt[HasIdx ? indices[k] : k],
                        (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
         }
 
@@ -2458,7 +2458,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
             if (visAll)
             {
-                EmitStripRuns<false>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
+                EmitStripRuns<false, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
                 PH_MARK(s_phEmit);
                 return;
             }
@@ -2469,7 +2469,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #if defined SRR2_DC_PROFILER
             s_clipDrawsFast++;
 #endif
-            EmitStripRuns<true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
+            EmitStripRuns<true, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
             PH_MARK(s_phClip);
             return;
         }
@@ -2554,7 +2554,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             // Same EOL run-splitting as the fused path: drop the exporter's
             // degenerate joins rather than feeding them to the TA.
             unsigned i = 0;
-            EmitStripRuns<false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
+            if (idx)
+                EmitStripRuns<false, true>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
+            else
+                EmitStripRuns<false, false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
             PH_MARK(s_phEmit);
             return;
         }
@@ -2607,7 +2610,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         }
         else if (primType == PDDI_PRIM_TRISTRIP)
         {
-            EmitStripRuns<true>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
+            if (idx)
+                EmitStripRuns<true, true>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
+            else
+                EmitStripRuns<true, false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
         }
         PH_MARK(s_phClip);
         return;
