@@ -6,15 +6,23 @@
 #include <pddi/pvr/pvr.hpp>
 #include <pddi/pvr/pvrdisplay.hpp>
 #include <pddi/base/debug.hpp>
+#include <pddi/pvr/pvroix.h>
 #include <string.h>
 
+#ifndef SRR_DC_OPB_OP
+#define SRR_DC_OPB_OP 16
+#endif
+#ifndef SRR_DC_OPB_OVERFLOW
+#define SRR_DC_OPB_OVERFLOW 4
+#endif
+
 pvr_init_params_t params = {
-	{ PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_8 },
+	{ SRR_DC_OPB_OP, PVR_BINSIZE_0, PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_8 },
 	2048 * 1024,   /* vertex buffer */
 	0,             /* dma disabled for TA  */
 	0,             /* fsaa off */
 	0,             /* keep PVR translucent autosort OFF  */
-	2            /* OPB count: start with 2*/
+	SRR_DC_OPB_OVERFLOW
 };
 
 pvrDisplay::pvrDisplay()
@@ -42,6 +50,7 @@ bool pvrDisplay::InitDisplay(const pddiDisplayInit* init)
     winHeight = init->ysize;
     winBitDepth = 16;  
     pvr_init( &params );
+    pvrOixInit();
     return true;
 }
 

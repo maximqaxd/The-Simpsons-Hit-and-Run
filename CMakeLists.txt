@@ -50,6 +50,10 @@ if(DREAMCAST)
 	add_compile_definitions(SRR_DC_DRAW_DIST=${SRR2_DC_DRAW_DIST}.0f)
 	set(SRR2_DC_MIN_DRAW_AREA "6" CACHE STRING "Reject draws smaller than this many screen pixels")
 	add_compile_definitions(SRR_DC_MIN_DRAW_AREA=${SRR2_DC_MIN_DRAW_AREA}.0f)
+	set(SRR2_DC_OPB_OP "16" CACHE STRING "Opaque list object pointer block size, in words")
+	add_compile_definitions(SRR_DC_OPB_OP=${SRR2_DC_OPB_OP})
+	set(SRR2_DC_OPB_OVERFLOW "4" CACHE STRING "Extra object pointer blocks the TA may spill into")
+	add_compile_definitions(SRR_DC_OPB_OVERFLOW=${SRR2_DC_OPB_OVERFLOW})
 	if(SRR2_DC_PVR_TRACE)
 		add_compile_definitions(SRR2_DC_PVR_TRACE)
 	endif()
@@ -1225,6 +1229,7 @@ if(DREAMCAST)
 	list(APPEND PDDI_SOURCES
 		"libs/pure3d/pddi/pvr/pvrdev.cpp"
 		"libs/pure3d/pddi/pvr/pvrcon.cpp"
+		"libs/pure3d/pddi/pvr/pvroix.c"
 		"libs/pure3d/pddi/pvr/pvrdisplay.cpp"
 		"libs/pure3d/pddi/pvr/pvrtex.cpp"
 		"libs/pure3d/pddi/pvr/pvrmat.cpp"

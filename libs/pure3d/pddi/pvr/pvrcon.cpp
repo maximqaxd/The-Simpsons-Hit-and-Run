@@ -10,6 +10,7 @@
 #include <pddi/pvr/pvrtex.hpp>
 #include <pddi/pvr/pvrmat.hpp>
 #include <pddi/pvr/pvrutil.hpp>
+#include <pddi/pvr/pvroix.h>
 #include <sh4zam/shz_sh4zam.h>
 
 #include <pddi/base/debug.hpp>
@@ -680,7 +681,7 @@ static bool pvrReserveVtxCache(unsigned count)
     return true;
 }
 
-static inline void SubmitPacket(const pvr_vertex_t& src, unsigned flags)
+static __attribute__((always_inline)) inline void SubmitPacket(const pvr_vertex_t& src, unsigned flags)
 {
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
@@ -691,7 +692,26 @@ static inline void SubmitPacket(const pvr_vertex_t& src, unsigned flags)
     pvr_dr_commit(v);
 }
 
-static inline void SubmitScreenVert(const pvrCacheVert& cv, unsigned flags)
+// Writing the flag word re-dirties the line, so a vertex referenced by
+// several indices is written back once per reference, as the TA needs.
+static __attribute__((always_inline)) inline void SubmitOix(pvr_vertex_t* v, unsigned flags)
+{
+#if defined SRR2_DC_PVR_TRACE
+    s_vtxEmit++;
+#endif
+    v->flags = flags;
+    __asm__ __volatile__("ocbwb @%0" : : "r" (v) : "memory");
+}
+
+static __attribute__((always_inline)) inline void SubmitVert(bool oix, pvr_vertex_t* v, unsigned flags)
+{
+    if (oix)
+        SubmitOix(v, flags);
+    else
+        SubmitPacket(*v, flags);
+}
+
+static __attribute__((always_inline)) inline void SubmitScreenVert(const pvrCacheVert& cv, unsigned flags)
 {
 #if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
@@ -1078,11 +1098,13 @@ public:
             && (primType == PDDI_PRIM_TRIANGLES || primType == PDDI_PRIM_TRISTRIP)
             && pvrReserveVtxCache((unsigned)count) && s_vtxPkt && s_vtxVis)
         {
+            const bool oix = (pvrOixWindow != NULL) && ((unsigned)count <= PVR_OIX_VERTS);
+            pvr_vertex_t* const pkt = oix ? (pvr_vertex_t*)pvrOixWindow : s_vtxPkt;
             unsigned allVis = 1;
 
             for (size_t i = 0; i < count; i++)
             {
-                pvr_vertex_t& v = s_vtxPkt[i];
+                pvr_vertex_t& v = pkt[i];
 
                 const shz_vec4_t p = shz_xmtrx_transform_vec4(
                     shz_vec4_init(verts[i].x, verts[i].y, verts[i].z, 1.0f));
@@ -1113,17 +1135,16 @@ public:
                 {
                     for (size_t i = 0; i < count; i++)
                     {
-                        SubmitPacket(s_vtxPkt[i],
-                                     (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                        SubmitVert(oix, &pkt[i], (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
                     }
                 }
                 else
                 {
                     for (size_t i = 0; i + 2 < count; i += 3)
                     {
-                        SubmitPacket(s_vtxPkt[i], PVR_CMD_VERTEX);
-                        SubmitPacket(s_vtxPkt[i + 1], PVR_CMD_VERTEX);
-                        SubmitPacket(s_vtxPkt[i + 2], PVR_CMD_VERTEX_EOL);
+                        SubmitVert(oix, &pkt[i], PVR_CMD_VERTEX);
+                        SubmitVert(oix, &pkt[i + 1], PVR_CMD_VERTEX);
+                        SubmitVert(oix, &pkt[i + 2], PVR_CMD_VERTEX_EOL);
                     }
                 }
                 return;
@@ -1252,6 +1273,8 @@ static void pvrRunDeferredLists()
     const uint64_t replayStart = timer_us_gettime64();
 #endif
 
+    pvrOixEnter();
+
     for (int i = 0; i < 3; i++)
     {
         const std::vector<pvrDrawCmd>& cmds = s_drawCmds[i];
@@ -1284,6 +1307,8 @@ static void pvrRunDeferredLists()
 
         pvr_list_finish();
     }
+    pvrOixLeave();
+
 #if defined SRR2_DC_PVR_TRACE
     s_replayUs = timer_us_gettime64() - replayStart;
 #endif
@@ -1957,6 +1982,8 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         if (primType == PDDI_PRIM_TRISTRIP && indexCount && indices && indexCount >= 3
             && vcount > 0 && pvrReserveVtxCache(vcount) && s_vtxPkt && s_vtxVis)
         {
+            const bool oix = (pvrOixWindow != NULL) && ((unsigned)vcount <= PVR_OIX_VERTS);
+            pvr_vertex_t* const pkt = oix ? (pvr_vertex_t*)pvrOixWindow : s_vtxPkt;
             const bool inFront = (box == kBoxInFront);
             unsigned visAll = 1;
 #if defined SRR2_DC_PROFILER
@@ -1979,7 +2006,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 s_vtxVis[i] = (unsigned char)vis;
                 visAll &= vis;
 
-                pvr_vertex_t& v = s_vtxPkt[i];
+                pvr_vertex_t& v = pkt[i];
                 v.flags = PVR_CMD_VERTEX;
 
                 if (vis)
@@ -2046,12 +2073,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     const unsigned last = j + 1;
 
                     if (i & 1u)
-                        SubmitPacket(s_vtxPkt[indices[i]], PVR_CMD_VERTEX);
+                        SubmitVert(oix, &pkt[indices[i]], PVR_CMD_VERTEX);
 
                     for (unsigned k = i; k <= last; k++)
                     {
-                        SubmitPacket(s_vtxPkt[indices[k]],
-                                     (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                        SubmitVert(oix, &pkt[indices[k]], (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
                     }
 
 #if defined SRR2_DC_PVR_TRACE
@@ -2089,15 +2115,15 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     if (cmd.cull != PVR_CULLING_NONE)
                     {
                         const float area =
-                            (s_vtxPkt[b].x - s_vtxPkt[a].x) * (s_vtxPkt[c].y - s_vtxPkt[a].y)
-                          - (s_vtxPkt[c].x - s_vtxPkt[a].x) * (s_vtxPkt[b].y - s_vtxPkt[a].y);
+                            (pkt[b].x - pkt[a].x) * (pkt[c].y - pkt[a].y)
+                          - (pkt[c].x - pkt[a].x) * (pkt[b].y - pkt[a].y);
                         if (cmd.cull == PVR_CULLING_CCW && area * kBackfaceSign > 0.0f) continue;
                         if (cmd.cull == PVR_CULLING_CW  && area * kBackfaceSign < 0.0f) continue;
                     }
 
-                    SubmitPacket(s_vtxPkt[a], PVR_CMD_VERTEX);
-                    SubmitPacket(s_vtxPkt[b], PVR_CMD_VERTEX);
-                    SubmitPacket(s_vtxPkt[c], PVR_CMD_VERTEX_EOL);
+                    SubmitVert(oix, &pkt[a], PVR_CMD_VERTEX);
+                    SubmitVert(oix, &pkt[b], PVR_CMD_VERTEX);
+                    SubmitVert(oix, &pkt[c], PVR_CMD_VERTEX_EOL);
                     continue;
                 }
 
@@ -2106,9 +2132,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 for (int k = 0; k < 3; k++)
                 {
                     tri[k].pos  = clipPos(ix[k]);
-                    tri[k].u    = s_vtxPkt[ix[k]].u;
-                    tri[k].v    = s_vtxPkt[ix[k]].v;
-                    tri[k].argb = s_vtxPkt[ix[k]].argb;
+                    tri[k].u    = pkt[ix[k]].u;
+                    tri[k].v    = pkt[ix[k]].v;
+                    tri[k].argb = pkt[ix[k]].argb;
                 }
                 ClipAndSubmitTriangle(vp, tri);
             }
