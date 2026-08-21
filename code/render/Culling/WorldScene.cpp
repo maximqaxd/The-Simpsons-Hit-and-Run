@@ -138,6 +138,10 @@ bool gTestShader( IEntityDSG* arg1, IEntityDSG* arg2 )
 #include <stdio.h>
 static unsigned s_cullTested = 0;
 static unsigned s_cullRejected = 0;
+static unsigned s_lastCullTested = 0;
+static unsigned s_lastCullRejected = 0;
+extern "C" unsigned srrLastCullTested( void )   { return s_lastCullTested; }
+extern "C" unsigned srrLastCullRejected( void ) { return s_lastCullRejected; }
 #define SRR_CULL_TESTED()   s_cullTested++
 #define SRR_CULL_REJECTED() s_cullRejected++
 #else
@@ -146,7 +150,15 @@ static unsigned s_cullRejected = 0;
 #endif
 
 #ifdef RAD_DREAMCAST
-static const float SRR_DRAW_DIST = 100.0f;
+//
+// The camera-visibility test uses a sphere of SRR_DRAW_DIST/2 centred that
+// far ahead, so this is the one knob that scales how much geometry reaches
+// the submit path. Tunable from cmake via SRR2_DC_DRAW_DIST.
+//
+#ifndef SRR_DC_DRAW_DIST
+#define SRR_DC_DRAW_DIST 70.0f
+#endif
+static const float SRR_DRAW_DIST = SRR_DC_DRAW_DIST;
 #else
 static const float SRR_DRAW_DIST = 200.0f;
 #endif
@@ -1483,14 +1495,8 @@ BEGIN_PROFILE("list construction")
 //    rAssert(DebugRenderNodeCount<1000);
 END_PROFILE("list construction")
 #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
-    printf( "[cull] nodes %d | tested %u rejected %u drawn %u | zsort %u pass2 %u shadow %u\n",
-            DebugRenderNodeCount,
-            s_cullTested,
-            s_cullRejected,
-            s_cullTested - s_cullRejected,
-            (unsigned)mpZSorts.size(),
-            (unsigned)mpZSortsPass2.size(),
-            (unsigned)mpZSortsPassShadowCasters.size() );
+    s_lastCullTested = s_cullTested;
+    s_lastCullRejected = s_cullRejected;
     s_cullTested = 0;
     s_cullRejected = 0;
 #endif

@@ -32,8 +32,13 @@
 #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
 #include <dc/maple.h>
 #include <dc/maple/controller.h>
+#include <stdio.h>
 extern "C" unsigned pvrLastDrawCount( void );
-extern "C" void pvrSetSkipScene( int on );
+extern "C" unsigned pvrLastBoxCulled( void );
+extern "C" unsigned pvrLastFusedDraws( void );
+extern "C" unsigned pvrLastVertexEstimate( void );
+extern "C" unsigned srrLastCullTested( void );
+extern "C" unsigned srrLastCullRejected( void );
 #endif
 #include <memory/srrmemory.h>
 
@@ -50,12 +55,12 @@ extern "C" void pvrSetSkipScene( int on );
 Profiler* Profiler::spInstance = NULL;
 
 int Profiler::sRed = 0;
-int Profiler::sGreen = 255;
+int Profiler::sGreen = 0;
 int Profiler::sBlue = 0;
 int Profiler::sPage = 0;
 int Profiler::sLeftOffset = 0;
 int Profiler::sTopOffset = 0;
-bool Profiler::sDisplay = true;
+bool Profiler::sDisplay = false;
 bool Profiler::sDumpToOutput = false;
 bool Profiler::sEnableCollection = true;
 
@@ -213,10 +218,15 @@ void Profiler::BeginFrame()
     mOpenSampleStore->RemoveAll();
 
     //
-    // Only collect profile data if we're actually going to show it on the screen.
-    // Check it here so that we don't turn it on/off in mid-sample.
+    // Keep collecting whether or not the overlay is drawn: the serial
+    // dump needs samples and the overlay is off by default. Checked here
+    // so it never changes mid-sample.
     //
-    sEnableCollection = sDisplay;
+    #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+        sEnableCollection = true;
+    #else
+        sEnableCollection = sDisplay;
+    #endif
 }
 
 
@@ -403,6 +413,76 @@ void Profiler::EndProfile( const char* name )
 // Return:      
 //
 //==============================================================================
+//
+// Draw twice: a light offset copy first, then the text over it. The
+// overlay sits on top of whatever the game is drawing, so one flat
+// colour is unreadable against either a bright scene or a dark panel.
+//
+static void DrawShadowed( const char* text, int x, int y, tColour colour )
+{
+    p3d::pddi->DrawString( text, x + 1, y + 1, tColour( 230, 230, 230 ) );
+    p3d::pddi->DrawString( text, x, y, colour );
+}
+
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+//
+// Dump the whole sample tree to the serial line on a keypress. The on-screen
+// overlay costs several ms a frame and only fits 15 rows; this costs nothing
+// until asked for and prints everything.
+//
+// Values are formatted as integers on purpose: this is built -m4-single-only,
+// so double is 32-bit and passing several floats through varargs desyncs
+// newlib printf argument slots.
+//
+void Profiler::DumpToSerial()
+{
+    printf( "[prof] ---- frame %u us, %u samples, %u draws ----\n",
+            (unsigned int)( mFrameRate * 1000.0f ),
+            mNextSampleAllocIndex,
+            pvrLastDrawCount() );
+
+    // The whole rejection chain in one place: how many entities the cone
+    // test saw and threw out, then how many prim groups survived to become
+    // draws and how many of those the AABB test rejected outright.
+    printf( "[prof] cull: entities %u tested, %u rejected -> %u drawn\n",
+            srrLastCullTested(), srrLastCullRejected(),
+            srrLastCullTested() - srrLastCullRejected() );
+    printf( "[prof] draw: %u submitted, %u boxculled, %u fast path\n",
+            pvrLastDrawCount(), pvrLastBoxCulled(), pvrLastFusedDraws() );
+    printf( "[prof] fast-path vertices: %u\n", pvrLastVertexEstimate() );
+
+    unsigned int i = 0;
+    while( ( i < mNextSampleAllocIndex ) && mSamples[ i ].bValid )
+    {
+        float ave, mn, mx, sample, total;
+        GetProfileHistory( mSamples[ i ].uid, &ave, &mn, &mx, &sample, &total );
+
+        if( ave < 0.0f )    ave = 0.0f;
+        if( total < 0.0f )  total = 0.0f;
+
+        char indent[ MAX_PROFILER_DEPTH + 1 ];
+        unsigned int d = mSamples[ i ].iNumParents;
+        if( d > MAX_PROFILER_DEPTH )
+        {
+            d = MAX_PROFILER_DEPTH;
+        }
+        memset( indent, ' ', d );
+        indent[ d ] = '\0';
+
+        const unsigned int pct   = (unsigned int)( ave * 10.0f );
+        const unsigned int totUs = (unsigned int)( total * 1000.0f );
+
+        // Split rather than one wide format: keep each call to a couple
+        // of conversions so a long row cannot be truncated part way.
+        printf( "[prof] %3u.%01u%% %8u us x%u ",
+                pct / 10u, pct % 10u, totUs,
+                (unsigned int)mSamples[ i ].iProfileInstances );
+        printf( "%s%s\n", indent, mSamples[ i ].szName );
+        i++;
+    }
+}
+#endif
+
 void Profiler::Render(void)
 {
     const int LEFT = 10;
@@ -410,41 +490,33 @@ void Profiler::Render(void)
 
 #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
     {
-        static bool pageArmed = false;
+        static bool armed = false;
+        bool pressed = false;
 
+        // Controller only. Polling an attached keyboard here stalled the
+        // game -- if it reports a key as held, the dump fires every frame
+        // and floods the serial line.
+        //
+        // Both triggers plus X: every button is bound in play, so this
+        // needs a combination that cannot happen by accident.
         maple_device_t* pad = maple_enum_type( 0, MAPLE_FUNC_CONTROLLER );
-        cont_state_t* st = pad ? (cont_state_t*)maple_dev_status( pad ) : NULL;
-
-        const bool left  = st && ( st->ltrig > 128 );
-        const bool right = st && ( st->rtrig > 128 );
-
-        // Y toggles the overlay: it costs real frame time, so a true
-        // baseline needs it off.
-        static bool hideArmed = false;
-        const bool hide = st && ( st->buttons & CONT_Y );
-        if( hide && !hideArmed )
+        if( pad != NULL )
         {
-            sDisplay = !sDisplay;
-        }
-        hideArmed = hide;
-
-        // Hold X to drop all scene geometry and leave everything else running:
-        // isolates how much of the frame is actually vertex submission.
-        pvrSetSkipScene( st && ( st->buttons & CONT_X ) );
-
-        if( ( left || right ) && !pageArmed )
-        {
-            const int pages = 1 + ( ( (int)mNextSampleAllocIndex - 1 ) / NUM_VISIBLE_LINES );
-
-            sPage += right ? 1 : -1;
-
-            if( sPage >= pages ) sPage = 0;
-            if( sPage < 0 ) sPage = pages - 1;
+            cont_state_t* cs = (cont_state_t*)maple_dev_status( pad );
+            if( cs != NULL && cs->ltrig > 200 && cs->rtrig > 200 && ( cs->buttons & CONT_X ) )
+            {
+                pressed = true;
+            }
         }
 
-        pageArmed = left || right;
+        if( pressed && !armed )
+        {
+            DumpToSerial();
+        }
+        armed = pressed;
     }
 #endif
+
     
     if( !sDisplay )
     {
@@ -477,44 +549,44 @@ void Profiler::Render(void)
 //    tColour SHADOW_COLOUR(0,0,0);
     tColour stringColour = tColour(sRed, sGreen, sBlue);
 /*    
-    p3d::pddi->DrawString( fps, 
+    DrawShadowed( fps, 
                            LEFT + sLeftOffset + SHADOW_OFFSET, 
                            TOP + sTopOffset + SHADOW_OFFSET, 
                            SHADOW_COLOUR );
     
-    p3d::pddi->DrawString( "-------------------------------------------------------------------",
+    DrawShadowed( "-------------------------------------------------------------------",
                            LEFT + sLeftOffset + SHADOW_OFFSET,
                            20 + TOP + sTopOffset + SHADOW_OFFSET,
                            SHADOW_COLOUR);
 
-    p3d::pddi->DrawString( "Ave(%)\t| Single\t| #\t| Total\t| Profile Name\n", 
+    DrawShadowed( "Ave(%)\t| Single\t| #\t| Total\t| Profile Name\n", 
                            LEFT + sLeftOffset + SHADOW_OFFSET, 
                            40 + TOP + sTopOffset + SHADOW_OFFSET,
                            SHADOW_COLOUR );
     
-    p3d::pddi->DrawString( "-------------------------------------------------------------------",
+    DrawShadowed( "-------------------------------------------------------------------",
                            LEFT + sLeftOffset + SHADOW_OFFSET, 
                            60 + TOP + sTopOffset + SHADOW_OFFSET,
                            SHADOW_COLOUR);
 */
     
     
-    p3d::pddi->DrawString( fps,
+    DrawShadowed( fps,
                            LEFT + sLeftOffset, 
                            TOP + sTopOffset,
                            stringColour);
     
-    p3d::pddi->DrawString( "-------------------------------------------------------------------",
+    DrawShadowed( "-------------------------------------------------------------------",
                            LEFT + sLeftOffset, 
                            20 + TOP + sTopOffset,
                            stringColour );
 
-    p3d::pddi->DrawString( "Ave(%)\t| Single\t| #\t| Total\t| Profile Name\n", 
+    DrawShadowed( "Ave(%)\t| Single\t| #\t| Total\t| Profile Name\n", 
                            LEFT + sLeftOffset, 
                            40 + TOP + sTopOffset,
                            stringColour );
 
-    p3d::pddi->DrawString( "-------------------------------------------------------------------",
+    DrawShadowed( "-------------------------------------------------------------------",
                            LEFT + sLeftOffset, 
                            60 + TOP + sTopOffset,
                            stringColour );
@@ -561,7 +633,7 @@ void Profiler::Render(void)
 //                               80 + TOP + ((i % NUM_VISIBLE_LINES)*20) + sTopOffset + SHADOW_OFFSET, 
 //                               SHADOW_COLOUR);
         
-        p3d::pddi->DrawString( line,
+        DrawShadowed( line,
                                LEFT + sLeftOffset, 
                                80 + TOP + ((i % NUM_VISIBLE_LINES)*20) + sTopOffset, 
                                stringColour);

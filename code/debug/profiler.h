@@ -130,6 +130,10 @@ class Profiler
 
         void Render();
 
+#if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+        void DumpToSerial();
+#endif
+
         //
         // Watcher tunable
         //
