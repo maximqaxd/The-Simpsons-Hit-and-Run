@@ -632,6 +632,7 @@ struct pvrDrawCmd
     // Sort key only. Collisions cost a redundant header, never a wrong one:
     // the skip below compares the header words themselves.
     unsigned        hdrKey;
+    unsigned        lightSet;
 };
 
 static inline unsigned pvrHdrSortKey(const pvr_poly_hdr_t& h)
@@ -648,6 +649,11 @@ static bool           s_haveLastXform = false;
 static inline void pvrResetSubmitState( void )
 {
     s_haveLastHdr = false;
+    s_haveLastXform = false;
+}
+
+static inline void pvrInvalidateXform( void )
+{
     s_haveLastXform = false;
 }
 
@@ -877,6 +883,9 @@ struct pvrImmVert
 };
 
 static std::vector<pvrDrawCmd>  s_drawCmds[3];
+// Most draws share a light set, so they are pooled and referenced by index
+// rather than copied into every command.
+static std::vector<pvrLightSet> s_lightSets;
 static std::vector<pvrImmVert>  s_immVerts;
 
 
@@ -1177,6 +1186,7 @@ public:
         pvrDrawCmd cmd;
         cmd.hdr = hdr;
         cmd.hdrKey = pvrHdrSortKey(hdr);
+        cmd.lightSet = ~0u;
         cmd.xform = ctx->GetViewProj();
         cmd.vp = ctx->GetViewportMap();
         cmd.buffer = NULL;
@@ -1381,8 +1391,27 @@ private:
 
 static pvrImmediatePrimStream g_imStream;
 
+// Only groups that carry normals are lit, and consecutive draws almost always
+// share their lights, so the pool usually ends a frame one or two entries long.
+static unsigned pvrPoolLightSet(const pvrContext* ctx)
+{
+    pvrLightSet ls;
+    const_cast<pvrContext*>(ctx)->BuildLightSet(&ls);
+
+    if (!s_lightSets.empty()
+        && memcmp(&s_lightSets.back(), &ls, sizeof(pvrLightSet)) == 0)
+    {
+        return (unsigned)(s_lightSets.size() - 1);
+    }
+
+    s_lightSets.push_back(ls);
+    return (unsigned)(s_lightSets.size() - 1);
+}
+
 static void pvrResetDeferredLists()
 {
+    s_lightSets.clear();
+
     for (int i = 0; i < 3; i++)
     {
         for (size_t c = 0; c < s_drawCmds[i].size(); c++)
@@ -1630,8 +1659,65 @@ bool pvrContext::VerifyExtension(unsigned extID)
     return false;
 }
 
-void pvrContext::SetupHardwareLight(int)
+void pvrContext::SetupHardwareLight(int handle)
 {
+    if (handle < 0 || handle >= PDDI_MAX_LIGHTS)
+        return;
+
+    // Lights are set before any model matrix is pushed, so the stack top here
+    // is the view matrix. Keeping it per light means a light set while a
+    // different camera was current still resolves correctly.
+    lightView[handle] = *state.matrixStack[PDDI_MATRIX_MODELVIEW]->Top();
+}
+
+// Rows of out->dir become the object-space directions of up to four enabled
+// directional lights, ready for a single ftrv per normal.
+unsigned pvrContext::BuildLightSet(pvrLightSet* out) const
+{
+    const pddiColour amb = state.lightingState->ambient;
+    out->ambR = (float)amb.Red();
+    out->ambG = (float)amb.Green();
+    out->ambB = (float)amb.Blue();
+
+    rmt::Matrix inv;
+    inv.Transpose(*state.matrixStack[PDDI_MATRIX_MODELVIEW]->Top());
+
+    unsigned n = 0;
+    for (int i = 0; i < PDDI_MAX_LIGHTS && n < 4; i++)
+    {
+        const pddiLight& l = state.lightingState->light[i];
+        if (!l.enabled || l.type != PDDI_LIGHT_DIRECTIONAL)
+            continue;
+
+        rmt::Vector v;
+        v.Rotate(l.worldDirection, lightView[i]);   // world -> view
+        rmt::Vector o;
+        o.Rotate(v, inv);                           // view -> object
+
+        // Stored negated: the diffuse term wants the direction towards the
+        // light, and worldDirection points the way the light travels.
+        out->dir.elem2D[0][n] = -o.x;
+        out->dir.elem2D[1][n] = -o.y;
+        out->dir.elem2D[2][n] = -o.z;
+        out->dir.elem2D[3][n] = 0.0f;
+
+        out->r[n] = (float)l.colour.Red()   * l.intensity;
+        out->g[n] = (float)l.colour.Green() * l.intensity;
+        out->b[n] = (float)l.colour.Blue()  * l.intensity;
+        n++;
+    }
+
+    for (unsigned i = n; i < 4; i++)
+    {
+        out->dir.elem2D[0][i] = 0.0f;
+        out->dir.elem2D[1][i] = 0.0f;
+        out->dir.elem2D[2][i] = 0.0f;
+        out->dir.elem2D[3][i] = 0.0f;
+        out->r[i] = out->g[i] = out->b[i] = 0.0f;
+    }
+
+    out->count = n;
+    return n;
 }
 
 void pvrContext::BeginTiming(void)
@@ -2234,6 +2320,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     pvrDrawCmd cmd;
     cmd.hdr = hdr;
     cmd.hdrKey = pvrHdrSortKey(hdr);
+    cmd.lightSet = (normalQ || interNormal) ? pvrPoolLightSet(context) : ~0u;
     if ((coordQ || inter) && !coord)
         context->BuildTransform(qScale, qBias, &cmd.xform);
     else
@@ -2268,7 +2355,63 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 //
 // XMTRX already holds the draw transform, and nothing here disturbs it: ftrv
 // reads the back bank, and fsrra and the multiplies use the front one.
-template <bool InFront, bool HaveCol>
+// Diffuse for up to four directional lights, one pass over the vertices with
+// XMTRX holding the light directions instead of the view-projection. That is
+// the whole reason this is its own pass: ftrv gives all four dot products for
+// the price of one instruction, but only while the matrix is loaded.
+//
+// Runs before the transform pass, which reloads XMTRX for itself.
+template <unsigned Lights>
+static void LightInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src,
+                             unsigned n, const pvrLightSet& ls, unsigned alpha)
+{
+    const float sc = 1.0f / 127.0f;
+
+    for (unsigned i = 0; i < n; i++)
+    {
+        dcache_pref_block(&src[i + 2]);
+
+        const shz_vec4_t d = shz_xmtrx_transform_vec4(
+            shz_vec4_init((float)src[i].n[0] * sc,
+                          (float)src[i].n[1] * sc,
+                          (float)src[i].n[2] * sc, 0.0f));
+
+        float r = ls.ambR, g = ls.ambG, b = ls.ambB;
+
+        if (Lights > 0 && d.x > 0.0f) { r += d.x * ls.r[0]; g += d.x * ls.g[0]; b += d.x * ls.b[0]; }
+        if (Lights > 1 && d.y > 0.0f) { r += d.y * ls.r[1]; g += d.y * ls.g[1]; b += d.y * ls.b[1]; }
+        if (Lights > 2 && d.z > 0.0f) { r += d.z * ls.r[2]; g += d.z * ls.g[2]; b += d.z * ls.b[2]; }
+        if (Lights > 3 && d.w > 0.0f) { r += d.w * ls.r[3]; g += d.w * ls.g[3]; b += d.w * ls.b[3]; }
+
+        if (r > 255.0f) r = 255.0f;
+        if (g > 255.0f) g = 255.0f;
+        if (b > 255.0f) b = 255.0f;
+
+        pkt[i].argb = alpha
+                    | ((unsigned)(int)r << 16)
+                    | ((unsigned)(int)g << 8)
+                    |  (unsigned)(int)b;
+    }
+}
+
+static void RunLightPass(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
+                         const pvrLightSet& ls, unsigned argb)
+{
+    const unsigned alpha = argb & 0xFF000000u;
+
+    shz_xmtrx_load_4x4(&ls.dir);
+
+    switch (ls.count)
+    {
+        case 0:  LightInterleaved<0>(pkt, src, n, ls, alpha); break;
+        case 1:  LightInterleaved<1>(pkt, src, n, ls, alpha); break;
+        case 2:  LightInterleaved<2>(pkt, src, n, ls, alpha); break;
+        case 3:  LightInterleaved<3>(pkt, src, n, ls, alpha); break;
+        default: LightInterleaved<4>(pkt, src, n, ls, alpha); break;
+    }
+}
+
+template <bool InFront, int ArgbMode>   // 0 default, 1 from record, 2 leave alone
 static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
                             const pvrInterVert* src, unsigned n,
                             unsigned* visAll, unsigned argbDefault,
@@ -2311,7 +2454,8 @@ static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
 
         v.u = (float)src[i].u * uMul + uAdd;
         v.v = (float)src[i].v * vMul + vAdd;
-        v.argb = HaveCol ? src[i].argb : argbDefault;
+        if (ArgbMode == 0)      v.argb = argbDefault;
+        else if (ArgbMode == 1) v.argb = src[i].argb;
         v.oargb = 0;
     }
 
@@ -2611,23 +2755,27 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #endif
             if (inter)
             {
+                int argbMode = interColour ? 1 : 0;
+
+                if (interNormal && cmd.lightSet < s_lightSets.size())
+                {
+                    RunLightPass(pkt, inter, vcount, s_lightSets[cmd.lightSet], cmd.argb);
+                    pvrInvalidateXform();
+                    pvrLoadXform(cmd.xform);
+                    argbMode = 2;
+                }
+
                 if (inFront)
                 {
-                    if (interColour)
-                        FillInterleaved<true, true>(pkt, s_vtxVis, inter, vcount,
-                                                    &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
-                    else
-                        FillInterleaved<true, false>(pkt, s_vtxVis, inter, vcount,
-                                                     &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    if (argbMode == 1)      FillInterleaved<true, 1>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else if (argbMode == 2) FillInterleaved<true, 2>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else                    FillInterleaved<true, 0>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
                 }
                 else
                 {
-                    if (interColour)
-                        FillInterleaved<false, true>(pkt, s_vtxVis, inter, vcount,
-                                                     &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
-                    else
-                        FillInterleaved<false, false>(pkt, s_vtxVis, inter, vcount,
-                                                      &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    if (argbMode == 1)      FillInterleaved<false, 1>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else if (argbMode == 2) FillInterleaved<false, 2>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else                    FillInterleaved<false, 0>(pkt, s_vtxVis, inter, vcount, &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
                 }
             }
             else

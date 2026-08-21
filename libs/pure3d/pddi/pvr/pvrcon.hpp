@@ -36,6 +36,18 @@ public:
 };
 
 //--------------------------------------------------------------
+// Up to four directional lights, held as a matrix whose rows are the light
+// directions in object space. One ftrv against a normal then yields all four
+// dot products at once, which is the whole reason lighting gets its own pass:
+// XMTRX cannot hold this and the view-projection at the same time.
+struct pvrLightSet
+{
+    shz_mat4x4_t dir;
+    float        r[4], g[4], b[4];
+    float        ambR, ambG, ambB;
+    unsigned     count;
+};
+
 class pvrContext : public pddiBaseContext
 {
 public:
@@ -103,6 +115,13 @@ public:
     void LoadTransformToXmtrx(const float* scale, const float* bias) const;
     void BuildTransform(const float* scale, const float* bias, shz_mat4x4_t* out) const;
     const shz_mat4x4_t& GetViewProj() const { return viewProjM; }
+
+    // Lights are set before any model matrix is pushed, so the stack top at
+    // that moment is the view matrix; SetupHardwareLight keeps it per light.
+    // The transpose of the current model-view then carries the direction the
+    // rest of the way into object space, where the normals already are. Same
+    // approach the DX8 backend documents.
+    unsigned BuildLightSet(struct pvrLightSet* out) const;
     void FlushDeferredLists();
     pvr_cull_mode_t GetCurrentCull() const;
     struct pvrViewportMap GetViewportMap() const;
@@ -121,6 +140,8 @@ public:
 
 protected:
     void LoadHardwareMatrix(pddiMatrixType id);
+    // The matrix stack as it stood when each light was last changed.
+    rmt::Matrix lightView[PDDI_MAX_LIGHTS];
     void SetupHardwareProjection(void);
     void SetupHardwareLight(int);
     void BeginTiming(void);
