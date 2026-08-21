@@ -12,3 +12,4 @@ dcbuild/
 game-dc/
 game-dc-lod/
 __pycache__/
+dcbuild-mem/
