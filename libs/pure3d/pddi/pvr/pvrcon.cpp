@@ -161,6 +161,14 @@ static unsigned s_clipIters = 0, s_lastClipIters = 0;
 static uint64_t s_phClipTri = 0, s_lastClipTriUs = 0;
 extern "C" unsigned pvrLastClipIters( void )  { return s_lastClipIters; }
 extern "C" unsigned pvrClipTriUs( void )      { return (unsigned)s_lastClipTriUs; }
+// Split the walk by which path fed it. The world meshlets are capped at 256
+// vertices; the draws that never reach the fast path are whole skinned meshes
+// and can be far larger, so an even spread across draws was never a safe
+// assumption.
+static unsigned s_genIters = 0, s_lastGenIters = 0;
+static uint64_t s_phGenWalk = 0, s_lastGenWalkUs = 0;
+extern "C" unsigned pvrLastGenIters( void )  { return s_lastGenIters; }
+extern "C" unsigned pvrGenWalkUs( void )     { return (unsigned)s_lastGenWalkUs; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1341,6 +1349,8 @@ static void pvrRunDeferredLists()
     s_lastDeadTris  = s_deadTris;  s_deadTris  = 0;
     s_lastClipIters = s_clipIters; s_clipIters = 0;
     s_lastClipTriUs = s_phClipTri; s_phClipTri = 0;
+    s_lastGenIters  = s_genIters;  s_genIters  = 0;
+    s_lastGenWalkUs = s_phGenWalk; s_phGenWalk = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2602,6 +2612,8 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
 #if defined SRR2_DC_PROFILER
         s_clipDrawsGeneric++;
+        const unsigned genBefore_ = s_clipIters;
+        const uint64_t genStart_ = timer_us_gettime64();
 #endif
         if (primType == PDDI_PRIM_TRIANGLES)
         {
@@ -2615,6 +2627,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             else
                 EmitStripRuns<true, false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
         }
+#if defined SRR2_DC_PROFILER
+        s_genIters  += s_clipIters - genBefore_;
+        s_phGenWalk += timer_us_gettime64() - genStart_;
+#endif
         PH_MARK(s_phClip);
         return;
     }

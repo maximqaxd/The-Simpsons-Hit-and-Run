@@ -52,6 +52,8 @@ extern "C" unsigned pvrLastClipTris( void );
 extern "C" unsigned pvrLastDeadTris( void );
 extern "C" unsigned pvrLastClipIters( void );
 extern "C" unsigned pvrClipTriUs( void );
+extern "C" unsigned pvrLastGenIters( void );
+extern "C" unsigned pvrGenWalkUs( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -476,6 +478,8 @@ void Profiler::DumpToSerial()
             pvrLastStripTris(), pvrLastClipTris(), pvrLastDeadTris() );
     printf( "[prof] clip walk: %u iterations, clipper %u us\n",
             pvrLastClipIters(), pvrClipTriUs() );
+    printf( "[prof] of which generic: %u iterations, %u us\n",
+            pvrLastGenIters(), pvrGenWalkUs() );
 
 #ifdef RAD_DREAMCAST
     {
