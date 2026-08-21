@@ -50,6 +50,8 @@ extern "C" unsigned pvrLastVertexXformed( void );
 extern "C" unsigned pvrLastStripTris( void );
 extern "C" unsigned pvrLastClipTris( void );
 extern "C" unsigned pvrLastDeadTris( void );
+extern "C" unsigned pvrLastClipIters( void );
+extern "C" unsigned pvrClipTriUs( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -472,6 +474,8 @@ void Profiler::DumpToSerial()
     printf( "[prof] vertices transformed: %u\n", pvrLastVertexXformed() );
     printf( "[prof] clipped draws: %u tris in strips, %u clipped, %u dropped\n",
             pvrLastStripTris(), pvrLastClipTris(), pvrLastDeadTris() );
+    printf( "[prof] clip walk: %u iterations, clipper %u us\n",
+            pvrLastClipIters(), pvrClipTriUs() );
 
 #ifdef RAD_DREAMCAST
     {

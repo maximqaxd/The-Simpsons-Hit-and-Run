@@ -155,6 +155,12 @@ static unsigned s_lastStripTris = 0, s_lastClipTris = 0, s_lastDeadTris = 0;
 extern "C" unsigned pvrLastStripTris( void ) { return s_lastStripTris; }
 extern "C" unsigned pvrLastClipTris( void )  { return s_lastClipTris;  }
 extern "C" unsigned pvrLastDeadTris( void )  { return s_lastDeadTris;  }
+// The counted triangles do not account for the time, so measure the walk
+// itself: how many times round the loop, and how long the clipper alone takes.
+static unsigned s_clipIters = 0, s_lastClipIters = 0;
+static uint64_t s_phClipTri = 0, s_lastClipTriUs = 0;
+extern "C" unsigned pvrLastClipIters( void )  { return s_lastClipIters; }
+extern "C" unsigned pvrClipTriUs( void )      { return (unsigned)s_lastClipTriUs; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1333,6 +1339,8 @@ static void pvrRunDeferredLists()
     s_lastStripTris = s_stripTris; s_stripTris = 0;
     s_lastClipTris  = s_clipTris;  s_clipTris  = 0;
     s_lastDeadTris  = s_deadTris;  s_deadTris  = 0;
+    s_lastClipIters = s_clipIters; s_clipIters = 0;
+    s_lastClipTriUs = s_phClipTri; s_phClipTri = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2174,6 +2182,10 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
 
     while (i + 2 < n)
     {
+#if defined SRR2_DC_PROFILER
+        if (CheckVis)
+            s_clipIters++;
+#endif
         const unsigned a = indices ? indices[i]     : i;
         const unsigned b = indices ? indices[i + 1] : i + 1;
         const unsigned c = indices ? indices[i + 2] : i + 2;
@@ -2204,7 +2216,13 @@ static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
                     tri[k].v    = pkt[ix[k]].v;
                     tri[k].argb = pkt[ix[k]].argb;
                 }
+#if defined SRR2_DC_PROFILER
+                const uint64_t ct_ = timer_us_gettime64();
+#endif
                 ClipAndSubmitTriangle(vp, tri);
+#if defined SRR2_DC_PROFILER
+                s_phClipTri += timer_us_gettime64() - ct_;
+#endif
             }
 #if defined SRR2_DC_PROFILER
             else
