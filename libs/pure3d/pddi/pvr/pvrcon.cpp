@@ -1479,7 +1479,12 @@ static void pvrRunDeferredLists()
     const uint64_t replayStart = timer_us_gettime64();
 #endif
 
-    pvrOixEnter();
+    const bool anyWork = !s_drawCmds[0].empty()
+                      || !s_drawCmds[1].empty()
+                      || !s_drawCmds[2].empty();
+
+    if (anyWork)
+        pvrOixEnter();
 
     for (int i = 0; i < 3; i++)
     {
@@ -1531,7 +1536,8 @@ static void pvrRunDeferredLists()
 
         pvr_list_finish();
     }
-    pvrOixLeave();
+    if (anyWork)
+        pvrOixLeave();
 
 #if defined SRR2_DC_PVR_TRACE
     s_replayUs = timer_us_gettime64() - replayStart;

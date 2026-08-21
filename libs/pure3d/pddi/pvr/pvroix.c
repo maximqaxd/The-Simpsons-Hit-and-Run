@@ -43,6 +43,16 @@ static volatile uint32_t* const kCCR = (volatile uint32_t*)0xFF00001C;
         "dt      r1\n\t"                                                     \
         "bf      0b\n\t"
 
+// Not dcache_inval_range: KOS falls back to a whole-cache purge past a size
+// threshold, and a purge writes dirty lines back. These lines are dirty by
+// construction -- movca.l marks them so -- and their backing store is the TA.
+static void pvrOixInvalWindow( void )
+{
+    uintptr_t a;
+    for (a = PVR_OIX_ADDR; a < PVR_OIX_ADDR + PVR_OIX_BYTES; a += 32)
+        __asm__ __volatile__("ocbi @%0" :: "r"(a) : "memory");
+}
+
 #define OIX_SETTLE                                                           \
         "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"    \
         "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"
@@ -96,8 +106,7 @@ __attribute__((noinline)) static void pvrOixLeave_( void )
 {
     irq_mask_t mask = irq_disable();
 
-    // ocbi, not ocbp: these lines must not reach the TA.
-    dcache_inval_range(PVR_OIX_ADDR, PVR_OIX_BYTES);
+    pvrOixInvalWindow();
     dcache_purge_all();
     pvrOixFlipOff();
 
@@ -122,7 +131,7 @@ __attribute__((noinline)) static int pvrOixProbe_( void )
     w[7] = 0x32524453u;
     ok = (w[0] == 0x5341524Du) && (w[7] == 0x32524453u);
 
-    dcache_inval_range(PVR_OIX_ADDR, 32);
+    __asm__ __volatile__("ocbi @%0" :: "r"((uintptr_t)PVR_OIX_ADDR) : "memory");
     dcache_purge_all();
     pvrOixFlipOff();
 
