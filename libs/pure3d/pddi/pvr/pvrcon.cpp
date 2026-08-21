@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <kos/timer.h>
+#include <arch/cache.h>
 #if defined SRR2_DC_PVR_TRACE
 #include <kos/timer.h>
 #include <stdio.h>
@@ -142,6 +143,10 @@ static unsigned s_clipDrawsFast = 0, s_clipDrawsGeneric = 0;
 static unsigned s_lastClipFast = 0, s_lastClipGeneric = 0;
 extern "C" unsigned pvrClipDrawsFast( void )    { return s_lastClipFast; }
 extern "C" unsigned pvrClipDrawsGeneric( void ) { return s_lastClipGeneric; }
+// The denominator for xform: vertices actually put through the transform,
+// which is not the same as the indices the strips reference.
+static unsigned s_vtxXformed = 0, s_lastVtxXformed = 0;
+extern "C" unsigned pvrLastVertexXformed( void ) { return s_lastVtxXformed; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1316,6 +1321,7 @@ static void pvrRunDeferredLists()
     s_lastImm   = s_phImm;   s_phImm   = 0;
     s_lastClipFast = s_clipDrawsFast;       s_clipDrawsFast = 0;
     s_lastClipGeneric = s_clipDrawsGeneric; s_clipDrawsGeneric = 0;
+    s_lastVtxXformed = s_vtxXformed;        s_vtxXformed = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2085,6 +2091,69 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 //
 // Backface rejection is left to the hardware; the poly header already carries
 // the cull mode, so testing it here only duplicated it.
+// The interleaved layout is the common case, and everything that selected
+// between layouts inside the old loop -- which stream holds the uvs, whether
+// there are per-vertex colours, whether the box is wholly in front -- is
+// constant for the whole draw. Lifting all of it into template parameters
+// leaves a loop whose body is only the work.
+//
+// XMTRX already holds the draw transform, and nothing here disturbs it: ftrv
+// reads the back bank, and fsrra and the multiplies use the front one.
+template <bool InFront, bool HaveCol>
+static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
+                            const pvrInterVert* src, unsigned n,
+                            unsigned* visAll, unsigned argbDefault,
+                            float uMul, float uAdd, float vMul, float vAdd)
+{
+    unsigned all = 1;
+
+    for (unsigned i = 0; i < n; i++)
+    {
+        // One line covers two records, so this lands a fetch every other pass.
+        dcache_pref_block(&src[i + 2]);
+
+        const shz_vec4_t p = shz_xmtrx_transform_vec4(
+            shz_vec4_init((float)src[i].x, (float)src[i].y, (float)src[i].z, 1.0f));
+
+        pvr_vertex_t& v = pkt[i];
+        v.flags = PVR_CMD_VERTEX;
+
+        if (InFront)
+        {
+            const float iw = shz_invf_fsrra(p.w);
+            v.x = p.x * iw;
+            v.y = p.y * iw;
+            v.z = iw;
+        }
+        else
+        {
+            const unsigned ok = (p.w >= p.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+            vis[i] = (unsigned char)ok;
+            all &= ok;
+
+            if (ok)
+            {
+                const float iw = shz_invf_fsrra(p.w);
+                v.x = p.x * iw;
+                v.y = p.y * iw;
+                v.z = iw;
+            }
+        }
+
+        v.u = (float)src[i].u * uMul + uAdd;
+        v.v = (float)src[i].v * vMul + vAdd;
+        v.argb = HaveCol ? src[i].argb : argbDefault;
+        v.oargb = 0;
+    }
+
+    if (InFront)
+    {
+        memset(vis, 1, n);
+    }
+
+    *visAll = all;
+}
+
 template <bool CheckVis, typename ClipPosFn>
 static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
                           const unsigned short* indices, unsigned n,
@@ -2257,6 +2326,31 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #endif
             PH_MARK(s_phSetup);
 
+#if defined SRR2_DC_PROFILER
+            s_vtxXformed += vcount;
+#endif
+            if (inter)
+            {
+                if (inFront)
+                {
+                    if (interColour)
+                        FillInterleaved<true, true>(pkt, s_vtxVis, inter, vcount,
+                                                    &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else
+                        FillInterleaved<true, false>(pkt, s_vtxVis, inter, vcount,
+                                                     &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                }
+                else
+                {
+                    if (interColour)
+                        FillInterleaved<false, true>(pkt, s_vtxVis, inter, vcount,
+                                                     &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                    else
+                        FillInterleaved<false, false>(pkt, s_vtxVis, inter, vcount,
+                                                      &visAll, cmd.argb, uMul, uAdd, vMul, vAdd);
+                }
+            }
+            else
             for (unsigned i = 0; i < vcount; i++)
             {
                 const shz_vec4_t p = clipPos(i);
