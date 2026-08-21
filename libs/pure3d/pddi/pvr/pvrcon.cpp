@@ -136,6 +136,12 @@ extern "C" unsigned pvrPhaseXformUs( void ) { return (unsigned)s_lastXform; }
 extern "C" unsigned pvrPhaseEmitUs ( void ) { return (unsigned)s_lastEmit;  }
 extern "C" unsigned pvrPhaseClipUs ( void ) { return (unsigned)s_lastClip;  }
 extern "C" unsigned pvrPhaseImmUs  ( void ) { return (unsigned)s_lastImm;   }
+// clip was lumping fast-path draws that straddle the near plane together with
+// draws that never reached the fast path at all. Count them apart.
+static unsigned s_clipDrawsFast = 0, s_clipDrawsGeneric = 0;
+static unsigned s_lastClipFast = 0, s_lastClipGeneric = 0;
+extern "C" unsigned pvrClipDrawsFast( void )    { return s_lastClipFast; }
+extern "C" unsigned pvrClipDrawsGeneric( void ) { return s_lastClipGeneric; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1308,6 +1314,8 @@ static void pvrRunDeferredLists()
     s_lastEmit  = s_phEmit;  s_phEmit  = 0;
     s_lastClip  = s_phClip;  s_phClip  = 0;
     s_lastImm   = s_phImm;   s_phImm   = 0;
+    s_lastClipFast = s_clipDrawsFast;       s_clipDrawsFast = 0;
+    s_lastClipGeneric = s_clipDrawsGeneric; s_clipDrawsGeneric = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2069,6 +2077,88 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     s_drawCmds[slot].push_back(cmd);
 }
 
+// Walk an index list emitting native strips, breaking a run only where it has
+// to: at a degenerate join, or -- when CheckVis is set -- at a triangle that
+// meets the near plane. Terminating every triangle with EOL instead costs
+// three packets where a continued strip costs one, which is what made the
+// clipped paths dominate submission.
+//
+// Backface rejection is left to the hardware; the poly header already carries
+// the cull mode, so testing it here only duplicated it.
+template <bool CheckVis, typename ClipPosFn>
+static void EmitStripRuns(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
+                          const unsigned short* indices, unsigned n,
+                          const pvrViewportMap& vp, ClipPosFn clipPos)
+{
+    unsigned i = 0;
+
+    while (i + 2 < n)
+    {
+        const unsigned a = indices ? indices[i]     : i;
+        const unsigned b = indices ? indices[i + 1] : i + 1;
+        const unsigned c = indices ? indices[i + 2] : i + 2;
+
+        if (a == b || b == c || a == c)
+        {
+            i++;
+            continue;
+        }
+
+        if (CheckVis && !(vis[a] && vis[b] && vis[c]))
+        {
+            // Wholly behind the plane contributes nothing; straddling goes to
+            // the clipper on its own, and the strip picks up after it.
+            if (vis[a] || vis[b] || vis[c])
+            {
+                const unsigned odd = i & 1u;
+                const unsigned ix[3] = { a, odd ? c : b, odd ? b : c };
+
+                pvrClipVert tri[3];
+                for (int k = 0; k < 3; k++)
+                {
+                    tri[k].pos  = clipPos(ix[k]);
+                    tri[k].u    = pkt[ix[k]].u;
+                    tri[k].v    = pkt[ix[k]].v;
+                    tri[k].argb = pkt[ix[k]].argb;
+                }
+                ClipAndSubmitTriangle(vp, tri);
+            }
+            i++;
+            continue;
+        }
+
+        unsigned j = i;
+        while (j + 2 < n)
+        {
+            const unsigned x = indices ? indices[j]     : j;
+            const unsigned y = indices ? indices[j + 1] : j + 1;
+            const unsigned z = indices ? indices[j + 2] : j + 2;
+
+            if (x == y || y == z || x == z)
+                break;
+            if (CheckVis && !(vis[x] && vis[y] && vis[z]))
+                break;
+            j++;
+        }
+
+        const unsigned last = j + 1;
+
+        if (i & 1u)
+            SubmitVert(oix, &pkt[indices ? indices[i] : i], PVR_CMD_VERTEX);
+
+        for (unsigned k = i; k <= last; k++)
+        {
+            SubmitVert(oix, &pkt[indices ? indices[k] : k],
+                       (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+        }
+
+#if defined SRR2_DC_PVR_TRACE
+        s_tris += j - i;
+#endif
+        i = j;
+    }
+}
+
 void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 {
     PH_BEGIN();
@@ -2232,42 +2322,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
             if (visAll)
             {
-                const unsigned n = indexCount;
-                unsigned i = 0;
-
-                while (i + 2 < n)
-                {
-                    const unsigned a = indices[i], b = indices[i + 1], c = indices[i + 2];
-                    if (a == b || b == c || a == c)
-                    {
-                        i++;
-                        continue;
-                    }
-
-                    unsigned j = i;
-                    while (j + 2 < n)
-                    {
-                        const unsigned x = indices[j], y = indices[j + 1], z = indices[j + 2];
-                        if (x == y || y == z || x == z)
-                            break;
-                        j++;
-                    }
-
-                    const unsigned last = j + 1;
-
-                    if (i & 1u)
-                        SubmitVert(oix, &pkt[indices[i]], PVR_CMD_VERTEX);
-
-                    for (unsigned k = i; k <= last; k++)
-                    {
-                        SubmitVert(oix, &pkt[indices[k]], (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
-                    }
-
-#if defined SRR2_DC_PVR_TRACE
-                    s_tris += j - i;
-#endif
-                    i = j;
-                }
+                EmitStripRuns<false>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
                 PH_MARK(s_phEmit);
                 return;
             }
@@ -2275,53 +2330,10 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             // Some vertices sit behind the near plane. Still emit from the
             // packets already built -- falling through to the generic path
             // would transform this meshlet a second time.
-            const unsigned n = indexCount;
-
-            for (unsigned i = 0; i + 2 < n; ++i)
-            {
-                unsigned a = indices[i];
-                unsigned b = indices[i + 1];
-                unsigned c = indices[i + 2];
-
-                if (a == b || b == c || a == c)
-                    continue;
-
-                if (i & 1u)
-                {
-                    const unsigned t = b; b = c; c = t;
-                }
-
-#if defined SRR2_DC_PVR_TRACE
-                s_tris++;
+#if defined SRR2_DC_PROFILER
+            s_clipDrawsFast++;
 #endif
-                if (s_vtxVis[a] && s_vtxVis[b] && s_vtxVis[c])
-                {
-                    if (cmd.cull != PVR_CULLING_NONE)
-                    {
-                        const float area =
-                            (pkt[b].x - pkt[a].x) * (pkt[c].y - pkt[a].y)
-                          - (pkt[c].x - pkt[a].x) * (pkt[b].y - pkt[a].y);
-                        if (cmd.cull == PVR_CULLING_CCW && area * kBackfaceSign > 0.0f) continue;
-                        if (cmd.cull == PVR_CULLING_CW  && area * kBackfaceSign < 0.0f) continue;
-                    }
-
-                    SubmitVert(oix, &pkt[a], PVR_CMD_VERTEX);
-                    SubmitVert(oix, &pkt[b], PVR_CMD_VERTEX);
-                    SubmitVert(oix, &pkt[c], PVR_CMD_VERTEX_EOL);
-                    continue;
-                }
-
-                pvrClipVert tri[3];
-                const unsigned ix[3] = { a, b, c };
-                for (int k = 0; k < 3; k++)
-                {
-                    tri[k].pos  = clipPos(ix[k]);
-                    tri[k].u    = pkt[ix[k]].u;
-                    tri[k].v    = pkt[ix[k]].v;
-                    tri[k].argb = pkt[ix[k]].argb;
-                }
-                ClipAndSubmitTriangle(vp, tri);
-            }
+            EmitStripRuns<true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
             PH_MARK(s_phClip);
             return;
         }
@@ -2406,44 +2418,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             // Same EOL run-splitting as the fused path: drop the exporter's
             // degenerate joins rather than feeding them to the TA.
             unsigned i = 0;
-            while (i + 2 < n)
-            {
-                const unsigned a = idx ? idx[i] : i;
-                const unsigned b = idx ? idx[i + 1] : i + 1;
-                const unsigned c = idx ? idx[i + 2] : i + 2;
-                if (a == b || b == c || a == c)
-                {
-                    i++;
-                    continue;
-                }
-
-                unsigned j = i;
-                while (j + 2 < n)
-                {
-                    const unsigned x = idx ? idx[j] : j;
-                    const unsigned y = idx ? idx[j + 1] : j + 1;
-                    const unsigned z = idx ? idx[j + 2] : j + 2;
-                    if (x == y || y == z || x == z)
-                        break;
-                    j++;
-                }
-
-                const unsigned last = j + 1;
-
-                if (i & 1u)
-                    SubmitPacket(s_vtxPkt[idx ? idx[i] : i], PVR_CMD_VERTEX);
-
-                for (unsigned k = i; k <= last; k++)
-                {
-                    SubmitPacket(s_vtxPkt[idx ? idx[k] : k],
-                                 (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
-                }
-
-#if defined SRR2_DC_PVR_TRACE
-                s_tris += j - i;
-#endif
-                i = j;
-            }
+            EmitStripRuns<false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
             PH_MARK(s_phEmit);
             return;
         }
@@ -2486,6 +2461,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             ClipAndSubmitTriangle(vp, tri);
         };
 
+#if defined SRR2_DC_PROFILER
+        s_clipDrawsGeneric++;
+#endif
         if (primType == PDDI_PRIM_TRIANGLES)
         {
             for (unsigned i = 0; i + 2 < n; i += 3)
@@ -2493,14 +2471,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         }
         else if (primType == PDDI_PRIM_TRISTRIP)
         {
-            for (unsigned i = 0; i + 2 < n; ++i)
-            {
-                const unsigned a = idx ? idx[i] : i;
-                const unsigned b = idx ? idx[i + 1] : i + 1;
-                const unsigned c = idx ? idx[i + 2] : i + 2;
-                const bool odd = (i & 1u) != 0;
-                emitTri(a, odd ? c : b, odd ? b : c);
-            }
+            EmitStripRuns<true>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
         }
         PH_MARK(s_phClip);
         return;
