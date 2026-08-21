@@ -30,6 +30,7 @@
 //========================================
 #include <debug/profiler.h>
 #if defined( RAD_DREAMCAST ) && defined( SRR2_DC_PROFILER )
+#include <dc/pvr.h>
 #include <dc/maple.h>
 #include <dc/maple/controller.h>
 #include <stdio.h>
@@ -450,6 +451,23 @@ void Profiler::DumpToSerial()
     printf( "[prof] draw: %u submitted, %u boxculled, %u fast path\n",
             pvrLastDrawCount(), pvrLastBoxCulled(), pvrLastFusedDraws() );
     printf( "[prof] fast-path vertices: %u\n", pvrLastVertexEstimate() );
+
+#ifdef RAD_DREAMCAST
+    {
+        pvr_stats_t st;
+        if( pvr_get_stats( &st ) == 0 )
+        {
+            printf( "[prof] ta vtxbuf: %u KB used, %u KB peak\n",
+                    (unsigned int)( st.vtx_buffer_used / 1024u ),
+                    (unsigned int)( st.vtx_buffer_used_max / 1024u ) );
+            printf( "[prof] pvr time: reg %u us, rnd %u us\n",
+                    (unsigned int)( st.reg_last_time / 1000u ),
+                    (unsigned int)( st.rnd_last_time / 1000u ) );
+        }
+        printf( "[prof] texture vram: %u KB free\n",
+                (unsigned int)( pvr_mem_available() / 1024u ) );
+    }
+#endif
 
     unsigned int i = 0;
     while( ( i < mNextSampleAllocIndex ) && mSamples[ i ].bValid )
