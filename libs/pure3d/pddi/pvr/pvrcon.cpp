@@ -2583,20 +2583,6 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
             if (s_vtxVis[a] && s_vtxVis[b] && s_vtxVis[c])
             {
-                if (cmd.cull != PVR_CULLING_NONE)
-                {
-                    const float area = (vb.x - va.x) * (vc.y - va.y)
-                                     - (vc.x - va.x) * (vb.y - va.y);
-                    if (cmd.cull == PVR_CULLING_CCW)
-                    {
-                        if (area * kBackfaceSign > 0.0f) return;
-                    }
-                    else if (cmd.cull == PVR_CULLING_CW)
-                    {
-                        if (area * kBackfaceSign < 0.0f) return;
-                    }
-                }
-
                 SubmitPacket(va, PVR_CMD_VERTEX);
                 SubmitPacket(vb, PVR_CMD_VERTEX);
                 SubmitPacket(vc, PVR_CMD_VERTEX_EOL);
