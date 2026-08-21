@@ -2502,6 +2502,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 emitTri(a, odd ? c : b, odd ? b : c);
             }
         }
+        PH_MARK(s_phClip);
         return;
     }
 
