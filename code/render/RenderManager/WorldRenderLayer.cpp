@@ -1522,6 +1522,22 @@ bool WorldRenderLayer::DoPreDynaLoad(tName& irGiveItAFuckinName)//tUID iUID)
          return false;
    }
 
+#ifdef SRR_DC_MAX_ZONES
+   // The level asks for whatever the locator data says, which assumes a
+   // machine with more memory than this one has. Refusing the load leaves a
+   // hole in the distance; evicting instead would be worse, because the list
+   // is in load order and entry zero is where the player is standing.
+   //
+   // A refused zone is not lost: the locator fires again on the next boundary
+   // crossing, by which time something else has usually been dumped.
+   if(mLoadLists.mUseSize >= SRR_DC_MAX_ZONES)
+   {
+      rReleasePrintf("Zone budget full (%d), skipping %s\n",
+                     mLoadLists.mUseSize, irGiveItAFuckinName.GetText());
+      return false;
+   }
+#endif
+
    HeapMgr()->PushHeap (GMA_LEVEL_ZONE);
 
    if( mDynaLoadState == msLoad )

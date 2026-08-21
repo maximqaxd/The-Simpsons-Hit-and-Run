@@ -51,6 +51,12 @@ if(DREAMCAST)
 	set(SRR2_DC_MIN_DRAW_AREA "6" CACHE STRING "Reject draws smaller than this many screen pixels")
 	add_compile_definitions(SRR_DC_MIN_DRAW_AREA=${SRR2_DC_MIN_DRAW_AREA}.0f)
 	option(SRR2_DC_SPEED "Build the hot libraries for speed" ON)
+	# Entry zero of the residency list is the initial level load, so a budget
+	# of three admits the start zone and two more. Zero disables the cap.
+	set(SRR2_DC_MAX_ZONES "3" CACHE STRING "Most zones resident at once, 0 for no limit")
+	if(NOT SRR2_DC_MAX_ZONES STREQUAL "0")
+		add_compile_definitions(SRR_DC_MAX_ZONES=${SRR2_DC_MAX_ZONES})
+	endif()
 	set(SRR2_DC_OPB_OP "8" CACHE STRING "Opaque list object pointer block size, in words")
 	add_compile_definitions(SRR_DC_OPB_OP=${SRR2_DC_OPB_OP})
 	set(SRR2_DC_OPB_OVERFLOW "3" CACHE STRING "Extra object pointer blocks the TA may spill into")
@@ -1508,11 +1514,11 @@ endif()
 add_executable(${PROJECT_NAME} ${SRR2_SOURCES})
 
 if(DREAMCAST AND SRR2_DC_SPEED)
-	# Everything that shows up in a profiler dump: the PVR backend and the
-	# scene graph feeding it, the vector maths under both, physics, and the
-	# game code driving all of it. Target options come after the directory
-	# wide -Os, so these win.
-	foreach(hot pddi p3d radmath sim scrooby choreo poser ${PROJECT_NAME})
+	# The four libraries a profiler dump actually points at. The game code and
+	# the rest were tried at -O3 too and cost about 600 KB of text, which on a
+	# 16 MB machine is roughly a zone's worth of RAM. Target options come after
+	# the directory wide -Os, so these win.
+	foreach(hot pddi p3d radmath sim)
 		if(TARGET ${hot})
 			target_compile_options(${hot} PRIVATE -O3)
 		endif()
