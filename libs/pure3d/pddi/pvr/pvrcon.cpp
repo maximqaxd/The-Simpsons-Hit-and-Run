@@ -16,9 +16,10 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 #include <vector>
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
 #include <kos/timer.h>
 #include <stdio.h>
 static uint64_t s_replayUs = 0;
@@ -31,9 +32,7 @@ static unsigned s_vtxEmitIM = 0;
 static unsigned s_boxCulled = 0;
 static unsigned s_fusedDraws = 0;
 static unsigned s_rollDraws = 0;
-static bool     s_skipScene = false;
 
-extern "C" void pvrSetSkipScene( int on ) { s_skipScene = (on != 0); }
 static uint64_t s_replayImUs = 0;
 static unsigned s_tris = 0;
 #endif
@@ -104,8 +103,23 @@ pvrContext::~pvrContext()
 
 static void pvrResetDeferredLists();
 static void pvrRunDeferredLists();
+static void pvrInvalidateHeaderCache();
 
 static unsigned s_lastDraws = 0;
+#if defined SRR2_DC_PROFILER && !defined SRR2_DC_PVR_TRACE
+static unsigned s_boxCulled = 0;
+static unsigned s_fusedDraws = 0;
+#endif
+#if defined SRR2_DC_PROFILER
+static unsigned s_lastBoxCulled = 0;
+static unsigned s_lastFusedDraws = 0;
+// Counted once per draw, not per vertex, so it costs nothing measurable.
+static unsigned s_vtxPerFrame = 0;
+static unsigned s_lastVtxPerFrame = 0;
+extern "C" unsigned pvrLastVertexEstimate( void ) { return s_lastVtxPerFrame; }
+extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
+extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
+#endif
 static unsigned s_lastVtxBytes = 0;
 
 extern "C" unsigned pvrLastDrawCount( void )   { return s_lastDraws; }
@@ -114,17 +128,15 @@ extern "C" unsigned pvrLastVertexCount( void ) { return s_lastVtxBytes / 32u; }
 void pvrContext::BeginFrame()
 {
     pddiBaseContext::BeginFrame();
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     const uint64_t waitStart = timer_us_gettime64();
 #endif
     pvr_wait_ready();
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     s_waitUs = timer_us_gettime64() - waitStart;
     s_vtxXform = 0;
     s_vtxEmit = 0;
     s_vtxEmitIM = 0;
-    s_boxCulled = 0;
-    s_fusedDraws = 0;
     s_rollDraws = 0;
     s_replayImUs = 0;
     s_tris = 0;
@@ -133,6 +145,11 @@ void pvrContext::BeginFrame()
 
     currentList = (pvr_list_t)-1;
     begunMask = 0;
+
+    // Textures are freed between frames during zone loads, so a cached header
+    // must not outlive the frame that built it.
+    pvrInvalidateHeaderCache();
+
     pvrResetDeferredLists();
 #ifdef RAD_DC_TRACE_VERTS
     s_traceFrame++;
@@ -151,11 +168,11 @@ void pvrContext::EndFrame()
 {
     pddiBaseContext::EndFrame();
     FlushDeferredLists();
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     const uint64_t finishStart = timer_us_gettime64();
 #endif
     pvr_scene_finish();
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     {
         const uint64_t now = timer_us_gettime64();
         s_finishUs = now - finishStart;
@@ -426,7 +443,7 @@ struct pvrViewportMap
 static inline void SubmitClipVert(const pvrViewportMap& vp, const pvrClipVert& cv, unsigned flags)
 {
     (void)vp;
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
 #endif
     const float invw = 1.0f / cv.pos.w;
@@ -548,6 +565,9 @@ static_assert(alignof(pvrDrawCmd) >= alignof(shz_mat4x4_t),
 static_assert((sizeof(pvrDrawCmd) % alignof(shz_mat4x4_t)) == 0,
               "pvrDrawCmd stride must keep every xform aligned");
 
+// The cache holds finished TA packets. Emitting a vertex is then a 32-byte
+// copy plus the strip flag, with no per-emit uv dequant or colour assembly --
+// each unique vertex pays that once, however many indices reference it.
 struct pvrCacheVert
 {
     float      sx, sy, sz;
@@ -556,8 +576,10 @@ struct pvrCacheVert
     unsigned   vis;
 };
 
+static pvr_vertex_t* s_vtxPkt = NULL;
+static unsigned char* s_vtxVis = NULL;
+
 static const float kBackfaceSign = 1.0f;
-static pvrCacheVert* s_vtxCache = NULL;
 static unsigned      s_vtxCacheMax = 0;
 
 enum pvrBoxClass { kBoxCulled, kBoxClipped, kBoxInFront };
@@ -565,9 +587,19 @@ enum pvrBoxClass { kBoxCulled, kBoxClipped, kBoxInFront };
 // Classify the quantised AABB (corners at +/-32767) against the near plane and
 // the screen edges, using the caller's already-loaded transform. The half-space
 // tests are affine in model space, so a box corner attains each extremum.
-static float s_minScreenArea = 6.0f;
+//
+// Reject draws whose projected box covers less than this many pixels. Culling
+// and the submit path are both as tight as they go, so the only lever left on
+// frame time is submitting fewer vertices -- this trades distant detail for it
+// directly. Raise for speed, lower for fidelity.
+//
+#ifndef SRR_DC_MIN_DRAW_AREA
+#define SRR_DC_MIN_DRAW_AREA 6.0f
+#endif
+static float s_minScreenArea = SRR_DC_MIN_DRAW_AREA;
 
-static pvrBoxClass pvrClassifyQuantBox(const pvrViewportMap& vp, float* areaOut)
+static pvrBoxClass pvrClassifyBox(const pvrViewportMap& vp, const float* lo,
+                                  const float* hi, float* areaOut)
 {
     const float x0 = vp.ox;
     const float x1 = vp.ox + vp.hw * 2.0f;
@@ -582,9 +614,9 @@ static pvrBoxClass pvrClassifyQuantBox(const pvrViewportMap& vp, float* areaOut)
     for (int c = 0; c < 8; c++)
     {
         const shz_vec4_t p = shz_xmtrx_transform_vec4(
-            shz_vec4_init((c & 1) ? 32767.0f : -32767.0f,
-                          (c & 2) ? 32767.0f : -32767.0f,
-                          (c & 4) ? 32767.0f : -32767.0f, 1.0f));
+            shz_vec4_init((c & 1) ? hi[0] : lo[0],
+                          (c & 2) ? hi[1] : lo[1],
+                          (c & 4) ? hi[2] : lo[2], 1.0f));
 
         if (p.w < p.z + PVR_NEAR_CLIP_EPSILON)
         {
@@ -626,18 +658,42 @@ static bool pvrReserveVtxCache(unsigned count)
     while (want < count)
         want *= 2;
 
-    pvrCacheVert* grown = (pvrCacheVert*)realloc(s_vtxCache, want * sizeof(pvrCacheVert));
-    if (!grown)
+    // 32-byte aligned so each packet owns a cache line and the copy into the
+    // store queue is four fmov.d pairs rather than a straddle.
+    pvr_vertex_t* pkt = (pvr_vertex_t*)memalign(32, want * sizeof(pvr_vertex_t));
+    if (!pkt)
         return false;
 
-    s_vtxCache = grown;
+    unsigned char* vis = (unsigned char*)realloc(s_vtxVis, want);
+    if (!vis)
+    {
+        free(pkt);
+        return false;
+    }
+
+    // Only publish the new capacity once every buffer behind it has grown --
+    // a partial success here would let the fill loop run off the end.
+    free(s_vtxPkt);
+    s_vtxPkt = pkt;
+    s_vtxVis = vis;
     s_vtxCacheMax = want;
     return true;
 }
 
+static inline void SubmitPacket(const pvr_vertex_t& src, unsigned flags)
+{
+#if defined SRR2_DC_PVR_TRACE
+    s_vtxEmit++;
+#endif
+    pvr_vertex_t* v = (pvr_vertex_t*)pvr_dr_target();
+    *v = src;
+    v->flags = flags;
+    pvr_dr_commit(v);
+}
+
 static inline void SubmitScreenVert(const pvrCacheVert& cv, unsigned flags)
 {
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     s_vtxEmit++;
 #endif
     pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
@@ -736,13 +792,90 @@ void pvrContext::SetScissor(pddiRect* rect)
     (void)rect;
 }
 
+// Compiling a header costs a context fill plus pvr_poly_compile, and a mesh's
+// meshlets all share one shader -- so consecutive draws ask for the same header
+// over and over. Memoise on everything the header is derived from.
+struct pvrHdrKey
+{
+    const void*     texture;
+    const void*     vram;
+    unsigned        fmt;
+    unsigned short  w, h;
+    unsigned char   mipmap;
+    unsigned char   filter;
+    unsigned char   uvMode;
+    unsigned char   cull;
+    unsigned char   zCmp;
+    unsigned char   zWrite;
+    unsigned char   zEnabled;
+    unsigned char   blendSrc;
+    unsigned char   blendDst;
+    unsigned char   list;
+    unsigned char   enabled;
+    unsigned char   pad;
+};
+
+enum { kHdrCacheSize = 8 };
+static pvrHdrKey       s_hdrKey[kHdrCacheSize];
+static pvr_poly_hdr_t  s_hdrVal[kHdrCacheSize];
+static pvr_list_t      s_hdrList[kHdrCacheSize];
+static bool            s_hdrUsed[kHdrCacheSize] = { false };
+static unsigned        s_hdrNext = 0;
+
+static void pvrInvalidateHeaderCache()
+{
+    for (int i = 0; i < kHdrCacheSize; i++)
+        s_hdrUsed[i] = false;
+    s_hdrNext = 0;
+}
+
 void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHdr, pvr_list_t& outList) const
 {
     const pvr_list_t logical = ChooseList(env);
     outList = logical;
 
+    const bool textured = env.enabled && env.texture && env.texture->GetVramPtr();
+
+    bool keyBlend = false;
+    pvr_blend_mode_t keySrc = PVR_BLEND_ONE, keyDst = PVR_BLEND_ZERO;
+    MapBlend(env, keySrc, keyDst, keyBlend);
+    if (!(logical == PVR_LIST_TR_POLY && keyBlend))
+    {
+        keySrc = PVR_BLEND_ONE;
+        keyDst = PVR_BLEND_ZERO;
+    }
+
+    pvrHdrKey key;
+    memset(&key, 0, sizeof(key));
+    key.texture  = textured ? (const void*)env.texture : NULL;
+    key.vram     = textured ? (const void*)env.texture->GetVramPtr() : NULL;
+    key.fmt      = textured ? env.texture->GetPvrTxrFormat() : 0u;
+    key.w        = textured ? (unsigned short)env.texture->GetWidth() : 0;
+    key.h        = textured ? (unsigned short)env.texture->GetHeight() : 0;
+    key.mipmap   = textured ? (unsigned char)env.texture->HasMipMaps() : 0;
+    key.filter   = (unsigned char)MapFilter(env.filterMode);
+    key.uvMode   = (unsigned char)env.uvMode;
+    key.cull     = (unsigned char)MapCull(state.renderState->cullMode);
+    key.zCmp     = (unsigned char)MapDepthCompareInvW(state.renderState->zCompare);
+    key.zWrite   = (unsigned char)(state.renderState->zWrite ? 1 : 0);
+    key.zEnabled = (unsigned char)(state.renderState->zEnabled ? 1 : 0);
+    key.blendSrc = (unsigned char)keySrc;
+    key.blendDst = (unsigned char)keyDst;
+    key.list     = (unsigned char)logical;
+    key.enabled  = (unsigned char)(textured ? 1 : 0);
+
+    for (int i = 0; i < kHdrCacheSize; i++)
+    {
+        if (s_hdrUsed[i] && memcmp(&s_hdrKey[i], &key, sizeof(key)) == 0)
+        {
+            outHdr = s_hdrVal[i];
+            outList = s_hdrList[i];
+            return;
+        }
+    }
+
     pvr_poly_cxt_t cxt;
-    if (env.enabled && env.texture && env.texture->GetVramPtr())
+    if (textured)
     {
         const pvr_uv_clamp_t clamp = (env.uvMode == PDDI_UV_CLAMP) ? PVR_UVCLAMP_UV : PVR_UVCLAMP_NONE;
         pvr_poly_cxt_txr(&cxt, outList,
@@ -794,6 +927,12 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     cxt.blend.dst_enable = false;
 
     pvr_poly_compile(&outHdr, &cxt);
+
+    const unsigned slot = s_hdrNext++ % kHdrCacheSize;
+    s_hdrKey[slot]  = key;
+    s_hdrVal[slot]  = outHdr;
+    s_hdrList[slot] = logical;
+    s_hdrUsed[slot] = true;
 }
 
 class pvrImmediatePrimStream : public pddiPrimStream
@@ -937,31 +1076,35 @@ public:
         // routing every triangle through the clipper at three vertices each.
         if (count >= 3
             && (primType == PDDI_PRIM_TRIANGLES || primType == PDDI_PRIM_TRISTRIP)
-            && pvrReserveVtxCache((unsigned)count))
+            && pvrReserveVtxCache((unsigned)count) && s_vtxPkt && s_vtxVis)
         {
             unsigned allVis = 1;
 
             for (size_t i = 0; i < count; i++)
             {
-                pvrCacheVert& c = s_vtxCache[i];
+                pvr_vertex_t& v = s_vtxPkt[i];
 
                 const shz_vec4_t p = shz_xmtrx_transform_vec4(
                     shz_vec4_init(verts[i].x, verts[i].y, verts[i].z, 1.0f));
 
-                c.vis = (p.w >= p.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
-                allVis &= c.vis;
+                const unsigned vis = (p.w >= p.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+                s_vtxVis[i] = (unsigned char)vis;
+                allVis &= vis;
 
-                if (c.vis)
+                v.flags = PVR_CMD_VERTEX;
+
+                if (vis)
                 {
                     const float iw = shz_invf_fsrra(p.w);
-                    c.sx = p.x * iw;
-                    c.sy = p.y * iw;
-                    c.sz = iw;
+                    v.x = p.x * iw;
+                    v.y = p.y * iw;
+                    v.z = iw;
                 }
 
-                c.u = verts[i].u * cmd.uScale;
-                c.v = 1.0f - verts[i].v;
-                c.argb = verts[i].argb;
+                v.u = verts[i].u * cmd.uScale;
+                v.v = 1.0f - verts[i].v;
+                v.argb = verts[i].argb;
+                v.oargb = 0;
             }
 
             if (allVis)
@@ -970,17 +1113,17 @@ public:
                 {
                     for (size_t i = 0; i < count; i++)
                     {
-                        SubmitScreenVert(s_vtxCache[i],
-                                         (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                        SubmitPacket(s_vtxPkt[i],
+                                     (i == count - 1) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
                     }
                 }
                 else
                 {
                     for (size_t i = 0; i + 2 < count; i += 3)
                     {
-                        SubmitScreenVert(s_vtxCache[i], PVR_CMD_VERTEX);
-                        SubmitScreenVert(s_vtxCache[i + 1], PVR_CMD_VERTEX);
-                        SubmitScreenVert(s_vtxCache[i + 2], PVR_CMD_VERTEX_EOL);
+                        SubmitPacket(s_vtxPkt[i], PVR_CMD_VERTEX);
+                        SubmitPacket(s_vtxPkt[i + 1], PVR_CMD_VERTEX);
+                        SubmitPacket(s_vtxPkt[i + 2], PVR_CMD_VERTEX_EOL);
                     }
                 }
                 return;
@@ -1098,6 +1241,14 @@ static void pvrRunDeferredLists()
 {
     s_lastDraws = (unsigned)(s_drawCmds[0].size() + s_drawCmds[1].size() + s_drawCmds[2].size());
 #if defined SRR2_DC_PROFILER
+    s_lastBoxCulled = s_boxCulled;
+    s_lastFusedDraws = s_fusedDraws;
+    s_lastVtxPerFrame = s_vtxPerFrame;
+    s_boxCulled = 0;
+    s_fusedDraws = 0;
+    s_vtxPerFrame = 0;
+#endif
+#if defined SRR2_DC_PVR_TRACE
     const uint64_t replayStart = timer_us_gettime64();
 #endif
 
@@ -1115,20 +1266,16 @@ static void pvrRunDeferredLists()
             const pvrDrawCmd& cmd = cmds[c];
             if (cmd.buffer)
             {
-#if defined SRR2_DC_PROFILER
-                if (s_skipScene)
-                    continue;
-#endif
                 cmd.buffer->SubmitDeferred(cmd);
             }
             else
             {
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
                 const unsigned emitBefore = s_vtxEmit;
                 const uint64_t imStart = timer_us_gettime64();
 #endif
                 pvrImmediatePrimStream::SubmitDeferred(cmd);
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
                 s_replayImUs += timer_us_gettime64() - imStart;
                 s_vtxEmitIM += s_vtxEmit - emitBefore;
 #endif
@@ -1137,7 +1284,7 @@ static void pvrRunDeferredLists()
 
         pvr_list_finish();
     }
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
     s_replayUs = timer_us_gettime64() - replayStart;
 #endif
 }
@@ -1387,6 +1534,7 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , coordQ(NULL)
     , coordWritten(false)
     , coordQCount(0)
+    , bbValid(false)
 
     , uvQ(NULL)
     , uvWritten(false)
@@ -1412,11 +1560,9 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     qBias[0] = qBias[1] = qBias[2] = 0.0f;
     mem += 6;
 
-    if (vertexFormat & PDDI_V_NORMAL)
-    {
-        normal = new float[3 * (size_t)allocated];
-        mem += 12;
-    }
+    // Normals are never read back: this backend has no hardware lighting, so
+    // the stream's Normal() writes went into 12 bytes a vertex of dead weight.
+    (void)normal;
 
     if (vertexFormat & 0xf)
     {
@@ -1516,7 +1662,11 @@ void pvrPrimBuffer::QuantiseCoords()
         const float half = 0.5f * (mx[a] - mn[a]);
         qBias[a] = 0.5f * (mx[a] + mn[a]);
         qScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+
+        bbMin[a] = mn[a];
+        bbMax[a] = mx[a];
     }
+    bbValid = true;
 
     if (!coordQ)
     {
@@ -1631,11 +1781,39 @@ pddiPrimBufferStream* pvrPrimBuffer::Lock()
     return stream;
 }
 
+void pvrPrimBuffer::ComputeBounds()
+{
+    if (!coord || total == 0)
+        return;
+
+    for (int a = 0; a < 3; a++)
+    {
+        bbMin[a] = bbMax[a] = coord[a];
+    }
+
+    for (unsigned v = 1; v < total; v++)
+    {
+        for (int a = 0; a < 3; a++)
+        {
+            const float f = coord[v * 3 + a];
+            if (f < bbMin[a]) bbMin[a] = f;
+            if (f > bbMax[a]) bbMax[a] = f;
+        }
+    }
+
+    bbValid = true;
+}
+
 void pvrPrimBuffer::Unlock(pddiPrimBufferStream* s)
 {
     (void)s;
     if (coordWritten)
         QuantiseCoords();
+
+    // Quantising records the bounds itself; anything left in floats needs its
+    // own pass so it can still be culled.
+    if (coord && coordWritten)
+        ComputeBounds();
     if (uvWritten)
         QuantiseUVs();
     valid = true;
@@ -1739,10 +1917,31 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                                 (float)coordQ[i * 3 + 2], 1.0f));
     };
 
-    if (coordQ && !coord)
+    // Culling and the packet path only need positions and a bounding box --
+    // neither cares whether the positions were quantised. Skinned characters
+    // and vehicles keep float coords, and used to get neither.
+    if (bbValid && (coordQ || coord))
     {
+        float lo[3], hi[3];
+
+        if (coordQ && !coord)
+        {
+            // BuildTransform folded the dequantisation into cmd.xform, so in
+            // that space the box corners are the int16 limits.
+            lo[0] = lo[1] = lo[2] = -32767.0f;
+            hi[0] = hi[1] = hi[2] =  32767.0f;
+        }
+        else
+        {
+            for (int a = 0; a < 3; a++)
+            {
+                lo[a] = bbMin[a];
+                hi[a] = bbMax[a];
+            }
+        }
+
         float boxArea = 0.0f;
-        const pvrBoxClass box = pvrClassifyQuantBox(vp, &boxArea);
+        const pvrBoxClass box = pvrClassifyBox(vp, lo, hi, &boxArea);
 
         if (box == kBoxCulled || boxArea < s_minScreenArea)
         {
@@ -1752,101 +1951,166 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             return;
         }
 
-        // Fully in front of the near plane and a strip: transform straight into
-        // the TA, one pass, no vertex cache. Strips reference each vertex about
-        // once, so the cache saved no transforms and cost a 28-byte write plus a
-        // random 28-byte read per vertex.
-        if (box == kBoxInFront && primType == PDDI_PRIM_TRISTRIP && indexCount && indices && indexCount >= 3)
+        // One pass over the unique vertices building finished TA packets, then
+        // emission by index. A vertex referenced by several indices is
+        // transformed once, not once per reference.
+        if (primType == PDDI_PRIM_TRISTRIP && indexCount && indices && indexCount >= 3
+            && vcount > 0 && pvrReserveVtxCache(vcount) && s_vtxPkt && s_vtxVis)
         {
-            const unsigned n = indexCount;
+            const bool inFront = (box == kBoxInFront);
+            unsigned visAll = 1;
+#if defined SRR2_DC_PROFILER
+            s_vtxPerFrame += indexCount;
+#endif
+#if defined SRR2_DC_PVR_TRACE
+            s_vtxXform += vcount;
+#endif
 #if defined SRR2_DC_PROFILER
             s_fusedDraws++;
 #endif
-
-            auto emitVert = [&](unsigned vi, unsigned flags)
+            for (unsigned i = 0; i < vcount; i++)
             {
-                const shz_vec4_t p = shz_xmtrx_transform_vec4(
-                    shz_vec4_init((float)coordQ[vi * 3 + 0], (float)coordQ[vi * 3 + 1],
-                                  (float)coordQ[vi * 3 + 2], 1.0f));
-                const float iw = shz_invf_fsrra(p.w);
+                const shz_vec4_t p = clipPos(i);
 
-#if defined SRR2_DC_PROFILER
-                s_vtxXform++;
-                s_vtxEmit++;
-#endif
-                pvr_vertex_t* vert = (pvr_vertex_t*)pvr_dr_target();
-                vert->flags = flags;
-                vert->x = p.x * iw;
-                vert->y = p.y * iw;
-                vert->z = iw;
+                const unsigned vis = inFront
+                    ? 1u
+                    : ((p.w >= p.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u);
+
+                s_vtxVis[i] = (unsigned char)vis;
+                visAll &= vis;
+
+                pvr_vertex_t& v = s_vtxPkt[i];
+                v.flags = PVR_CMD_VERTEX;
+
+                if (vis)
+                {
+                    const float iw = shz_invf_fsrra(p.w);
+                    v.x = p.x * iw;
+                    v.y = p.y * iw;
+                    v.z = iw;
+                }
 
                 if (uvQ)
                 {
-                    vert->u = (float)uvQ[vi * 2 + 0] * uMul + uAdd;
-                    vert->v = (float)uvQ[vi * 2 + 1] * vMul + vAdd;
+                    v.u = (float)uvQ[i * 2 + 0] * uMul + uAdd;
+                    v.v = (float)uvQ[i * 2 + 1] * vMul + vAdd;
                 }
                 else if (uv)
                 {
-                    vert->u = uv[vi * 2 + 0] * uScale;
-                    vert->v = flipV ? (1.0f - uv[vi * 2 + 1]) : uv[vi * 2 + 1];
+                    v.u = uv[i * 2 + 0] * uScale;
+                    v.v = flipV ? (1.0f - uv[i * 2 + 1]) : uv[i * 2 + 1];
                 }
                 else
                 {
-                    vert->u = 0.0f;
-                    vert->v = 0.0f;
+                    v.u = 0.0f;
+                    v.v = 0.0f;
                 }
 
                 if (colour)
                 {
-                    const unsigned char* cc = &colour[vi * 4];
-                    vert->argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
-                               | ((uint32_t)cc[1] << 8) | (uint32_t)cc[2];
+                    const unsigned char* cc = &colour[i * 4];
+                    v.argb = ((uint32_t)cc[3] << 24) | ((uint32_t)cc[0] << 16)
+                           | ((uint32_t)cc[1] << 8) | (uint32_t)cc[2];
                 }
                 else
                 {
-                    vert->argb = cmd.argb;
+                    v.argb = cmd.argb;
                 }
 
-                vert->oargb = 0;
-                pvr_dr_commit(vert);
-            };
+                v.oargb = 0;
+            }
 
-            // The exporter joined many short strips into one index list with
-            // degenerate triangles. The TA ends a strip on a per-vertex EOL
-            // flag, so those joins can be dropped instead of submitted: emit
-            // each non-degenerate run as its own strip. A run starting on odd
-            // parity gets a duplicated leading vertex to keep the winding.
-            unsigned i = 0;
-            while (i + 2 < n)
+            if (visAll)
             {
-                const unsigned a = indices[i], b = indices[i + 1], c = indices[i + 2];
-                if (a == b || b == c || a == c)
+                const unsigned n = indexCount;
+                unsigned i = 0;
+
+                while (i + 2 < n)
                 {
-                    i++;
+                    const unsigned a = indices[i], b = indices[i + 1], c = indices[i + 2];
+                    if (a == b || b == c || a == c)
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    unsigned j = i;
+                    while (j + 2 < n)
+                    {
+                        const unsigned x = indices[j], y = indices[j + 1], z = indices[j + 2];
+                        if (x == y || y == z || x == z)
+                            break;
+                        j++;
+                    }
+
+                    const unsigned last = j + 1;
+
+                    if (i & 1u)
+                        SubmitPacket(s_vtxPkt[indices[i]], PVR_CMD_VERTEX);
+
+                    for (unsigned k = i; k <= last; k++)
+                    {
+                        SubmitPacket(s_vtxPkt[indices[k]],
+                                     (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                    }
+
+#if defined SRR2_DC_PVR_TRACE
+                    s_tris += j - i;
+#endif
+                    i = j;
+                }
+                return;
+            }
+
+            // Some vertices sit behind the near plane. Still emit from the
+            // packets already built -- falling through to the generic path
+            // would transform this meshlet a second time.
+            const unsigned n = indexCount;
+
+            for (unsigned i = 0; i + 2 < n; ++i)
+            {
+                unsigned a = indices[i];
+                unsigned b = indices[i + 1];
+                unsigned c = indices[i + 2];
+
+                if (a == b || b == c || a == c)
+                    continue;
+
+                if (i & 1u)
+                {
+                    const unsigned t = b; b = c; c = t;
+                }
+
+#if defined SRR2_DC_PVR_TRACE
+                s_tris++;
+#endif
+                if (s_vtxVis[a] && s_vtxVis[b] && s_vtxVis[c])
+                {
+                    if (cmd.cull != PVR_CULLING_NONE)
+                    {
+                        const float area =
+                            (s_vtxPkt[b].x - s_vtxPkt[a].x) * (s_vtxPkt[c].y - s_vtxPkt[a].y)
+                          - (s_vtxPkt[c].x - s_vtxPkt[a].x) * (s_vtxPkt[b].y - s_vtxPkt[a].y);
+                        if (cmd.cull == PVR_CULLING_CCW && area * kBackfaceSign > 0.0f) continue;
+                        if (cmd.cull == PVR_CULLING_CW  && area * kBackfaceSign < 0.0f) continue;
+                    }
+
+                    SubmitPacket(s_vtxPkt[a], PVR_CMD_VERTEX);
+                    SubmitPacket(s_vtxPkt[b], PVR_CMD_VERTEX);
+                    SubmitPacket(s_vtxPkt[c], PVR_CMD_VERTEX_EOL);
                     continue;
                 }
 
-                unsigned j = i;
-                while (j + 2 < n)
+                pvrClipVert tri[3];
+                const unsigned ix[3] = { a, b, c };
+                for (int k = 0; k < 3; k++)
                 {
-                    const unsigned x = indices[j], y = indices[j + 1], z = indices[j + 2];
-                    if (x == y || y == z || x == z)
-                        break;
-                    j++;
+                    tri[k].pos  = clipPos(ix[k]);
+                    tri[k].u    = s_vtxPkt[ix[k]].u;
+                    tri[k].v    = s_vtxPkt[ix[k]].v;
+                    tri[k].argb = s_vtxPkt[ix[k]].argb;
                 }
-
-                const unsigned last = j + 1;
-
-                if (i & 1u)
-                    emitVert(indices[i], PVR_CMD_VERTEX);
-
-                for (unsigned k = i; k <= last; k++)
-                    emitVert(indices[k], (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
-
-#if defined SRR2_DC_PROFILER
-                s_tris += j - i;
-#endif
-                i = j;
+                ClipAndSubmitTriangle(vp, tri);
             }
             return;
         }
@@ -1856,24 +2120,29 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     if (vcount > 0 && (coord || coordQ) && pvrReserveVtxCache(vcount))
     {
         unsigned visAll = 1;
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
         s_vtxXform += vcount;
 #endif
 
         for (unsigned i = 0; i < vcount; i++)
         {
-            pvrCacheVert& c = s_vtxCache[i];
+            pvr_vertex_t& c = s_vtxPkt[i];
 
             const shz_vec4_t pos = clipPos(i);
 
-            c.vis = (pos.w >= pos.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
-            visAll &= c.vis;
-            if (c.vis)
+            const unsigned vis = (pos.w >= pos.z + PVR_NEAR_CLIP_EPSILON) ? 1u : 0u;
+            s_vtxVis[i] = (unsigned char)vis;
+            visAll &= vis;
+
+            c.flags = PVR_CMD_VERTEX;
+            c.oargb = 0;
+
+            if (vis)
             {
                 const float iw = shz_invf_fsrra(pos.w);
-                c.sx = pos.x * iw;
-                c.sy = pos.y * iw;
-                c.sz = iw;
+                c.x = pos.x * iw;
+                c.y = pos.y * iw;
+                c.z = iw;
             }
 
             if (uv)
@@ -1939,15 +2208,15 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 const unsigned last = j + 1;
 
                 if (i & 1u)
-                    SubmitScreenVert(s_vtxCache[idx ? idx[i] : i], PVR_CMD_VERTEX);
+                    SubmitPacket(s_vtxPkt[idx ? idx[i] : i], PVR_CMD_VERTEX);
 
                 for (unsigned k = i; k <= last; k++)
                 {
-                    SubmitScreenVert(s_vtxCache[idx ? idx[k] : k],
-                                     (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+                    SubmitPacket(s_vtxPkt[idx ? idx[k] : k],
+                                 (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
                 }
 
-#if defined SRR2_DC_PROFILER
+#if defined SRR2_DC_PVR_TRACE
                 s_tris += j - i;
 #endif
                 i = j;
@@ -1957,19 +2226,19 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
         auto emitTri = [&](unsigned a, unsigned b, unsigned c)
         {
-            const pvrCacheVert& va = s_vtxCache[a];
-            const pvrCacheVert& vb = s_vtxCache[b];
-            const pvrCacheVert& vc = s_vtxCache[c];
-#if defined SRR2_DC_PROFILER
+            const pvr_vertex_t& va = s_vtxPkt[a];
+            const pvr_vertex_t& vb = s_vtxPkt[b];
+            const pvr_vertex_t& vc = s_vtxPkt[c];
+#if defined SRR2_DC_PVR_TRACE
             s_tris++;
 #endif
 
-            if (va.vis && vb.vis && vc.vis)
+            if (s_vtxVis[a] && s_vtxVis[b] && s_vtxVis[c])
             {
                 if (cmd.cull != PVR_CULLING_NONE)
                 {
-                    const float area = (vb.sx - va.sx) * (vc.sy - va.sy)
-                                     - (vc.sx - va.sx) * (vb.sy - va.sy);
+                    const float area = (vb.x - va.x) * (vc.y - va.y)
+                                     - (vc.x - va.x) * (vb.y - va.y);
                     if (cmd.cull == PVR_CULLING_CCW)
                     {
                         if (area * kBackfaceSign > 0.0f) return;
@@ -1980,9 +2249,9 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                     }
                 }
 
-                SubmitScreenVert(va, PVR_CMD_VERTEX);
-                SubmitScreenVert(vb, PVR_CMD_VERTEX);
-                SubmitScreenVert(vc, PVR_CMD_VERTEX_EOL);
+                SubmitPacket(va, PVR_CMD_VERTEX);
+                SubmitPacket(vb, PVR_CMD_VERTEX);
+                SubmitPacket(vc, PVR_CMD_VERTEX_EOL);
                 return;
             }
 

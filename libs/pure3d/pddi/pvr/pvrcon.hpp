@@ -185,6 +185,7 @@ protected:
     int* strips;
 
     void QuantiseCoords();
+    void ComputeBounds();
     void RestoreCoords();
     void QuantiseUVs();
     void RestoreUVs();
@@ -193,6 +194,12 @@ protected:
     short* coordQ;
     float qScale[3];
     float qBias[3];
+
+    // Model-space bounds, kept for every buffer so the backend can cull and
+    // fast-path draws whether or not the positions ended up quantised.
+    float bbMin[3];
+    float bbMax[3];
+    bool  bbValid;
     bool coordWritten;
     unsigned coordQCount;
 
