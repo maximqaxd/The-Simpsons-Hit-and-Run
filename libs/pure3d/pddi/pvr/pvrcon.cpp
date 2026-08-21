@@ -2119,7 +2119,7 @@ void pvrPrimBuffer::BuildInterleaved()
         return;
 
     const unsigned n = coordQCount;
-    pvrInterVert* p = new pvrInterVert[n];
+    pvrInterVert* p = new pvrInterVert[n + 1];
     if (!p)
         return;
 
@@ -2155,6 +2155,8 @@ void pvrPrimBuffer::BuildInterleaved()
             p[i].argb = 0xFFFFFFFFu;
         }
     }
+
+    p[n] = p[n - 1];
 
     inter = p;
     interCount = n;
@@ -2482,24 +2484,35 @@ static void RunLightPass(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
     }
 }
 
-template <bool InFront, int ArgbMode>   // 0 default, 1 from record, 2 leave alone
-static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
-                            const pvrInterVert* src, unsigned n,
-                            unsigned* visAll, unsigned argbDefault,
-                            float uMul, float uAdd, float vMul, float vAdd)
+template <bool InFront>
+static void XformInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
+                             const pvrInterVert* src, unsigned n, unsigned* visAll)
 {
     unsigned all = 1;
 
+    if (n == 0)
+    {
+        *visAll = 1;
+        return;
+    }
+
+    float ax = (float)src[0].x;
+    float ay = (float)src[0].y;
+    float az = (float)src[0].z;
+
     for (unsigned i = 0; i < n; i++)
     {
-        // One line covers two records, so this lands a fetch every other pass.
         dcache_pref_block(&src[i + 2]);
 
         const shz_vec4_t p = shz_xmtrx_transform_vec4(
-            shz_vec4_init((float)src[i].x, (float)src[i].y, (float)src[i].z, 1.0f));
+            shz_vec4_init(ax, ay, az, 1.0f));
+
+        const pvrInterVert& nx = src[i + 1];
+        ax = (float)nx.x;
+        ay = (float)nx.y;
+        az = (float)nx.z;
 
         pvr_vertex_t& v = pkt[i];
-        v.flags = PVR_CMD_VERTEX;
 
         if (InFront)
         {
@@ -2522,12 +2535,6 @@ static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
                 v.z = iw;
             }
         }
-
-        v.u = (float)src[i].u * uMul + uAdd;
-        v.v = (float)src[i].v * vMul + vAdd;
-        if (ArgbMode == 0)      v.argb = argbDefault;
-        else if (ArgbMode == 1) v.argb = src[i].argb;
-        v.oargb = 0;
     }
 
     if (InFront)
@@ -2536,6 +2543,36 @@ static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
     }
 
     *visAll = all;
+}
+
+template <int ArgbMode>   // 0 default, 1 from record, 2 leave alone
+static void AttrInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
+                            unsigned argbDefault,
+                            float uMul, float uAdd, float vMul, float vAdd)
+{
+    for (unsigned i = 0; i < n; i++)
+    {
+        pvr_vertex_t& v = pkt[i];
+
+        v.flags = PVR_CMD_VERTEX;
+        v.u = (float)src[i].u * uMul + uAdd;
+        v.v = (float)src[i].v * vMul + vAdd;
+
+        if (ArgbMode == 0)      v.argb = argbDefault;
+        else if (ArgbMode == 1) v.argb = src[i].argb;
+
+        v.oargb = 0;
+    }
+}
+
+template <bool InFront, int ArgbMode>
+static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
+                            const pvrInterVert* src, unsigned n,
+                            unsigned* visAll, unsigned argbDefault,
+                            float uMul, float uAdd, float vMul, float vAdd)
+{
+    XformInterleaved<InFront>(pkt, vis, src, n, visAll);
+    AttrInterleaved<ArgbMode>(pkt, src, n, argbDefault, uMul, uAdd, vMul, vAdd);
 }
 
 // The converter knows where each strip begins and ends, so when it has told

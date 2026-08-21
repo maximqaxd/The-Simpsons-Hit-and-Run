@@ -11,26 +11,74 @@
 
 unsigned char* pvrOixWindow = 0;
 
+static int s_oixOk = 0;
+
 static volatile uint32_t* const kCCR = (volatile uint32_t*)0xFF00001C;
 
 #define CCR_OIX (1u << 7)
 
-// CCR must not change while the pipeline still holds cached accesses, and the
-// code doing it must itself run uncached. Every routine here is reached
-// through its P2 alias; the nops cover the pipeline.
-#define PIPELINE_SETTLE()                                                    \
-    __asm__ __volatile__("nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"        \
-                         "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"        \
-                         "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop")
+// The operand cache index takes address bit 25 while OIX is set and bit 13
+// while it is clear. Main RAM always carries bit 25 clear, so with OIX set it
+// reaches entries 0..255 only, and with OIX clear it reaches all 512. A line
+// left dirty across the flip is therefore parked at an index the new mode can
+// no longer look up, and the value silently reverts to what RAM last saw.
+//
+// dcache_purge_all() handles the bulk, but the compiler re-dirties this
+// function's own frame between that call and the store to CCR -- including the
+// slot the epilogue reads the return address from. So the sweep over the live
+// stack and the flip itself have to be one uninterrupted sequence with nothing
+// in between, which means writing them together.
+//
+// CCR must also be stored from uncached memory; every routine here is reached
+// through its P2 alias, and the nops cover the pipeline.
+
+#define OIX_STACK_SWEEP                                                      \
+        "mov     r15, r0\n\t"                                                \
+        "and     %1, r0\n\t"                                                 \
+        "add     #-64, r0\n\t"                                               \
+        "mov     #24, r1\n\t"                                                \
+        "0:\n\t"                                                             \
+        "ocbp    @r0\n\t"                                                    \
+        "add     #32, r0\n\t"                                                \
+        "dt      r1\n\t"                                                     \
+        "bf      0b\n\t"
+
+#define OIX_SETTLE                                                           \
+        "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"    \
+        "nop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\tnop\n\t"
+
+static void pvrOixFlipOn( void )
+{
+    __asm__ __volatile__(
+        OIX_STACK_SWEEP
+        "mov.l   @%0, r0\n\t"
+        "or      %2, r0\n\t"
+        "mov.l   r0, @%0\n\t"
+        OIX_SETTLE
+        :
+        : "r"(kCCR), "r"(~31), "r"(CCR_OIX)
+        : "r0", "r1", "memory");
+}
+
+static void pvrOixFlipOff( void )
+{
+    __asm__ __volatile__(
+        OIX_STACK_SWEEP
+        "mov.l   @%0, r0\n\t"
+        "and     %2, r0\n\t"
+        "mov.l   r0, @%0\n\t"
+        OIX_SETTLE
+        :
+        : "r"(kCCR), "r"(~31), "r"((uint32_t)~CCR_OIX)
+        : "r0", "r1", "memory");
+}
 
 __attribute__((noinline)) static void pvrOixEnter_( void )
 {
     irq_mask_t mask = irq_disable();
 
     dcache_purge_all();
-
-    *kCCR |= CCR_OIX;
-    PIPELINE_SETTLE();
+    pvrOixFlipOn();
 
     // movca.l allocates a line without fetching it. The window's backing store
     // is a write-only FIFO, so a normal store missing the cache would try to
@@ -40,6 +88,18 @@ __attribute__((noinline)) static void pvrOixEnter_( void )
         for (a = PVR_OIX_ADDR; a < PVR_OIX_ADDR + PVR_OIX_BYTES; a += 32)
             dcache_alloc_block((void*)a, 0);
     }
+
+    irq_restore(mask);
+}
+
+__attribute__((noinline)) static void pvrOixLeave_( void )
+{
+    irq_mask_t mask = irq_disable();
+
+    // ocbi, not ocbp: these lines must not reach the TA.
+    dcache_inval_range(PVR_OIX_ADDR, PVR_OIX_BYTES);
+    dcache_purge_all();
+    pvrOixFlipOff();
 
     irq_restore(mask);
 }
@@ -55,21 +115,16 @@ __attribute__((noinline)) static int pvrOixProbe_( void )
     irq_mask_t mask = irq_disable();
 
     dcache_purge_all();
-
-    *kCCR |= CCR_OIX;
-    PIPELINE_SETTLE();
+    pvrOixFlipOn();
 
     dcache_alloc_block((void*)w, 0);
     w[0] = 0x5341524Du;
     w[7] = 0x32524453u;
     ok = (w[0] == 0x5341524Du) && (w[7] == 0x32524453u);
 
-    // ocbi, not ocbp: this line must never reach the TA.
     dcache_inval_range(PVR_OIX_ADDR, 32);
     dcache_purge_all();
-
-    *kCCR &= ~CCR_OIX;
-    PIPELINE_SETTLE();
+    pvrOixFlipOff();
 
     irq_restore(mask);
     return ok;
@@ -80,46 +135,37 @@ static void* pvrOixP2( void* fn )
     return (void*)(((uintptr_t)fn & 0x1FFFFFFFu) | 0xA0000000u);
 }
 
-// Entered once at startup and never left.
-//
-// Flipping CCR per frame was the dangerous part. The operand cache index takes
-// address bit 25 while OIX is set and bit 13 while it is clear, so a line still
-// resident across the change is indexed one way and interpreted the other. On
-// hardware that surfaced as the leave routine's own epilogue reading back a
-// corrupted return address and returning into the stack.
-//
-// Nothing forces us to leave. With OIX set, cache entries 256..511 are
-// reachable only by addresses carrying bit 25, and this window is the only
-// such address in the machine -- main RAM sits at 0x8Cxxxxxx and the store
-// queues at 0xE0000000, both with bit 25 clear. No other access can evict the
-// primed lines, so they stay valid for the life of the process. The cost is
-// that ordinary data gets 8 KB of operand cache instead of 16 KB.
 void pvrOixEnter( void )
 {
+    if (!s_oixOk)
+        return;
+
+    ((void (*)(void))pvrOixP2((void*)&pvrOixEnter_))();
+    pvrOixWindow = (unsigned char*)PVR_OIX_ADDR;
 }
 
+// The window is only primed between enter and leave, and a store into an
+// unprimed line read-allocates from a write-only FIFO. Dropping the pointer
+// here is what keeps submission outside the bracket -- the front end loads
+// through one -- on the plain RAM path instead of faulting.
 void pvrOixLeave( void )
 {
+    if (!pvrOixWindow)
+        return;
+
+    pvrOixWindow = 0;
+    ((void (*)(void))pvrOixP2((void*)&pvrOixLeave_))();
 }
 
 void pvrOixInit( void )
 {
-    void (*enter)( void ) = (void (*)(void))pvrOixP2((void*)&pvrOixEnter_);
-    int  (*probe)( void ) = (int  (*)(void))pvrOixP2((void*)&pvrOixProbe_);
-
 #ifndef SRR_DC_OIX
-    (void)enter; (void)probe;
     printf( "[pvr] operand cache TA window: disabled at build time\n" );
-    return;
 #else
-    if (probe())
-    {
-        pvrOixWindow = (unsigned char*)PVR_OIX_ADDR;
-        enter();
-    }
+    s_oixOk = ((int (*)(void))pvrOixP2((void*)&pvrOixProbe_))();
 
     printf( "[pvr] operand cache TA window: %s (%u vertices)\n",
-            pvrOixWindow ? "on" : "unavailable",
-            pvrOixWindow ? PVR_OIX_VERTS : 0u );
+            s_oixOk ? "on" : "unavailable",
+            s_oixOk ? PVR_OIX_VERTS : 0u );
 #endif
 }
