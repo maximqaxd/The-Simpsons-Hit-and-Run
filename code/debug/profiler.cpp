@@ -61,6 +61,9 @@ extern "C" unsigned pvrXformSkipped( void );
 extern "C" unsigned pvrLitDraws( void );
 extern "C" unsigned pvrLitVerts( void );
 extern "C" unsigned pvrLightCount( void );
+extern "C" unsigned pvrRecNormalDraws( void );
+extern "C" unsigned pvrLightPoolSize( void );
+extern "C" unsigned pvrLightPoolCount( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -492,6 +495,8 @@ void Profiler::DumpToSerial()
             pvrXformLoaded(), pvrXformSkipped() );
     printf( "[prof] lighting: %u draws, %u vertices, %u lights\n",
             pvrLitDraws(), pvrLitVerts(), pvrLightCount() );
+    printf( "[prof] lit recorded: %u draws with normals, pool %u, last count %u\n",
+            pvrRecNormalDraws(), pvrLightPoolSize(), pvrLightPoolCount() );
 
 #ifdef RAD_DREAMCAST
     {

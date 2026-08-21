@@ -185,6 +185,13 @@ static unsigned s_lastLitVerts = 0, s_lastLitDraws = 0, s_lastLightCount = 0;
 extern "C" unsigned pvrLitVerts( void )   { return s_lastLitVerts; }
 extern "C" unsigned pvrLitDraws( void )   { return s_lastLitDraws; }
 extern "C" unsigned pvrLightCount( void ) { return s_lastLightCount; }
+// Recorded, as opposed to consumed: how many draws arrived carrying normals
+// and how many distinct light sets got pooled for them.
+static unsigned s_recNormalDraws = 0, s_lastRecNormalDraws = 0;
+static unsigned s_lastPoolSize = 0, s_lastPoolCount = 0;
+extern "C" unsigned pvrRecNormalDraws( void ) { return s_lastRecNormalDraws; }
+extern "C" unsigned pvrLightPoolSize( void )  { return s_lastPoolSize; }
+extern "C" unsigned pvrLightPoolCount( void ) { return s_lastPoolCount; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
@@ -1460,7 +1467,10 @@ static void pvrRunDeferredLists()
     s_lastXformSkipped = s_xformSkipped; s_xformSkipped = 0;
     s_lastLitVerts = s_litVerts;   s_litVerts = 0;
     s_lastLitDraws = s_litDraws;   s_litDraws = 0;
-    s_lastLightCount = s_lightCount;
+    s_lastLightCount = s_lightCount;       s_lightCount = 0;
+    s_lastRecNormalDraws = s_recNormalDraws; s_recNormalDraws = 0;
+    s_lastPoolSize = (unsigned)s_lightSets.size();
+    s_lastPoolCount = s_lightSets.empty() ? 0u : s_lightSets.back().count;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -2330,6 +2340,10 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     cmd.hdr = hdr;
     cmd.hdrKey = pvrHdrSortKey(hdr);
     cmd.lightSet = (normalQ || interNormal) ? pvrPoolLightSet(context) : ~0u;
+#if defined SRR2_DC_PROFILER
+    if (normalQ || interNormal)
+        s_recNormalDraws++;
+#endif
     if ((coordQ || inter) && !coord)
         context->BuildTransform(qScale, qBias, &cmd.xform);
     else
