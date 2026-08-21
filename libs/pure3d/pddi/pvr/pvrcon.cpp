@@ -20,6 +20,7 @@
 #include <malloc.h>
 
 #include <vector>
+#include <kos/timer.h>
 #if defined SRR2_DC_PVR_TRACE
 #include <kos/timer.h>
 #include <stdio.h>
@@ -124,8 +125,25 @@ extern "C" unsigned pvrLastVertexEstimate( void ) { return s_lastVtxPerFrame; }
 static unsigned s_vtxEmitted = 0;
 static unsigned s_lastVtxEmitted = 0;
 extern "C" unsigned pvrLastVertexEmitted( void ) { return s_lastVtxEmitted; }
+
+// Submission split by phase. Marked per draw, never per vertex -- reading the
+// timer costs about as much as transforming one vertex, so bracketing the
+// loops is affordable and bracketing their bodies is not.
+static uint64_t s_phSetup = 0, s_phXform = 0, s_phEmit = 0, s_phClip = 0, s_phImm = 0;
+static uint64_t s_lastSetup = 0, s_lastXform = 0, s_lastEmit = 0, s_lastClip = 0, s_lastImm = 0;
+extern "C" unsigned pvrPhaseSetupUs( void ) { return (unsigned)s_lastSetup; }
+extern "C" unsigned pvrPhaseXformUs( void ) { return (unsigned)s_lastXform; }
+extern "C" unsigned pvrPhaseEmitUs ( void ) { return (unsigned)s_lastEmit;  }
+extern "C" unsigned pvrPhaseClipUs ( void ) { return (unsigned)s_lastClip;  }
+extern "C" unsigned pvrPhaseImmUs  ( void ) { return (unsigned)s_lastImm;   }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
+#define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
+#define PH_MARK(b)  do { const uint64_t n_ = timer_us_gettime64(); \
+                         (b) += n_ - phMark_; phMark_ = n_; } while (0)
+#else
+#define PH_BEGIN()  do {} while (0)
+#define PH_MARK(b)  do {} while (0)
 #endif
 static unsigned s_lastVtxBytes = 0;
 
@@ -1285,6 +1303,11 @@ static void pvrRunDeferredLists()
     s_lastVtxPerFrame = s_vtxPerFrame;
     s_lastVtxEmitted = s_vtxEmitted;
     s_vtxEmitted = 0;
+    s_lastSetup = s_phSetup; s_phSetup = 0;
+    s_lastXform = s_phXform; s_phXform = 0;
+    s_lastEmit  = s_phEmit;  s_phEmit  = 0;
+    s_lastClip  = s_phClip;  s_phClip  = 0;
+    s_lastImm   = s_phImm;   s_phImm   = 0;
     s_boxCulled = 0;
     s_fusedDraws = 0;
     s_vtxPerFrame = 0;
@@ -1317,7 +1340,13 @@ static void pvrRunDeferredLists()
                 const unsigned emitBefore = s_vtxEmit;
                 const uint64_t imStart = timer_us_gettime64();
 #endif
+#if defined SRR2_DC_PROFILER
+                const uint64_t phImm_ = timer_us_gettime64();
+#endif
                 pvrImmediatePrimStream::SubmitDeferred(cmd);
+#if defined SRR2_DC_PROFILER
+                s_phImm += timer_us_gettime64() - phImm_;
+#endif
 #if defined SRR2_DC_PVR_TRACE
                 s_replayImUs += timer_us_gettime64() - imStart;
                 s_vtxEmitIM += s_vtxEmit - emitBefore;
@@ -2042,6 +2071,8 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 
 void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 {
+    PH_BEGIN();
+
     BuildInterleaved();
 
     const float uScale = cmd.uScale;
@@ -2111,6 +2142,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #if defined SRR2_DC_PROFILER
             s_boxCulled++;
 #endif
+            PH_MARK(s_phSetup);
             return;
         }
 
@@ -2133,6 +2165,8 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #if defined SRR2_DC_PROFILER
             s_fusedDraws++;
 #endif
+            PH_MARK(s_phSetup);
+
             for (unsigned i = 0; i < vcount; i++)
             {
                 const shz_vec4_t p = clipPos(i);
@@ -2194,6 +2228,8 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 v.oargb = 0;
             }
 
+            PH_MARK(s_phXform);
+
             if (visAll)
             {
                 const unsigned n = indexCount;
@@ -2232,6 +2268,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #endif
                     i = j;
                 }
+                PH_MARK(s_phEmit);
                 return;
             }
 
@@ -2285,9 +2322,11 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 }
                 ClipAndSubmitTriangle(vp, tri);
             }
+            PH_MARK(s_phClip);
             return;
         }
 
+        PH_MARK(s_phSetup);
     }
 
     if (vcount > 0 && (coord || coordQ || inter) && pvrReserveVtxCache(vcount))
@@ -2355,6 +2394,8 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             }
         }
 
+        PH_MARK(s_phXform);
+
         const unsigned short* idx = (indexCount && indices) ? indices : NULL;
         const unsigned n = idx ? indexCount : vcount;
 
@@ -2403,6 +2444,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #endif
                 i = j;
             }
+            PH_MARK(s_phEmit);
             return;
         }
 
@@ -2566,5 +2608,5 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         }
     }
 
-
+    PH_MARK(s_phClip);
 }

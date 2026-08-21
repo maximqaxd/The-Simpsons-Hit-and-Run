@@ -39,6 +39,11 @@ extern "C" unsigned pvrLastBoxCulled( void );
 extern "C" unsigned pvrLastFusedDraws( void );
 extern "C" unsigned pvrLastVertexEstimate( void );
 extern "C" unsigned pvrLastVertexEmitted( void );
+extern "C" unsigned pvrPhaseSetupUs( void );
+extern "C" unsigned pvrPhaseXformUs( void );
+extern "C" unsigned pvrPhaseEmitUs( void );
+extern "C" unsigned pvrPhaseClipUs( void );
+extern "C" unsigned pvrPhaseImmUs( void );
 extern "C" unsigned srrLastCullTested( void );
 extern "C" unsigned srrLastCullRejected( void );
 #endif
@@ -453,6 +458,9 @@ void Profiler::DumpToSerial()
             pvrLastDrawCount(), pvrLastBoxCulled(), pvrLastFusedDraws() );
     printf( "[prof] fast-path vertices: %u\n", pvrLastVertexEstimate() );
     printf( "[prof] vertices to ta: %u\n", pvrLastVertexEmitted() );
+    printf( "[prof] submit us: setup %u, xform %u, emit %u, clip %u, imm %u\n",
+            pvrPhaseSetupUs(), pvrPhaseXformUs(), pvrPhaseEmitUs(),
+            pvrPhaseClipUs(), pvrPhaseImmUs() );
 
 #ifdef RAD_DREAMCAST
     {
