@@ -194,21 +194,76 @@ def _stitch(strips):
     return out
 
 
-def _cell_of(centroid, lo, inv_cell, dims):
-    idx = 0
-    mul = 1
-    for a in range(3):
-        c = int((centroid[a] - lo[a]) * inv_cell[a])
-        if c < 0:
-            c = 0
-        elif c >= dims[a]:
-            c = dims[a] - 1
-        idx += c * mul
-        mul *= dims[a]
-    return idx
+def _strip_runs(indices):
+    """Split a stitched index list back into its component strips, dropping the
+    degenerate joins. Returns a list of index runs, each a real strip."""
+    runs = []
+    n = len(indices)
+    i = 0
+    while i + 2 < n:
+        a, b, c = indices[i], indices[i + 1], indices[i + 2]
+        if a == b or b == c or a == c:
+            i += 1
+            continue
+        j = i
+        while j + 2 < n:
+            x, y, z = indices[j], indices[j + 1], indices[j + 2]
+            if x == y or y == z or x == z:
+                break
+            j += 1
+        run = list(indices[i:j + 2])
+        if i & 1:
+            run.insert(0, run[0])       # keep the winding the source had
+        runs.append(run)
+        i = j
+    return runs
 
 
-def split_group(Chunk, group, target_tris):
+def _pack_meshlets(runs, max_verts):
+    """dca3's grouping: repeatedly take the strip that adds the fewest new
+    vertices, so a meshlet stays spatially coherent and its vertex set fits an
+    8-bit local index space."""
+    remaining = list(runs)
+    out = []
+
+    while remaining:
+        verts = set()
+        chosen = []
+
+        while True:
+            best = None
+            best_new = None
+            best_shared = -1
+
+            for r in remaining:
+                new = {v for v in r if v not in verts}
+                if len(verts) + len(new) > max_verts:
+                    continue
+                shared = len(r) - len(new)
+                if not new:
+                    best, best_new, best_shared = r, new, shared
+                    break
+                if shared > best_shared:
+                    best, best_new, best_shared = r, new, shared
+
+            if best is None:
+                break
+
+            chosen.append(best)
+            verts |= best_new
+            remaining.remove(best)
+
+        if not chosen:
+            # a single strip wider than max_verts: give it its own meshlet
+            chosen = [remaining.pop(0)]
+            verts = set(chosen[0])
+
+        out.append((chosen, verts))
+
+    return out
+
+
+def split_group(Chunk, group, max_verts):
     """Return a list of replacement prim groups, or None to keep as-is."""
     header = PrimGroupHeader(group.data)
     if header.prim_type not in (PRIM_TRIANGLES, PRIM_TRISTRIP):
@@ -223,55 +278,39 @@ def split_group(Chunk, group, target_tris):
     else:
         tris = [tuple(indices[i:i + 3]) for i in range(0, len(indices) - 2, 3)]
 
-    if len(tris) <= target_tris:
+    if header.vertex_count <= max_verts:
         return None
 
-    _, _, pos = verts[POSITIONLIST]
-    lo = [min(p[a] for p in pos) for a in range(3)]
-    hi = [max(p[a] for p in pos) for a in range(3)]
+    runs = _strip_runs(indices) if header.prim_type == PRIM_TRISTRIP else None
 
-    # Choose a grid that lands near target_tris per cell, biased to the longest
-    # axes so cells stay roughly cubical rather than slab-shaped.
-    want = max(2, (len(tris) + target_tris - 1) // target_tris)
-    extent = [max(hi[a] - lo[a], 1e-6) for a in range(3)]
-    order = sorted(range(3), key=lambda a: -extent[a])
-    dims = [1, 1, 1]
-    while dims[0] * dims[1] * dims[2] < want:
-        best = max(order, key=lambda a: extent[a] / dims[a])
-        dims[best] += 1
+    if runs is None:
+        # triangle lists: each triangle is its own run
+        runs = [list(t) for t in tris]
 
-    inv_cell = [dims[a] / extent[a] for a in range(3)]
-
-    buckets = {}
-    for tri in tris:
-        cx = tuple(sum(pos[v][a] for v in tri) / 3.0 for a in range(3))
-        buckets.setdefault(_cell_of(cx, lo, inv_cell, dims), []).append(tri)
-
-    if len(buckets) < 2:
+    packs = _pack_meshlets(runs, max_verts)
+    if len(packs) < 2:
         return None
 
     out = []
-    for cell in sorted(buckets):
-        cell_tris = buckets[cell]
-
+    for chosen, _ in packs:
         keep = []
         remap = {}
-        for tri in cell_tris:
-            for v in tri:
+        for r in chosen:
+            for v in r:
                 if v not in remap:
                     remap[v] = len(keep)
                     keep.append(v)
 
-        local = [tuple(remap[v] for v in tri) for tri in cell_tris]
+        local = [[remap[v] for v in r] for r in chosen]
 
         if header.prim_type == PRIM_TRISTRIP:
-            new_indices = _stitch(_triangles_to_strips(local))
+            new_indices = _stitch(local)
             prim = PRIM_TRISTRIP
         else:
-            new_indices = [v for tri in local for v in tri]
+            new_indices = [v for r in local for v in r]
             prim = PRIM_TRIANGLES
 
-        if not new_indices:
+        if len(new_indices) < 3:
             continue
 
         out.append(Chunk(PRIMGROUP,
@@ -282,7 +321,7 @@ def split_group(Chunk, group, target_tris):
     return out if len(out) > 1 else None
 
 
-def split_mesh(Chunk, mesh, target_tris, stats):
+def split_mesh(Chunk, mesh, max_verts, stats):
     """Rewrite one MESH chunk in place. Returns True if anything changed."""
     name, pos = _read_pstr(mesh.data, 0)
     version, n_prim = struct.unpack_from("<II", mesh.data, pos)
@@ -295,7 +334,7 @@ def split_mesh(Chunk, mesh, target_tris, stats):
             rebuilt.append(c)
             continue
         try:
-            pieces = split_group(Chunk, c, target_tris)
+            pieces = split_group(Chunk, c, max_verts)
         except Unsupported:
             pieces = None
         except Exception:
@@ -319,10 +358,10 @@ def split_mesh(Chunk, mesh, target_tris, stats):
     return True
 
 
-def split_file(Chunk, root, target_tris, stats):
+def split_file(Chunk, root, max_verts, stats):
     touched = False
     for chunk in root.walk():
         if chunk.id == MESH:
-            if split_mesh(Chunk, chunk, target_tris, stats):
+            if split_mesh(Chunk, chunk, max_verts, stats):
                 touched = True
     return touched
