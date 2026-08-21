@@ -30,6 +30,8 @@ import zlib
 from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha1
 
+import meshsplit
+
 # ---------------------------------------------------------------------------
 # Pure3D chunk ids
 # ---------------------------------------------------------------------------
@@ -430,6 +432,7 @@ class Stats:
         self.bytes_raw16 = self.bytes_dt = 0
         self.anim_done = self.anim_skipped = 0
         self.anim_before = self.anim_after = 0
+        self.split = self.pieces = self.kept = 0
         self.size_in = self.size_out = 0
         self.notes = []
 
@@ -481,6 +484,13 @@ def convert_file(src, dst, encoder, opts):
         convert_textures(root, encoder, st, opts.verbose)
     if not opts.no_anim:
         convert_anims(root, st)
+
+    if opts.split_verts:
+        mstats = {"split": 0, "pieces": 0, "kept": 0}
+        meshsplit.split_file(Chunk, root, opts.split_verts, mstats)
+        st.split += mstats["split"]
+        st.pieces += mstats["pieces"]
+        st.kept += mstats["kept"]
 
     out = serialise_p3d(root)
     st.size_out = len(out)
@@ -544,6 +554,10 @@ def main(argv=None):
                     help="parallel conversions (default: %(default)s)")
     ap.add_argument("--no-textures", action="store_true", help="leave IMAGE chunks alone")
     ap.add_argument("--no-anim", action="store_true", help="leave rotation channels alone")
+    ap.add_argument("--split-verts", type=int, default=0, metavar="N",
+                    help="repack prim groups into meshlets of at most N "
+                         "unique vertices (0 disables); 256 is the largest "
+                         "that fits the operand cache window")
     ap.add_argument("--no-vq", action="store_true",
                     help="twiddle only, skip VQ compression")
     ap.add_argument("--codebook", default="small", metavar="SIZE",
@@ -628,6 +642,9 @@ def main(argv=None):
             pct = 100.0 * total.bytes_dt / total.bytes_raw16
             print(f"  VRAM     {mib(total.bytes_raw16)} at 16bpp"
                   f"  ->  {mib(total.bytes_dt)}  ({pct:.0f}%, saves {mib(saved)})")
+    if opts.split_verts:
+        print(f"meshlets   {total.split} groups -> {total.pieces} pieces"
+              f", {total.kept} left alone")
     if not opts.no_anim:
         print(f"anims      {total.anim_done} rotation channels"
               + (f", {total.anim_skipped} skipped" if total.anim_skipped else ""))
