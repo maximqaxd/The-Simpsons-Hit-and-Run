@@ -38,9 +38,11 @@ if(DREAMCAST)
 	if(SRR2_DC_TRACE_VERTS)
 		add_compile_definitions(RAD_DC_TRACE_VERTS)
 	endif()
-	option(SRR2_DC_TRACE_BIG_ALLOCS "Log allocations of 128KB or more" OFF)
+	option(SRR2_DC_TRACE_BIG_ALLOCS "Log allocations at or above SRR2_DC_BIG_ALLOC_KB" OFF)
+	set(SRR2_DC_BIG_ALLOC_KB "128" CACHE STRING "Allocation logging threshold in KB")
 	if(SRR2_DC_TRACE_BIG_ALLOCS)
 		add_compile_definitions(RAD_DC_TRACE_BIG_ALLOCS)
+		add_compile_definitions(RAD_DC_BIG_ALLOC_KB=${SRR2_DC_BIG_ALLOC_KB})
 		add_compile_options(-fno-omit-frame-pointer)
 		add_link_options(-fno-omit-frame-pointer)
 	endif()
@@ -50,6 +52,23 @@ if(DREAMCAST)
 	add_compile_definitions(SRR_DC_DRAW_DIST=${SRR2_DC_DRAW_DIST}.0f)
 	set(SRR2_DC_MIN_DRAW_AREA "6" CACHE STRING "Reject draws smaller than this many screen pixels")
 	add_compile_definitions(SRR_DC_MIN_DRAW_AREA=${SRR2_DC_MIN_DRAW_AREA}.0f)
+	# Per-draw depth reject in the backend. Distinct from SRR2_DC_DRAW_DIST,
+	# which is the entity-level cull in WorldScene. 0 disables it.
+	set(SRR2_DC_DEPTH_CULL "0" CACHE STRING "Reject draws whose nearest corner is beyond this view depth (0 = off)")
+	add_compile_definitions(SRR_DC_DEPTH_CULL=${SRR2_DC_DEPTH_CULL}.0f)
+	# The level rigs three directional lights 120 degrees apart at a shared
+	# elevation, so an upward normal takes half of each and the sum runs to
+	# 471 against a 255 ceiling. Percent applied to the diffuse terms.
+	set(SRR2_DC_LIGHT_SCALE "100" CACHE STRING "Percent scale on diffuse light contributions")
+	add_compile_definitions(SRR_DC_LIGHT_SCALE=${SRR2_DC_LIGHT_SCALE})
+	# Substeps come from the previous frame time, so a slow frame asks for more
+	# and makes the next one slower. 1 integrates coarser but costs half.
+	set(SRR2_DC_MAX_SUBSTEPS "2" CACHE STRING "Cap on physics substeps per frame")
+	add_compile_definitions(SRR_DC_MAX_SUBSTEPS=${SRR2_DC_MAX_SUBSTEPS})
+	# Hardware table fog, ramped up to the draw distance so the world does not
+	# simply stop. 0xRRGGBB, ideally the horizon colour of the level.
+	set(SRR2_DC_FOG_RGB "0x9AA8B8" CACHE STRING "Fog colour as 0xRRGGBB")
+	add_compile_definitions(SRR_DC_FOG_RGB=${SRR2_DC_FOG_RGB})
 	# The operand cache window onto the TA FIFO. Submission gets cheaper, but
 	# holding OIX leaves ordinary data with 8 KB of operand cache instead of
 	# 16, which every cache bound system pays for. Off to A/B it.
@@ -61,6 +80,10 @@ if(DREAMCAST)
 	# Entry zero of the residency list is the initial level load, so a budget
 	# of three admits the start zone and two more. Zero disables the cap.
 	set(SRR2_DC_MAX_ZONES "3" CACHE STRING "Most zones resident at once, 0 for no limit")
+	set(SRR2_DC_ZONE_HIGHWATER_KB "11800" CACHE STRING "Evict zones while heap use exceeds this, in KB")
+	add_compile_definitions(SRR_DC_ZONE_HIGHWATER_KB=${SRR2_DC_ZONE_HIGHWATER_KB})
+	set(SRR2_DC_ZONE_REFUSE_KB "12100" CACHE STRING "Refuse a zone load once heap use exceeds this, in KB")
+	add_compile_definitions(SRR_DC_ZONE_REFUSE_KB=${SRR2_DC_ZONE_REFUSE_KB})
 	if(NOT SRR2_DC_MAX_ZONES STREQUAL "0")
 		add_compile_definitions(SRR_DC_MAX_ZONES=${SRR2_DC_MAX_ZONES})
 	endif()

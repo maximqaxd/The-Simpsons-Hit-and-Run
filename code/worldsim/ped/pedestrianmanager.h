@@ -30,7 +30,7 @@ public EventListener
 // MEMBERS
 public:
     // STATICS
-    static const int MAX_PEDESTRIANS = 7; // should be <= DListArray::MAX_ELEMS;
+    static const int MAX_PEDESTRIANS = 3; // should be <= DListArray::MAX_ELEMS;
     static const int MAX_MODELS_IN_USE = 4; // number of distinct models we can current support at a time
     static const int MAX_MODELS = 10; // num distinct models for 2 groups (while one takes over the other)
     static const int MAX_STRING_LEN = 64;

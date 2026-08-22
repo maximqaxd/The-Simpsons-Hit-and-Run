@@ -77,7 +77,7 @@ const unsigned int TrafficManager::MILLISECONDS_POPULATE_WORLD = 3000;
 
 const unsigned int MILLISECONDS_STUNNED_AFTER_DEACTIVATED = 3000;
 
-const int MAX_TRAFFIC = 5;
+const int MAX_TRAFFIC = 2;
 
 // Define all the swatch colours here...
 TrafficManager::SwatchColour TrafficManager::sSwatchColours[] =

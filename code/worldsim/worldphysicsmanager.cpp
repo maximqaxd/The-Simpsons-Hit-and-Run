@@ -1218,9 +1218,9 @@ void WorldPhysicsManager::Update(unsigned int timeDeltaMilliSeconds)
     // physics integrates on a coarser step and the world runs slightly slow,
     // which beats feeding the spiral.
     //
-    if(numSubsteps > 2)
+    if(numSubsteps > SRR_DC_MAX_SUBSTEPS)
     {
-        numSubsteps = 2;
+        numSubsteps = SRR_DC_MAX_SUBSTEPS;
     }
 #else
     if(numSubsteps > 10)
