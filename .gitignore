@@ -13,3 +13,10 @@ game-dc/
 game-dc-lod/
 __pycache__/
 dcbuild-mem/
+
+# converted game data and converter cache
+game-dc-*/
+.p3dconv-cache/
+
+# working notes
+DREAMCAST_ROADMAP.md
