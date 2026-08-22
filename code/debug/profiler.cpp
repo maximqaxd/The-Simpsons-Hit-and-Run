@@ -37,9 +37,45 @@
 extern "C" unsigned pvrLastDrawCount( void );
 extern "C" unsigned pvrLastBoxCulled( void );
 extern "C" unsigned pvrLastFusedDraws( void );
+extern "C" unsigned pvrLastMissPrim( void );
+extern "C" unsigned pvrLastMissIdx( void );
+extern "C" unsigned pvrLastMissOther( void );
+extern "C" unsigned pvrLastOixDraws( void );
+extern "C" unsigned pvrLastOixVerts( void );
+extern "C" unsigned pvrLastSqDraws( void );
+extern "C" unsigned pvrLastSqVerts( void );
 extern "C" unsigned pvrLastVertexEstimate( void );
 extern "C" unsigned pvrLastVertexEmitted( void );
 extern "C" unsigned pvrPhaseSetupUs( void );
+extern "C" unsigned pvrEmitPlainUs( void );
+extern "C" unsigned pvrLitSaturated( void );
+extern "C" unsigned pvrLitZeroNormal( void );
+extern "C" unsigned pvrLightAmbient( void );
+extern "C" unsigned pvrLightMaterial( void );
+extern "C" int pvrLightDirI( unsigned l, unsigned a );
+extern "C" int pvrLightDotAvg( void );
+extern "C" unsigned pvrDepthVerts( unsigned b );
+extern "C" unsigned pvrDepthDraws( unsigned b );
+extern "C" unsigned pvrDistCulled( void );
+extern "C" unsigned pvrFlushUs( void );
+extern "C" unsigned pvrFinishUs( void );
+extern "C" unsigned pvrLitFlagOn( void );
+extern "C" unsigned pvrRunDead( void );
+extern "C" unsigned pvrRunSkip( void );
+extern "C" unsigned pvrRunSkipV( void );
+extern "C" unsigned pvrRunAll( void );
+extern "C" unsigned pvrRunMixed( void );
+extern "C" unsigned pvrRunAllV( void );
+extern "C" unsigned pvrRunMixedV( void );
+extern "C" unsigned pvrLitFlagOff( void );
+extern "C" unsigned pvrLightZeroCol( void );
+extern "C" unsigned pvrEmitVisUs( void );
+extern "C" unsigned pvrEmitPlainVerts( void );
+extern "C" unsigned pvrEmitVisVerts( void );
+extern "C" unsigned pvrXformFrontUs( void );
+extern "C" unsigned pvrXformStraddleUs( void );
+extern "C" unsigned pvrXformFrontVerts( void );
+extern "C" unsigned pvrXformStraddleVerts( void );
 extern "C" unsigned pvrPhaseXformUs( void );
 extern "C" unsigned pvrPhaseEmitUs( void );
 extern "C" unsigned pvrPhaseClipUs( void );
@@ -477,18 +513,76 @@ void Profiler::DumpToSerial()
     printf( "[prof] draw: %u submitted, %u boxculled, %u fast path\n",
             pvrLastDrawCount(), pvrLastBoxCulled(), pvrLastFusedDraws() );
     printf( "[prof] fast-path vertices: %u\n", pvrLastVertexEstimate() );
+    printf( "[prof] oix window: %u draws / %u verts, fallback %u draws / %u verts\n",
+            pvrLastOixDraws(), pvrLastOixVerts(),
+            pvrLastSqDraws(), pvrLastSqVerts() );
     printf( "[prof] vertices to ta: %u\n", pvrLastVertexEmitted() );
     printf( "[prof] submit us: setup %u, xform %u, emit %u, clip %u, imm %u\n",
             pvrPhaseSetupUs(), pvrPhaseXformUs(), pvrPhaseEmitUs(),
             pvrPhaseClipUs(), pvrPhaseImmUs() );
+    // ns a vertex for each half. Both run the same store to the TA and differ
+    // only in the walk around it: matching rates put the cost in the store,
+    // diverging rates put it in the walk.
+    {
+        const unsigned pv = pvrEmitPlainVerts(), vv = pvrEmitVisVerts();
+        const unsigned fv = pvrXformFrontVerts(), sv = pvrXformStraddleVerts();
+        printf( "[prof] emit split: plain %u us / %u v (%u ns), vis %u us / %u v (%u ns)\n",
+                pvrEmitPlainUs(), pv, pv ? (pvrEmitPlainUs() * 1000u) / pv : 0u,
+                pvrEmitVisUs(), vv, vv ? (pvrEmitVisUs() * 1000u) / vv : 0u );
+        printf( "[prof] xform split: front %u us / %u v (%u ns), straddle %u us / %u v (%u ns)\n",
+                pvrXformFrontUs(), fv, fv ? (pvrXformFrontUs() * 1000u) / fv : 0u,
+                pvrXformStraddleUs(), sv, sv ? (pvrXformStraddleUs() * 1000u) / sv : 0u );
+    }
+    printf( "[prof] light in: ambient %u,%u,%u  light0 %u,%u,%u  mat %u,%u,%u\n",
+            (pvrLightAmbient() >> 16) & 0xFF, (pvrLightAmbient() >> 8) & 0xFF,
+            pvrLightAmbient() & 0xFF,
+            (pvrLightZeroCol() >> 16) & 0xFF, (pvrLightZeroCol() >> 8) & 0xFF,
+            pvrLightZeroCol() & 0xFF,
+            (pvrLightMaterial() >> 16) & 0xFF, (pvrLightMaterial() >> 8) & 0xFF,
+            pvrLightMaterial() & 0xFF );
+    printf( "[prof] light out: %u saturated, %u zero-normal, of %u lit verts\n",
+            pvrLitSaturated(), pvrLitZeroNormal(), pvrLitVerts() );
+    // Object-space light directions, hundredths. A unit direction reads near
+    // 100 on some axis; three that point the same way, or none that reach 100,
+    // means the transform into this space is wrong rather than the rig.
+    printf( "[prof] light dirs: L0 %d,%d,%d  L1 %d,%d,%d  L2 %d,%d,%d\n",
+            pvrLightDirI(0,0), pvrLightDirI(0,1), pvrLightDirI(0,2),
+            pvrLightDirI(1,0), pvrLightDirI(1,1), pvrLightDirI(1,2),
+            pvrLightDirI(2,0), pvrLightDirI(2,1), pvrLightDirI(2,2) );
+    printf( "[prof] light dot: mean best N.L %d/100\n", pvrLightDotAvg() );
+    printf( "[prof] vis runs: %u dead, %u all-visible (%u v), %u mixed (%u v)\n",
+            pvrRunDead(), pvrRunAll(), pvrRunAllV(), pvrRunMixed(), pvrRunMixedV() );
+    printf( "[prof] run range: %u skipped scan (%u v)\n",
+            pvrRunSkip(), pvrRunSkipV() );
+    printf( "[prof] light flag: %u draws with normals want light, %u do not\n",
+            pvrLitFlagOn(), pvrLitFlagOff() );
+    // Cumulative from the far end: "cut here, save this much".
+    {
+        static const int kEdge[8] = { 25, 50, 100, 200, 400, 800, 1600, -1 };
+        unsigned cumV = 0, cumD = 0;
+        for ( int b = 7; b >= 0; b-- )
+        {
+            cumV += pvrDepthVerts( (unsigned)b );
+            cumD += pvrDepthDraws( (unsigned)b );
+            if ( pvrDepthVerts( (unsigned)b ) == 0 && cumV == 0 ) continue;
+            printf( "[prof] depth >= %5d: %6u v this bin, %6u v / %4u draws beyond\n",
+                    b ? kEdge[b-1] : 0, pvrDepthVerts( (unsigned)b ), cumV, cumD );
+        }
+    }
+    printf( "[prof] end frame: flush %u us, finish %u us\n",
+            pvrFlushUs(), pvrFinishUs() );
+    printf( "[prof] dist cull: %u draws rejected by view depth\n",
+            pvrDistCulled() );
     printf( "[prof] clip draws: %u fastpath straddling, %u never fastpath\n",
             pvrClipDrawsFast(), pvrClipDrawsGeneric() );
+    printf( "[prof] fastpath miss: %u not tristrip, %u no index, %u other\n",
+            pvrLastMissPrim(), pvrLastMissIdx(), pvrLastMissOther() );
     printf( "[prof] vertices transformed: %u\n", pvrLastVertexXformed() );
     printf( "[prof] clipped draws: %u tris in strips, %u clipped, %u dropped\n",
             pvrLastStripTris(), pvrLastClipTris(), pvrLastDeadTris() );
     printf( "[prof] clip walk: %u iterations, clipper %u us\n",
             pvrLastClipIters(), pvrClipTriUs() );
-    printf( "[prof] of which generic: %u iterations, %u us\n",
+    printf( "[prof] of which generic: %u vertices, %u us\n",
             pvrLastGenIters(), pvrGenWalkUs() );
     printf( "[prof] headers %u sent, %u skipped; xmtrx %u loaded, %u skipped\n",
             pvrHdrSubmitted(), pvrHdrSkipped(),

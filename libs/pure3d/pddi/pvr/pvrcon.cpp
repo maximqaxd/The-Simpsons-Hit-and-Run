@@ -76,7 +76,20 @@ pvrContext::pvrContext(pvrDevice* dev, pvrDisplay* disp)
     disp->SetContext(this);
 
     maxTexSize = 1024;
+
     contextID = 0;
+    colourWriteOff = false;
+
+    // Driven from the draw distance rather than the game, which disables fog
+    // at view setup. Start partway in so the band is a haze, not an edge.
+    fogRGB   = (unsigned)SRR_DC_FOG_RGB;
+    fogEnd   = (SRR_DC_DEPTH_CULL > 0.0f) ? SRR_DC_DEPTH_CULL : 0.0f;
+    fogStart = fogEnd * 0.55f;
+    fogOn    = (fogEnd > 0.0f);
+    // Not applied here: this runs before pvr_init, which would reset the
+    // registers straight back. Programmed at the first frame instead.
+    fogDirty = true;
+    scissorOn = false;
     DefaultState();
 
     defaultShader = new pvrMat(this);
@@ -117,6 +130,16 @@ static unsigned s_fusedDraws = 0;
 #if defined SRR2_DC_PROFILER
 static unsigned s_lastBoxCulled = 0;
 static unsigned s_lastFusedDraws = 0;
+// The window holds 256 vertices; anything larger falls back to a RAM buffer
+// and the store queues. Split by where the packets actually went.
+// Why a draw misses the fast path: it wants an indexed tristrip, and
+// anything else is transformed per triangle with no vertex reuse.
+static unsigned s_missPrim = 0, s_missIdx = 0, s_missOther = 0;
+static unsigned s_lastMissPrim = 0, s_lastMissIdx = 0, s_lastMissOther = 0;
+static unsigned s_oixDraws = 0, s_oixVerts = 0;
+static unsigned s_sqDraws = 0,  s_sqVerts = 0;
+static unsigned s_lastOixDraws = 0, s_lastOixVerts = 0;
+static unsigned s_lastSqDraws = 0,  s_lastSqVerts = 0;
 // Counted once per draw, not per vertex, so it costs nothing measurable.
 static unsigned s_vtxPerFrame = 0;
 static unsigned s_lastVtxPerFrame = 0;
@@ -191,15 +214,116 @@ static unsigned s_recNormalDraws = 0, s_lastRecNormalDraws = 0;
 static unsigned s_lastPoolSize = 0, s_lastPoolCount = 0;
 extern "C" unsigned pvrRecNormalDraws( void ) { return s_lastRecNormalDraws; }
 extern "C" unsigned pvrLightPoolSize( void )  { return s_lastPoolSize; }
+// Fullbright has two causes that look identical on screen: the inputs are so
+// bright every vertex clamps to white, or the normals are absent so nothing
+// varies. Count both rather than reason about which.
+static unsigned s_litSat = 0, s_litZeroN = 0;
+static unsigned s_lastLitSat = 0, s_lastLitZeroN = 0;
+static unsigned s_lastFlushUs = 0, s_lastFinishUs = 0;
+extern "C" unsigned pvrFlushUs( void )  { return s_lastFlushUs; }
+extern "C" unsigned pvrFinishUs( void ) { return s_lastFinishUs; }
+static unsigned s_distCulled = 0, s_lastDistCulled = 0;
+extern "C" unsigned pvrDistCulled( void ) { return s_lastDistCulled; }
+#define SRR_DEPTH_BINS 8
+static unsigned s_depthVerts[SRR_DEPTH_BINS] = { 0 };
+static unsigned s_depthDraws[SRR_DEPTH_BINS] = { 0 };
+static unsigned s_lastDepthVerts[SRR_DEPTH_BINS] = { 0 };
+static unsigned s_lastDepthDraws[SRR_DEPTH_BINS] = { 0 };
+extern "C" unsigned pvrDepthVerts( unsigned b )
+{
+    return (b < SRR_DEPTH_BINS) ? s_lastDepthVerts[b] : 0u;
+}
+extern "C" unsigned pvrDepthDraws( unsigned b )
+{
+    return (b < SRR_DEPTH_BINS) ? s_lastDepthDraws[b] : 0u;
+}
+static unsigned s_ambRGB = 0, s_l0RGB = 0, s_matRGB = 0;
+// The light directions as the shader actually sees them, and how hard they hit.
+// If object space is not where the skinned normals live, the directions come
+// out wrong and every normal reads as facing a light -- which looks exactly
+// like a light rig that is simply too bright.
+static float s_lDir[4][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+static float s_dotSum = 0.0f;
+static unsigned s_dotCount = 0;
+static int s_lastDotAvg = 0, s_lastDirI[4][3] = { { 0, 0, 0 }, { 0, 0, 0 },
+                                                  { 0, 0, 0 }, { 0, 0, 0 } };
+extern "C" int pvrLightDirI( unsigned l, unsigned a )
+{
+    return (l < 4u && a < 3u) ? s_lastDirI[l][a] : 0;
+}
+extern "C" int pvrLightDotAvg( void ) { return s_lastDotAvg; }
+// Draws arriving with normals, split by whether their material actually asked
+// for lighting.
+// How the visibility walk classifies the runs it is handed. The prescan costs
+// the same for all three, so this says whether the fast path is firing and
+// what the scan itself is worth.
+static unsigned s_runSkip = 0, s_runSkipV = 0;
+static unsigned s_lastRunSkip = 0, s_lastRunSkipV = 0;
+extern "C" unsigned pvrRunSkip( void )  { return s_lastRunSkip; }
+extern "C" unsigned pvrRunSkipV( void ) { return s_lastRunSkipV; }
+static unsigned s_runDead = 0, s_runAll = 0, s_runMixed = 0;
+static unsigned s_runAllV = 0, s_runMixedV = 0;
+static unsigned s_lastRunDead = 0, s_lastRunAll = 0, s_lastRunMixed = 0;
+static unsigned s_lastRunAllV = 0, s_lastRunMixedV = 0;
+extern "C" unsigned pvrRunDead( void )   { return s_lastRunDead; }
+extern "C" unsigned pvrRunAll( void )    { return s_lastRunAll; }
+extern "C" unsigned pvrRunMixed( void )  { return s_lastRunMixed; }
+extern "C" unsigned pvrRunAllV( void )   { return s_lastRunAllV; }
+extern "C" unsigned pvrRunMixedV( void ) { return s_lastRunMixedV; }
+static unsigned s_litFlagOn = 0, s_litFlagOff = 0;
+static unsigned s_lastLitFlagOn = 0, s_lastLitFlagOff = 0;
+extern "C" unsigned pvrLitFlagOn( void )  { return s_lastLitFlagOn; }
+extern "C" unsigned pvrLitFlagOff( void ) { return s_lastLitFlagOff; }
+extern "C" unsigned pvrLightMaterial( void ) { return s_matRGB; }
+extern "C" unsigned pvrLitSaturated( void )  { return s_lastLitSat; }
+extern "C" unsigned pvrLitZeroNormal( void ) { return s_lastLitZeroN; }
+extern "C" unsigned pvrLightAmbient( void )  { return s_ambRGB; }
+extern "C" unsigned pvrLightZeroCol( void )  { return s_l0RGB; }
 extern "C" unsigned pvrLightPoolCount( void ) { return s_lastPoolCount; }
 extern "C" unsigned pvrLastBoxCulled( void )  { return s_lastBoxCulled; }
 extern "C" unsigned pvrLastFusedDraws( void ) { return s_lastFusedDraws; }
+extern "C" unsigned pvrLastMissPrim( void )  { return s_lastMissPrim; }
+extern "C" unsigned pvrLastMissIdx( void )   { return s_lastMissIdx; }
+extern "C" unsigned pvrLastMissOther( void ) { return s_lastMissOther; }
+extern "C" unsigned pvrLastOixDraws( void ) { return s_lastOixDraws; }
+extern "C" unsigned pvrLastOixVerts( void ) { return s_lastOixVerts; }
+extern "C" unsigned pvrLastSqDraws( void )  { return s_lastSqDraws; }
+extern "C" unsigned pvrLastSqVerts( void )  { return s_lastSqVerts; }
+// Emit, split by whether the run walk tests visibility. A draw wholly in front
+// walks its runs and stores; a straddling one loads a byte per index and
+// breaks strips around what it finds. If both cost the same per vertex the
+// time is in the store to the TA, and if they do not it is in the walk.
+static uint64_t s_phEmitPlain = 0, s_phEmitVis = 0;
+static uint64_t s_lastEmitPlain = 0, s_lastEmitVis = 0;
+static unsigned s_emitVertsPlain = 0, s_emitVertsVis = 0;
+static unsigned s_lastEmitVertsPlain = 0, s_lastEmitVertsVis = 0;
+extern "C" unsigned pvrEmitPlainUs( void )    { return (unsigned)s_lastEmitPlain; }
+extern "C" unsigned pvrEmitVisUs( void )      { return (unsigned)s_lastEmitVis; }
+extern "C" unsigned pvrEmitPlainVerts( void ) { return s_lastEmitVertsPlain; }
+extern "C" unsigned pvrEmitVisVerts( void )   { return s_lastEmitVertsVis; }
+// Transform, split the same way: the straddling variant carries a per-vertex
+// visibility test and store that the in-front one compiles out.
+static uint64_t s_phXformFront = 0, s_phXformStraddle = 0;
+static uint64_t s_lastXformFront = 0, s_lastXformStraddle = 0;
+static unsigned s_xformVertsFront = 0, s_xformVertsStraddle = 0;
+static unsigned s_lastXformVertsFront = 0, s_lastXformVertsStraddle = 0;
+extern "C" unsigned pvrXformFrontUs( void )       { return (unsigned)s_lastXformFront; }
+extern "C" unsigned pvrXformStraddleUs( void )    { return (unsigned)s_lastXformStraddle; }
+extern "C" unsigned pvrXformFrontVerts( void )    { return s_lastXformVertsFront; }
+extern "C" unsigned pvrXformStraddleVerts( void ) { return s_lastXformVertsStraddle; }
 #define PH_BEGIN()  uint64_t phMark_ = timer_us_gettime64()
 #define PH_MARK(b)  do { const uint64_t n_ = timer_us_gettime64(); \
                          (b) += n_ - phMark_; phMark_ = n_; } while (0)
+// One timer read charged to two accumulators: the existing total and the
+// split beside it. Reading it twice would put the split's own cost in the
+// total.
+#define PH_MARK2(a,b) do { const uint64_t n_ = timer_us_gettime64(); \
+                           const uint64_t d_ = n_ - phMark_;         \
+                           (a) += d_; (b) += d_; phMark_ = n_; } while (0)
 #else
 #define PH_BEGIN()  do {} while (0)
 #define PH_MARK(b)  do {} while (0)
+#define PH_MARK2(a,b) do {} while (0)
 #endif
 static unsigned s_lastVtxBytes = 0;
 
@@ -208,6 +332,9 @@ extern "C" unsigned pvrLastVertexCount( void ) { return s_lastVtxBytes / 32u; }
 
 void pvrContext::BeginFrame()
 {
+    if (fogDirty)
+        ApplyFog();
+
     pddiBaseContext::BeginFrame();
 #if defined SRR2_DC_PVR_TRACE
     const uint64_t waitStart = timer_us_gettime64();
@@ -247,12 +374,25 @@ void pvrContext::FlushDeferredLists()
 
 void pvrContext::EndFrame()
 {
+#if defined SRR2_DC_PROFILER
+    const uint64_t flushStart_ = timer_us_gettime64();
+#endif
     pddiBaseContext::EndFrame();
     FlushDeferredLists();
+#if defined SRR2_DC_PROFILER
+    // Everything above is this frame's submission. pvr_scene_finish below
+    // blocks until the hardware has taken it, so the two apart say whether the
+    // frame is ours to shorten or the PVR's.
+    const uint64_t finishStart_ = timer_us_gettime64();
+    s_lastFlushUs = (unsigned)(finishStart_ - flushStart_);
+#endif
 #if defined SRR2_DC_PVR_TRACE
     const uint64_t finishStart = timer_us_gettime64();
 #endif
     pvr_scene_finish();
+#if defined SRR2_DC_PROFILER
+    s_lastFinishUs = (unsigned)(timer_us_gettime64() - finishStart_);
+#endif
 #if defined SRR2_DC_PVR_TRACE
     {
         const uint64_t now = timer_us_gettime64();
@@ -646,6 +786,8 @@ struct pvrDrawCmd
     // the skip below compares the header words themselves.
     unsigned        hdrKey;
     unsigned        lightSet;
+    unsigned char   clipOn;
+    unsigned char   clipX0, clipY0, clipX1, clipY1;
 };
 
 static inline unsigned pvrHdrSortKey(const pvr_poly_hdr_t& h)
@@ -659,10 +801,60 @@ static bool           s_haveLastHdr = false;
 static shz_mat4x4_t   s_loadedXform;
 static bool           s_haveLastXform = false;
 
+static unsigned char  s_clipRect[4] = { 0, 0, 0, 0 };
+static bool           s_lastClipOn = false;
+static bool           s_haveLastClip = false;
+
 static inline void pvrResetSubmitState( void )
 {
     s_haveLastHdr = false;
     s_haveLastXform = false;
+    s_haveLastClip = false;
+}
+
+// The clip rectangle is list state, not per-poly state, so it has to reach the
+// TA ahead of the polys that reference it. Coordinates are in 32-pixel tiles
+// and the far edge is inclusive.
+static inline void pvrSubmitClip(const pvrDrawCmd& cmd)
+{
+    if (s_haveLastClip && s_lastClipOn == (cmd.clipOn != 0)
+        && (!cmd.clipOn
+            || (s_clipRect[0] == cmd.clipX0 && s_clipRect[1] == cmd.clipY0
+                && s_clipRect[2] == cmd.clipX1 && s_clipRect[3] == cmd.clipY1)))
+        return;
+
+    unsigned* dst = (unsigned*)pvr_dr_target();
+    dst[0] = PVR_CMD_USERCLIP;
+    dst[1] = 0;
+    dst[2] = 0;
+    dst[3] = 0;
+    dst[4] = cmd.clipOn ? cmd.clipX0 : 0u;
+    dst[5] = cmd.clipOn ? cmd.clipY0 : 0u;
+    dst[6] = cmd.clipOn ? cmd.clipX1 : 19u;
+    dst[7] = cmd.clipOn ? cmd.clipY1 : 14u;
+    pvr_dr_commit(dst);
+
+    s_clipRect[0] = cmd.clipX0; s_clipRect[1] = cmd.clipY0;
+    s_clipRect[2] = cmd.clipX1; s_clipRect[3] = cmd.clipY1;
+    s_lastClipOn = (cmd.clipOn != 0);
+    s_haveLastClip = true;
+}
+
+static inline void pvrFillClip(pvrDrawCmd& cmd, const pvrContext* ctx)
+{
+    if (!ctx->scissorOn)
+    {
+        cmd.clipOn = 0;
+        cmd.clipX0 = cmd.clipY0 = cmd.clipX1 = cmd.clipY1 = 0;
+        return;
+    }
+
+    const pddiRect& r = ctx->scissorRect;
+    cmd.clipOn = 1;
+    cmd.clipX0 = (unsigned char)(r.left / 32);
+    cmd.clipY0 = (unsigned char)(r.top / 32);
+    cmd.clipX1 = (unsigned char)((r.right  > 0 ? r.right  - 1 : 0) / 32);
+    cmd.clipY1 = (unsigned char)((r.bottom > 0 ? r.bottom - 1 : 0) / 32);
 }
 
 static inline void pvrInvalidateXform( void )
@@ -693,16 +885,12 @@ static inline void pvrSubmitHeader(const pvr_poly_hdr_t& h)
 #endif
 }
 
+// No skip on an unchanged matrix. radmath drives XMTRX for every matrix
+// multiply in the engine, so between two draws the register file has almost
+// certainly been overwritten by whatever the display callback did. Only the
+// eight fmov.d pairs prove what is in there.
 static inline void pvrLoadXform(const shz_mat4x4_t& m)
 {
-    if (s_haveLastXform && memcmp(&s_loadedXform, &m, sizeof(shz_mat4x4_t)) == 0)
-    {
-#if defined SRR2_DC_PROFILER
-        s_xformSkipped++;
-#endif
-        return;
-    }
-
     shz_xmtrx_load_4x4(&m);
     s_loadedXform = m;
     s_haveLastXform = true;
@@ -748,10 +936,14 @@ enum pvrBoxClass { kBoxCulled, kBoxClipped, kBoxInFront };
 #define SRR_DC_MIN_DRAW_AREA 6.0f
 #endif
 static float s_minScreenArea = SRR_DC_MIN_DRAW_AREA;
+// Compared against the nearest corner of the box, so anything straddling the
+// boundary is kept whole rather than half-drawn.
+static float s_maxDrawDepth = SRR_DC_DEPTH_CULL;
 
 static pvrBoxClass pvrClassifyBox(const pvrViewportMap& vp, const float* lo,
-                                  const float* hi, float* areaOut)
+                                  const float* hi, float* areaOut, float* nearOut = NULL)
 {
+    float nearW = 1e30f;
     const float x0 = vp.ox;
     const float x1 = vp.ox + vp.hw * 2.0f;
     const float y0 = vp.oy;
@@ -775,6 +967,8 @@ static pvrBoxClass pvrClassifyBox(const pvrViewportMap& vp, const float* lo,
             continue;
         }
 
+        if (p.w < nearW) nearW = p.w;
+
         if (p.x < x0 * p.w) left++;
         if (p.x > x1 * p.w) right++;
         if (p.y < y0 * p.w) above++;
@@ -790,6 +984,11 @@ static pvrBoxClass pvrClassifyBox(const pvrViewportMap& vp, const float* lo,
     }
 
     *areaOut = (behind == 0) ? ((maxX - minX) * (maxY - minY)) : 1e30f;
+
+    // View depth of the nearest corner still in front. What a draw distance
+    // would actually be compared against.
+    if (nearOut)
+        *nearOut = (nearW < 1e29f) ? nearW : 0.0f;
 
     if (behind == 8)
         return kBoxCulled;
@@ -969,9 +1168,29 @@ static inline void MapBlend(const pvrTextureEnv& env, pvr_blend_mode_t& src, pvr
 
 void pvrContext::SetScissor(pddiRect* rect)
 {
-    // Not implemented yet; keep state tracking in base.
+    if (!rect)
+    {
+        scissorOn = false;
+        return;
+    }
+
     pddiBaseContext::SetScissor(rect);
-    (void)rect;
+
+    const int w = display ? display->GetWidth()  : 640;
+    const int hgt = display ? display->GetHeight() : 480;
+
+    int x0 = rect->left  < rect->right  ? rect->left  : rect->right;
+    int x1 = rect->left  < rect->right  ? rect->right : rect->left;
+    int y0 = rect->top   < rect->bottom ? rect->top   : rect->bottom;
+    int y1 = rect->top   < rect->bottom ? rect->bottom: rect->top;
+
+    if (x0 < 0) x0 = 0;
+    if (y0 < 0) y0 = 0;
+    if (x1 > w)   x1 = w;
+    if (y1 > hgt) y1 = hgt;
+
+    scissorRect.Set(x0, y0, x1, y1);
+    scissorOn = (x0 > 0) || (y0 > 0) || (x1 < w) || (y1 < hgt);
 }
 
 // Compiling a header costs a context fill plus pvr_poly_compile, and a mesh's
@@ -994,7 +1213,8 @@ struct pvrHdrKey
     unsigned char   blendDst;
     unsigned char   list;
     unsigned char   enabled;
-    unsigned char   pad;
+    unsigned char   clip;
+    unsigned char   fog;
 };
 
 enum { kHdrCacheSize = 8 };
@@ -1045,6 +1265,8 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     key.blendDst = (unsigned char)keyDst;
     key.list     = (unsigned char)logical;
     key.enabled  = (unsigned char)(textured ? 1 : 0);
+    key.clip     = (unsigned char)(scissorOn ? 1 : 0);
+    key.fog      = (unsigned char)(fogOn ? 1 : 0);
 
     for (int i = 0; i < kHdrCacheSize; i++)
     {
@@ -1077,7 +1299,12 @@ void pvrContext::BuildPolyHeader(const pvrTextureEnv& env, pvr_poly_hdr_t& outHd
     }
 
     cxt.gen.culling = MapCull(state.renderState->cullMode);
-    cxt.gen.fog_type = PVR_FOG_DISABLE;
+    cxt.gen.clip_mode = scissorOn ? PVR_USERCLIP_INSIDE : PVR_USERCLIP_DISABLE;
+    // Table fog: the hardware blends per pixel from the vertex 1/w against a
+    // 128-entry table, so the cost of hiding the draw distance is zero on our
+    // side. Vertex fog would need a per-vertex offset colour, and KOS asserts
+    // in pvr_fog_vertex_color anyway.
+    cxt.gen.fog_type = fogOn ? PVR_FOG_TABLE : PVR_FOG_DISABLE;
 
     if (state.renderState->zEnabled)
     {
@@ -1131,8 +1358,19 @@ public:
         // Write straight into the shared vertex array; no per-stream staging
         // vectors and no second copy at flush time.
         immFirst = (unsigned)s_immVerts.size();
+        // Reserving the exact figure defeats the geometric growth and makes
+        // every stream in the frame reallocate and copy the whole buffer.
         if (reserveVerts > 0)
-            s_immVerts.reserve(s_immVerts.size() + (size_t)reserveVerts);
+        {
+            const size_t need = s_immVerts.size() + (size_t)reserveVerts;
+            if (need > s_immVerts.capacity())
+            {
+                size_t cap = s_immVerts.capacity() ? s_immVerts.capacity() : 2048;
+                while (cap < need)
+                    cap *= 2;
+                s_immVerts.reserve(cap);
+            }
+        }
 
         curColour = pddiColour(255, 255, 255, 255);
         curUV.u = 0.0f; curUV.v = 0.0f;
@@ -1190,7 +1428,7 @@ public:
         ctx->BuildPolyHeader(env, hdr, list);
 
         const int slot = ListSlot(list);
-        if (slot < 0)
+        if (slot < 0 || ctx->colourWriteOff)
         {
             s_immVerts.resize(immFirst);
             return;
@@ -1209,6 +1447,7 @@ public:
         cmd.argb = 0xffffffffu;
         cmd.uScale = GetUStrideScale(env.texture);
         cmd.cull = PVR_CULLING_NONE;
+        pvrFillClip(cmd, ctx);
         pvrFoldViewport(cmd.xform, cmd.vp);
 
         s_drawCmds[slot].push_back(cmd);
@@ -1216,6 +1455,7 @@ public:
 
     static void SubmitDeferred(const pvrDrawCmd& cmd)
     {
+        pvrSubmitClip(cmd);
         pvrSubmitHeader(cmd.hdr);
 
         pvrLoadXform(cmd.xform);
@@ -1259,6 +1499,10 @@ public:
             && pvrReserveVtxCache((unsigned)count) && s_vtxPkt && s_vtxVis)
         {
             const bool oix = (pvrOixWindow != NULL) && ((unsigned)count <= PVR_OIX_VERTS);
+#if defined SRR2_DC_PROFILER
+            if (oix) { s_oixDraws++; s_oixVerts += (unsigned)count; }
+            else     { s_sqDraws++;  s_sqVerts  += (unsigned)count; }
+#endif
             pvr_vertex_t* const pkt = oix ? (pvr_vertex_t*)pvrOixWindow : s_vtxPkt;
             unsigned allVis = 1;
 
@@ -1443,6 +1687,13 @@ static void pvrRunDeferredLists()
 #if defined SRR2_DC_PROFILER
     s_lastBoxCulled = s_boxCulled;
     s_lastFusedDraws = s_fusedDraws;
+    s_lastMissPrim = s_missPrim;   s_missPrim = 0;
+    s_lastMissIdx = s_missIdx;     s_missIdx = 0;
+    s_lastMissOther = s_missOther; s_missOther = 0;
+    s_lastOixDraws = s_oixDraws;  s_lastOixVerts = s_oixVerts;
+    s_lastSqDraws  = s_sqDraws;   s_lastSqVerts  = s_sqVerts;
+    s_oixDraws = 0; s_oixVerts = 0;
+    s_sqDraws  = 0; s_sqVerts  = 0;
     s_lastVtxPerFrame = s_vtxPerFrame;
     s_lastVtxEmitted = s_vtxEmitted;
     s_vtxEmitted = 0;
@@ -1451,6 +1702,36 @@ static void pvrRunDeferredLists()
     s_lastEmit  = s_phEmit;  s_phEmit  = 0;
     s_lastClip  = s_phClip;  s_phClip  = 0;
     s_lastImm   = s_phImm;   s_phImm   = 0;
+    s_lastEmitPlain = s_phEmitPlain; s_phEmitPlain = 0;
+    s_lastEmitVis   = s_phEmitVis;   s_phEmitVis   = 0;
+    s_lastEmitVertsPlain = s_emitVertsPlain; s_emitVertsPlain = 0;
+    s_lastEmitVertsVis   = s_emitVertsVis;   s_emitVertsVis   = 0;
+    s_lastXformFront    = s_phXformFront;    s_phXformFront    = 0;
+    s_lastXformStraddle = s_phXformStraddle; s_phXformStraddle = 0;
+    s_lastXformVertsFront    = s_xformVertsFront;    s_xformVertsFront    = 0;
+    s_lastXformVertsStraddle = s_xformVertsStraddle; s_xformVertsStraddle = 0;
+    s_lastDistCulled = s_distCulled; s_distCulled = 0;
+    for (unsigned b = 0; b < SRR_DEPTH_BINS; b++)
+    {
+        s_lastDepthVerts[b] = s_depthVerts[b]; s_depthVerts[b] = 0;
+        s_lastDepthDraws[b] = s_depthDraws[b]; s_depthDraws[b] = 0;
+    }
+    s_lastDotAvg = s_dotCount ? (int)((s_dotSum / (float)s_dotCount) * 100.0f) : 0;
+    s_dotSum = 0.0f; s_dotCount = 0;
+    for (unsigned li = 0; li < 4u; li++)
+        for (unsigned ax = 0; ax < 3u; ax++)
+            s_lastDirI[li][ax] = (int)(s_lDir[li][ax] * 100.0f);
+    s_lastLitSat   = s_litSat;   s_litSat   = 0;
+    s_lastLitZeroN = s_litZeroN; s_litZeroN = 0;
+    s_lastRunSkip  = s_runSkip;  s_runSkip  = 0;
+    s_lastRunSkipV = s_runSkipV; s_runSkipV = 0;
+    s_lastRunDead  = s_runDead;  s_runDead  = 0;
+    s_lastRunAll   = s_runAll;   s_runAll   = 0;
+    s_lastRunMixed = s_runMixed; s_runMixed = 0;
+    s_lastRunAllV   = s_runAllV;   s_runAllV   = 0;
+    s_lastRunMixedV = s_runMixedV; s_runMixedV = 0;
+    s_lastLitFlagOn  = s_litFlagOn;  s_litFlagOn  = 0;
+    s_lastLitFlagOff = s_litFlagOff; s_litFlagOff = 0;
     s_lastClipFast = s_clipDrawsFast;       s_clipDrawsFast = 0;
     s_lastClipGeneric = s_clipDrawsGeneric; s_clipDrawsGeneric = 0;
     s_lastVtxXformed = s_vtxXformed;        s_vtxXformed = 0;
@@ -1589,9 +1870,15 @@ void pvrContext::SetCullMode(pddiCullMode mode)
     // PVR: cxt.gen.culling
 }
 
+// PVR has no colour write mask. Callers use one to punch depth without
+// touching the frame buffer -- the hud map masks itself to a circle that way
+// -- and drawing the geometry anyway paints it solid. Nothing is lost by
+// dropping it: these overlays land in the translucent list, where depth writes
+// are off, so the draw only ever contributed colour.
 void pvrContext::SetColourWrite(bool red, bool green, bool blue, bool alpha)
 {
     pddiBaseContext::SetColourWrite(red, green, blue, alpha);
+    colourWriteOff = !(red || green || blue);
 }
 
 void pvrContext::EnableZBuffer(bool enable)
@@ -1659,12 +1946,43 @@ void pvrContext::SetFillMode(pddiFillMode mode)
 void pvrContext::EnableFog(bool enable)
 {
     pddiBaseContext::EnableFog(enable);
-    // PVR: cxt.gen.fog_type
+
+    // The game turns fog off at view setup and never turns it back on, so a
+    // configured draw distance keeps it: the whole point is to hide where the
+    // world stops.
+    if (!enable && SRR_DC_DEPTH_CULL > 0.0f)
+        return;
+
+    fogOn = enable;
+    fogDirty = true;
 }
 
 void pvrContext::SetFog(pddiColour colour, float start, float end)
 {
     pddiBaseContext::SetFog(colour, start, end);
+
+    fogRGB = ((unsigned)colour.Red() << 16) | ((unsigned)colour.Green() << 8)
+           | (unsigned)colour.Blue();
+    fogStart = start;
+    fogEnd = end;
+    fogDirty = true;
+}
+
+void pvrContext::ApplyFog()
+{
+    fogDirty = false;
+
+    if (!fogOn)
+        return;
+
+    pvr_fog_table_color(1.0f,
+                        (float)((fogRGB >> 16) & 0xFFu) * (1.0f / 255.0f),
+                        (float)((fogRGB >>  8) & 0xFFu) * (1.0f / 255.0f),
+                        (float)( fogRGB        & 0xFFu) * (1.0f / 255.0f));
+
+    // Sets the density register for the end value itself and builds a
+    // perspective correct ramp, so these are plain world distances.
+    pvr_fog_table_linear(fogStart, fogEnd);
 }
 
 int pvrContext::GetMaxTextureDimension(void)
@@ -1726,9 +2044,10 @@ unsigned pvrContext::BuildLightSet(pvrLightSet* out) const
         out->dir.elem2D[2][n] = -o.z;
         out->dir.elem2D[3][n] = 0.0f;
 
-        out->r[n] = (float)l.colour.Red()   * l.intensity;
-        out->g[n] = (float)l.colour.Green() * l.intensity;
-        out->b[n] = (float)l.colour.Blue()  * l.intensity;
+        const float ls_ = (float)SRR_DC_LIGHT_SCALE * 0.01f;
+        out->r[n] = (float)l.colour.Red()   * l.intensity * ls_;
+        out->g[n] = (float)l.colour.Green() * l.intensity * ls_;
+        out->b[n] = (float)l.colour.Blue()  * l.intensity * ls_;
         n++;
     }
 
@@ -1742,6 +2061,27 @@ unsigned pvrContext::BuildLightSet(pvrLightSet* out) const
     }
 
     out->count = n;
+#if defined SRR2_DC_PROFILER
+    for (unsigned li = 0; li < 4u; li++)
+    {
+        s_lDir[li][0] = out->dir.elem2D[0][li];
+        s_lDir[li][1] = out->dir.elem2D[1][li];
+        s_lDir[li][2] = out->dir.elem2D[2][li];
+    }
+    s_ambRGB = ((unsigned)amb.Red() << 16) | ((unsigned)amb.Green() << 8) | amb.Blue();
+    if (n)
+    {
+        int lr = (int)out->r[0], lg = (int)out->g[0], lb = (int)out->b[0];
+        if (lr > 255) lr = 255;
+        if (lg > 255) lg = 255;
+        if (lb > 255) lb = 255;
+        s_l0RGB = ((unsigned)lr << 16) | ((unsigned)lg << 8) | (unsigned)lb;
+    }
+    else
+    {
+        s_l0RGB = 0u;
+    }
+#endif
     return n;
 }
 
@@ -1795,7 +2135,27 @@ public:
 
     void Normal(float x, float y, float z) override
     {
-        if (!buffer->normalQ) return;
+        // BuildInterleaved frees normalQ and nothing restores it, so on a
+        // dynamic buffer the packed normals live in the interleaved array and
+        // that is where the skinned ones have to land. Writing them anywhere
+        // else lights an animated character in its bind pose. Normal() runs
+        // immediately before Position() for each vertex, so cur is the index
+        // about to be filled.
+        signed char* d;
+
+        if (buffer->normalQ)
+        {
+            d = &buffer->normalQ[cur * 3];
+        }
+        else if (buffer->dynamic && buffer->inter && buffer->interNormal
+                 && cur < buffer->interCount)
+        {
+            d = buffer->inter[cur].n;
+        }
+        else
+        {
+            return;
+        }
 
         const float lsq = x * x + y * y + z * z;
         if (lsq > 1e-12f)
@@ -1808,7 +2168,6 @@ public:
             x = 0.0f; y = 0.0f; z = 1.0f;
         }
 
-        signed char* d = &buffer->normalQ[cur * 3];
         d[0] = (signed char)(x * 127.0f);
         d[1] = (signed char)(y * 127.0f);
         d[2] = (signed char)(z * 127.0f);
@@ -1858,6 +2217,7 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , coord(NULL)
     , coordQ(NULL)
     , coordWritten(false)
+    , dynamic(false)
     , coordQCount(0)
     , bbValid(false)
 
@@ -1870,6 +2230,8 @@ pvrPrimBuffer::pvrPrimBuffer(pvrContext* c, pddiPrimType type, unsigned vertexFo
     , colour(NULL)
     , runs(NULL)
     , runCount(0)
+    , runLo(NULL)
+    , runHi(NULL)
     , inter(NULL)
     , interCount(0)
     , interUV(false)
@@ -1929,6 +2291,8 @@ pvrPrimBuffer::~pvrPrimBuffer()
         delete[] strips;
     if (coord)
         delete[] coord;
+    delete[] runLo; runLo = NULL;
+    delete[] runHi; runHi = NULL;
     if (coordQ)
         delete[] coordQ;
     if (normal)
@@ -2002,11 +2366,13 @@ void pvrPrimBuffer::QuantiseCoords()
         }
     }
 
+    float inv[3];
     for (int a = 0; a < 3; a++)
     {
         const float half = 0.5f * (mx[a] - mn[a]);
         qBias[a] = 0.5f * (mx[a] + mn[a]);
         qScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+        inv[a] = 1.0f / qScale[a];
 
         bbMin[a] = mn[a];
         bbMax[a] = mx[a];
@@ -2020,11 +2386,13 @@ void pvrPrimBuffer::QuantiseCoords()
             return;
     }
 
+    // The scale is fixed for the whole pass, so this is a reciprocal and a
+    // multiply rather than three fdiv a vertex.
     for (unsigned v = 0; v < total; v++)
     {
         for (int a = 0; a < 3; a++)
         {
-            float q = (coord[v * 3 + a] - qBias[a]) / qScale[a];
+            float q = (coord[v * 3 + a] - qBias[a]) * inv[a];
             if (q > 32767.0f) q = 32767.0f;
             if (q < -32767.0f) q = -32767.0f;
             coordQ[v * 3 + a] = (short)(q >= 0.0f ? (q + 0.5f) : (q - 0.5f));
@@ -2055,11 +2423,13 @@ void pvrPrimBuffer::QuantiseUVs()
         }
     }
 
+    float inv[2];
     for (int a = 0; a < 2; a++)
     {
         const float half = 0.5f * (mx[a] - mn[a]);
         uvBias[a] = 0.5f * (mx[a] + mn[a]);
         uvScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+        inv[a] = 1.0f / uvScale[a];
     }
 
     if (!uvQ)
@@ -2073,7 +2443,7 @@ void pvrPrimBuffer::QuantiseUVs()
     {
         for (int a = 0; a < 2; a++)
         {
-            float q = (uv[v * 2 + a] - uvBias[a]) / uvScale[a];
+            float q = (uv[v * 2 + a] - uvBias[a]) * inv[a];
             if (q > 32767.0f) q = 32767.0f;
             if (q < -32767.0f) q = -32767.0f;
             uvQ[v * 2 + a] = (short)(q >= 0.0f ? (q + 0.5f) : (q - 0.5f));
@@ -2104,6 +2474,16 @@ void pvrPrimBuffer::RestoreUVs()
 
 void pvrPrimBuffer::RestoreCoords()
 {
+    // A dynamic buffer is about to have every position overwritten, so there
+    // is nothing to restore: hand back a staging array and leave the
+    // interleaved data alone for RequantiseDynamic to write into.
+    if (dynamic && inter)
+    {
+        if (!coord)
+            coord = new float[3 * (size_t)allocated];
+        return;
+    }
+
     DropInterleaved();
     if (coord || !coordQ)
         return;
@@ -2117,6 +2497,67 @@ void pvrPrimBuffer::RestoreCoords()
         for (int a = 0; a < 3; a++)
             coord[v * 3 + a] = (float)coordQ[v * 3 + a] * qScale[a] + qBias[a];
     }
+}
+
+// Rewrite the positions inside the interleaved array that is already built,
+// leaving its uvs and colours where they are.
+//
+// The alternative is what a buffer written once at load time does: tear the
+// interleaved array back apart into three separate arrays, dequantise the
+// positions to float, quantise them again, then rebuild. That is five
+// allocations and seven passes over the vertices, every frame, for data that
+// is overwritten before anything reads it twice.
+void pvrPrimBuffer::RequantiseDynamic()
+{
+    const unsigned n = total;
+    if (!coord || !inter || n == 0 || n != interCount)
+        return;
+
+    float mn[3], mx[3];
+    for (int a = 0; a < 3; a++)
+        mn[a] = mx[a] = coord[a];
+
+    for (unsigned v = 1; v < n; v++)
+    {
+        for (int a = 0; a < 3; a++)
+        {
+            const float f = coord[v * 3 + a];
+            if (f < mn[a]) mn[a] = f;
+            if (f > mx[a]) mx[a] = f;
+        }
+    }
+
+    float inv[3];
+    for (int a = 0; a < 3; a++)
+    {
+        const float half = 0.5f * (mx[a] - mn[a]);
+        qBias[a] = 0.5f * (mx[a] + mn[a]);
+        qScale[a] = (half > 0.0f) ? (half / 32767.0f) : 1.0f;
+        inv[a] = 1.0f / qScale[a];
+
+        bbMin[a] = mn[a];
+        bbMax[a] = mx[a];
+    }
+    bbValid = true;
+
+    for (unsigned v = 0; v < n; v++)
+    {
+        short* d = &inter[v].x;
+        for (int a = 0; a < 3; a++)
+        {
+            float q = (coord[v * 3 + a] - qBias[a]) * inv[a];
+            if (q > 32767.0f) q = 32767.0f;
+            if (q < -32767.0f) q = -32767.0f;
+            d[a] = (short)(q >= 0.0f ? (q + 0.5f) : (q - 0.5f));
+        }
+    }
+
+    // The array carries one extra vertex so the strip walker can read past the
+    // end; keep it a copy of the last.
+    inter[n] = inter[n - 1];
+
+    delete[] coord;
+    coord = NULL;
 }
 
 void pvrPrimBuffer::BuildInterleaved()
@@ -2237,7 +2678,15 @@ void pvrPrimBuffer::DropInterleaved()
 
 pddiPrimBufferStream* pvrPrimBuffer::Lock()
 {
-    DropInterleaved();
+    // Locking a buffer that has already been built means its contents are
+    // being replaced, which for anything drawn every frame makes the teardown
+    // below pure loss.
+    if (valid && inter)
+        dynamic = true;
+
+    if (!(dynamic && inter))
+        DropInterleaved();
+
     total = 0;
     coordWritten = false;
     uvWritten = false;
@@ -2271,6 +2720,23 @@ void pvrPrimBuffer::ComputeBounds()
 void pvrPrimBuffer::Unlock(pddiPrimBufferStream* s)
 {
     (void)s;
+
+    // Writing uvs takes RestoreUVs through DropInterleaved, so inter is gone
+    // by then and this does not fire. Anything else that leaves the write
+    // short has to tear the interleaved array down before the general path
+    // rebuilds the positions, or the draw would keep reading the old ones.
+    if (dynamic && inter)
+    {
+        if (coordWritten && !uvWritten && total == interCount)
+        {
+            RequantiseDynamic();
+            valid = true;
+            return;
+        }
+
+        DropInterleaved();
+    }
+
     if (coordWritten)
         QuantiseCoords();
 
@@ -2293,10 +2759,46 @@ void pvrPrimBuffer::UnlockIndexBuffer(int count)
     indexCount = count;
 }
 
+void pvrPrimBuffer::BuildRunRanges()
+{
+    if (runLo || !runs || !runCount || !indices)
+        return;
+
+    runLo = new unsigned short[runCount];
+    runHi = new unsigned short[runCount];
+    if (!runLo || !runHi)
+    {
+        delete[] runLo; runLo = NULL;
+        delete[] runHi; runHi = NULL;
+        return;
+    }
+
+    for (unsigned r = 0; r < runCount; r++)
+    {
+        const unsigned first = runs[r * 2 + 0];
+        const unsigned count = runs[r * 2 + 1];
+
+        unsigned lo = 0xFFFFu, hi = 0;
+        for (unsigned k = first; k < first + count; k++)
+        {
+            const unsigned v = indices[k];
+            if (v < lo) lo = v;
+            if (v > hi) hi = v;
+        }
+
+        runLo[r] = (unsigned short)(count ? lo : 0xFFFFu);
+        runHi[r] = (unsigned short)(count ? hi : 0);
+    }
+}
+
 void pvrPrimBuffer::SetRunList(const unsigned short* src, int count)
 {
     delete[] runs;
+    delete[] runLo;
+    delete[] runHi;
     runs = NULL;
+    runLo = NULL;
+    runHi = NULL;
     runCount = 0;
 
     if (!src || count <= 0)
@@ -2341,16 +2843,25 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     context->BuildPolyHeader(env, hdr, list);
 
     const int slot = ListSlot(list);
-    if (slot < 0)
+    if (slot < 0 || context->colourWriteOff)
         return;
 
     pvrDrawCmd cmd;
     cmd.hdr = hdr;
     cmd.hdrKey = pvrHdrSortKey(hdr);
-    cmd.lightSet = (normalQ || interNormal) ? pvrPoolLightSet(context) : ~0u;
+    // env.lit is what the shader asked for. Carrying normals is not consent to
+    // be lit: the flag defaults off and only a material that turns it on wants
+    // the pass.
+    const bool wantsLight = env.lit && (normalQ || interNormal);
+
+    cmd.lightSet = wantsLight ? pvrPoolLightSet(context) : ~0u;
 #if defined SRR2_DC_PROFILER
     if (normalQ || interNormal)
+    {
         s_recNormalDraws++;
+        s_litFlagOn += env.lit ? 1u : 0u;
+        s_litFlagOff += env.lit ? 0u : 1u;
+    }
 #endif
     if ((coordQ || inter) && !coord)
         context->BuildTransform(qScale, qBias, &cmd.xform);
@@ -2365,6 +2876,7 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
     cmd.argb = (unsigned)env.diffuse;
     cmd.uScale = GetUStrideScale(env.texture);
     cmd.cull = context->GetCurrentCull();
+    pvrFillClip(cmd, context);
     pvrFoldViewport(cmd.xform, cmd.vp);
 
     s_drawCmds[slot].push_back(cmd);
@@ -2394,9 +2906,18 @@ void pvrPrimBuffer::DisplayWithMaterial(pvrMat* mat, unsigned pass)
 // Runs before the transform pass, which reloads XMTRX for itself.
 template <unsigned Lights>
 static void LightInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src,
-                             unsigned n, const pvrLightSet& ls, unsigned alpha)
+                             unsigned n, const pvrLightSet& ls, unsigned argb)
 {
     const float sc = 1.0f / 127.0f;
+
+    // The material diffuse belongs in the product. Dropping it left the result
+    // as ambient plus the raw light colours, which with three lights near full
+    // white clamps at 255 for any normal facing any of them -- a textured mesh
+    // then draws exactly as if it were never lit.
+    const unsigned alpha = argb & 0xFF000000u;
+    const float mr = (float)((argb >> 16) & 0xFFu) * (1.0f / 255.0f);
+    const float mg = (float)((argb >>  8) & 0xFFu) * (1.0f / 255.0f);
+    const float mb = (float)( argb        & 0xFFu) * (1.0f / 255.0f);
 
     for (unsigned i = 0; i < n; i++)
     {
@@ -2414,6 +2935,21 @@ static void LightInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src,
         if (Lights > 2 && d.z > 0.0f) { r += d.z * ls.r[2]; g += d.z * ls.g[2]; b += d.z * ls.b[2]; }
         if (Lights > 3 && d.w > 0.0f) { r += d.w * ls.r[3]; g += d.w * ls.g[3]; b += d.w * ls.b[3]; }
 
+        r *= mr; g *= mg; b *= mb;
+
+#if defined SRR2_DC_PROFILER
+        if (r >= 255.0f && g >= 255.0f && b >= 255.0f) s_litSat++;
+        if (!src[i].n[0] && !src[i].n[1] && !src[i].n[2]) s_litZeroN++;
+        {
+            float best = 0.0f;
+            if (Lights > 0 && d.x > best) best = d.x;
+            if (Lights > 1 && d.y > best) best = d.y;
+            if (Lights > 2 && d.z > best) best = d.z;
+            if (Lights > 3 && d.w > best) best = d.w;
+            s_dotSum += best;
+            s_dotCount++;
+        }
+#endif
         if (r > 255.0f) r = 255.0f;
         if (g > 255.0f) g = 255.0f;
         if (b > 255.0f) b = 255.0f;
@@ -2427,9 +2963,14 @@ static void LightInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src,
 
 template <unsigned Lights>
 static void LightPacked(pvr_vertex_t* pkt, const signed char* nrm,
-                        unsigned n, const pvrLightSet& ls, unsigned alpha)
+                        unsigned n, const pvrLightSet& ls, unsigned argb)
 {
     const float sc = 1.0f / 127.0f;
+
+    const unsigned alpha = argb & 0xFF000000u;
+    const float mr = (float)((argb >> 16) & 0xFFu) * (1.0f / 255.0f);
+    const float mg = (float)((argb >>  8) & 0xFFu) * (1.0f / 255.0f);
+    const float mb = (float)( argb        & 0xFFu) * (1.0f / 255.0f);
 
     for (unsigned i = 0; i < n; i++)
     {
@@ -2445,6 +2986,8 @@ static void LightPacked(pvr_vertex_t* pkt, const signed char* nrm,
         if (Lights > 2 && d.z > 0.0f) { r += d.z * ls.r[2]; g += d.z * ls.g[2]; b += d.z * ls.b[2]; }
         if (Lights > 3 && d.w > 0.0f) { r += d.w * ls.r[3]; g += d.w * ls.g[3]; b += d.w * ls.b[3]; }
 
+        r *= mr; g *= mg; b *= mb;
+
         if (r > 255.0f) r = 255.0f;
         if (g > 255.0f) g = 255.0f;
         if (b > 255.0f) b = 255.0f;
@@ -2459,7 +3002,10 @@ static void LightPacked(pvr_vertex_t* pkt, const signed char* nrm,
 static void RunLightPassPacked(pvr_vertex_t* pkt, const signed char* nrm, unsigned n,
                                const pvrLightSet& ls, unsigned argb)
 {
-    const unsigned alpha = argb & 0xFF000000u;
+#if defined SRR2_DC_PROFILER
+    s_matRGB = argb & 0x00FFFFFFu;
+#endif
+    const unsigned alpha = argb;
 
     shz_xmtrx_load_4x4(&ls.dir);
 
@@ -2476,7 +3022,10 @@ static void RunLightPassPacked(pvr_vertex_t* pkt, const signed char* nrm, unsign
 static void RunLightPass(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
                          const pvrLightSet& ls, unsigned argb)
 {
-    const unsigned alpha = argb & 0xFF000000u;
+#if defined SRR2_DC_PROFILER
+    s_matRGB = argb & 0x00FFFFFFu;
+#endif
+    const unsigned alpha = argb;
 
     shz_xmtrx_load_4x4(&ls.dir);
 
@@ -2490,9 +3039,11 @@ static void RunLightPass(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
     }
 }
 
-template <bool InFront>
-static void XformInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
-                             const pvrInterVert* src, unsigned n, unsigned* visAll)
+template <bool InFront, int ArgbMode>   // 0 default, 1 from record, 2 leave alone
+static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
+                            const pvrInterVert* src, unsigned n,
+                            unsigned* visAll, unsigned argbDefault,
+                            float uMul, float uAdd, float vMul, float vAdd)
 {
     unsigned all = 1;
 
@@ -2519,6 +3070,7 @@ static void XformInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
         az = (float)nx.z;
 
         pvr_vertex_t& v = pkt[i];
+        v.flags = PVR_CMD_VERTEX;
 
         if (InFront)
         {
@@ -2541,26 +3093,7 @@ static void XformInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
                 v.z = iw;
             }
         }
-    }
 
-    if (InFront)
-    {
-        memset(vis, 1, n);
-    }
-
-    *visAll = all;
-}
-
-template <int ArgbMode>   // 0 default, 1 from record, 2 leave alone
-static void AttrInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned n,
-                            unsigned argbDefault,
-                            float uMul, float uAdd, float vMul, float vAdd)
-{
-    for (unsigned i = 0; i < n; i++)
-    {
-        pvr_vertex_t& v = pkt[i];
-
-        v.flags = PVR_CMD_VERTEX;
         v.u = (float)src[i].u * uMul + uAdd;
         v.v = (float)src[i].v * vMul + vAdd;
 
@@ -2569,16 +3102,13 @@ static void AttrInterleaved(pvr_vertex_t* pkt, const pvrInterVert* src, unsigned
 
         v.oargb = 0;
     }
-}
 
-template <bool InFront, int ArgbMode>
-static void FillInterleaved(pvr_vertex_t* pkt, unsigned char* vis,
-                            const pvrInterVert* src, unsigned n,
-                            unsigned* visAll, unsigned argbDefault,
-                            float uMul, float uAdd, float vMul, float vAdd)
-{
-    XformInterleaved<InFront>(pkt, vis, src, n, visAll);
-    AttrInterleaved<ArgbMode>(pkt, src, n, argbDefault, uMul, uAdd, vMul, vAdd);
+    if (InFront)
+    {
+        memset(vis, 1, n);
+    }
+
+    *visAll = all;
 }
 
 // The converter knows where each strip begins and ends, so when it has told
@@ -2598,6 +3128,58 @@ static void EmitRunList(bool oix, pvr_vertex_t* pkt, const unsigned char* vis,
             continue;
 
         const unsigned end = first + count - 2;   // one past the last triangle
+
+
+        // Classify the run before walking it. A strip wholly behind the near
+        // plane costs one byte load per index to reject, against assembling
+        // and winding every triangle in it -- and on a draw whose box
+        // straddles, most of what it contains is behind the camera.
+        if (CheckVis)
+        {
+            unsigned anyVis = 0, allVis = 1;
+
+            for (unsigned k = first; k < first + count; k++)
+            {
+                const unsigned v = vis[indices[k]];
+                anyVis |= v;
+                allVis &= v;
+            }
+
+            if (!anyVis)
+            {
+#if defined SRR2_DC_PROFILER
+                s_deadTris += count - 2;
+                s_runDead++;
+#endif
+                continue;
+            }
+#if defined SRR2_DC_PROFILER
+            if (allVis) { s_runAll++;   s_runAllV   += count; }
+            else        { s_runMixed++; s_runMixedV += count; }
+#endif
+
+            // The scan already knows whether anything in the run is hidden.
+            // Walking the triangles again to rediscover that costs three index
+            // loads and three visibility loads apiece, and then the run
+            // extension walks them a third time -- about four times the loads
+            // of a straight submit, on runs that are almost always wholly
+            // visible. Take the plain path when the scan says nothing is cut.
+            if (allVis)
+            {
+                const unsigned last = end + 1;
+
+                if (first & 1u)
+                    SubmitVert(oix, &pkt[indices[first]], PVR_CMD_VERTEX);
+
+                for (unsigned k = first; k <= last; k++)
+                    SubmitVert(oix, &pkt[indices[k]],
+                               (k == last) ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX);
+#if defined SRR2_DC_PROFILER
+                s_stripTris += count - 2;
+#endif
+                continue;
+            }
+        }
 
         unsigned i = first;
         while (i < end)
@@ -2779,6 +3361,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
     const float uScale = cmd.uScale;
     const bool flipV = true;
 
+    pvrSubmitClip(cmd);
     pvrSubmitHeader(cmd.hdr);
 
     pvrLoadXform(cmd.xform);
@@ -2832,24 +3415,53 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
         }
 
         float boxArea = 0.0f;
-        const pvrBoxClass box = pvrClassifyBox(vp, lo, hi, &boxArea);
+        float boxNear = 0.0f;
+        const pvrBoxClass box = pvrClassifyBox(vp, lo, hi, &boxArea, &boxNear);
 
-        if (box == kBoxCulled || boxArea < s_minScreenArea)
+        if (box == kBoxCulled || boxArea < s_minScreenArea
+            || (s_maxDrawDepth > 0.0f && boxNear > s_maxDrawDepth))
         {
 #if defined SRR2_DC_PROFILER
             s_boxCulled++;
+            if (box != kBoxCulled && boxArea >= s_minScreenArea) s_distCulled++;
 #endif
             PH_MARK(s_phSetup);
             return;
         }
 
+#if defined SRR2_DC_PROFILER
+        // Vertices by how far away the draw is. Decides whether a draw distance
+        // would reach the geometry that actually costs, or whether the cost is
+        // near the camera where only lower detail could help.
+        {
+            static const float kEdge[SRR_DEPTH_BINS - 1] =
+                { 25.0f, 50.0f, 100.0f, 200.0f, 400.0f, 800.0f, 1600.0f };
+            unsigned b = SRR_DEPTH_BINS - 1;
+            for (unsigned e = 0; e < SRR_DEPTH_BINS - 1; e++)
+            {
+                if (boxNear < kEdge[e]) { b = e; break; }
+            }
+            s_depthVerts[b] += (unsigned)vcount;
+            s_depthDraws[b]++;
+        }
+#endif
+
         // One pass over the unique vertices building finished TA packets, then
         // emission by index. A vertex referenced by several indices is
         // transformed once, not once per reference.
+#if defined SRR2_DC_PROFILER
+        if (primType != PDDI_PRIM_TRISTRIP)                    s_missPrim++;
+        else if (!indexCount || !indices || indexCount < 3)    s_missIdx++;
+        else if (!(vcount > 0 && s_vtxPkt && s_vtxVis))        s_missOther++;
+#endif
         if (primType == PDDI_PRIM_TRISTRIP && indexCount && indices && indexCount >= 3
             && vcount > 0 && pvrReserveVtxCache(vcount) && s_vtxPkt && s_vtxVis)
         {
             const bool oix = (pvrOixWindow != NULL) && ((unsigned)vcount <= PVR_OIX_VERTS);
+#if defined SRR2_DC_PROFILER
+            if (oix) { s_oixDraws++; s_oixVerts += (unsigned)vcount; }
+            else     { s_sqDraws++;  s_sqVerts  += (unsigned)vcount; }
+#endif
             pvr_vertex_t* const pkt = oix ? (pvr_vertex_t*)pvrOixWindow : s_vtxPkt;
             const bool inFront = (box == kBoxInFront);
             unsigned visAll = 1;
@@ -2981,15 +3593,25 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
             }
             }
 
-            PH_MARK(s_phXform);
+#if defined SRR2_DC_PROFILER
+            if (inFront) s_xformVertsFront    += (unsigned)vcount;
+            else         s_xformVertsStraddle += (unsigned)vcount;
+#endif
+            PH_MARK2(s_phXform, inFront ? s_phXformFront : s_phXformStraddle);
 
             if (visAll)
             {
+#if defined SRR2_DC_PROFILER
+                const unsigned e0_ = s_vtxEmitted;
+#endif
                 if (runs)
                     EmitRunList<false>(oix, pkt, s_vtxVis, indices, runs, runCount, vp, clipPos);
                 else
                     EmitStripRuns<false, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
-                PH_MARK(s_phEmit);
+#if defined SRR2_DC_PROFILER
+                s_emitVertsPlain += s_vtxEmitted - e0_;
+#endif
+                PH_MARK2(s_phEmit, s_phEmitPlain);
                 return;
             }
 
@@ -2999,11 +3621,37 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 #if defined SRR2_DC_PROFILER
             s_clipDrawsFast++;
 #endif
+            // The box straddles, so the whole draw can still be behind the
+            // camera. One byte load per vertex settles that, against walking
+            // and winding every triangle only to discard it.
+            {
+                unsigned anyVis = 0;
+
+                for (int vi = 0; vi < vcount; vi++)
+                    anyVis |= s_vtxVis[vi];
+
+                if (!anyVis)
+                {
+                    PH_MARK(s_phClip);
+                    return;
+                }
+            }
+
+#if defined SRR2_DC_PROFILER
+            const unsigned e0_ = s_vtxEmitted;
+#endif
             if (runs)
                 EmitRunList<true>(oix, pkt, s_vtxVis, indices, runs, runCount, vp, clipPos);
             else
                 EmitStripRuns<true, true>(oix, pkt, s_vtxVis, indices, indexCount, vp, clipPos);
-            PH_MARK(s_phClip);
+#if defined SRR2_DC_PROFILER
+            s_emitVertsVis += s_vtxEmitted - e0_;
+#endif
+
+            // This walk is emission, not clipping: 288 triangles a frame
+            // reach the clipper while this pushes tens of thousands of
+            // vertices. Charging it to clip hid where the time really goes.
+            PH_MARK2(s_phEmit, s_phEmitVis);
             return;
         }
 
@@ -3121,7 +3769,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
 
 #if defined SRR2_DC_PROFILER
         s_clipDrawsGeneric++;
-        const unsigned genBefore_ = s_clipIters;
+
         const uint64_t genStart_ = timer_us_gettime64();
 #endif
         if (primType == PDDI_PRIM_TRIANGLES)
@@ -3137,7 +3785,7 @@ void pvrPrimBuffer::SubmitDeferred(const pvrDrawCmd& cmd)
                 EmitStripRuns<true, false>(false, s_vtxPkt, s_vtxVis, idx, n, vp, clipPos);
         }
 #if defined SRR2_DC_PROFILER
-        s_genIters  += s_clipIters - genBefore_;
+        s_genIters  += n;
         s_phGenWalk += timer_us_gettime64() - genStart_;
 #endif
         PH_MARK(s_phClip);

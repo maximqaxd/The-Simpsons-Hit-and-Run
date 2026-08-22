@@ -80,6 +80,9 @@ public:
 
     // colour buffer control
     void SetColourWrite(bool red, bool green, bool blue, bool alpha);
+    bool colourWriteOff;
+    pddiRect scissorRect;
+    bool scissorOn;
 
     // z-buffer control
     void EnableZBuffer(bool enable);
@@ -102,6 +105,12 @@ public:
     // fog
     void EnableFog(bool enable);
     void SetFog(pddiColour colour, float start, float end);
+    void ApplyFog();
+
+    bool  fogOn;
+    bool  fogDirty;
+    float fogStart, fogEnd;
+    unsigned fogRGB;
 
     // utility
     int GetMaxTextureDimension(void);
@@ -228,6 +237,7 @@ protected:
     void DropInterleaved();
 
     void QuantiseCoords();
+    void RequantiseDynamic();
     void ComputeBounds();
     void RestoreCoords();
     void QuantiseUVs();
@@ -244,6 +254,11 @@ protected:
     float bbMax[3];
     bool  bbValid;
     bool coordWritten;
+
+    // Set once a buffer is locked again after it has been built: something
+    // rewrites its positions every frame. Skinned characters are the case
+    // that matters.
+    bool dynamic;
     unsigned coordQCount;
 
     float* normal;
@@ -278,6 +293,14 @@ protected:
     // found the hard way.
     unsigned short* runs;
     unsigned runCount;
+
+    // Lowest and highest vertex index each run touches. meshsplit numbers a
+    // piece's vertices in run order, so these ranges are tight, and comparing
+    // one against the span of vertices that failed the near plane decides a
+    // whole run without reading its indices at all.
+    unsigned short* runLo;
+    unsigned short* runHi;
+    void BuildRunRanges();
 
     bool valid;
     unsigned mem;

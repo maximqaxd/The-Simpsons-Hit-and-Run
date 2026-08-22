@@ -144,34 +144,42 @@ static void* pvrOixP2( void* fn )
     return (void*)(((uintptr_t)fn & 0x1FFFFFFFu) | 0xA0000000u);
 }
 
+// Entered once and never left.
+//
+// Flipping per frame is coherent on its own -- each flip purges the cache
+// before changing the index bit -- but the purge is the problem. Files stream
+// in over DMA, which writes RAM behind the cache. A full purge writes dirty
+// CPU lines back over data DMA has already landed, and doing that twice a
+// frame during a load hits it often enough to corrupt whatever is being
+// parsed. It surfaced as a null vtable in the font loader on one run and in
+// tInventory::Store on the next.
+//
+// Nothing forces us to leave. With OIX set, entries 256..511 are reachable
+// only by addresses carrying bit 25, and this window is the only such address
+// in the machine -- main RAM sits at 0x8Cxxxxxx and the store queues at
+// 0xE0000000, both with bit 25 clear. No other access can evict the primed
+// lines. The cost is that ordinary data gets 8 KB of operand cache, not 16.
 void pvrOixEnter( void )
 {
-    if (!s_oixOk)
-        return;
-
-    ((void (*)(void))pvrOixP2((void*)&pvrOixEnter_))();
-    pvrOixWindow = (unsigned char*)PVR_OIX_ADDR;
 }
 
-// The window is only primed between enter and leave, and a store into an
-// unprimed line read-allocates from a write-only FIFO. Dropping the pointer
-// here is what keeps submission outside the bracket -- the front end loads
-// through one -- on the plain RAM path instead of faulting.
 void pvrOixLeave( void )
 {
-    if (!pvrOixWindow)
-        return;
-
-    pvrOixWindow = 0;
-    ((void (*)(void))pvrOixP2((void*)&pvrOixLeave_))();
 }
-
 void pvrOixInit( void )
 {
+    (void)&pvrOixLeave_;
+
 #ifndef SRR_DC_OIX
     printf( "[pvr] operand cache TA window: disabled at build time\n" );
 #else
     s_oixOk = ((int (*)(void))pvrOixP2((void*)&pvrOixProbe_))();
+
+    if (s_oixOk)
+    {
+        ((void (*)(void))pvrOixP2((void*)&pvrOixEnter_))();
+        pvrOixWindow = (unsigned char*)PVR_OIX_ADDR;
+    }
 
     printf( "[pvr] operand cache TA window: %s (%u vertices)\n",
             s_oixOk ? "on" : "unavailable",
