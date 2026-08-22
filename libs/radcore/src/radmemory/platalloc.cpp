@@ -107,7 +107,10 @@ void radMemoryPlatTerminate( void )
 
 #if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
 #include <stdio.h>
-#define RAD_DC_BIG_ALLOC_BYTES (128 * 1024)
+#ifndef RAD_DC_BIG_ALLOC_KB
+#define RAD_DC_BIG_ALLOC_KB 128
+#endif
+#define RAD_DC_BIG_ALLOC_BYTES (RAD_DC_BIG_ALLOC_KB * 1024)
 static unsigned s_dcBigAllocs = 0;
 static unsigned s_dcBigAllocBytes = 0;
 #endif

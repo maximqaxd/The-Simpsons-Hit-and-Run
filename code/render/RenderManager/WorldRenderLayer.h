@@ -71,6 +71,9 @@ public:
    virtual void   DoPostStaticLoad();
    virtual void   DumpAllDynaLoads(  unsigned int start, SwapArray<tRefCounted*>& irEntityDeletionList);
    virtual void   DumpDynaLoad(tName& irGiveItAFuckinName, SwapArray<tRefCounted*>& irEntityDeletionList);
+   int            GetDynaZoneCount() const;
+   bool           IsZoneResident(tUID iUid) const;
+   bool           GetEvictableZone(const tUID* ipProtect, int iProtectCount, tName& oName) const;
    virtual bool   DoPreDynaLoad(tName& irGiveItAFuckinName);
    virtual void   DoPostDynaLoad();
 
@@ -108,6 +111,7 @@ protected:
    SwapArray<DynaLoadListDSG>  mStaticLoadLists;
    SwapArray<DynaLoadListDSG*> mLoadLists;
    int                         mnLoadListRefs;
+   unsigned                    mLoadSeqCounter;
    int                         mCurLoadIndex;
    
 #ifdef DEBUGWATCH

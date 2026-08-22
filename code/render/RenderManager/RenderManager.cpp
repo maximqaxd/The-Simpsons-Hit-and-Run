@@ -46,6 +46,7 @@
 #include <render/Enums/RenderEnums.h>
 #include <constants/srrchunks.h>
 #include <memory/srrmemory.h>
+#include <memory/memoryutilities.h>
 
 #include <mission/gameplaymanager.h>
 
@@ -1564,6 +1565,64 @@ END_PROFILE( "Dump Zones" );
             //MunchDelList(50);
 
 END_PROFILE( "Zone/Int Dump" );
+
+#ifdef SRR_DC_MAX_ZONES
+            // The locator dump lists name whatever the level designers expected
+            // to be resident, which is not what we actually hold -- the first
+            // transition asks to drop l1z7 and l1z2 when neither was ever
+            // loaded. Those dumps free nothing, so streaming only ever adds.
+            {
+               WorldRenderLayer* zoneLayer =
+                  (WorldRenderLayer*)mpRenderLayers[RenderEnums::LevelSlot];
+
+               // Protect only the zone about to arrive. Guarding the whole
+               // load list deadlocks: it routinely names more zones than the
+               // budget holds, so every resident one is immune and nothing can
+               // be freed. Distance keeps the player's own zone safe instead.
+               tUID protect[1];
+               int  protectCount = 0;
+               bool needsRoom = false;
+
+               for(i = 0; i < mpZEL->GetNumLoadZones(); i++)
+               {
+                  HeapMgr()->PushHeap( GMA_TEMP );
+                  GiveItAFuckinName.SetText(mpZEL->GetLoadZone(i));
+                  HeapMgr()->PopHeap( GMA_TEMP );
+
+                  if(!zoneLayer->IsZoneResident(GiveItAFuckinName.GetUID()))
+                  {
+                     protect[0] = GiveItAFuckinName.GetUID();
+                     protectCount = 1;
+                     needsRoom = true;
+                     break;
+                  }
+               }
+
+               // A zone count alone is not a budget. Characters and gags keep
+               // streaming in while the player drives, so what a zone has to
+               // fit inside shrinks as the session goes on -- three fitted at
+               // level load and did not twenty minutes later.
+               while(needsRoom && zoneLayer->GetDynaZoneCount() > 0
+                     && (zoneLayer->GetDynaZoneCount() >= SRR_DC_MAX_ZONES
+                         || Memory::GetTotalMemoryUsed() >
+                               (size_t)SRR_DC_ZONE_HIGHWATER_KB * 1024))
+               {
+                  tName victim;
+                  if(!zoneLayer->GetEvictableZone(protect, protectCount, victim))
+                     break;
+
+                  rReleasePrintf("Zone budget: evicting %s, heap %u KB\n",
+                                 victim.GetText(),
+                                 (unsigned)(Memory::GetTotalMemoryUsed() / 1024));
+                  zoneLayer->DumpDynaLoad(victim, mEntityDeletionList);
+
+                  // Dumping only queues the entities and the regular drain is
+                  // capped at a couple of milliseconds a frame, so the release
+                  // has to happen here or the next test sees stale numbers.
+                  MunchDelList(0xFFFFFFFFu);
+               }
+            }
+#endif
 
             //////////////////////////////////////////////////////////////////////////
             // Find a Zone to load

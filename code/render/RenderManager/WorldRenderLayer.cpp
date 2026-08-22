@@ -19,6 +19,7 @@
 // Project Includes
 //========================================
 #include <render/RenderManager/WorldRenderLayer.h>
+#include <memory/memoryutilities.h>
 #include <render/DSG/DynaPhysDSG.h>
 #include <render/DSG/StaticPhysDSG.h>
 #include <render/DSG/IntersectDSG.h>
@@ -1014,6 +1015,7 @@ MEMTRACK_PUSH_GROUP( "WorldRenderLayer" );
 
    mDynaLoadState = msPreLoads;
    mnLoadListRefs = 2000;
+   mLoadSeqCounter = 0;
    mCurLoadIndex  = -1;
 
    int i;
@@ -1092,6 +1094,104 @@ void WorldRenderLayer::DumpAllDynaLoads( unsigned int start, SwapArray<tRefCount
 // Constraints: None.
 //
 //========================================================================
+// Entry zero is the level load itself and can never be evicted, so it does not
+// count against the budget.
+int WorldRenderLayer::GetDynaZoneCount() const
+{
+   return mLoadLists.mUseSize > 0 ? mLoadLists.mUseSize - 1 : 0;
+}
+
+// Entry zero is the level load itself, so eviction starts at one. The rest are
+// in the order the locators asked for them, which for a player moving through
+// the world puts the furthest behind them first.
+static float ZoneDistSq(const rmt::Vector& p, const rmt::Box3D& b)
+{
+   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
+
+   if(p.x < b.low.x)       dx = b.low.x - p.x;
+   else if(p.x > b.high.x) dx = p.x - b.high.x;
+   if(p.y < b.low.y)       dy = b.low.y - p.y;
+   else if(p.y > b.high.y) dy = p.y - b.high.y;
+   if(p.z < b.low.z)       dz = b.low.z - p.z;
+   else if(p.z > b.high.z) dz = p.z - b.high.z;
+
+   return dx * dx + dy * dy + dz * dz;
+}
+
+bool WorldRenderLayer::IsZoneResident(tUID iUid) const
+{
+   for(int i = 0; i < mLoadLists.mUseSize; i++)
+   {
+      if(mLoadLists[i]->mGiveItAFuckinName.GetUID() == iUid)
+         return true;
+   }
+
+   return false;
+}
+
+// Age is the wrong proxy for distance: the zone the player starts in is always
+// the oldest, so evicting by age throws away the ground under their feet. Pick
+// the one furthest away instead, never the one they are standing in, and never
+// one the locator is about to ask for -- an interior sits furthest from the
+// player by construction, so without that guard it evicts and reloads forever.
+bool WorldRenderLayer::GetEvictableZone(const tUID* ipProtect, int iProtectCount, tName& oName) const
+{
+   rmt::Vector player;
+   bool havePlayer = false;
+
+   Avatar* avatar = AvatarManager::GetInstance()->GetAvatarForPlayer(0);
+   if(avatar != NULL)
+   {
+      avatar->GetPosition(player);
+      havePlayer = true;
+   }
+
+   int   best     = -1;
+   float bestDist = -1.0f;
+   int   oldest   = -1;
+
+   for(int i = 1; i < mLoadLists.mUseSize; i++)
+   {
+      bool protectedZone = false;
+      for(int p = 0; p < iProtectCount; p++)
+      {
+         if(mLoadLists[i]->mGiveItAFuckinName.GetUID() == ipProtect[p])
+         {
+            protectedZone = true;
+            break;
+         }
+      }
+
+      if(protectedZone)
+         continue;
+
+      if(oldest < 0 || mLoadLists[i]->mLoadSeq < mLoadLists[oldest]->mLoadSeq)
+         oldest = i;
+
+      if(!havePlayer || !mLoadLists[i]->mBoundsValid)
+         continue;
+
+      const float d = ZoneDistSq(player, mLoadLists[i]->mBounds);
+      if(d <= 0.0f)
+         continue;
+
+      if(d > bestDist)
+      {
+         bestDist = d;
+         best = i;
+      }
+   }
+
+   if(best < 0)
+      best = oldest;
+
+   if(best < 0)
+      return false;
+
+   oName = mLoadLists[best]->mGiveItAFuckinName;
+   return true;
+}
+
 void WorldRenderLayer::DumpDynaLoad(tName& irGiveItAFuckinName, SwapArray<tRefCounted*>& irEntityDeletionList)
 {
     //TODO: this is the ugliest, most embarrasing piece of code I've ever written.
@@ -1522,18 +1622,16 @@ bool WorldRenderLayer::DoPreDynaLoad(tName& irGiveItAFuckinName)//tUID iUID)
          return false;
    }
 
-#ifdef SRR_DC_MAX_ZONES
-   // The level asks for whatever the locator data says, which assumes a
-   // machine with more memory than this one has. Refusing the load leaves a
-   // hole in the distance; evicting instead would be worse, because the list
-   // is in load order and entry zero is where the player is standing.
-   //
-   // A refused zone is not lost: the locator fires again on the next boundary
-   // crossing, by which time something else has usually been dumped.
-   if(mLoadLists.mUseSize >= SRR_DC_MAX_ZONES)
+
+#ifdef SRR_DC_ZONE_REFUSE_KB
+   // Last resort. Eviction runs before this and skips anything the locator
+   // asked for, so when it cannot free enough the only zones left are ones we
+   // still want. Loading anyway is what runs the machine out of memory; the
+   // world gets a hole instead and the next crossing tries again.
+   if(Memory::GetTotalMemoryUsed() > (size_t)SRR_DC_ZONE_REFUSE_KB * 1024)
    {
-      rReleasePrintf("Zone budget full (%d), skipping %s\n",
-                     mLoadLists.mUseSize, irGiveItAFuckinName.GetText());
+      rReleasePrintf("Zone load refused, heap %u KB\n",
+                     (unsigned)(Memory::GetTotalMemoryUsed() / 1024));
       return false;
    }
 #endif
@@ -1556,6 +1654,7 @@ bool WorldRenderLayer::DoPreDynaLoad(tName& irGiveItAFuckinName)//tUID iUID)
       mDynaLoadState = msLoad;
       HeapMgr()->PushHeap( GMA_LEVEL_OTHER );
       mLoadLists[mCurLoadIndex]->mGiveItAFuckinName= irGiveItAFuckinName;
+      mLoadLists[mCurLoadIndex]->mLoadSeq = ++mLoadSeqCounter;
       //mLoadLists[mCurLoadIndex]->ClearAll();
       //mLoadLists[mCurLoadIndex]->AllocateAll(mnLoadListRefs);
       mLoadLists[mCurLoadIndex]->ClearAllUse();
@@ -1587,6 +1686,30 @@ void WorldRenderLayer::DoPostDynaLoad()
    rAssert(mDynaLoadState != msNoLoad);
    mDynaLoadState = msNoLoad;
    mCurLoadUID = 0;
+
+   if(mCurLoadIndex >= 0 && mCurLoadIndex < mLoadLists.mUseSize)
+   {
+      DynaLoadListDSG* zone = mLoadLists[mCurLoadIndex];
+      zone->mBoundsValid = false;
+
+      // Static entities alone are not enough: the road zones carry almost
+      // nothing but road and path segments, so they ended up with no bounds at
+      // all and eviction fell back to age -- which always names the zone the
+      // player started in.
+      #define DC_ZONE_BOUNDS(arr)                                                     for(int b = 0; b < zone->arr.mUseSize; b++)                                  {                                                                               rmt::Box3D eb;                                                               zone->arr[b]->GetBoundingBox(&eb);                                                                                                                        if(!zone->mBoundsValid)                                                      {                                                                               zone->mBounds = eb;                                                          zone->mBoundsValid = true;                                                }                                                                            else                                                                         {                                                                               if(eb.low.x  < zone->mBounds.low.x)  zone->mBounds.low.x  = eb.low.x;                 if(eb.low.y  < zone->mBounds.low.y)  zone->mBounds.low.y  = eb.low.y;                 if(eb.low.z  < zone->mBounds.low.z)  zone->mBounds.low.z  = eb.low.z;                 if(eb.high.x > zone->mBounds.high.x) zone->mBounds.high.x = eb.high.x;                if(eb.high.y > zone->mBounds.high.y) zone->mBounds.high.y = eb.high.y;                if(eb.high.z > zone->mBounds.high.z) zone->mBounds.high.z = eb.high.z;             }                                                                         }
+
+      DC_ZONE_BOUNDS(mSEntityElems)
+      DC_ZONE_BOUNDS(mSPhysElems)
+      DC_ZONE_BOUNDS(mFenceElems)
+      DC_ZONE_BOUNDS(mRoadSegmentElems)
+      DC_ZONE_BOUNDS(mPathSegmentElems)
+
+      #undef DC_ZONE_BOUNDS
+
+      rReleasePrintf("Zone bounds %s: %s\n",
+                     zone->mGiveItAFuckinName.GetText(),
+                     zone->mBoundsValid ? "ok" : "NONE");
+   }
 
    if(mQdDump)
    {

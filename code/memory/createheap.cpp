@@ -50,7 +50,15 @@ HeapCreationData g_HeapCreationData[] =
 #endif // RAD_WIN32
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level"                },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Movie"          },
+#ifdef RAD_DREAMCAST
+    // A real region, not a tracking wrapper. Tracking heaps collapse to
+    // HEAP_TYPE_NONE in release, so PrepareHeapsInGame's DestroyHeapA is a
+    // no-op and the boot splash it was meant to reclaim stays resident. This
+    // is the only heap whose contents are provably dead at the transition.
+    { HEAP_TYPE_DOUG_LEA, GMA_DEFAULT, "Level FE"             },
+#else
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level FE"             },
+#endif
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Zone"           },
     { HEAP_TYPE_TRACKING, GMA_DEFAULT, "Level Other"          },
 #ifdef USE_DOUG_LEA_HEAP
@@ -152,7 +160,7 @@ void CreateHeap ( GameMemoryAllocator allocator, const unsigned int size )
             HeapMgr()->PopHeap( GMA_DEBUG );
             break;
         }
-#ifdef USE_DOUG_LEA_HEAP
+#if defined(USE_DOUG_LEA_HEAP) || defined(RAD_DREAMCAST)
         case HEAP_TYPE_DOUG_LEA :
         {
             HeapMgr()->PushHeap( GMA_DEBUG );

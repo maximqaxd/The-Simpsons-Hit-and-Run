@@ -523,7 +523,10 @@ void * radMemoryAlloc( radMemoryAllocator allocator, unsigned int numberOfBytes 
     }
 
 #if defined RAD_DREAMCAST && defined RAD_DC_TRACE_BIG_ALLOCS
-    if ( numberOfBytes >= (128 * 1024) )
+#ifndef RAD_DC_BIG_ALLOC_KB
+#define RAD_DC_BIG_ALLOC_KB 128
+#endif
+    if ( numberOfBytes >= (RAD_DC_BIG_ALLOC_KB * 1024) )
     {
         printf( "   [who] %u bytes, allocator %d, from %p %p %p %p\n",
                 numberOfBytes, (int)allocator,

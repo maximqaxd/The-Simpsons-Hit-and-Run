@@ -301,6 +301,18 @@ void AnimationPlayer::Stop()
 void AnimationPlayer::ClearData()
 {
     mState = ANIM_IDLE;
+
+    // Deleting the section only unlinks it -- the elements keep the
+    // inventory reference and the whole gag stays resident, so every
+    // load/unload cycle left another copy behind. mSection is zero when the
+    // data was already in the inventory and is not ours to release.
+    const tUID kNoSection( (radInt64)0 );
+
+    if( mSection != kNoSection )
+    {
+        p3d::inventory->RemoveSectionElements( mSection );
+    }
+
     p3d::inventory->DeleteSection( mSection );
 }
 

@@ -83,6 +83,15 @@ public:
    }
 
    tName mGiveItAFuckinName;
+
+   // SwapArray::Remove swaps the last entry into the hole, so position says
+   // nothing about age once anything has been evicted.
+   unsigned mLoadSeq;
+
+   // Union of the static geometry, so eviction can pick the zone furthest from
+   // the player instead of merely the oldest.
+   rmt::Box3D mBounds;
+   bool       mBoundsValid;
    
    SwapArray<WorldSphereDSG*>            mWorldSphereElems; 
    SwapArray<StaticEntityDSG*>           mSEntityElems; 
