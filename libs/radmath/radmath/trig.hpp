@@ -48,6 +48,24 @@ inline float DegToRadian(const float a)
 }
 
 #ifndef RAD_PS2
+#ifdef RAD_DREAMCAST
+    // fsca returns both results from one instruction in about ten cycles,
+    // where sinf and cosf are software and cost hundreds each.
+    //
+    // It reads a 16-bit fixed point angle, so the argument quantises to
+    // 2*pi/65536 -- near 0.0055 degrees -- and ftrc truncates towards zero
+    // rather than rounding, which puts the worst case at one of those steps.
+    // ftrc also saturates, so an angle past about 2e5 radians returns
+    // nonsense where libm would still be exact.
+    inline float Sin(const float angle)  {  return shz_sinf(angle); }
+    inline float Cos(const float angle)  {  return shz_cosf(angle); }
+    inline void  SinCos(const float angle, float* s, float* c)
+    {
+        const shz_sincos_t sc = shz_sincosf(angle);
+        *s = sc.sin;
+        *c = sc.cos;
+    }
+#else
     inline float Sin(const float angle)  {  return sinf(angle); }
     inline float Cos(const float angle)  {  return cosf(angle); }
     inline void  SinCos(const float angle, float* s, float* c)
@@ -55,6 +73,7 @@ inline float DegToRadian(const float a)
         *s = sinf(angle);
         *c = cosf(angle);
     }
+#endif
 #endif
 
 #ifdef RAD_PS2

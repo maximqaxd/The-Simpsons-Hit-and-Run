@@ -7,8 +7,53 @@
 #include <radmath/trig.hpp>
 #include <assert.h>
 
+#ifdef RAD_DREAMCAST
+#include <stdint.h>
+#include <sh4zam/shz_sh4zam.h>
+#endif
+
 namespace RadicalMathLibrary
 {
+
+#ifdef RAD_DREAMCAST
+
+// XMTRX holds a row-major matrix: xf[4r+c] is m[r][c], so ftrv computes the
+// row-vector product v*M this library already uses, and apply_4x4(B) leaves
+// B*M behind. Mult(a, b) is a*b, which is load b then apply a.
+//
+// Anything that loads XMTRX owns it until the next load. These routines are
+// called from all over the engine, so no caller may assume the register file
+// still holds what it put there before calling into radmath.
+//
+// Matrix is alignas(8) for the pair-wise moves, but the palettes handed in by
+// the skinning code are not all under this library's control and an unaligned
+// fmov.d raises an address error on hardware that an emulator will not
+// reproduce, so the alignment is checked rather than assumed.
+static inline void dcXmtrxLoad( const float* f )
+{
+    if( ( (uintptr_t)f & 7u ) == 0 )
+        shz_xmtrx_load_4x4( (const shz_mat4x4_t*)f );
+    else
+        shz_xmtrx_load_unaligned_4x4( f );
+}
+
+static inline void dcXmtrxApply( const float* f )
+{
+    if( ( (uintptr_t)f & 7u ) == 0 )
+        shz_xmtrx_apply_4x4( (const shz_mat4x4_t*)f );
+    else
+        shz_xmtrx_apply_unaligned_4x4( f );
+}
+
+static inline void dcXmtrxStore( float* f )
+{
+    if( ( (uintptr_t)f & 7u ) == 0 )
+        shz_xmtrx_store_4x4( (shz_mat4x4_t*)f );
+    else
+        shz_xmtrx_store_unaligned_4x4( f );
+}
+
+#endif
 
 // a template for an identity matrix
 
@@ -469,6 +514,25 @@ void Matrix::RotateVector(const Vector& src, Vector* dest) const
 
 #ifndef RAD_PS2 // these functions are implemented in ps2/matrix_ps2.cpp
 #ifndef RAD_GAMECUBE
+#ifdef RAD_DREAMCAST
+
+// Both operands are read into the register file before anything is written
+// back, so the destination may alias either of them.
+void Matrix::Mult(const Matrix& a, const Matrix& b)
+{
+    dcXmtrxLoad(&b.m[0][0]);
+    dcXmtrxApply(&a.m[0][0]);
+    dcXmtrxStore(&m[0][0]);
+}
+
+void Matrix::MultFull(const Matrix& a, const Matrix& b)
+{
+    dcXmtrxLoad(&b.m[0][0]);
+    dcXmtrxApply(&a.m[0][0]);
+    dcXmtrxStore(&m[0][0]);
+}
+
+#else
 void Matrix::Mult(const Matrix& a, const Matrix& b)
 {
     assert(a.m[0][3] == 0.0f);
@@ -518,6 +582,7 @@ void Matrix::MultFull(const Matrix& a, const Matrix& b)
     }
 
 }
+#endif // RAD_DREAMCAST
 
 #endif // RAD_GAMECUBE
 #endif // RAD_PS2
