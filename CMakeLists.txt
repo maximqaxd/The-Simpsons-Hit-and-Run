@@ -61,10 +61,6 @@ if(DREAMCAST)
 	# 471 against a 255 ceiling. Percent applied to the diffuse terms.
 	set(SRR2_DC_LIGHT_SCALE "100" CACHE STRING "Percent scale on diffuse light contributions")
 	add_compile_definitions(SRR_DC_LIGHT_SCALE=${SRR2_DC_LIGHT_SCALE})
-	# Substeps come from the previous frame time, so a slow frame asks for more
-	# and makes the next one slower. 1 integrates coarser but costs half.
-	set(SRR2_DC_MAX_SUBSTEPS "2" CACHE STRING "Cap on physics substeps per frame")
-	add_compile_definitions(SRR_DC_MAX_SUBSTEPS=${SRR2_DC_MAX_SUBSTEPS})
 	# Hardware table fog, ramped up to the draw distance so the world does not
 	# simply stop. 0xRRGGBB, ideally the horizon colour of the level.
 	set(SRR2_DC_FOG_RGB "0x9AA8B8" CACHE STRING "Fog colour as 0xRRGGBB")

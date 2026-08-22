@@ -117,7 +117,6 @@ rebuild of ~1200 files. Editing source alone does not.
 | `SRR2_DC_DRAW_DIST` | 70 | Entity cull distance in `WorldScene`. The main knob for how much geometry reaches the renderer. |
 | `SRR2_DC_DEPTH_CULL` | 0 | Per-draw reject by view depth in the backend, on top of the above. 0 is off. |
 | `SRR2_DC_MIN_DRAW_AREA` | 6 | Reject draws smaller than this many screen pixels. |
-| `SRR2_DC_MAX_SUBSTEPS` | 2 | Physics substeps per frame. 1 is cheaper and coarser. |
 | `SRR2_DC_LIGHT_SCALE` | 100 | Percent scale on diffuse lighting. |
 | `SRR2_DC_FOG_RGB` | `0x9AA8B8` | Fog colour, used when `SRR2_DC_DEPTH_CULL` is set. |
 | `SRR2_DC_MAX_ZONES` | 3 | Level zones resident at once. |
