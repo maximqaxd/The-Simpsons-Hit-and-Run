@@ -15,12 +15,16 @@ chunk-format change.
 import struct
 
 MESH = 0x00010000
+SKIN = 0x00010001
 PRIMGROUP = 0x00010002
 POSITIONLIST = 0x00010005
 NORMALLIST = 0x00010006
 UVLIST = 0x00010007
 COLOURLIST = 0x00010008
 INDEXLIST = 0x0001000A
+MATRIXLIST = 0x0001000B
+WEIGHTLIST = 0x0001000C
+MATRIXPALETTE = 0x0001000D
 PACKEDNORMALLIST = 0x00010010
 VERTEXSHADER = 0x00010011
 TANGENTLIST = 0x00010015
@@ -34,14 +38,18 @@ DC_RUNLIST = 0x44435253
 PRIM_TRIANGLES = 0
 PRIM_TRISTRIP = 1
 
-# Per-vertex payloads this pass knows how to remap. Anything else (skin
-# weights, matrix palettes) means the group is left alone.
-VEC3_LISTS = (POSITIONLIST, NORMALLIST, TANGENTLIST, BINORMALLIST)
-DWORD_LISTS = (COLOURLIST, PACKEDNORMALLIST)
+# Per-vertex payloads this pass knows how to remap. WEIGHTLIST is three
+# floats per vertex and MATRIXLIST four bytes, so both remap like the arrays
+# beside them. Anything else means the group is left alone.
+VEC3_LISTS = (POSITIONLIST, NORMALLIST, TANGENTLIST, BINORMALLIST, WEIGHTLIST)
+DWORD_LISTS = (COLOURLIST, MATRIXLIST)
+BYTE_LISTS = (PACKEDNORMALLIST,)
 
 # Per-group metadata with no per-vertex content: copied verbatim into each
 # piece. VERTEXSHADER is a 1-byte empty pstring the prim group loader ignores.
-PASSTHROUGH = (VERTEXSHADER,)
+# MATRIXPALETTE is indexed by MATRIXLIST, so every piece keeps the whole
+# palette and the indices stay valid without compaction.
+PASSTHROUGH = (VERTEXSHADER, MATRIXPALETTE)
 
 
 class Unsupported(Exception):
@@ -87,6 +95,9 @@ def _decode_lists(group, header):
             count, = struct.unpack_from("<I", c.data, 0)
             verts[c.id] = ("dword", None,
                            [struct.unpack_from("<I", c.data, 4 + i * 4)[0] for i in range(count)])
+        elif c.id in BYTE_LISTS:
+            count, = struct.unpack_from("<I", c.data, 0)
+            verts[c.id] = ("byte", None, list(c.data[4:4 + count]))
         elif c.id == UVLIST:
             count, channel = struct.unpack_from("<II", c.data, 0)
             verts.setdefault(UVLIST, [])
@@ -98,6 +109,8 @@ def _decode_lists(group, header):
             indices = list(struct.unpack_from("<%dI" % count, c.data, 4))
         elif c.id in PASSTHROUGH:
             extra.append(c)
+        elif c.id == DC_RUNLIST:
+            pass
         else:
             raise Unsupported("chunk %08x" % c.id)
 
@@ -111,18 +124,23 @@ def _decode_lists(group, header):
 def _encode_lists(Chunk, verts, indices, keep):
     """Rebuild the per-vertex chunks for the subset of vertices in `keep`."""
     out = []
-    for cid in (POSITIONLIST, NORMALLIST, TANGENTLIST, BINORMALLIST):
+    for cid in (POSITIONLIST, NORMALLIST, TANGENTLIST, BINORMALLIST, WEIGHTLIST):
         if cid in verts:
             _, _, src = verts[cid]
             body = struct.pack("<I", len(keep))
             body += b"".join(struct.pack("<fff", *src[v]) for v in keep)
             out.append(Chunk(cid, body))
-    for cid in (COLOURLIST, PACKEDNORMALLIST):
+    for cid in (COLOURLIST, MATRIXLIST):
         if cid in verts:
             _, _, src = verts[cid]
             body = struct.pack("<I", len(keep))
             body += b"".join(struct.pack("<I", src[v]) for v in keep)
             out.append(Chunk(cid, body))
+    for cid in BYTE_LISTS:
+        if cid in verts:
+            _, _, src = verts[cid]
+            out.append(Chunk(cid, struct.pack("<I", len(keep))
+                             + bytes(src[v] for v in keep)))
     if UVLIST in verts:
         for _, channel, src in verts[UVLIST]:
             body = struct.pack("<II", len(keep), channel)
@@ -413,8 +431,6 @@ def split_group(Chunk, group, max_verts):
     header = PrimGroupHeader(group.data)
     if header.prim_type not in (PRIM_TRIANGLES, PRIM_TRISTRIP):
         return None
-    if header.matrix_count:
-        return None
 
     verts, indices, extra = _decode_lists(group, header)
 
@@ -474,10 +490,19 @@ def split_group(Chunk, group, max_verts):
     return out if len(out) > 1 else None
 
 
+def _prim_count_offset(chunk):
+    """Offset of the prim group count. Mesh is name, version, count; Skin puts
+    the skeleton name between the version and the count."""
+    _, pos = _read_pstr(chunk.data, 0)
+    if chunk.id == SKIN:
+        _, pos = _read_pstr(chunk.data, pos + 4)
+        return pos
+    return pos + 4
+
+
 def split_mesh(Chunk, mesh, max_verts, stats):
-    """Rewrite one MESH chunk in place. Returns True if anything changed."""
-    name, pos = _read_pstr(mesh.data, 0)
-    version, n_prim = struct.unpack_from("<II", mesh.data, pos)
+    """Rewrite one Mesh or Skin chunk in place. True if anything changed."""
+    count_off = _prim_count_offset(mesh)
 
     rebuilt = []
     changed = False
@@ -486,6 +511,20 @@ def split_mesh(Chunk, mesh, max_verts, stats):
         if c.id != PRIMGROUP:
             rebuilt.append(c)
             continue
+        # Restrip before splitting, not after. split_group keeps the input
+        # primitive type, so a triangle list that gets split stays a list --
+        # and split pieces never reach restrip_group below. Converting first
+        # means the pieces inherit strips.
+        try:
+            pre = restrip_group(Chunk, c)
+        except Exception:
+            pre = None
+
+        if pre is not None:
+            c = pre
+            stats["restripped"] += 1
+            changed = True
+
         try:
             pieces = split_group(Chunk, c, max_verts)
         except Unsupported:
@@ -525,15 +564,15 @@ def split_mesh(Chunk, mesh, max_verts, stats):
 
     mesh.children = rebuilt
     count = sum(1 for c in rebuilt if c.id == PRIMGROUP)
-    mesh.data = (mesh.data[:pos] + struct.pack("<II", version, count)
-                 + mesh.data[pos + 8:])
+    mesh.data = (mesh.data[:count_off] + struct.pack("<I", count)
+                 + mesh.data[count_off + 4:])
     return True
 
 
 def split_file(Chunk, root, max_verts, stats):
     touched = False
     for chunk in root.walk():
-        if chunk.id == MESH:
+        if chunk.id == MESH or chunk.id == SKIN:
             if split_mesh(Chunk, chunk, max_verts, stats):
                 touched = True
     return touched
